@@ -14,11 +14,13 @@ export default function (configs: {
 				return;
 
 			const oldText = document.getText(range);
-			const newText = prettier.format(oldText, {
+			let newText = prettier.format(oldText, {
 				tabWidth: options.tabSize,
 				useTabs: !options.insertSpaces,
 				filepath: URI.parse(document.uri).fsPath,
 			});
+
+			newText = '\n' + newText.trim() + '\n';
 
 			if (newText === oldText)
 				return [];
