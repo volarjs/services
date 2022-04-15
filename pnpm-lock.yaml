@@ -14,12 +14,12 @@ importers:
       vscode-uri: ^3.0.3
       vue: ^3.2.33
     dependencies:
-      '@volar/vue-language-service-types': 0.34.6
       prettier: 2.6.2
-      typescript: 4.6.3
       vscode-uri: 3.0.3
     devDependencies:
       '@types/prettier': 2.6.0
+      '@volar/vue-language-service-types': 0.34.6
+      typescript: 4.6.3
       vue: 3.2.33
 
   packages/prettier-html:
@@ -194,7 +194,6 @@ packages:
     dependencies:
       vscode-languageserver-protocol: 3.17.0-next.16
       vscode-languageserver-textdocument: 1.0.4
-    dev: false
 
   /@vue/compiler-core/3.2.33:
     resolution: {integrity: sha512-AAmr52ji3Zhk7IKIuigX2osWWsb2nQE5xsdFYjdnmtQ4gymmqXbjLvkSE174+fF3A3kstYrTgGkqgOEbsdLDpw==}
@@ -1563,7 +1562,6 @@ packages:
     resolution: {integrity: sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: false
 
   /unified-engine/6.0.1:
     resolution: {integrity: sha512-iDJYH82TgcezQA4IZzhCNJQx7vBsGk4h9s4Q7Fscrb3qcPsxBqVrVNYez2W3sBVTxuU1bFAhyRpA6ba/R4j93A==}
@@ -1778,22 +1776,18 @@ packages:
   /vscode-jsonrpc/8.0.0-next.7:
     resolution: {integrity: sha512-JX/F31LEsims0dAlOTKFE4E+AJMiJvdRSRViifFJSqSN7EzeYyWlfuDchF7g91oRNPZOIWfibTkDf3/UMsQGzQ==}
     engines: {node: '>=14.0.0'}
-    dev: false
 
   /vscode-languageserver-protocol/3.17.0-next.16:
     resolution: {integrity: sha512-tx4DnXw9u3N7vw+bx6n2NKp6FoxoNwiP/biH83AS30I2AnTGyLd7afSeH6Oewn2E8jvB7K15bs12sMppkKOVeQ==}
     dependencies:
       vscode-jsonrpc: 8.0.0-next.7
       vscode-languageserver-types: 3.17.0-next.9
-    dev: false
 
   /vscode-languageserver-textdocument/1.0.4:
     resolution: {integrity: sha512-/xhqXP/2A2RSs+J8JNXpiiNVvvNM0oTosNVmQnunlKvq9o4mupHOBAnnzH0lwIPKazXKvAKsVp1kr+H/K4lgoQ==}
-    dev: false
 
   /vscode-languageserver-types/3.17.0-next.9:
     resolution: {integrity: sha512-9/PeDNPYduaoXRUzYpqmu4ZV9L01HGo0wH9FUt+sSHR7IXwA7xoXBfNUlv8gB9H0D2WwEmMomSy1NmhjKQyn3A==}
-    dev: false
 
   /vscode-uri/3.0.3:
     resolution: {integrity: sha512-EcswR2S8bpR7fD0YPeS7r2xXExrScVMxg4MedACaWHEtx9ftCF/qHG1xGkolzTPcEmjTavCQgbVzHUIdTMzFGA==}
