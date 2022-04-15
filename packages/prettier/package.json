@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/prettier",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
@@ -13,6 +13,11 @@
 		"out/**/*.js",
 		"out/**/*.d.ts",
 		"src/**/*.ts"
+	],
+	"keywords": [
+		"volar",
+		"vue",
+		"vue3"
 	],
 	"repository": {
 		"type": "git",
