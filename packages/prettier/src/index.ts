@@ -46,7 +46,7 @@ function mapDefault<T>(o: T, d: T): T {
 		if (typeof o[k] === 'undefined') {
 			o[k] = d[k];
 		}
-		if (d[k] instanceof Object) {
+		if (d[k] && d[k].constructor === Object) {
 			mapDefault(o[k], d[k]);
 		}
 	});
