@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"lib": ["ESNext"],
 		"declaration": true,
-		"declarationMap": true
+		"declarationMap": true,
+		"jsx": "preserve"
 	},
 	"exclude": [
 		"node_modules"

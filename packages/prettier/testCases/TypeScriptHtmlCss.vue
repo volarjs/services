@@ -16,6 +16,7 @@
 		<a href="https://v3.vuejs.org/" target="_blank"> Vue 3 Docs </a>
 	</p>
 
+	<span> {{ count }} </span>
 	<button @click="count++">count is: {{ count }}</button>
 	<p>
 		Edit
@@ -23,6 +24,7 @@
 	</p>
 
 	{{ 'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text' }}
+	{{ "another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency" }}
 </template>
 
 <preview msg="Hello Volar!"></preview>
