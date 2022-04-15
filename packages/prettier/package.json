@@ -35,7 +35,6 @@
 	"devDependencies": {
 		"@types/prettier": "^2.6.0",
 		"@volar/vue-language-service-types": "^0.34.0",
-		"typescript": "^4.6.3",
 		"vue": "^3.2.33"
 	}
 }

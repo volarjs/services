@@ -15,9 +15,6 @@
 	"scripts": {
 		"build": "tsc"
 	},
-	"devDependencies": {
-		"typescript": "^4.6.3"
-	},
 	"dependencies": {
 		"@volar/vue-language-service-types": "^0.34.0",
 		"@starptech/prettyhtml": "^0.10.0"

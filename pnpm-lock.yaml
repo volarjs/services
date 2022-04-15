@@ -3,14 +3,16 @@ lockfileVersion: 5.3
 importers:
 
   .:
-    specifiers: {}
+    specifiers:
+      typescript: ^4.6.3
+    devDependencies:
+      typescript: 4.6.3
 
   packages/prettier:
     specifiers:
       '@types/prettier': ^2.6.0
       '@volar/vue-language-service-types': ^0.34.0
       prettier: ^2.6.2
-      typescript: ^4.6.3
       vscode-uri: ^3.0.3
       vue: ^3.2.33
     dependencies:
@@ -19,30 +21,23 @@ importers:
     devDependencies:
       '@types/prettier': 2.6.0
       '@volar/vue-language-service-types': 0.34.6
-      typescript: 4.6.3
       vue: 3.2.33
 
   packages/prettier-html:
     specifiers:
       '@starptech/prettyhtml': ^0.10.0
       '@volar/vue-language-service-types': ^0.34.0
-      typescript: ^4.6.3
     dependencies:
       '@starptech/prettyhtml': 0.10.0
       '@volar/vue-language-service-types': 0.34.6
-    devDependencies:
-      typescript: 4.6.3
 
   packages/sass-formatter:
     specifiers:
       '@volar/vue-language-service-types': ^0.34.0
       sass-formatter: ^0.7.3
-      typescript: ^4.6.3
     dependencies:
       '@volar/vue-language-service-types': 0.34.6
       sass-formatter: 0.7.3
-    devDependencies:
-      typescript: 4.6.3
 
 packages:
 
