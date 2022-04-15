@@ -1,7 +1,8 @@
 {
 	"name": "@volar-plugins/prettier",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"main": "out/index.js",
+	"types": "out/index.d.ts",
 	"license": "MIT",
 	"author": {
 		"name": "Pacharapol Withayasakpunt",
