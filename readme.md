@@ -26,8 +26,9 @@ module.exports = {
 
 prettier:
 
+`package.json`
+
 ```json
-// package.json
 {
   "devDependencies": {
     "@volar-plugins/prettier": "latest"
@@ -35,11 +36,21 @@ prettier:
 }
 ```
 
+`volar.config.js`
+
 ```js
-// vetur.config.js
+/** @type {import('@volar-plugins/prettier')} */
+const { volarPrettierPlugin } = require('@volar-plugins/prettier');
+
 module.exports = {
-    plugins: [
-        require('@volar-plugins/prettier').default({ languages: ['html', 'css', 'scss', 'less'] }),
-    ],
+	plugins: [
+		volarPrettierPlugin({
+			languages: ['html', 'css', 'scss', 'less', 'typescript', 'javascript'],
+			html: {
+				keepLongTemplates: true,
+				breakContentsFromTags: true,
+			},
+		}),
+	],
 };
 ```
