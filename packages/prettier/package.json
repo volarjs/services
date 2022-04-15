@@ -19,7 +19,7 @@
 		"directory": "packages/prettier"
 	},
 	"scripts": {
-		"build": "tsc --rootDir src --outDir out"
+		"build": "tsc -P src/tsconfig.json"
 	},
 	"dependencies": {
 		"vscode-uri": "^3.0.3"
