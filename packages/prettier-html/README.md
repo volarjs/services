@@ -17,7 +17,7 @@
 `volar.config.js`
 
 ```js
-const prettierHtml = require('@volar-plugins/prettier-html').default;
+const prettierHtml = require('@volar-plugins/prettier-html');
 
 module.exports = {
 	plugins: [
