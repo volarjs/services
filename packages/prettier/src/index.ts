@@ -55,8 +55,8 @@ export const volarPrettierPlugin: (
 			const isHTML = document.languageId === 'html';
 			if (isHTML && config.html.breakContentsFromTags) {
 				oldText = oldText
-					.replace(/(<[a-z][^>]*>) ?(.)/gi, '$1 $2')
-					.replace(/(.) ?(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, '$1 $2');
+					.replace(/(<[a-z][^>]*>)([^ \n])/gi, '$1 $2')
+					.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, '$1 $2');
 			}
 
 			let newText = format(oldText, {
