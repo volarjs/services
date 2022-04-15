@@ -13,7 +13,8 @@
 		"directory": "packages/sass-formatter"
 	},
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
 		"@volar/vue-language-service-types": "^0.34.0",
