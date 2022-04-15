@@ -20,7 +20,8 @@
 		"directory": "packages/prettier"
 	},
 	"scripts": {
-		"build": "tsc -P src/tsconfig.json"
+		"build": "tsc -P src/tsconfig.json",
+		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
 		"vscode-uri": "^3.0.3"
