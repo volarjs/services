@@ -25,7 +25,6 @@ module.exports = {
 		volarPrettierPlugin({
 			languages: ['html', 'css', 'scss', 'less', 'typescript', 'javascript'],
 			html: {
-				keepLongTemplates: true,
 				breakContentsFromTags: true,
 			},
 		}),

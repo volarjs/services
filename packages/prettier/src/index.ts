@@ -1,5 +1,3 @@
-import { randomUUID } from 'crypto';
-
 import type { EmbeddedLanguageServicePlugin } from '@volar/vue-language-service-types';
 import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
 import { URI } from 'vscode-uri';
@@ -13,14 +11,6 @@ export interface VolarPrettierConfig {
 	 */
 	languages?: string[];
 	html?: {
-		/**
-		 * Prettier breaks {{'...long line...'}} in <template> tags.
-		 * This should work as a temporary fix.
-		 *
-		 * @default
-		 * true
-		 */
-		keepLongTemplates?: boolean;
 		/**
 		 * An opinionated option of breaking "contents" from "HTML tags".
 		 * This will probably prevent HTML closing tags, and opening tags without attributes
@@ -36,7 +26,6 @@ export interface VolarPrettierConfig {
 export const defaultConfig: VolarPrettierConfig = {
 	languages: ['html', 'css', 'scss', 'less', 'typescript', 'javascript'],
 	html: {
-		keepLongTemplates: true,
 		breakContentsFromTags: false,
 	},
 };
@@ -63,12 +52,6 @@ export const volarPrettierPlugin: (
 		prettierConfig = resolveConfig.sync(resolveConfigFile.sync());
 	} catch (e) {}
 
-	const makeUUID = () => `{{'${randomUUID()}'}}`;
-	const uuidRegex = (() => {
-		const c = '[0-9a-f]';
-		return new RegExp(makeUUID().replace(new RegExp(c, 'g'), c), 'g');
-	})();
-
 	return {
 		format(document, range, options) {
 			if (!config.languages.includes(document.languageId)) return;
@@ -76,21 +59,6 @@ export const volarPrettierPlugin: (
 			let oldText = document.getText(range);
 
 			const isHTML = document.languageId === 'html';
-			const isKeepLongHTMLTemplates = isHTML
-				? config.html?.keepLongTemplates
-				: false;
-			const noBreak = new Map();
-			if (isKeepLongHTMLTemplates) {
-				oldText = oldText.replace(
-					/( *){{ *((['"])[^]+?\3) *}}( *)/g,
-					(raw, w1, content, _bracket, w2) => {
-						const id = makeUUID();
-						raw = `{{ ${content} }}`;
-						noBreak.set(id, raw);
-						return w1 + id + w2;
-					}
-				);
-			}
 
 			if (isHTML && config.html.breakContentsFromTags) {
 				oldText = oldText
@@ -100,14 +68,8 @@ export const volarPrettierPlugin: (
 
 			let newText = format(oldText, {
 				...prettierConfig,
-				filepath: URI.parse(document.uri).fsPath,
+				filepath: URI.parse(document.uri).fsPath + (isHTML ? '.vue' : ''),
 			});
-
-			if (isKeepLongHTMLTemplates) {
-				newText = newText.replace(uuidRegex, (raw) => {
-					return noBreak.get(raw) || raw;
-				});
-			}
 
 			newText = '\n' + newText.trim() + '\n';
 

@@ -20,11 +20,21 @@
 	<button @click="count++">count is: {{ count }}</button>
 	<p>
 		Edit
-		<code> components/HelloWorld.vue </code> to test hot module replacement.
+		<code>
+			{{
+				'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
+			}}
+		</code>
+		to test hot module replacement.
 	</p>
 
-	{{ 'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text' }}
-	{{ "another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency" }}
+	{{ 'a short text' }}
+	{{
+		'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text'
+	}}
+	{{
+		'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
+	}}
 </template>
 
 <preview msg="Hello Volar!"></preview>
