@@ -1,6 +1,6 @@
 # @volar-plugins/prettier-html
 
-[Volar](https://github.com/johnsoncodehk/volar) plugin for [prettier-html](https://prettyhtml.netlify.app/).
+[Volar](https://github.com/johnsoncodehk/volar) plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 
 ## Usage
 
