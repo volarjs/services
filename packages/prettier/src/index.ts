@@ -7,27 +7,21 @@ export interface VolarPrettierConfig {
 	 * Languages to be formatted by prettier.
 	 *
 	 * @default
-	 * ['html', 'css', 'scss', 'less', 'typescript', 'javascript']
+	 * ['html', 'css', 'scss', 'typescript', 'javascript']
 	 */
 	languages?: string[];
 	html?: {
 		/**
-		 * An opinionated option of breaking "contents" from "HTML tags".
-		 * This will probably prevent HTML closing tags, and opening tags without attributes
+		 * Preprocessing to break "contents" from "HTML tags".
+		 * This will prevent HTML closing tags, and opening tags without attributes
 		 * from breaking into blank `>` on a new line.
-		 *
-		 * @default
-		 * false
 		 */
 		breakContentsFromTags?: boolean;
 	};
 }
 
 export const defaultConfig: VolarPrettierConfig = {
-	languages: ['html', 'css', 'scss', 'less', 'typescript', 'javascript'],
-	html: {
-		breakContentsFromTags: false,
-	},
+	languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
 };
 
 function mapDefault<T>(o: T, d: T): T {
@@ -59,7 +53,6 @@ export const volarPrettierPlugin: (
 			let oldText = document.getText(range);
 
 			const isHTML = document.languageId === 'html';
-
 			if (isHTML && config.html.breakContentsFromTags) {
 				oldText = oldText
 					.replace(/(<[a-z][^>]*>) ?(.)/gi, '$1 $2')
