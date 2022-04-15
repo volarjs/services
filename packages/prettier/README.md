@@ -1,30 +1,8 @@
-# volar-plugins
+# @volar-plugins/prettier
 
-> Extra plugins for [Volar](https://github.com/johnsoncodehk/volar).
+> [Volar](https://github.com/johnsoncodehk/volar) plugin for [prettier](https://prettier.io/).
 
 ## Usage
-
-prettier-html:
-
-```json
-// package.json
-{
-  "devDependencies": {
-    "@volar-plugins/prettier-html": "latest"
-  }
-}
-```
-
-```js
-// vetur.config.js
-module.exports = {
-    plugins: [
-        require('@volar-plugins/prettier-html').default({ printWidth: 100 }),
-    ],
-};
-```
-
-prettier:
 
 `package.json`
 

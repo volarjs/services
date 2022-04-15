@@ -1,8 +1,6 @@
 {
 	"compilerOptions": {
 		"lib": ["ESNext"],
-		"outDir": "out",
-		"rootDir": "src",
 		"declaration": true,
 	},
 	"include": [
