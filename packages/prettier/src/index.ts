@@ -3,7 +3,6 @@ import { randomUUID } from 'crypto';
 import type { EmbeddedLanguageServicePlugin } from '@volar/vue-language-service-types';
 import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
 import { URI } from 'vscode-uri';
-import { writeFileSync } from 'fs';
 
 export interface VolarPrettierConfig {
 	/**
