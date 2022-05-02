@@ -1,6 +1,6 @@
 {
-	"name": "@volar-plugins/prettier-html",
-	"version": "1.1.0",
+	"name": "@volar-plugins/prettyhtml",
+	"version": "1.0.0",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -10,7 +10,7 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
-		"directory": "packages/prettier-html"
+		"directory": "packages/prettyhtml"
 	},
 	"scripts": {
 		"build": "tsc",

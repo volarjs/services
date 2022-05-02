@@ -23,7 +23,7 @@ importers:
       '@volar/vue-language-service-types': 0.34.6
       vue: 3.2.33
 
-  packages/prettier-html:
+  packages/prettyhtml:
     specifiers:
       '@starptech/prettyhtml': ^0.10.0
       '@volar/vue-language-service-types': ^0.34.0
