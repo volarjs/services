@@ -17,11 +17,11 @@
 `volar.config.js`
 
 ```js
-const prettierHtml = require('@volar-plugins/prettyhtml');
+const prettyhtml = require('@volar-plugins/prettyhtml');
 
 module.exports = {
 	plugins: [
-		prettierHtml({ printWidth: 100 }),
+		prettyhtml({ printWidth: 100 }),
 	],
 };
 ```
