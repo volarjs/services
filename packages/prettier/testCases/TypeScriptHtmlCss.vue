@@ -1,5 +1,8 @@
 <template>
 	<h1>{{ msg }}</h1>
+	<a> some text </a>
+	<h1>some text</h1>
+	<div>some text</div>
 
 	<p>
 		Recommended IDE setup:
@@ -22,7 +25,7 @@
 		Edit
 		<code>
 			{{
-				'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
+					'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
 			}}
 		</code>
 		to test hot module replacement.
@@ -30,10 +33,10 @@
 
 	{{ 'a short text' }}
 	{{
-		'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text'
+			'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text'
 	}}
 	{{
-		'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
+			'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
 	}}
 </template>
 

@@ -5,7 +5,7 @@ module.exports = {
 	plugins: [
 		volarPrettierPlugin({
 			html: {
-				breakContentsFromTags: true,
+				// breakContentsFromTags: true,
 			},
 		}),
 	],
