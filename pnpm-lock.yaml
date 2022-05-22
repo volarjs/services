@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 importers:
 
@@ -10,8 +10,8 @@ importers:
 
   packages/prettier:
     specifiers:
-      '@types/prettier': ^2.6.0
-      '@volar/vue-language-service-types': ^0.34.0
+      '@types/prettier': ^2.6.1
+      '@volar/vue-language-service-types': ^0.34.15
       prettier: ^2.6.2
       vscode-uri: ^3.0.3
       vue: ^3.2.33
@@ -19,8 +19,8 @@ importers:
       prettier: 2.6.2
       vscode-uri: 3.0.3
     devDependencies:
-      '@types/prettier': 2.6.0
-      '@volar/vue-language-service-types': 0.34.6
+      '@types/prettier': 2.6.1
+      '@volar/vue-language-service-types': 0.34.15
       vue: 3.2.33
 
   packages/prettyhtml:
@@ -51,7 +51,6 @@ packages:
   /@babel/helper-validator-identifier/7.16.7:
     resolution: {integrity: sha512-hsEnFemeiW4D08A5gUAZxLBTXpZ39P+a+DGDsHw1yxqyQ/jzFEnxf5uTEGp+3bzAbNOxU1paTgYS4ECU/IgfDw==}
     engines: {node: '>=6.9.0'}
-    dev: false
 
   /@babel/highlight/7.17.9:
     resolution: {integrity: sha512-J9PfEKCbFIv2X5bjTMiZu6Vf341N05QIY+d6FvVKynkG1S7G0j3I0QoRtWIrXhZ+/Nlb5Q0MzqL7TokEJ5BNHg==}
@@ -66,6 +65,16 @@ packages:
     resolution: {integrity: sha512-vqUSBLP8dQHFPdPi9bc5GK9vRkYHJ49fsZdtoJ8EQ8ibpwk5rPKfvNIwChB0KVXcIjcepEBBd2VHC5r9Gy8ueg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.18.0
+    dev: true
+
+  /@babel/types/7.18.0:
+    resolution: {integrity: sha512-vhAmLPAiC8j9K2GnsnLPCIH5wCrPpYIVBCWRBFDCB7Y/BXLqi/O+1RSTTM2bsmg6U/551+FCf9PNPxjABmxHTw==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      '@babel/helper-validator-identifier': 7.16.7
+      to-fast-properties: 2.0.0
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:
@@ -178,6 +187,8 @@ packages:
       update-notifier: 3.0.1
       vfile: 4.2.1
       vfile-reporter: 6.0.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@starptech/rehype-minify-whitespace/0.10.0:
@@ -218,6 +229,12 @@ packages:
       '@types/node': 17.0.24
     dev: false
 
+  /@types/keyv/3.1.4:
+    resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
+    dependencies:
+      '@types/node': 17.0.24
+    dev: false
+
   /@types/minimatch/3.0.5:
     resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
     dev: false
@@ -234,9 +251,15 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: false
 
-  /@types/prettier/2.6.0:
-    resolution: {integrity: sha512-G/AdOadiZhnJp0jXCaBQU449W2h716OW/EoXeYkCytxKL06X1WCXB4DZpp8TpZ8eyIJVS1cw4lrlkkSYU21cDw==}
+  /@types/prettier/2.6.1:
+    resolution: {integrity: sha512-XFjFHmaLVifrAKaZ+EKghFHtHSUonyw8P2Qmy2/+osBnrKbH9UYtlK10zg8/kCt47MFilll/DEDKy3DHfJ0URw==}
     dev: true
+
+  /@types/responselike/1.0.0:
+    resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
+    dependencies:
+      '@types/node': 17.0.24
+    dev: false
 
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
@@ -257,11 +280,19 @@ packages:
       '@types/vfile-message': 2.0.0
     dev: false
 
+  /@volar/vue-language-service-types/0.34.15:
+    resolution: {integrity: sha512-q+dyCh8d4mW7yZwht5/fpWxfFuJSzB5rrSTSXEaRQinAPuGk1e9Nzs40eWqolbLNhXoVl3vcihJ85fnnma9m2Q==}
+    dependencies:
+      vscode-languageserver-protocol: 3.17.0-next.16
+      vscode-languageserver-textdocument: 1.0.4
+    dev: true
+
   /@volar/vue-language-service-types/0.34.6:
     resolution: {integrity: sha512-zqCimxz+1t9Y7utXP1L1klLa2jhUIBxeeaf3/WQJg5+6W+tfGuqwemtyGl/yfNQxc7wa+2ahJ80pKfqxUH1jHw==}
     dependencies:
       vscode-languageserver-protocol: 3.17.0-next.16
       vscode-languageserver-textdocument: 1.0.4
+    dev: false
 
   /@vue/compiler-core/3.2.33:
     resolution: {integrity: sha512-AAmr52ji3Zhk7IKIuigX2osWWsb2nQE5xsdFYjdnmtQ4gymmqXbjLvkSE174+fF3A3kstYrTgGkqgOEbsdLDpw==}
@@ -603,6 +634,11 @@ packages:
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.1.3
     dev: false
@@ -856,6 +892,8 @@ packages:
     dependencies:
       '@sindresorhus/is': 0.14.0
       '@szmarczak/http-timer': 1.1.2
+      '@types/keyv': 3.1.4
+      '@types/responselike': 1.0.0
       cacheable-request: 6.1.0
       decompress-response: 3.3.0
       duplexer3: 0.1.4
@@ -1961,6 +1999,11 @@ packages:
       execa: 0.7.0
     dev: false
 
+  /to-fast-properties/2.0.0:
+    resolution: {integrity: sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=}
+    engines: {node: '>=4'}
+    dev: true
+
   /to-readable-stream/1.0.0:
     resolution: {integrity: sha512-Iq25XBt6zD5npPhlLVXGFN3/gyR2/qODcKNNyTMd4vbm39HUaOiAM4PMq0eMVC/Tkxz+Zjdsc55g9yyz+Yq00Q==}
     engines: {node: '>=6'}
@@ -2053,6 +2096,8 @@ packages:
       vfile-statistics: 1.1.4
       x-is-string: 0.1.0
       xtend: 4.0.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /unified/7.1.0:
