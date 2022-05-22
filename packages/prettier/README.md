@@ -27,6 +27,7 @@ module.exports = {
 			html: {
 				breakContentsFromTags: true,
 			},
+			useVscodeIndentation: true,
 		}),
 	],
 };
