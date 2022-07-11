@@ -119,11 +119,35 @@ export = function (): EmbeddedLanguageServicePlugin {
 					provideAttributes(tag) {
 						const attributes: html.IAttributeData[] = [];
 						provider.collectAttributes(tag, (attribute, type, documentation) => {
-							attributes.push({
-								name: attribute,
-								valueSet: type,
-								description: documentation,
-							});
+							if (attribute.startsWith('on-')) {
+								attributes.push({
+									name: 'v-on:' + attribute.substring('on-'.length),
+									valueSet: type,
+									description: documentation,
+								});
+								attributes.push({
+									name: '@' + attribute.substring('on-'.length),
+									valueSet: type,
+									description: documentation,
+								});
+							}
+							else {
+								attributes.push({
+									name: 'v-bind:' + attribute,
+									valueSet: type,
+									description: documentation,
+								});
+								attributes.push({
+									name: ':' + attribute,
+									valueSet: type,
+									description: documentation,
+								});
+								attributes.push({
+									name: attribute,
+									valueSet: type,
+									description: documentation,
+								});
+							}
 						});
 						return attributes;
 					},
