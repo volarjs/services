@@ -17,7 +17,7 @@ export = function (): EmbeddedLanguageServicePlugin {
 	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 	const htmlTriggerCharacters = ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'];
 
-	const snippetManager = new vls.SnippetManager('', getGlobalSnippetDir(false));
+	const snippetManager = new vls.SnippetManager(getSnippetsPath() ?? ''/* TODO: find snippets folder from document path */, getGlobalSnippetDir(false));
 	const scaffoldSnippetSources: vls.ScaffoldSnippetSources = {
 		workspace: '💼',
 		user: '🗒️',
@@ -128,6 +128,31 @@ export = function (): EmbeddedLanguageServicePlugin {
 		}
 
 		return packageJsonPath;
+	}
+
+	function getSnippetsPath() {
+
+		const fsPath = __filename;
+
+		let lastDirname = fsPath;
+		let snippetsPath: string | undefined;
+
+		while (true) {
+
+			const dirname = path.dirname(lastDirname);
+			if (dirname === lastDirname) {
+				break;
+			}
+
+			if (fs.existsSync(dirname + '/.vscode/vetur/snippets')) {
+				snippetsPath = dirname + '/.vscode/vetur/snippets';
+				break;
+			}
+
+			lastDirname = dirname;
+		}
+
+		return snippetsPath;
 	}
 
 	function getHtmlDataProviders(packageJsonPath: string) {
