@@ -1,0 +1,28 @@
+{
+	"name": "@volar-plugins/vetur",
+	"version": "1.0.0",
+	"main": "out/index.js",
+	"license": "MIT",
+	"files": [
+		"out/**/*.js",
+		"out/**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
+		"directory": "packages/vetur"
+	},
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "pnpm build"
+	},
+	"dependencies": {
+		"@volar/vue-language-service-types": "^0.34.0",
+		"vls": "^0.8.0",
+		"vscode-html-languageservice": "^5.0.0",
+		"vscode-uri": "^3.0.3"
+	},
+	"devDependencies": {
+		"@types/node": "^18.0.3"
+	}
+}
