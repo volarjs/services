@@ -18,7 +18,7 @@ export = function (): EmbeddedLanguageServicePlugin {
 		complete: {
 
 			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-			triggerCharacters: ['.', ':', '<', '"', '=', '/'],
+			triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
 
 			isAdditional: true,
 
@@ -119,7 +119,14 @@ export = function (): EmbeddedLanguageServicePlugin {
 					provideAttributes(tag) {
 						const attributes: html.IAttributeData[] = [];
 						provider.collectAttributes(tag, (attribute, type, documentation) => {
-							if (attribute.startsWith('on-')) {
+							if (attribute.startsWith('v-')) {
+								attributes.push({
+									name: attribute,
+									valueSet: type,
+									description: documentation,
+								});
+							}
+							else if (attribute.startsWith('on-')) {
 								attributes.push({
 									name: 'v-on:' + attribute.substring('on-'.length),
 									valueSet: type,
