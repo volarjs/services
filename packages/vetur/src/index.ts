@@ -5,6 +5,7 @@ import { URI } from 'vscode-uri';
 import { TextDocument } from 'vscode-html-languageservice';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getGlobalSnippetDir } from './userSnippetDir';
 
 export = function (): EmbeddedLanguageServicePlugin {
 
@@ -15,6 +16,13 @@ export = function (): EmbeddedLanguageServicePlugin {
 
 	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 	const htmlTriggerCharacters = ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'];
+
+	const snippetManager = new vls.SnippetManager('', getGlobalSnippetDir(false));
+	const scaffoldSnippetSources: vls.ScaffoldSnippetSources = {
+		workspace: '💼',
+		user: '🗒️',
+		vetur: '✌'
+	};
 
 	return {
 
@@ -39,12 +47,6 @@ export = function (): EmbeddedLanguageServicePlugin {
 
 				if (!context.triggerCharacter) {
 					vueWorker(document, () => {
-						const snippetManager = new vls.SnippetManager('', '');
-						const scaffoldSnippetSources: vls.ScaffoldSnippetSources = {
-							workspace: '💼',
-							user: '🗒️',
-							vetur: '✌'
-						};
 						const items = snippetManager.completeSnippets(scaffoldSnippetSources);
 						if (items.length) {
 							result = {
