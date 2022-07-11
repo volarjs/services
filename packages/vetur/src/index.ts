@@ -95,10 +95,8 @@ export = function (): EmbeddedLanguageServicePlugin {
 		if (!dataProviders) {
 
 			const tagProviderSettings = vls.getTagProviderSettings(packageJsonPath);
-			const enabledTagProviders = vls.getEnabledTagProviders({
-				...tagProviderSettings,
-				html5: false,
-			});
+			const enabledTagProviders = vls.getEnabledTagProviders(tagProviderSettings);
+
 			dataProviders = enabledTagProviders.map(provider => {
 				const htmlProvider: html.IHTMLDataProvider = {
 					getId: provider.getId,
@@ -119,21 +117,9 @@ export = function (): EmbeddedLanguageServicePlugin {
 					provideAttributes(tag) {
 						const attributes: html.IAttributeData[] = [];
 						provider.collectAttributes(tag, (attribute, type, documentation) => {
-							if (attribute.startsWith('v-')) {
+							if (attribute.startsWith('v-') || attribute.startsWith('@')) {
 								attributes.push({
 									name: attribute,
-									valueSet: type,
-									description: documentation,
-								});
-							}
-							else if (attribute.startsWith('on-')) {
-								attributes.push({
-									name: 'v-on:' + attribute.substring('on-'.length),
-									valueSet: type,
-									description: documentation,
-								});
-								attributes.push({
-									name: '@' + attribute.substring('on-'.length),
 									valueSet: type,
 									description: documentation,
 								});
