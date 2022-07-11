@@ -1,4 +1,4 @@
-import { EmbeddedLanguageServicePlugin } from '@volar/vue-language-service-types';
+import { EmbeddedLanguageServicePlugin, SemanticToken } from '@volar/vue-language-service-types';
 import * as vls from 'vls';
 import * as html from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
@@ -34,7 +34,6 @@ export = function (): EmbeddedLanguageServicePlugin {
 
 			isAdditional: true,
 
-			// auto-complete html tag, attr from vetur component data
 			on(document, position, context) {
 
 				let result: html.CompletionList | undefined;
@@ -61,16 +60,57 @@ export = function (): EmbeddedLanguageServicePlugin {
 			},
 		},
 
-		// show hover info for html tag, attr from vetur component data
 		doHover(document, position) {
-
-			let result: html.Hover;
-
-			htmlWorker(document, htmlDocument => {
-				result = htmlLs.doHover(document, position, htmlDocument);
+			return htmlWorker(document, htmlDocument => {
+				return htmlLs.doHover(document, position, htmlDocument);
 			});
+		},
 
-			return result;
+		findDocumentSemanticTokens(document, range) {
+			return htmlWorker(document, htmlDocument => {
+
+				const packageJsonPath = getPackageJsonPath(document);
+				if (!packageJsonPath)
+					return;
+
+				const dtmlDataProviders = getHtmlDataProviders(packageJsonPath);
+				const components = new Set(dtmlDataProviders.map(provider => provider.getId() === 'html5' ? [] : provider.provideTags().map(tag => tag.name)).flat());
+				const offsetRange = {
+					start: document.offsetAt(range.start),
+					end: document.offsetAt(range.end),
+				};
+				const scanner = htmlLs.createScanner(document.getText());
+				const result: SemanticToken[] = [];
+
+				let token = scanner.scan();
+
+				while (token !== html.TokenType.EOS) {
+
+					const tokenOffset = scanner.getTokenOffset();
+
+					// TODO: fix source map perf and break in while condition
+					if (tokenOffset > offsetRange.end)
+						break;
+
+					if (tokenOffset >= offsetRange.start && (token === html.TokenType.StartTag || token === html.TokenType.EndTag)) {
+
+						const tokenText = scanner.getTokenText();
+
+						if (components.has(tokenText) || tokenText.indexOf('.') >= 0) {
+
+							const tokenLength = scanner.getTokenLength();
+							const tokenPosition = document.positionAt(tokenOffset);
+
+							if (components.has(tokenText)) {
+								result.push([tokenPosition.line, tokenPosition.character, tokenLength, 10/* 10: function, 12: component */, 0]);
+							}
+						}
+					}
+					token = scanner.scan();
+				}
+
+				return result;
+			});
 		},
 	}
 
