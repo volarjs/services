@@ -9,36 +9,70 @@ import * as path from 'path';
 export = function (): EmbeddedLanguageServicePlugin {
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
-	const packageJsonPaths = new Map<string, string>();
-	const dataPrividers = new Map<string, html.IHTMLDataProvider[]>();
+	const uriToPackageJsonPath = new Map<string, string>();
+	const htmlDataPrividers = new Map<string, html.IHTMLDataProvider[]>();
 	const htmlLs = html.getLanguageService();
+
+	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+	const htmlTriggerCharacters = ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'];
 
 	return {
 
 		complete: {
 
-			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-			triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
+			triggerCharacters: [
+				...htmlTriggerCharacters,
+			],
 
 			isAdditional: true,
 
 			// auto-complete html tag, attr from vetur component data
 			on(document, position, context) {
-				return worker(document, htmlDocument => {
-					return htmlLs.doComplete(document, position, htmlDocument);
-				});
+
+				let result: html.CompletionList | undefined;
+
+				if (!context.triggerCharacter || htmlTriggerCharacters.includes(context.triggerCharacter)) {
+					htmlWorker(document, htmlDocument => {
+						result = htmlLs.doComplete(document, position, htmlDocument);
+					});
+				}
+
+				if (!context.triggerCharacter) {
+					vueWorker(document, () => {
+						const snippetManager = new vls.SnippetManager('', '');
+						const scaffoldSnippetSources: vls.ScaffoldSnippetSources = {
+							workspace: '💼',
+							user: '🗒️',
+							vetur: '✌'
+						};
+						const items = snippetManager.completeSnippets(scaffoldSnippetSources);
+						if (items.length) {
+							result = {
+								isIncomplete: false,
+								items: items,
+							};
+						}
+					});
+				}
+
+				return result;
 			},
 		},
 
 		// show hover info for html tag, attr from vetur component data
 		doHover(document, position) {
-			return worker(document, htmlDocument => {
-				return htmlLs.doHover(document, position, htmlDocument);
+
+			let result: html.Hover;
+
+			htmlWorker(document, htmlDocument => {
+				result = htmlLs.doHover(document, position, htmlDocument);
 			});
+
+			return result;
 		},
 	}
 
-	function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
+	function htmlWorker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
 		const htmlDocument = getHtmlDocument(document);
 		if (!htmlDocument)
@@ -50,15 +84,21 @@ export = function (): EmbeddedLanguageServicePlugin {
 
 		htmlLs.setDataProviders(
 			false,
-			getDataProviders(packageJsonPath),
+			getHtmlDataProviders(packageJsonPath),
 		);
 
 		return callback(htmlDocument);
 	}
 
+	function vueWorker<T>(document: TextDocument, callback: () => T) {
+		if (document.languageId === 'vue') {
+			return callback();
+		}
+	}
+
 	function getPackageJsonPath(document: TextDocument) {
 
-		let packageJsonPath = packageJsonPaths.get(document.uri);
+		let packageJsonPath = uriToPackageJsonPath.get(document.uri);
 
 		if (!packageJsonPath) {
 
@@ -82,15 +122,15 @@ export = function (): EmbeddedLanguageServicePlugin {
 				lastDirname = dirname;
 			}
 
-			packageJsonPaths.set(document.uri, packageJsonPath);
+			uriToPackageJsonPath.set(document.uri, packageJsonPath);
 		}
 
 		return packageJsonPath;
 	}
 
-	function getDataProviders(packageJsonPath: string) {
+	function getHtmlDataProviders(packageJsonPath: string) {
 
-		let dataProviders = dataPrividers.get(packageJsonPath);
+		let dataProviders = htmlDataPrividers.get(packageJsonPath);
 
 		if (!dataProviders) {
 
@@ -157,7 +197,7 @@ export = function (): EmbeddedLanguageServicePlugin {
 				return htmlProvider;
 			});
 
-			dataPrividers.set(packageJsonPath, dataProviders);
+			htmlDataPrividers.set(packageJsonPath, dataProviders);
 		}
 
 		return dataProviders;
