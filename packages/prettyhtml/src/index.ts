@@ -25,7 +25,7 @@ export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Embe
 					start: document.positionAt(0),
 					end: document.positionAt(document.getText().length),
 				},
-				newText: newText,
+				newText: '\n' + newText.trim() + '\n',
 			}];
 		},
 	}
