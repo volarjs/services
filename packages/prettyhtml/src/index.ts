@@ -10,15 +10,25 @@ export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Embe
 			if (document.languageId !== 'html')
 				return;
 
-			const oldText = document.getText(range);
-			const newText = prettyhtml(oldText, {
+			const oldRangeText = document.getText(range);
+			const newRangeText = prettyhtml(oldRangeText, {
 				...configs,
 				tabWidth: options.tabSize,
 				useTabs: !options.insertSpaces,
 			}).contents;
 
-			if (newText === oldText)
+			if (newRangeText === oldRangeText)
 				return [];
+
+			const newText = document.getText({
+				start: document.positionAt(0),
+				end: range.start,
+			})
+				+ newRangeText
+				+ document.getText({
+					start: range.end,
+					end: document.positionAt(document.getText().length),
+				})
 
 			return [{
 				range: {
