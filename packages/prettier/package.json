@@ -34,7 +34,6 @@
 	},
 	"devDependencies": {
 		"@types/prettier": "^2.6.1",
-		"@volar/vue-language-service-types": "^0.34.15",
 		"vue": "^3.2.33"
 	}
 }

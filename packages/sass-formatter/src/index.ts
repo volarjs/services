@@ -1,7 +1,7 @@
-import { EmbeddedLanguageServicePlugin } from '@volar/vue-language-service-types';
+import type { LanguageServicePlugin } from '@volar/language-service';
 import { SassFormatter } from 'sass-formatter';
 
-export = function (configs: Parameters<typeof SassFormatter.Format>[1]): EmbeddedLanguageServicePlugin {
+export = function (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServicePlugin {
 
 	return {
 

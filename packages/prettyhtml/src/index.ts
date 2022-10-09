@@ -1,7 +1,7 @@
-import { EmbeddedLanguageServicePlugin } from '@volar/vue-language-service-types';
+import type { LanguageServicePlugin } from '@volar/language-service';
 import * as prettyhtml from '@starptech/prettyhtml';
 
-export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): EmbeddedLanguageServicePlugin {
+export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServicePlugin {
 
 	return {
 

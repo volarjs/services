@@ -1,4 +1,4 @@
-import { EmbeddedLanguageServicePlugin, SemanticToken } from '@volar/vue-language-service-types';
+import { LanguageServicePlugin, SemanticToken } from '@volar/language-service';
 import * as vls from 'vls';
 import * as html from 'vscode-html-languageservice';
 import { URI } from 'vscode-uri';
@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getGlobalSnippetDir } from './userSnippetDir';
 
-export = function (): EmbeddedLanguageServicePlugin {
+export = function (): LanguageServicePlugin {
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 	const uriToPackageJsonPath = new Map<string, string>();

@@ -1,4 +1,4 @@
-import type { EmbeddedLanguageServicePlugin } from '@volar/vue-language-service-types';
+import type { LanguageServicePlugin } from '@volar/language-service';
 import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
 import { URI } from 'vscode-uri';
 
@@ -48,7 +48,7 @@ function mapDefault<T>(o: T, d: T): T {
 
 export const volarPrettierPlugin: (
 	config: VolarPrettierConfig
-) => EmbeddedLanguageServicePlugin = (config = {}) => {
+) => LanguageServicePlugin = (config = {}) => {
 	mapDefault(config, defaultConfig);
 
 	const prettierConfigFile = resolveConfigFile.sync();
