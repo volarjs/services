@@ -1,5 +1,9 @@
 {
 	"private": true,
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"watch": "tsc -p tsconfig.build.json -w"
+	},
 	"devDependencies": {
 		"@types/node": "latest",
 		"@volar/language-service": "latest",
