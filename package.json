@@ -7,6 +7,6 @@
 	"devDependencies": {
 		"@types/node": "latest",
 		"@volar/language-service": "latest",
-		"typescript": "latest"
+		"typescript": "beta"
 	}
 }

@@ -6,11 +6,11 @@ importers:
     specifiers:
       '@types/node': latest
       '@volar/language-service': latest
-      typescript: latest
+      typescript: beta
     devDependencies:
       '@types/node': 18.8.3
       '@volar/language-service': 1.0.1
-      typescript: 4.8.4
+      typescript: 4.9.1-beta
 
   packages/css:
     specifiers:
@@ -99,16 +99,18 @@ importers:
     specifiers:
       '@types/semver': ^7.3.12
       '@volar/shared': 1.0.1
-      '@volar/typescript-language-service': 1.0.1
       semver: ^7.3.7
       vscode-languageserver-protocol: ^3.17.2
       vscode-languageserver-textdocument: ^1.0.7
+      vscode-nls: ^5.2.0
+      vscode-uri: ^3.0.3
     dependencies:
       '@volar/shared': 1.0.1
-      '@volar/typescript-language-service': 1.0.1
       semver: 7.3.7
       vscode-languageserver-protocol: 3.17.2
       vscode-languageserver-textdocument: 1.0.7
+      vscode-nls: 5.2.0
+      vscode-uri: 3.0.6
     devDependencies:
       '@types/semver': 7.3.12
 
@@ -493,17 +495,6 @@ packages:
     resolution: {integrity: sha512-XqmfVy1KhbhDe240HVqJgxtC0DjULPJx/6TRWclC9JXGOelchYoumS1fR/OXRJTbwFhRxS5vP32t9VzJtFB9iQ==}
     dependencies:
       semver: 7.3.7
-
-  /@volar/typescript-language-service/1.0.1:
-    resolution: {integrity: sha512-k/IcIPrQnOPeB21T/VzkaWFijp9I8gKR7eBjLv5FAvh7QBJ3XvXGmeOUoPiHTKcwyql2xTHP65e0F50rDB7KYw==}
-    dependencies:
-      '@volar/shared': 1.0.1
-      semver: 7.3.7
-      vscode-languageserver-protocol: 3.17.2
-      vscode-languageserver-textdocument: 1.0.7
-      vscode-nls: 5.2.0
-      vscode-uri: 3.0.6
-    dev: false
 
   /@vscode/emmet-helper/2.8.4:
     resolution: {integrity: sha512-lUki5QLS47bz/U8IlG9VQ+1lfxMtxMZENmU5nu4Z71eOD5j9FK0SmYGL5NiVJg9WBWeAU0VxRADMY2Qpq7BfVg==}
@@ -2933,8 +2924,8 @@ packages:
     hasBin: true
     dev: false
 
-  /typescript/4.8.4:
-    resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
+  /typescript/4.9.1-beta:
+    resolution: {integrity: sha512-D4c0t1+sMOS5Hy8DQsGFfEYUuKzolXhf+7e/N0Td5etBPflEYzVwWLBrbVgHpLpLC53OJQCtxk31+NWO2SBPaA==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
