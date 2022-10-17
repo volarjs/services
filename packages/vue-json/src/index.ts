@@ -92,11 +92,12 @@ export = function (schemaUrls: Record<string, string>): LanguageServicePlugin {
 		}
 
 		const insertIndex = textDocument.getText().lastIndexOf('}');
+		const needComma = textDocument.getText().indexOf('"') >= 0;
 		const modifyDoc = insertIndex >= 0 ? TextDocument.create(
 			textDocument.uri,
 			textDocument.languageId,
 			textDocument.version,
-			textDocument.getText().substring(0, insertIndex) + `,"$schema":"${schemaUrl}"` + textDocument.getText().substring(insertIndex),
+			textDocument.getText().substring(0, insertIndex) + (needComma ? ',' : '') + `"$schema":"${schemaUrl}"` + textDocument.getText().substring(insertIndex),
 		) : textDocument;
 		const jsonDoc = jsonLs.parseJSONDocument(modifyDoc);
 
