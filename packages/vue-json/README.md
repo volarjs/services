@@ -1,4 +1,4 @@
-# @volar-plugins/sass-formatter
+# @volar-plugins/vue-json
 
 ## Usage
 
