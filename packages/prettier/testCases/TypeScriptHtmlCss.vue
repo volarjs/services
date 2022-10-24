@@ -25,7 +25,7 @@
 		Edit
 		<code>
 			{{
-					'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
+				'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
 			}}
 		</code>
 		to test hot module replacement.
@@ -33,10 +33,10 @@
 
 	{{ 'a short text' }}
 	{{
-			'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text'
+		'a very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text'
 	}}
 	{{
-			'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
+		'another very loooooooooooooooooooooooooooooooooooooooooooooo00000000000000000ooong text with inconsistency'
 	}}
 </template>
 

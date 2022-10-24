@@ -56,11 +56,12 @@ export const volarPrettierPlugin: (
 		(prettierConfigFile ? resolveConfig.sync(prettierConfigFile) : null) || {};
 
 	return {
-		format(document, range, opts) {
+		format(document, _, opts) {
 			if (!config.languages || !config.languages.includes(document.languageId))
 				return;
 
-			let oldText = document.getText(range);
+			const fullText = document.getText();
+			let oldText = fullText;
 
 			const isHTML = document.languageId === 'html';
 			if (isHTML && config.html?.breakContentsFromTags) {
@@ -89,7 +90,10 @@ export const volarPrettierPlugin: (
 			if (newText === oldText) return [];
 			return [
 				{
-					range: range,
+					range: {
+						start: document.positionAt(0),
+						end: document.positionAt(fullText.length),
+					},
 					newText: newText,
 				},
 			];
