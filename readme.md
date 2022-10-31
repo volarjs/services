@@ -8,4 +8,3 @@
 - [prettyhtml](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/prettyhtml)
 - [sass-formatter](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/sass-formatter)
 - [vetur](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/vetur)
-- [vue-json](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/vue-json)

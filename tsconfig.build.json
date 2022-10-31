@@ -13,8 +13,5 @@
 		{
 			"path": "packages/vetur/tsconfig.build.json"
 		},
-		{
-			"path": "packages/vue-json/tsconfig.build.json"
-		},
 	]
 }
