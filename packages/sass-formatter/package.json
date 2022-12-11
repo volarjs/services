@@ -17,6 +17,6 @@
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
-		"sass-formatter": "^0.7.3"
+		"sass-formatter": "^0.7.5"
 	}
 }

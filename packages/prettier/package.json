@@ -29,11 +29,11 @@
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
-		"prettier": "^2.7.1",
+		"prettier": "^2.8.1",
 		"vscode-uri": "^3.0.6"
 	},
 	"devDependencies": {
 		"@types/prettier": "^2.7.1",
-		"vue": "^3.2.41"
+		"vue": "^3.2.45"
 	}
 }
