@@ -1,0 +1,28 @@
+{
+	"name": "@volar-plugins/tslint",
+	"version": "0.0.1",
+	"main": "out/index.js",
+	"license": "MIT",
+	"files": [
+		"out/**/*.js",
+		"out/**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
+		"directory": "packages/tslint"
+	},
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "pnpm build"
+	},
+	"dependencies": {
+		"@volar/shared": "^1.0.12"
+	},
+	"peerDependencies": {
+		"tslint": "*"
+	},
+	"devDependencies": {
+		"tslint": "latest"
+	}
+}

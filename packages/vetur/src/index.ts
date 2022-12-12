@@ -10,13 +10,9 @@ import { getGlobalSnippetDir } from './userSnippetDir';
 export = function (): LanguageServicePlugin {
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
-	const uriToPackageJsonPath = new Map<string, string>();
+	const uriToPackageJsonPath = new Map<string, string | undefined>();
 	const htmlDataPrividers = new Map<string, html.IHTMLDataProvider[]>();
 	const htmlLs = html.getLanguageService();
-
-	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-	const htmlTriggerCharacters = ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'];
-
 	const snippetManager = new vls.SnippetManager(getSnippetsPath() ?? ''/* TODO: find snippets folder from document path */, getGlobalSnippetDir(false));
 	const scaffoldSnippetSources: vls.ScaffoldSnippetSources = {
 		workspace: '💼',
@@ -28,9 +24,8 @@ export = function (): LanguageServicePlugin {
 
 		complete: {
 
-			triggerCharacters: [
-				...htmlTriggerCharacters,
-			],
+			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+			triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
 
 			isAdditional: true,
 
@@ -38,13 +33,11 @@ export = function (): LanguageServicePlugin {
 
 				let result: html.CompletionList | undefined;
 
-				if (!context.triggerCharacter || htmlTriggerCharacters.includes(context.triggerCharacter)) {
-					htmlWorker(document, htmlDocument => {
-						result = htmlLs.doComplete(document, position, htmlDocument);
-					});
-				}
+				htmlWorker(document, htmlDocument => {
+					result = htmlLs.doComplete(document, position, htmlDocument);
+				});
 
-				if (!context.triggerCharacter) {
+				if (!context?.triggerCharacter) {
 					vueWorker(document, () => {
 						const items = snippetManager.completeSnippets(scaffoldSnippetSources);
 						if (items.length) {
