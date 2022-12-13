@@ -41,9 +41,6 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 						if (!message.line || !message.column) {
 							continue;
 						}
-						if (!message.fix) {
-							continue;
-						}
 						diagnostics.push({
 							source: 'eslint',
 							code: message.ruleId ?? undefined,
