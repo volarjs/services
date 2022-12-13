@@ -4,6 +4,7 @@
 
 ## Packages
 
+- [eslint](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/eslint)
 - [prettier](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/prettier)
 - [prettyhtml](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/prettyhtml)
 - [sass-formatter](https://github.com/johnsoncodehk/volar-plugins/tree/master/packages/sass-formatter)
