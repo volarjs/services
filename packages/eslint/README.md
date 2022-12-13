@@ -9,6 +9,7 @@
 ```json
 {
 	"devDependencies": {
+		"@volar-plugins/eslint": "latest",
 		"eslint": "latest"
 	}
 }
