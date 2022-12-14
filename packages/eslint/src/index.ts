@@ -39,7 +39,8 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 							continue;
 						}
 						if (!message.line || !message.column) {
-							continue;
+							message.line = 1;
+							message.column = 1;
 						}
 						diagnostics.push({
 							source: 'eslint',
@@ -56,7 +57,11 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 									character: message.endColumn ? message.endColumn - 1 : message.column - 1,
 								},
 							},
-							data: [i, j],
+							data: {
+								uri: document.uri,
+								version: document.version,
+								indexes: [i, j],
+							},
 						});
 					}
 				}
@@ -77,13 +82,13 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 						continue;
 					}
 
-					const lintResult = uriToLintResult.get(document.uri);
-					if (!lintResult) {
+					if (diagnostic.data?.uri !== document.uri && diagnostic.data?.version !== document.version) {
 						continue;
 					}
 
-					const message = lintResult[diagnostic.data[0]]?.messages[diagnostic.data[1]];
-					if (!message.fix) {
+					const lintResult = uriToLintResult.get(document.uri);
+					const message = lintResult?.[diagnostic.data.indexes[0]]?.messages[diagnostic.data.indexes[1]];
+					if (!message?.fix) {
 						continue;
 					}
 
