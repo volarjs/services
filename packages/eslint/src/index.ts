@@ -82,7 +82,7 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 						continue;
 					}
 
-					if (diagnostic.data?.uri !== document.uri && diagnostic.data?.version !== document.version) {
+					if (diagnostic.data?.uri !== document.uri || diagnostic.data?.version !== document.version) {
 						continue;
 					}
 
