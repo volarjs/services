@@ -2,6 +2,12 @@
 
 [Volar](https://github.com/johnsoncodehk/volar) plugin for [ESLint](https://eslint.org/).
 
+Use ESLint with Volar language server to have better performance and accuracy.
+
+Please note that you should disable ESLint VSCode Extension when use this plugin.
+
+Example: https://github.com/DrJume/vue-volar-eslint
+
 ## Usage
 
 `package.json`
