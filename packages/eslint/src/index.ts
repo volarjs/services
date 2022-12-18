@@ -116,6 +116,9 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 	}
 
 	function getEslint(program: ts.Program) {
-		return instances.get(program) ?? instances.set(program, new ESLint({ baseConfig: resolveConfig(program) })).get(program)!;
+		return instances.get(program) ?? instances.set(program, new ESLint({
+			baseConfig: resolveConfig(program),
+			useEslintrc: false,
+		})).get(program)!;
 	}
 }
