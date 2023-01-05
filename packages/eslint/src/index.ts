@@ -1,27 +1,20 @@
-import type { LanguageServicePlugin, LanguageServicePluginContext } from '@volar/language-service';
+import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/language-service';
 import * as shared from '@volar/shared';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 
-type Diagnostic = NonNullable<Awaited<ReturnType<NonNullable<NonNullable<LanguageServicePlugin['validation']>['onSemantic']>>>>[number];
-type CodeAction = NonNullable<Awaited<ReturnType<NonNullable<NonNullable<LanguageServicePlugin['codeAction']>['on']>>>>[number];
-
 export = function (resolveConfig: (program: ts.Program) => Linter.Config): LanguageServicePlugin {
-
-	let ctx: LanguageServicePluginContext;
 
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
 
-	return {
-
-		setup(_ctx) {
-			ctx = _ctx;
-		},
+	return (ctx) => ({
 
 		validation: {
 
 			async onSemantic(document) {
+
+				if (!ctx.typescript) return;
 
 				const eslint = getEslint(ctx.typescript.languageService.getProgram()!);
 				const lintResult = await eslint.lintText(
@@ -113,7 +106,7 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 				return result;
 			},
 		},
-	}
+	})
 
 	function getEslint(program: ts.Program) {
 		return instances.get(program) ?? instances.set(program, new ESLint({

@@ -55,7 +55,7 @@ export const volarPrettierPlugin: (
 	const prettierConfig =
 		(prettierConfigFile ? resolveConfig.sync(prettierConfigFile) : null) || {};
 
-	return {
+	return () => ({
 		format(document, _, opts) {
 			if (!config.languages || !config.languages.includes(document.languageId))
 				return;
@@ -98,7 +98,7 @@ export const volarPrettierPlugin: (
 				},
 			];
 		},
-	};
+	});
 };
 
 export default volarPrettierPlugin;

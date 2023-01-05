@@ -1,25 +1,18 @@
-import type { LanguageServicePlugin, LanguageServicePluginContext } from '@volar/language-service';
+import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/language-service';
 import * as shared from '@volar/shared';
 import type { IRule, RuleFailure } from 'tslint';
 
-type Diagnostic = NonNullable<Awaited<ReturnType<NonNullable<NonNullable<LanguageServicePlugin['validation']>['onSemantic']>>>>[number];
-type CodeAction = NonNullable<Awaited<ReturnType<NonNullable<NonNullable<LanguageServicePlugin['codeAction']>['on']>>>>[number];
-
 export = function (rules: IRule[]): LanguageServicePlugin {
-
-	let ctx: LanguageServicePluginContext;
 
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 
-	return {
-
-		setup(_ctx) {
-			ctx = _ctx;
-		},
+	return (ctx) => ({
 
 		validation: {
 
 			onSemantic(document) {
+
+				if (!ctx.typescript) return
 
 				const fileName = shared.getPathOfUri(document.uri);
 				const sourceFile = ctx.typescript.languageService.getProgram()?.getSourceFile(fileName);
@@ -109,5 +102,5 @@ export = function (rules: IRule[]): LanguageServicePlugin {
 				return result;
 			},
 		},
-	}
+	})
 }

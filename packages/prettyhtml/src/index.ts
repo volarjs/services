@@ -3,7 +3,7 @@ import * as prettyhtml from '@starptech/prettyhtml';
 
 export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServicePlugin {
 
-	return {
+	return () => ({
 
 		format(document, range, options) {
 
@@ -38,5 +38,5 @@ export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Lang
 				newText: '\n' + newText.trim() + '\n',
 			}];
 		},
-	}
+	})
 }

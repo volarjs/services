@@ -3,7 +3,7 @@ import { SassFormatter } from 'sass-formatter';
 
 export = function (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServicePlugin {
 
-	return {
+	return () => ({
 
 		format(document, range, options) {
 
@@ -30,5 +30,5 @@ export = function (configs: Parameters<typeof SassFormatter.Format>[1]): Languag
 				newText: newText,
 			}];
 		},
-	}
+	})
 }
