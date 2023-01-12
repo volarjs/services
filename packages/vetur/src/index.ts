@@ -11,7 +11,7 @@ export = function (): LanguageServicePlugin {
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 	const uriToPackageJsonPath = new Map<string, string | undefined>();
-	const htmlDataPrividers = new Map<string, html.IHTMLDataProvider[]>();
+	const htmlDataProviders = new Map<string, html.IHTMLDataProvider[]>();
 	const htmlLs = html.getLanguageService();
 	const snippetManager = new vls.SnippetManager(getSnippetsPath() ?? ''/* TODO: find snippets folder from document path */, getGlobalSnippetDir(false));
 	const scaffoldSnippetSources: vls.ScaffoldSnippetSources = {
@@ -190,7 +190,7 @@ export = function (): LanguageServicePlugin {
 
 	function getHtmlDataProviders(packageJsonPath: string) {
 
-		let dataProviders = htmlDataPrividers.get(packageJsonPath);
+		let dataProviders = htmlDataProviders.get(packageJsonPath);
 
 		if (!dataProviders) {
 
@@ -257,7 +257,7 @@ export = function (): LanguageServicePlugin {
 				return htmlProvider;
 			});
 
-			htmlDataPrividers.set(packageJsonPath, dataProviders);
+			htmlDataProviders.set(packageJsonPath, dataProviders);
 		}
 
 		return dataProviders;
