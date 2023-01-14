@@ -4,7 +4,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-const plugin: LanguageServicePlugin = (context) => {
+export = (): LanguageServicePlugin => (context) => {
 
 	let inited = false;
 
@@ -267,5 +267,3 @@ const plugin: LanguageServicePlugin = (context) => {
 		return callback(stylesheet, cssLs);
 	}
 };
-
-export default () => plugin;

@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getGlobalSnippetDir } from './userSnippetDir';
 
-export = function (): LanguageServicePlugin {
+export = (): LanguageServicePlugin => () => {
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 	const uriToPackageJsonPath = new Map<string, string | undefined>();

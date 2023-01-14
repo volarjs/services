@@ -2,7 +2,7 @@ import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/langu
 import * as shared from '@volar/shared';
 import type { IRule, RuleFailure } from 'tslint';
 
-export = function (rules: IRule[]): LanguageServicePlugin {
+export = (rules: IRule[]): LanguageServicePlugin => {
 
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 

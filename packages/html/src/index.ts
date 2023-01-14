@@ -4,7 +4,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-const createPlugin = (options: {
+export = (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
 } = {}) => {
@@ -265,8 +265,6 @@ const createPlugin = (options: {
 
 	return plugin;
 };
-
-export default createPlugin;
 
 function isEOL(content: string, offset: number) {
 	return isNewlineCharacter(content.charCodeAt(offset));

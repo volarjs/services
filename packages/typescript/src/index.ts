@@ -26,7 +26,7 @@ function getBasicTriggerCharacters(tsVersion: string) {
 
 const jsDocTriggerCharacters = ['*'];
 const directiveCommentTriggerCharacters = ['@'];
-const plugin: LanguageServicePlugin = (context) => {
+export = (): LanguageServicePlugin => (context) => {
 
 	const basicTriggerCharacters = getBasicTriggerCharacters('4.3.0');
 
@@ -303,7 +303,6 @@ const plugin: LanguageServicePlugin = (context) => {
 		},
 	};
 };
-export default () => plugin;
 
 function getConfigTitle(document: TextDocument) {
 	if (document.languageId === 'javascriptreact') {
@@ -315,14 +314,14 @@ function getConfigTitle(document: TextDocument) {
 	return document.languageId;
 }
 
-export function isTsDocument(document: TextDocument) {
+function isTsDocument(document: TextDocument) {
 	return document.languageId === 'javascript' ||
 		document.languageId === 'typescript' ||
 		document.languageId === 'javascriptreact' ||
 		document.languageId === 'typescriptreact';
 }
 
-export function isJsonDocument(document: TextDocument) {
+function isJsonDocument(document: TextDocument) {
 	return document.languageId === 'json' ||
 		document.languageId === 'jsonc';
 }

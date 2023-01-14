@@ -1,7 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
 
-const plugin: LanguageServicePlugin = (context) => {
+export = (): LanguageServicePlugin => (context) => {
 
 	return {
 
@@ -60,5 +60,3 @@ const plugin: LanguageServicePlugin = (context) => {
 		};
 	}
 };
-
-export default () => plugin;
