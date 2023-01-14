@@ -12,6 +12,9 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/typescript"
 	},
+	"devDependencies": {
+		"@types/semver": "^7.3.13"
+	},
 	"dependencies": {
 		"@volar/shared": "^1.0.24",
 		"semver": "^7.3.8",
@@ -19,9 +22,6 @@
 		"vscode-languageserver-textdocument": "^1.0.8",
 		"vscode-nls": "^5.2.0",
 		"vscode-uri": "^3.0.7"
-	},
-	"devDependencies": {
-		"@types/semver": "^7.3.13"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "*"

@@ -16,13 +16,19 @@
 		"build": "tsc",
 		"prepublishOnly": "pnpm build"
 	},
+	"devDependencies": {
+		"tslint": "latest"
+	},
 	"dependencies": {
 		"@volar/shared": "^1.0.0"
 	},
 	"peerDependencies": {
+		"@volar/language-service": "*",
 		"tslint": "*"
 	},
-	"devDependencies": {
-		"tslint": "latest"
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }
