@@ -21,7 +21,7 @@ export interface VolarPrettierConfig {
 	/**
 	 * Use settings from VSCode's `editor.tabSize` and temporary tabSize on status bar
 	 *
-	 * @see https://github.com/johnsoncodehk/volar-plugins/issues/5
+	 * @see https://github.com/volarjs/plugins/issues/5
 	 */
 	useVscodeIndentation?: boolean;
 }

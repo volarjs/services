@@ -1,6 +1,6 @@
 # @volar-plugins/prettyhtml
 
-[Volar](https://github.com/johnsoncodehk/volar) plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
+Volar plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 
 ## Usage
 
