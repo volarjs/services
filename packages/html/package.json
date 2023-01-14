@@ -1,0 +1,28 @@
+{
+	"name": "@volar-plugins/html",
+	"version": "1.0.24",
+	"main": "out/index.js",
+	"license": "MIT",
+	"files": [
+		"out/**/*.js",
+		"out/**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/plugins.git",
+		"directory": "packages/html"
+	},
+	"dependencies": {
+		"vscode-html-languageservice": "^5.0.3",
+		"vscode-languageserver-protocol": "^3.17.2",
+		"vscode-languageserver-textdocument": "^1.0.8"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	}
+}

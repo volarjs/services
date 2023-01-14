@@ -1,6 +1,6 @@
 # @volar-plugins/eslint
 
-[Volar](https://github.com/johnsoncodehk/volar) plugin for [ESLint](https://eslint.org/).
+Volar plugin for [ESLint](https://eslint.org/).
 
 Use ESLint with Volar language server to have better performance and accuracy.
 

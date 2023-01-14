@@ -1,6 +1,6 @@
 # @volar-plugins/vetur
 
-[Volar](https://github.com/johnsoncodehk/volar) plugin for [VLS](https://www.npmjs.com/package/vls).
+Volar plugin for [VLS](https://www.npmjs.com/package/vls).
 
 With this plugin you can use this Vetur base features in Volar:
 

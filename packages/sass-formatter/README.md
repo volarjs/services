@@ -1,6 +1,6 @@
 # @volar-plugins/sass-formatter
 
-[Volar](https://github.com/johnsoncodehk/volar) plugin for [Sass Formatter](https://sass-formatter.syler.de/).
+Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 
 ## Usage
 

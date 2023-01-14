@@ -21,19 +21,27 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
+		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/prettier"
 	},
 	"scripts": {
 		"build": "tsc -P src/tsconfig.json",
 		"prepublishOnly": "pnpm build"
 	},
+	"devDependencies": {
+		"@types/prettier": "^2.7.1",
+		"vue": "^3.2.45"
+	},
 	"dependencies": {
 		"prettier": "^2.8.1",
 		"vscode-uri": "^3.0.6"
 	},
-	"devDependencies": {
-		"@types/prettier": "^2.7.1",
-		"vue": "^3.2.45"
+	"peerDependencies": {
+		"@volar/language-service": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }

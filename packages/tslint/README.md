@@ -1,6 +1,6 @@
 # @volar-plugins/tslint
 
-[Volar](https://github.com/johnsoncodehk/volar) plugin for [TSLint](https://palantir.github.io/tslint/).
+Volar plugin for [TSLint](https://palantir.github.io/tslint/).
 
 ## Usage
 

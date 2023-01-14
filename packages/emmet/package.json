@@ -1,0 +1,29 @@
+{
+	"name": "@volar-plugins/emmet",
+	"version": "1.0.24",
+	"main": "out/index.js",
+	"license": "MIT",
+	"files": [
+		"out/**/*.js",
+		"out/**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/plugins.git",
+		"directory": "packages/emmet"
+	},
+	"dependencies": {
+		"@vscode/emmet-helper": "^2.8.4"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	},
+	"browser": {
+		"./out/index.js": "./out/empty.js"
+	}
+}

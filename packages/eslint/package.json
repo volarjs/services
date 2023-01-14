@@ -9,21 +9,27 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
+		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/eslint"
 	},
 	"scripts": {
 		"build": "tsc",
 		"prepublishOnly": "pnpm build"
 	},
+	"devDependencies": {
+		"@types/eslint": "latest",
+		"eslint": "latest"
+	},
 	"dependencies": {
 		"@volar/shared": "^1.0.0"
 	},
 	"peerDependencies": {
+		"@volar/language-service": "*",
 		"eslint": "*"
 	},
-	"devDependencies": {
-		"@types/eslint": "latest",
-		"eslint": "latest"
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }

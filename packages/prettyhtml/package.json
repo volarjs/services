@@ -9,7 +9,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
+		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/prettyhtml"
 	},
 	"scripts": {
@@ -18,5 +18,13 @@
 	},
 	"dependencies": {
 		"@starptech/prettyhtml": "^0.10.0"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }

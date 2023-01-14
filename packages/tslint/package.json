@@ -9,20 +9,26 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/johnsoncodehk/volar-plugins.git",
+		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/tslint"
 	},
 	"scripts": {
 		"build": "tsc",
 		"prepublishOnly": "pnpm build"
 	},
+	"devDependencies": {
+		"tslint": "latest"
+	},
 	"dependencies": {
 		"@volar/shared": "^1.0.0"
 	},
 	"peerDependencies": {
+		"@volar/language-service": "*",
 		"tslint": "*"
 	},
-	"devDependencies": {
-		"tslint": "latest"
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }
