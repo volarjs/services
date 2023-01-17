@@ -7,7 +7,7 @@ import * as path from 'path';
 export = (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
-} = {}) => (): LanguageServicePlugin<{
+} = {}): LanguageServicePlugin<{
 	getHtmlLs: () => html.LanguageService,
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
 }> => (context) => {
