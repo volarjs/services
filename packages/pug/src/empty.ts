@@ -1,5 +1,5 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 
-export default function (): LanguageServicePlugin {
-	return () => ({});
-}
+console.warn('@volar-plugins/pug: This plugin is not support on web yet.')
+
+export = (): LanguageServicePlugin => () => ({});
