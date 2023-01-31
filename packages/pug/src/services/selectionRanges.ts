@@ -1,4 +1,3 @@
-import * as shared from '@volar/shared';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { MappingKind } from '../baseParse';
@@ -9,7 +8,7 @@ export function register(htmlLs: html.LanguageService) {
 
 		const htmlPosArr = posArr
 			.map(position => pugDoc.map.toGeneratedPosition(position, data => data !== MappingKind.EmptyTagCompletion))
-			.filter(shared.notEmpty);
+			.filter((v): v is NonNullable<typeof v> => !!v);
 
 		const htmlResult = htmlLs.getSelectionRanges(
 			pugDoc.map.virtualFileDocument,
