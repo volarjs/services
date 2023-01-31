@@ -13,8 +13,7 @@
 		"directory": "packages/eslint"
 	},
 	"scripts": {
-		"build": "tsc",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"devDependencies": {
 		"@types/eslint": "latest",

@@ -13,8 +13,7 @@
 		"directory": "packages/vetur"
 	},
 	"scripts": {
-		"build": "tsc",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"dependencies": {
 		"vls": "^0.8.2",

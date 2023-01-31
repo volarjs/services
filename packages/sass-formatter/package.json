@@ -13,8 +13,7 @@
 		"directory": "packages/sass-formatter"
 	},
 	"scripts": {
-		"build": "tsc",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"dependencies": {
 		"sass-formatter": "^0.7.5"

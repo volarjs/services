@@ -25,8 +25,7 @@
 		"directory": "packages/prettier"
 	},
 	"scripts": {
-		"build": "tsc -P src/tsconfig.json",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"devDependencies": {
 		"@types/prettier": "^2.7.1",

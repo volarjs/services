@@ -12,6 +12,9 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/typescript-twoslash-queries"
 	},
+	"scripts": {
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
+	},
 	"devDependencies": {
 		"vscode-languageserver-textdocument": "^1.0.8"
 	},

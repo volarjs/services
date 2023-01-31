@@ -12,6 +12,9 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/pug"
 	},
+	"scripts": {
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
+	},
 	"dependencies": {
 		"@volar-plugins/html": "^1.0.24",
 		"@volar/language-service": "^1.0.24",

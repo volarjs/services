@@ -12,6 +12,9 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/emmet"
 	},
+	"scripts": {
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
+	},
 	"dependencies": {
 		"@vscode/emmet-helper": "^2.8.4"
 	},
