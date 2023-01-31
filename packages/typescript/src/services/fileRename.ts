@@ -1,9 +1,8 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import * as shared from '@volar/shared';
 import { fileTextChangesToWorkspaceEdit } from './rename';
-import type { GetConfiguration } from '../createLanguageService';
+import type { GetConfiguration, Shared } from '../createLanguageService';
 import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
@@ -13,6 +12,7 @@ export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
+	shared: Shared,
 ) {
 	return async (oldUri: string, newUri: string): Promise<vscode.WorkspaceEdit | undefined> => {
 
@@ -29,7 +29,7 @@ export function register(
 		try { response = languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences); } catch { }
 		if (!response?.length) return;
 
-		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument);
+		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument, shared);
 		return edits;
 	};
 }

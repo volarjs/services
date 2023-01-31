@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as shared from '@volar/shared';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 import type * as Proto from '../protocol';
 
 export interface IFilePathToResourceConverter {
@@ -37,6 +37,7 @@ function getTagBodyText(
 	tag: Proto.JSDocTagInfo,
 	filePathConverter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string | undefined {
 	if (!tag.text) {
 		return undefined;
@@ -50,7 +51,7 @@ function getTagBodyText(
 		return '```\n' + text + '\n```';
 	}
 
-	const text = convertLinkTags(tag.text, filePathConverter, getTextDocument);
+	const text = convertLinkTags(tag.text, filePathConverter, getTextDocument, shared);
 	switch (tag.name) {
 		case 'example':
 			// check for caption tags, fix for #79704
@@ -80,13 +81,14 @@ function getTagDocumentation(
 	tag: Proto.JSDocTagInfo,
 	filePathConverter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string | undefined {
 	switch (tag.name) {
 		case 'augments':
 		case 'extends':
 		case 'param':
 		case 'template':
-			const body = (convertLinkTags(tag.text, filePathConverter, getTextDocument)).split(/^(\S+)\s*-?\s*/);
+			const body = (convertLinkTags(tag.text, filePathConverter, getTextDocument, shared)).split(/^(\S+)\s*-?\s*/);
 			if (body?.length === 3) {
 				const param = body[1];
 				const doc = body[2];
@@ -100,7 +102,7 @@ function getTagDocumentation(
 
 	// Generic tag
 	const label = `*@${tag.name}*`;
-	const text = getTagBodyText(tag, filePathConverter, getTextDocument);
+	const text = getTagBodyText(tag, filePathConverter, getTextDocument, shared);
 	if (!text) {
 		return label;
 	}
@@ -111,8 +113,9 @@ export function plainWithLinks(
 	parts: readonly Proto.SymbolDisplayPart[] | string,
 	filePathConverter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string {
-	return processInlineTags(convertLinkTags(parts, filePathConverter, getTextDocument));
+	return processInlineTags(convertLinkTags(parts, filePathConverter, getTextDocument, shared));
 }
 
 /**
@@ -122,6 +125,7 @@ function convertLinkTags(
 	parts: readonly Proto.SymbolDisplayPart[] | string | undefined,
 	filePathConverter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string {
 	if (!parts) {
 		return '';
@@ -207,8 +211,9 @@ export function tagsMarkdownPreview(
 	tags: readonly ts.JSDocTagInfo[],
 	filePathConverter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string {
-	return tags.map(tag => getTagDocumentation(tag, filePathConverter, getTextDocument)).join('  \n\n');
+	return tags.map(tag => getTagDocumentation(tag, filePathConverter, getTextDocument, shared)).join('  \n\n');
 }
 
 export function markdownDocumentation(
@@ -216,8 +221,9 @@ export function markdownDocumentation(
 	tags: ts.JSDocTagInfo[] | undefined,
 	filePathConverter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string {
-	return addMarkdownDocumentation('', documentation, tags, filePathConverter, getTextDocument);
+	return addMarkdownDocumentation('', documentation, tags, filePathConverter, getTextDocument, shared);
 }
 
 export function addMarkdownDocumentation(
@@ -226,13 +232,14 @@ export function addMarkdownDocumentation(
 	tags: ts.JSDocTagInfo[] | undefined,
 	converter: IFilePathToResourceConverter,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ): string {
 	if (documentation) {
-		out += plainWithLinks(documentation, converter, getTextDocument);
+		out += plainWithLinks(documentation, converter, getTextDocument, shared);
 	}
 
 	if (tags) {
-		const tagsPreview = tagsMarkdownPreview(tags, converter, getTextDocument);
+		const tagsPreview = tagsMarkdownPreview(tags, converter, getTextDocument, shared);
 		if (tagsPreview) {
 			out += '\n\n' + tagsPreview;
 		}

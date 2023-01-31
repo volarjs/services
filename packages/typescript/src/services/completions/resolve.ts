@@ -5,8 +5,7 @@ import { entriesToLocations } from '../../utils/transforms';
 import { handleKindModifiers } from './basic';
 import type { Data } from './basic';
 import * as previewer from '../../utils/previewer';
-import * as shared from '@volar/shared';
-import type { GetConfiguration } from '../../createLanguageService';
+import type { GetConfiguration, Shared } from '../../createLanguageService';
 import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../../configs/getUserPreferences';
@@ -18,6 +17,7 @@ export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
+	shared: Shared,
 ) {
 	return async (item: vscode.CompletionItem, newPosition?: vscode.Position): Promise<vscode.CompletionItem> => {
 
@@ -59,7 +59,7 @@ export function register(
 					const entries = changes.textChanges.map(textChange => {
 						return { fileName, textSpan: textChange.span };
 					});
-					const locs = entriesToLocations(entries, getTextDocument);
+					const locs = entriesToLocations(entries, getTextDocument, shared);
 					locs.forEach((loc, index) => {
 						item.additionalTextEdits?.push(vscode.TextEdit.replace(loc.range, changes.textChanges[index].newText));
 					});
@@ -67,7 +67,7 @@ export function register(
 			}
 		}
 		if (details.displayParts) {
-			detailTexts.push(previewer.plainWithLinks(details.displayParts, { toResource }, getTextDocument));
+			detailTexts.push(previewer.plainWithLinks(details.displayParts, { toResource }, getTextDocument, shared));
 		}
 		if (detailTexts.length) {
 			item.detail = detailTexts.join('\n');
@@ -75,7 +75,7 @@ export function register(
 
 		item.documentation = {
 			kind: 'markdown',
-			value: previewer.markdownDocumentation(details.documentation, details.tags, { toResource }, getTextDocument),
+			value: previewer.markdownDocumentation(details.documentation, details.tags, { toResource }, getTextDocument, shared),
 		};
 
 		if (details) {

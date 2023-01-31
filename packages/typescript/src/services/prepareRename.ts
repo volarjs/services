@@ -1,7 +1,7 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
 /* typescript-language-features is hardcode true */
 export const renameInfoOptions = { allowRenameOfImportPath: true };
@@ -9,6 +9,7 @@ export const renameInfoOptions = { allowRenameOfImportPath: true };
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ) {
 	return (uri: string, position: vscode.Position): vscode.Range | undefined | vscode.ResponseError<void> => {
 		const document = getTextDocument(uri);

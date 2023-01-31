@@ -1,8 +1,8 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import * as shared from '@volar/shared';
 import * as nls from 'vscode-nls';
+import { Shared } from '../../createLanguageService';
 import { getLineText } from './resolve';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
@@ -12,6 +12,7 @@ const defaultJsDoc = `/**\n * $0\n */`;
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ) {
 	return (uri: string, position: vscode.Position) => {
 

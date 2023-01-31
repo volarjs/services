@@ -2,10 +2,9 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import * as shared from '@volar/shared';
 import * as semver from 'semver';
 import { parseKindModifier } from '../../utils/modifiers';
-import type { GetConfiguration } from '../../createLanguageService';
+import type { GetConfiguration, Shared } from '../../createLanguageService';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import { URI } from 'vscode-uri';
 
@@ -22,6 +21,7 @@ export function register(
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
 	ts: typeof import('typescript/lib/tsserverlibrary'),
+	shared: Shared,
 ) {
 
 	const lt_320 = semver.lt(ts.version, '3.2.0');

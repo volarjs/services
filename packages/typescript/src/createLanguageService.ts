@@ -25,7 +25,6 @@ import * as callHierarchy from './services/callHierarchy';
 import * as implementation from './services/implementation';
 import * as inlayHints from './services/inlayHints';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import * as shared from '@volar/shared';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { URI } from 'vscode-uri';
 import * as _ from 'vscode-languageserver-protocol';
@@ -38,44 +37,53 @@ export interface GetConfiguration {
 	<T = any>(section: string): Promise<T | undefined>;
 };
 
+// TODO
+export interface Shared {
+	uriToFileName(uri: string): string;
+	fileNameToUri(fileName: string): string;
+}
+
 export function createLanguageService(
 	ts: typeof import('typescript/lib/tsserverlibrary'),
 	host: ts.LanguageServiceHost,
 	languageService: ts.LanguageService,
 	getConfiguration: GetConfiguration,
 	rootUri: URI,
+	shared: Shared,
 ) {
 
 	const documents = new Map<string, [string, TextDocument]>();
 
 	return {
-		findDefinition: definitions.register(languageService, getTextDocument),
-		findTypeDefinition: typeDefinitions.register(languageService, getTextDocument),
-		findReferences: references.register(languageService, getTextDocument),
-		findFileReferences: fileReferences.register(languageService, getTextDocument),
-		findImplementations: implementation.register(languageService, getTextDocument),
-		prepareRename: prepareRename.register(languageService, getTextDocument),
-		doRename: rename.register(rootUri, languageService, getTextDocument, getConfiguration),
-		getEditsForFileRename: fileRename.register(rootUri, languageService, getTextDocument, getConfiguration),
-		getCodeActions: codeActions.register(rootUri, languageService, getTextDocument, getConfiguration),
-		doCodeActionResolve: codeActionResolve.register(rootUri, languageService, getTextDocument, getConfiguration),
-		getInlayHints: inlayHints.register(rootUri, languageService, getTextDocument, getConfiguration, ts),
+		findDefinition: definitions.register(languageService, getTextDocument, shared),
+		findTypeDefinition: typeDefinitions.register(languageService, getTextDocument, shared),
+		findReferences: references.register(languageService, getTextDocument, shared),
+		findFileReferences: fileReferences.register(languageService, getTextDocument, shared),
+		findImplementations: implementation.register(languageService, getTextDocument, shared),
+		prepareRename: prepareRename.register(languageService, getTextDocument, shared),
+		doRename: rename.register(rootUri, languageService, getTextDocument, getConfiguration, shared),
+		getEditsForFileRename: fileRename.register(rootUri, languageService, getTextDocument, getConfiguration, shared),
+		getCodeActions: codeActions.register(rootUri, languageService, getTextDocument, getConfiguration, shared),
+		doCodeActionResolve: codeActionResolve.register(rootUri, languageService, getTextDocument, getConfiguration, shared),
+		getInlayHints: inlayHints.register(rootUri, languageService, getTextDocument, getConfiguration, ts, shared),
 
-		findDocumentHighlights: documentHighlight.register(languageService, getTextDocument, ts),
-		findDocumentSymbols: documentSymbol.register(languageService, getTextDocument),
-		findWorkspaceSymbols: workspaceSymbols.register(languageService, getTextDocument),
-		doComplete: completions.register(rootUri, languageService, getTextDocument, getConfiguration, ts),
-		doCompletionResolve: completionResolve.register(rootUri, languageService, getTextDocument, getConfiguration),
+		findDocumentHighlights: documentHighlight.register(languageService, getTextDocument, ts, shared),
+		findDocumentSymbols: documentSymbol.register(languageService, getTextDocument, shared),
+		findWorkspaceSymbols: workspaceSymbols.register(languageService, getTextDocument, shared),
+		doComplete: completions.register(rootUri, languageService, getTextDocument, getConfiguration, ts, shared),
+		doCompletionResolve: completionResolve.register(rootUri, languageService, getTextDocument, getConfiguration, shared),
 		doDirectiveCommentComplete: directiveCommentCompletions.register(getTextDocument),
-		doJsDocComplete: jsDocCompletions.register(languageService, getTextDocument),
-		doHover: hover.register(languageService, getTextDocument, ts),
-		doFormatting: formatting.register(languageService, getTextDocument, getConfiguration),
-		getSignatureHelp: signatureHelp.register(languageService, getTextDocument, ts),
-		getSelectionRanges: selectionRanges.register(languageService, getTextDocument),
-		doValidation: diagnostics.register(host, languageService, getTextDocument, ts),
-		getFoldingRanges: foldingRanges.register(languageService, getTextDocument, ts),
-		getDocumentSemanticTokens: semanticTokens.register(host, languageService, getTextDocument, ts),
-		callHierarchy: callHierarchy.register(languageService, getTextDocument),
+		doJsDocComplete: jsDocCompletions.register(languageService, getTextDocument, shared),
+		doHover: hover.register(languageService, getTextDocument, ts, shared),
+		doFormatting: formatting.register(languageService, getTextDocument, getConfiguration, shared),
+		getSignatureHelp: signatureHelp.register(languageService, getTextDocument, ts, shared),
+		getSelectionRanges: selectionRanges.register(languageService, getTextDocument, shared),
+		doValidation: diagnostics.register(host, languageService, getTextDocument, ts, shared),
+		getFoldingRanges: foldingRanges.register(languageService, getTextDocument, ts, shared),
+		getDocumentSemanticTokens: semanticTokens.register(host, languageService, getTextDocument, ts, shared),
+		callHierarchy: callHierarchy.register(languageService, getTextDocument, shared),
+
+		getTextDocument,
 	};
 
 	function getTextDocument(uri: string) {
@@ -86,7 +94,7 @@ export function createLanguageService(
 			const scriptSnapshot = host.getScriptSnapshot(fileName);
 			if (scriptSnapshot) {
 				const scriptText = scriptSnapshot.getText(0, scriptSnapshot.getLength());
-				const document = TextDocument.create(uri, shared.syntaxToLanguageId(uri.substring(uri.lastIndexOf('.') + 1)), oldDoc ? oldDoc[1].version + 1 : 0, scriptText);
+				const document = TextDocument.create(uri, 'txt' /* not important */, oldDoc ? oldDoc[1].version + 1 : 0, scriptText);
 				documents.set(uri, [version, document]);
 			}
 		}

@@ -1,9 +1,8 @@
-import * as shared from '@volar/shared';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { URI } from 'vscode-uri';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { GetConfiguration } from '../createLanguageService';
+import type { GetConfiguration, Shared } from '../createLanguageService';
 import { getUserPreferences } from '../configs/getUserPreferences';
 
 export function register(
@@ -12,6 +11,7 @@ export function register(
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
 	ts: typeof import('typescript/lib/tsserverlibrary'),
+	shared: Shared,
 ) {
 	return async (uri: string, range: vscode.Range) => {
 

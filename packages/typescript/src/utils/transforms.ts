@@ -1,9 +1,13 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
-export function entriesToLocations(entries: { fileName: string, textSpan: ts.TextSpan; }[], getTextDocument: (uri: string) => TextDocument | undefined) {
+export function entriesToLocations(
+	entries: { fileName: string, textSpan: ts.TextSpan; }[],
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
+) {
 	const locations: vscode.Location[] = [];
 	for (const entry of entries) {
 		const entryUri = shared.fileNameToUri(entry.fileName);
@@ -18,7 +22,11 @@ export function entriesToLocations(entries: { fileName: string, textSpan: ts.Tex
 	}
 	return locations;
 }
-export function entriesToLocationLinks<T extends ts.DocumentSpan>(entries: T[], getTextDocument: (uri: string) => TextDocument | undefined): vscode.LocationLink[] {
+export function entriesToLocationLinks<T extends ts.DocumentSpan>(
+	entries: T[],
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
+): vscode.LocationLink[] {
 	const locations: vscode.LocationLink[] = [];
 	for (const entry of entries) {
 		const entryUri = shared.fileNameToUri(entry.fileName);
@@ -41,7 +49,12 @@ export function entriesToLocationLinks<T extends ts.DocumentSpan>(entries: T[], 
 	}
 	return locations;
 }
-export function boundSpanToLocationLinks(info: ts.DefinitionInfoAndBoundSpan, originalDoc: TextDocument, getTextDocument: (uri: string) => TextDocument | undefined): vscode.LocationLink[] {
+export function boundSpanToLocationLinks(
+	info: ts.DefinitionInfoAndBoundSpan,
+	originalDoc: TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
+): vscode.LocationLink[] {
 	const locations: vscode.LocationLink[] = [];
 	if (!info.definitions) return locations;
 	const originSelectionRange = vscode.Range.create(

@@ -2,8 +2,8 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
 const getSymbolKind = (kind: string): vscode.SymbolKind => {
 	switch (kind) {
@@ -26,7 +26,11 @@ const getSymbolKind = (kind: string): vscode.SymbolKind => {
 	return vscode.SymbolKind.Variable;
 };
 
-export function register(languageService: ts.LanguageService, getTextDocument: (uri: string) => TextDocument | undefined) {
+export function register(
+	languageService: ts.LanguageService,
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
+) {
 	return (uri: string): vscode.SymbolInformation[] => {
 
 		const document = getTextDocument(uri);

@@ -1,14 +1,14 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { GetConfiguration } from '../createLanguageService';
+import type { GetConfiguration, Shared } from '../createLanguageService';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
+	shared: Shared,
 ) {
 	return {
 		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions): Promise<vscode.TextEdit[]> => {

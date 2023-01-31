@@ -4,12 +4,12 @@ import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import * as shared from '@volar/shared';
 
 declare module '@volar/language-service' {
 	interface RuleContext {
 		typescript?: {
 			sourceFile: ts.SourceFile;
+			getTextDocument(uri: string): TextDocument | undefined;
 			module: typeof ts;
 			languageService: ts.LanguageService;
 			languageServiceHost: ts.LanguageServiceHost;
@@ -52,6 +52,7 @@ export = (): LanguageServicePlugin => (context) => {
 		typescript.languageService,
 		(section) => context.env.configurationHost?.getConfiguration(section) as any,
 		context.env.rootUri,
+		context,
 	);
 
 	return {
@@ -65,7 +66,7 @@ export = (): LanguageServicePlugin => (context) => {
 				const config = context.env.configurationHost?.getConfiguration<boolean>(configName) ?? true;
 				if (config) {
 					const tsLs = typescript.languageService;
-					const close = tsLs.getJsxClosingTagAtPosition(shared.uriToFileName(document.uri), document.offsetAt(position));
+					const close = tsLs.getJsxClosingTagAtPosition(context.uriToFileName(document.uri), document.offsetAt(position));
 					if (close) {
 						return '$0' + close.newText;
 					}
@@ -200,7 +201,8 @@ export = (): LanguageServicePlugin => (context) => {
 			resolveRuleContext(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					ruleCtx.typescript = {
-						sourceFile: typescript.languageService.getProgram()?.getSourceFile(shared.uriToFileName(ruleCtx.document.uri))!,
+						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
+						getTextDocument: tsLs2.getTextDocument,
 						...typescript,
 					};
 				}

@@ -1,13 +1,14 @@
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as shared from '@volar/shared';
+import { Shared } from '../createLanguageService';
 
 export function register(
 	host: ts.LanguageServiceHost,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	ts: typeof import('typescript/lib/tsserverlibrary'),
+	shared: Shared,
 ) {
 	return (uri: string, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
 

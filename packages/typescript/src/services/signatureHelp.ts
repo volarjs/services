@@ -1,9 +1,14 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
-export function register(languageService: ts.LanguageService, getTextDocument: (uri: string) => TextDocument | undefined, ts: typeof import('typescript/lib/tsserverlibrary')) {
+export function register(
+	languageService: ts.LanguageService,
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	ts: typeof import('typescript/lib/tsserverlibrary'),
+	shared: Shared,
+) {
 	return (uri: string, position: vscode.Position, context?: vscode.SignatureHelpContext): vscode.SignatureHelp | undefined => {
 		const document = getTextDocument(uri);
 		if (!document) return;

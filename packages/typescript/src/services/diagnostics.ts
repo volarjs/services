@@ -1,13 +1,14 @@
 import * as vscode from 'vscode-languageserver-protocol';
-import * as shared from '@volar/shared';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
 export function register(
 	host: ts.LanguageServiceHost,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	ts: typeof import('typescript/lib/tsserverlibrary'),
+	shared: Shared,
 ) {
 	return (
 		uri: string,
@@ -52,7 +53,7 @@ export function register(
 		return translateDiagnostics(document, errors);
 
 		function translateDiagnostics(document: TextDocument, input: readonly ts.Diagnostic[]) {
-			return input.map(diag => translateDiagnostic(diag, document)).filter(shared.notEmpty);
+			return input.map(diag => translateDiagnostic(diag, document)).filter((v): v is NonNullable<typeof v> => !!v);
 		}
 		function translateDiagnostic(diag: ts.Diagnostic, document: TextDocument): vscode.Diagnostic | undefined {
 
@@ -73,7 +74,7 @@ export function register(
 			if (diag.relatedInformation) {
 				diagnostic.relatedInformation = diag.relatedInformation
 					.map(rErr => translateDiagnosticRelated(rErr))
-					.filter(shared.notEmpty);
+					.filter((v): v is NonNullable<typeof v> => !!v);
 			}
 			if (diag.reportsUnnecessary) {
 				if (diagnostic.tags === undefined) diagnostic.tags = [];

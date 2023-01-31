@@ -1,10 +1,9 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import * as shared from '@volar/shared';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { posix as path } from 'path';
 import { renameInfoOptions } from './prepareRename';
-import type { GetConfiguration } from '../createLanguageService';
+import type { GetConfiguration, Shared } from '../createLanguageService';
 import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
@@ -14,6 +13,7 @@ export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
+	shared: Shared,
 ) {
 
 	return async (uri: string, position: vscode.Position, newName: string): Promise<vscode.WorkspaceEdit | undefined> => {
@@ -40,7 +40,7 @@ export function register(
 		if (!entries)
 			return;
 
-		const locations = locationsToWorkspaceEdit(newName, entries, getTextDocument);
+		const locations = locationsToWorkspaceEdit(newName, entries, getTextDocument, shared);
 		return locations;
 	};
 
@@ -59,7 +59,7 @@ export function register(
 		const newFilePath = path.join(dirname, newName);
 
 		const response = languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences);
-		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument);
+		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument, shared);
 		if (!edits.documentChanges) {
 			edits.documentChanges = [];
 		}
@@ -73,7 +73,11 @@ export function register(
 	}
 }
 
-export function fileTextChangesToWorkspaceEdit(changes: readonly ts.FileTextChanges[], getTextDocument: (uri: string) => TextDocument | undefined) {
+export function fileTextChangesToWorkspaceEdit(
+	changes: readonly ts.FileTextChanges[],
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
+) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 
 	for (const change of changes) {
@@ -115,7 +119,12 @@ export function fileTextChangesToWorkspaceEdit(changes: readonly ts.FileTextChan
 
 	return workspaceEdit;
 }
-function locationsToWorkspaceEdit(newText: string, locations: readonly ts.RenameLocation[], getTextDocument: (uri: string) => TextDocument | undefined) {
+function locationsToWorkspaceEdit(
+	newText: string,
+	locations: readonly ts.RenameLocation[],
+	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
+) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 
 	for (const location of locations) {

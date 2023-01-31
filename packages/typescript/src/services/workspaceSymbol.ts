@@ -2,8 +2,8 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
 function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 	switch (item.kind) {
@@ -25,6 +25,7 @@ function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument2: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ) {
 	return (query: string): vscode.SymbolInformation[] => {
 
@@ -35,7 +36,7 @@ export function register(
 		return items
 			.filter(item => item.containerName || item.kind !== 'alias')
 			.map(toSymbolInformation)
-			.filter(shared.notEmpty);
+			.filter((v): v is NonNullable<typeof v> => !!v);
 
 		function toSymbolInformation(item: ts.NavigateToItem) {
 			const label = getLabel(item);

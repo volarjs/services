@@ -1,15 +1,16 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import * as shared from '@volar/shared';
 import * as vscode from 'vscode-languageserver-protocol';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import { parseKindModifier } from '../utils/modifiers';
 import * as typeConverters from '../utils/typeConverters';
 import { posix as path } from 'path';
+import { Shared } from '../createLanguageService';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ) {
 	function doPrepare(uri: string, position: vscode.Position) {
 

@@ -3,7 +3,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { fileTextChangesToWorkspaceEdit } from './rename';
 import { Data } from './codeAction';
-import type { GetConfiguration } from '../createLanguageService';
+import type { GetConfiguration, Shared } from '../createLanguageService';
 import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
@@ -13,6 +13,7 @@ export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
+	shared: Shared,
 ) {
 	return async (codeAction: vscode.CodeAction) => {
 
@@ -30,18 +31,18 @@ export function register(
 				} catch { }
 			});
 			const changes = fixs.map(fix => fix?.changes ?? []).flat();
-			codeAction.edit = fileTextChangesToWorkspaceEdit(changes, getTextDocument);
+			codeAction.edit = fileTextChangesToWorkspaceEdit(changes, getTextDocument, shared);
 		}
 		else if (data?.type === 'refactor') {
 			const editInfo = languageService.getEditsForRefactor(data.fileName, formatOptions, data.range, data.refactorName, data.actionName, preferences);
 			if (editInfo) {
-				const edit = fileTextChangesToWorkspaceEdit(editInfo.edits, getTextDocument);
+				const edit = fileTextChangesToWorkspaceEdit(editInfo.edits, getTextDocument, shared);
 				codeAction.edit = edit;
 			}
 		}
 		else if (data?.type === 'organizeImports') {
 			const changes = languageService.organizeImports({ type: 'file', fileName: data.fileName }, formatOptions, preferences);
-			const edit = fileTextChangesToWorkspaceEdit(changes, getTextDocument);
+			const edit = fileTextChangesToWorkspaceEdit(changes, getTextDocument, shared);
 			codeAction.edit = edit;
 		}
 

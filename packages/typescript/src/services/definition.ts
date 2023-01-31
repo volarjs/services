@@ -1,12 +1,13 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { boundSpanToLocationLinks } from '../utils/transforms';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ) {
 	return (uri: string, position: vscode.Position) => {
 
@@ -20,6 +21,6 @@ export function register(
 		try { info = languageService.getDefinitionAndBoundSpan(fileName, offset); } catch { }
 		if (!info) return [];
 
-		return boundSpanToLocationLinks(info, document, getTextDocument);
+		return boundSpanToLocationLinks(info, document, getTextDocument, shared);
 	};
 }

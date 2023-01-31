@@ -126,14 +126,12 @@ importers:
   packages/typescript:
     specifiers:
       '@types/semver': ^7.3.13
-      '@volar/shared': ^1.0.24
       semver: ^7.3.8
       vscode-languageserver-protocol: ^3.17.2
       vscode-languageserver-textdocument: ^1.0.8
       vscode-nls: ^5.2.0
       vscode-uri: ^3.0.7
     dependencies:
-      '@volar/shared': 1.0.24
       semver: 7.3.8
       vscode-languageserver-protocol: 3.17.2
       vscode-languageserver-textdocument: 1.0.8

@@ -1,12 +1,13 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { entriesToLocations } from '../utils/transforms';
-import * as shared from '@volar/shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { Shared } from '../createLanguageService';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
+	shared: Shared,
 ) {
 	return (uri: string, position: vscode.Position): vscode.Location[] => {
 		const document = getTextDocument(uri);
@@ -19,6 +20,6 @@ export function register(
 		try { entries = languageService.getReferencesAtPosition(fileName, offset); } catch { }
 		if (!entries) return [];
 
-		return entriesToLocations([...entries], getTextDocument);
+		return entriesToLocations([...entries], getTextDocument, shared);
 	};
 }
