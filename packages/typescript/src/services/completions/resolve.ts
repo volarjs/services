@@ -90,7 +90,13 @@ export function register(
 			if (useCodeSnippet) {
 				const shouldCompleteFunction = isValidFunctionCompletionContext(languageService, fileName, offset, document);
 				if (shouldCompleteFunction) {
-					const { snippet, parameterCount } = snippetForFunctionCall(item, details.displayParts);
+					const { snippet, parameterCount } = snippetForFunctionCall(
+						{
+							insertText: item.insertText ?? item.textEdit?.newText, // insertText is dropped by LSP in some case: https://github.com/microsoft/vscode-languageserver-node/blob/9b742021fb04ad081aa3676a9eecf4fa612084b4/client/src/common/codeConverter.ts#L659-L664
+							label: item.label,
+						},
+						details.displayParts,
+					);
 					if (item.textEdit) {
 						item.textEdit.newText = snippet;
 					}
