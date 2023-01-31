@@ -198,7 +198,7 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 
 		validation: {
-			resolveRuleContext(ruleCtx) {
+			setupRuleContext(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					ruleCtx.typescript = {
 						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
@@ -206,6 +206,7 @@ export = (): LanguageServicePlugin => (context) => {
 						...typescript,
 					};
 				}
+				return ruleCtx;
 			},
 			onSemantic(document) {
 				if (isTsDocument(document)) {

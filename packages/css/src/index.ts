@@ -4,6 +4,15 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
+declare module '@volar/language-service' {
+	interface RuleContext {
+		css?: {
+			stylesheet: css.Stylesheet;
+			languageService: css.LanguageService;
+		}
+	}
+}
+
 export = (): LanguageServicePlugin => (context) => {
 
 	let inited = false;
@@ -82,6 +91,15 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 
 		validation: {
+			async setupRuleContext(context) {
+				await worker(context.document, (stylesheet, cssLs) => {
+					context.css = {
+						stylesheet,
+						languageService: cssLs,
+					};
+				});
+				return context;
+			},
 			async onSyntactic(document) {
 				return worker(document, async (stylesheet, cssLs) => {
 

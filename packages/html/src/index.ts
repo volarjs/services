@@ -4,6 +4,15 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
+declare module '@volar/language-service' {
+	interface RuleContext {
+		html?: {
+			document: html.HTMLDocument;
+			languageService: html.LanguageService;
+		}
+	}
+}
+
 export = (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
@@ -20,6 +29,20 @@ export = (options: {
 	const htmlLs = html.getLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
 
 	return {
+
+		validation: {
+			async setupRuleContext(context) {
+				if (options.validLang === 'html') {
+					await worker(context.document, (htmlDocument) => {
+						context.html = {
+							document: htmlDocument,
+							languageService: htmlLs,
+						};
+					});
+				}
+				return context;
+			},
+		},
 
 		getHtmlLs: () => htmlLs,
 

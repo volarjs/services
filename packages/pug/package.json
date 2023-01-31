@@ -4,6 +4,7 @@
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
+		"index.d.ts",
 		"out/**/*.js",
 		"out/**/*.d.ts"
 	],
@@ -16,8 +17,7 @@
 		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"dependencies": {
-		"@volar-plugins/html": "^1.0.24",
-		"@volar/language-service": "^1.0.24",
+		"@volar-plugins/html": "1.1.1",
 		"@volar/source-map": "^1.0.24",
 		"muggle-string": "^0.1.0",
 		"pug-lexer": "^5.0.1",

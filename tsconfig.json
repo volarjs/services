@@ -17,6 +17,11 @@
 		"noUnusedLocals": true,
 		"baseUrl": "./",
 		"noEmit": true,
+		"paths": {
+			"@volar-plugins/*": [
+				"packages/*/src"
+			],
+		}
 	},
 	"include": [
 		"packages/*/src",
