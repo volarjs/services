@@ -6,6 +6,17 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as shared from '@volar/shared';
 
+declare module '@volar/language-service' {
+	interface RuleContext {
+		typescript?: {
+			sourceFile: ts.SourceFile;
+			module: typeof ts;
+			languageService: ts.LanguageService;
+			languageServiceHost: ts.LanguageServiceHost;
+		}
+	}
+}
+
 function getBasicTriggerCharacters(tsVersion: string) {
 
 	const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
@@ -34,10 +45,11 @@ export = (): LanguageServicePlugin => (context) => {
 		return {};
 	}
 
+	const typescript = context.typescript;
 	const tsLs2 = ts2.createLanguageService(
-		context.typescript.module,
-		context.typescript.languageServiceHost,
-		context.typescript.languageService,
+		typescript.module,
+		typescript.languageServiceHost,
+		typescript.languageService,
 		(section) => context.env.configurationHost?.getConfiguration(section) as any,
 		context.env.rootUri,
 	);
@@ -46,14 +58,13 @@ export = (): LanguageServicePlugin => (context) => {
 
 		doAutoInsert(document, position, ctx) {
 			if (
-				context.typescript
-				&& (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
+				(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 				&& ctx.lastChange.text.endsWith('>')
 			) {
 				const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
 				const config = context.env.configurationHost?.getConfiguration<boolean>(configName) ?? true;
 				if (config) {
-					const tsLs = context.typescript.languageService;
+					const tsLs = typescript.languageService;
 					const close = tsLs.getJsxClosingTagAtPosition(shared.uriToFileName(document.uri), document.offsetAt(position));
 					if (close) {
 						return '$0' + close.newText;
@@ -186,6 +197,14 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 
 		validation: {
+			resolveRuleContext(ruleCtx) {
+				if (isTsDocument(ruleCtx.document)) {
+					ruleCtx.typescript = {
+						sourceFile: typescript.languageService.getProgram()?.getSourceFile(shared.uriToFileName(ruleCtx.document.uri))!,
+						...typescript,
+					};
+				}
+			},
 			onSemantic(document) {
 				if (isTsDocument(document)) {
 					return tsLs2.doValidation(document.uri, { semantic: true });

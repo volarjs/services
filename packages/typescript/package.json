@@ -12,6 +12,9 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/typescript"
 	},
+	"scripts": {
+		"prepublishOnly": "tsc -p ./tsconfig.build.json"
+	},
 	"devDependencies": {
 		"@types/semver": "^7.3.13"
 	},
