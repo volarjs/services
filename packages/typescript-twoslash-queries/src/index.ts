@@ -1,6 +1,5 @@
 import type { LanguageServicePlugin, InlayHint } from '@volar/language-service';
-import * as shared from '@volar/shared';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export = (): LanguageServicePlugin => (context) => ({
 
@@ -20,7 +19,7 @@ export = (): LanguageServicePlugin => (context) => ({
 						character: pointerPosition.character,
 					});
 
-					const quickInfo = context.typescript.languageService.getQuickInfoAtPosition(shared.uriToFileName(document.uri), hoverOffset);
+					const quickInfo = context.typescript.languageService.getQuickInfoAtPosition(context.uriToFileName(document.uri), hoverOffset);
 					if (quickInfo) {
 						inlayHints.push({
 							position: { line: pointerPosition.line, character: pointerPosition.character + 2 },
