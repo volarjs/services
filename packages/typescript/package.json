@@ -1,9 +1,10 @@
 {
 	"name": "@volar-plugins/typescript",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
+		"index.d.ts",
 		"out/**/*.js",
 		"out/**/*.d.ts"
 	],
