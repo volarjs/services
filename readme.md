@@ -1,6 +1,6 @@
 # @volar-plugins/*
 
-|                             	| Rules API 	| Initelsence 	| Diagnostic 	| Formatting 	|
+|                             	| Rules API 	| IntelliSense 	| Diagnostic 	| Formatting 	|
 |-----------------------------	|-----------	|-------------	|------------	|------------	|
 | css                         	| 🟢         	| 🟢           	| 🟢          	| 🟢          	|
 | emmet                       	|           	| 🟢           	|            	|            	|
