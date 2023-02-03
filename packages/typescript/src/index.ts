@@ -39,12 +39,12 @@ const jsDocTriggerCharacters = ['*'];
 const directiveCommentTriggerCharacters = ['@'];
 export = (): LanguageServicePlugin => (context) => {
 
-	const basicTriggerCharacters = getBasicTriggerCharacters('4.3.0');
-
 	if (!context.typescript) {
+		console.warn('[@volar-plugins/typescript] context.typescript not found, @volar/typescript plugin disabled. Make sure you have provide tsdk in language client.');
 		return {};
 	}
 
+	const basicTriggerCharacters = getBasicTriggerCharacters('4.3.0');
 	const typescript = context.typescript;
 	const tsLs2 = ts2.createLanguageService(
 		typescript.module,
