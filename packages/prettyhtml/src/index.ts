@@ -1,5 +1,5 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
-import * as prettyhtml from '@starptech/prettyhtml';
+import prettyhtml from '@starptech/prettyhtml';
 
 export = (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServicePlugin => () => ({
 

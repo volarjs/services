@@ -2,7 +2,7 @@ import type { LanguageServicePlugin } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
-import * as useHtmlPlugin from '@volar-plugins/html';
+import useHtmlPlugin from '@volar-plugins/html';
 
 export = (): LanguageServicePlugin<{
 	getHtmlLs: () => html.LanguageService,

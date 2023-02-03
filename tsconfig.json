@@ -15,6 +15,7 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"noUnusedLocals": true,
+		"esModuleInterop": true,
 		"baseUrl": "./",
 		"noEmit": true,
 		"paths": {
