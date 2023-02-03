@@ -24,11 +24,13 @@ const plugin = (
 		 * @see https://github.com/volarjs/plugins/issues/5
 		 */
 		ignoreIdeOptions?: boolean,
-	},
+	} = {},
 	getPrettierConfig = () => {
-		const prettierConfigFile = resolveConfigFile.sync();
-		const prettierConfig = (prettierConfigFile ? resolveConfig.sync(prettierConfigFile) : null) || {};
-		return prettierConfig;
+		const configFile = resolveConfigFile.sync();
+		if (configFile) {
+			return resolveConfig.sync(configFile) ?? {};
+		}
+		return {};
 	},
 ): LanguageServicePlugin => (context) => {
 
