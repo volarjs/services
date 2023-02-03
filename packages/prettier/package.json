@@ -19,7 +19,7 @@
 		"url": "https://www.polv.cc"
 	},
 	"devDependencies": {
-		"@types/prettier": "^2.7.1"
+		"@types/prettier": "^2.7.2"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "*",

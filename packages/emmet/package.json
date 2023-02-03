@@ -13,7 +13,7 @@
 		"directory": "packages/emmet"
 	},
 	"dependencies": {
-		"@vscode/emmet-helper": "^2.8.4"
+		"@vscode/emmet-helper": "^2.8.6"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "*"

@@ -17,10 +17,10 @@
 		"@volar-plugins/html": "2.0.0-alpha.1",
 		"@volar/language-service": "1.2.0-alpha.7",
 		"@volar/source-map": "1.2.0-alpha.7",
-		"muggle-string": "^0.1.0",
+		"muggle-string": "^0.2.2",
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
-		"vscode-html-languageservice": "^5.0.3",
+		"vscode-html-languageservice": "^5.0.4",
 		"vscode-languageserver-textdocument": "^1.0.8",
 		"vscode-languageserver-types": "^3.17.2"
 	},
