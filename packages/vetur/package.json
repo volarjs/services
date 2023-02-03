@@ -17,8 +17,7 @@
 	},
 	"dependencies": {
 		"vls": "^0.8.2",
-		"vscode-html-languageservice": "^5.0.3",
-		"vscode-uri": "^3.0.6"
+		"vscode-html-languageservice": "^5.0.3"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "*"

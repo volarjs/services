@@ -1,4 +1,3 @@
-import * as vscode from 'vscode-languageserver-types';
 import type { LanguageServicePlugin } from '@volar/language-service';
 
 export = (): LanguageServicePlugin => () => {
@@ -29,12 +28,10 @@ export = (): LanguageServicePlugin => () => {
 			if (newPugCode === document.getText())
 				return [];
 
-			const pugEdit = vscode.TextEdit.replace(
+			return [{
 				range,
-				prefixes + newPugCode.trim() + suffixes,
-			);
-
-			return [pugEdit];
+				newText: prefixes + newPugCode.trim() + suffixes,
+			}];
 		},
 	};
 }

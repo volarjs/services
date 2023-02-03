@@ -16,11 +16,7 @@
 		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"devDependencies": {
-		"@types/eslint": "latest",
-		"eslint": "latest"
-	},
-	"dependencies": {
-		"@volar/shared": "^1.0.0"
+		"@types/eslint": "latest"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "*",

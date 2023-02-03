@@ -1,5 +1,4 @@
 import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/language-service';
-import * as shared from '@volar/shared';
 import type { IRule, RuleFailure } from 'tslint';
 
 export = (rules: IRule[]): LanguageServicePlugin => {
@@ -14,7 +13,7 @@ export = (rules: IRule[]): LanguageServicePlugin => {
 
 				if (!ctx.typescript) return
 
-				const fileName = shared.getPathOfUri(document.uri);
+				const fileName = ctx.uriToFileName(document.uri);
 				const sourceFile = ctx.typescript.languageService.getProgram()?.getSourceFile(fileName);
 				if (!sourceFile) {
 					return;

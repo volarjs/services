@@ -1,5 +1,4 @@
 import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/language-service';
-import * as shared from '@volar/shared';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 
@@ -19,7 +18,7 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 				const eslint = getEslint(ctx.typescript.languageService.getProgram()!);
 				const lintResult = await eslint.lintText(
 					document.getText(),
-					{ filePath: shared.getPathOfUri(document.uri) },
+					{ filePath: ctx.uriToFileName(document.uri) },
 				);
 				uriToLintResult.set(document.uri, lintResult);
 				const diagnostics: Diagnostic[] = [];

@@ -18,9 +18,6 @@
 	"devDependencies": {
 		"tslint": "latest"
 	},
-	"dependencies": {
-		"@volar/shared": "^1.0.0"
-	},
 	"peerDependencies": {
 		"@volar/language-service": "*",
 		"tslint": "*"

@@ -15,9 +15,6 @@
 	"scripts": {
 		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
-	"devDependencies": {
-		"vscode-languageserver-textdocument": "^1.0.8"
-	},
 	"peerDependencies": {
 		"@volar/language-service": "*"
 	},

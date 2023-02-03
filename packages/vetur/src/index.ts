@@ -1,13 +1,12 @@
 import { LanguageServicePlugin, SemanticToken } from '@volar/language-service';
 import * as vls from 'vls';
 import * as html from 'vscode-html-languageservice';
-import { URI } from 'vscode-uri';
 import { TextDocument } from 'vscode-html-languageservice';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getGlobalSnippetDir } from './userSnippetDir';
 
-export = (): LanguageServicePlugin => () => {
+export = (): LanguageServicePlugin => (ctx) => {
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 	const uriToPackageJsonPath = new Map<string, string | undefined>();
@@ -137,10 +136,7 @@ export = (): LanguageServicePlugin => () => {
 
 		if (!packageJsonPath) {
 
-			const uri = URI.parse(document.uri);
-			const fsPath = uri.fsPath;
-
-			let lastDirname = fsPath;
+			let lastDirname = ctx.uriToFileName(document.uri);
 
 			while (true) {
 
