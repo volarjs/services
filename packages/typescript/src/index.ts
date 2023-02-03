@@ -37,6 +37,7 @@ function getBasicTriggerCharacters(tsVersion: string) {
 
 const jsDocTriggerCharacters = ['*'];
 const directiveCommentTriggerCharacters = ['@'];
+
 export = (): LanguageServicePlugin => (context) => {
 
 	if (!context.typescript) {

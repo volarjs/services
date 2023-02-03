@@ -1,7 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
 
-const plugin = (
+export = (
 	options: {
 		/**
 		 * Languages to be formatted by prettier.
@@ -85,5 +85,3 @@ const plugin = (
 		},
 	};
 };
-
-export = plugin;

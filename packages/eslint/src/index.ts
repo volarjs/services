@@ -2,7 +2,7 @@ import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/langu
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 
-export = function (resolveConfig: (program: ts.Program) => Linter.Config): LanguageServicePlugin {
+export = (resolveConfig: (program: ts.Program) => Linter.Config): LanguageServicePlugin => {
 
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
@@ -105,7 +105,7 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 				return result;
 			},
 		},
-	})
+	});
 
 	function getEslint(program: ts.Program) {
 		return instances.get(program) ?? instances.set(program, new ESLint({
@@ -113,4 +113,4 @@ export = function (resolveConfig: (program: ts.Program) => Linter.Config): Langu
 			useEslintrc: false,
 		})).get(program)!;
 	}
-}
+};
