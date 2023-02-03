@@ -34,14 +34,13 @@ export = (
 	},
 ): LanguageServicePlugin => (context) => {
 
-	options.languages ??= ['html', 'css', 'scss', 'typescript', 'javascript'];
-
+	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 	const prettierOptions = getPrettierConfig();
 
 	return {
 		format(document, _, formatOptions) {
 
-			if (!options.languages || !options.languages.includes(document.languageId)) {
+			if (!languages.includes(document.languageId)) {
 				return;
 			}
 
