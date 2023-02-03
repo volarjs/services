@@ -17,18 +17,21 @@ Volar plugin for [prettier](https://prettier.io/).
 `volar.config.js`
 
 ```js
-/** @type {import('@volar-plugins/prettier')} */
-const { volarPrettierPlugin } = require('@volar-plugins/prettier');
-
 module.exports = {
 	plugins: [
-		volarPrettierPlugin({
-			languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
-			html: {
-				breakContentsFromTags: true,
+		require('@volar-plugins/prettier')(
+			{
+				languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
+				html: {
+					breakContentsFromTags: true,
+				},
+				ignoreIDEOptions: true,
 			},
-			useVscodeIndentation: true,
-		}),
+			// provide your prettier options, otherwise auto resolve config file by plugin
+			() => ({
+				// ...
+			})
+		),
 	],
 };
 ```

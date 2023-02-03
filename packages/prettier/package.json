@@ -4,37 +4,28 @@
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
-	"author": {
-		"name": "Pacharapol Withayasakpunt",
-		"email": "polv@polv.cc",
-		"url": "https://www.polv.cc"
-	},
 	"files": [
 		"out/**/*.js",
 		"out/**/*.d.ts"
-	],
-	"keywords": [
-		"volar",
-		"vue",
-		"vue3"
 	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/prettier"
 	},
+	"author": {
+		"name": "Pacharapol Withayasakpunt",
+		"email": "polv@polv.cc",
+		"url": "https://www.polv.cc"
+	},
 	"scripts": {
 		"prepublishOnly": "tsc -p ./tsconfig.build.json"
 	},
 	"devDependencies": {
-		"@types/prettier": "^2.7.1",
-		"vue": "^3.2.45"
-	},
-	"dependencies": {
-		"prettier": "^2.8.1",
-		"vscode-uri": "^3.0.6"
+		"@types/prettier": "^2.7.1"
 	},
 	"peerDependencies": {
+		"prettier": "*",
 		"@volar/language-service": "*"
 	},
 	"peerDependenciesMeta": {
