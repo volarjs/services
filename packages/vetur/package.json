@@ -12,9 +12,6 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/vetur"
 	},
-	"scripts": {
-		"prepublishOnly": "tsc -p ./tsconfig.build.json"
-	},
 	"dependencies": {
 		"vls": "^0.8.2",
 		"vscode-html-languageservice": "^5.0.3"

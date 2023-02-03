@@ -12,9 +12,6 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/pug-beautify"
 	},
-	"scripts": {
-		"prepublishOnly": "tsc -p ./tsconfig.build.json"
-	},
 	"dependencies": {
 		"@johnsoncodehk/pug-beautify": "^0.2.2"
 	},

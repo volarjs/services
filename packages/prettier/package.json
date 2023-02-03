@@ -18,9 +18,6 @@
 		"email": "polv@polv.cc",
 		"url": "https://www.polv.cc"
 	},
-	"scripts": {
-		"prepublishOnly": "tsc -p ./tsconfig.build.json"
-	},
 	"devDependencies": {
 		"@types/prettier": "^2.7.1"
 	},

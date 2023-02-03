@@ -12,9 +12,6 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/prettyhtml"
 	},
-	"scripts": {
-		"prepublishOnly": "tsc -p ./tsconfig.build.json"
-	},
 	"dependencies": {
 		"@starptech/prettyhtml": "^0.10.0"
 	},

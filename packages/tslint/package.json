@@ -12,9 +12,6 @@
 		"url": "https://github.com/volarjs/plugins.git",
 		"directory": "packages/tslint"
 	},
-	"scripts": {
-		"prepublishOnly": "tsc -p ./tsconfig.build.json"
-	},
 	"devDependencies": {
 		"tslint": "latest"
 	},
