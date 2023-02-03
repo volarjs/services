@@ -22,11 +22,9 @@ With this plugin you can use this Vetur base features in Volar:
 `volar.config.js`
 
 ```js
-const vetur = require('@volar-plugins/vetur');
-
 module.exports = {
 	plugins: [
-		vetur(),
+		require('@volar-plugins/vetur')(),
 	],
 };
 ```

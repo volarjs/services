@@ -17,11 +17,9 @@ Volar plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 `volar.config.js`
 
 ```js
-const prettyhtml = require('@volar-plugins/prettyhtml');
-
 module.exports = {
 	plugins: [
-		prettyhtml({ printWidth: 100 }),
+		require('@volar-plugins/prettyhtml')({ printWidth: 100 }),
 	],
 };
 ```
