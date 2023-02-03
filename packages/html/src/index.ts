@@ -30,8 +30,8 @@ export = (options: {
 
 	return {
 
-		validation: {
-			async setupRuleContext(context) {
+		rules: {
+			async prepare(context) {
 				if (options.validLang === 'html') {
 					await worker(context.document, (htmlDocument) => {
 						context.html = {

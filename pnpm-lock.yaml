@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@types/node': latest
-      '@volar/language-service': next
+      '@volar/language-service': 1.2.0-alpha.5
       typescript: latest
     devDependencies:
       '@types/node': 18.11.18
@@ -76,7 +76,8 @@ importers:
   packages/pug:
     specifiers:
       '@volar-plugins/html': 1.1.1
-      '@volar/source-map': ^1.0.24
+      '@volar/language-service': 1.2.0-alpha.5
+      '@volar/source-map': 1.2.0-alpha.5
       muggle-string: ^0.1.0
       pug-lexer: ^5.0.1
       pug-parser: ^6.0.0
@@ -85,7 +86,8 @@ importers:
       vscode-languageserver-types: ^3.17.2
     dependencies:
       '@volar-plugins/html': link:../html
-      '@volar/source-map': 1.0.24
+      '@volar/language-service': 1.2.0-alpha.5
+      '@volar/source-map': 1.2.0-alpha.5
       muggle-string: 0.1.0
       pug-lexer: 5.0.1
       pug-parser: 6.0.0
@@ -425,7 +427,6 @@ packages:
     dependencies:
       '@volar/source-map': 1.2.0-alpha.5
       muggle-string: 0.1.0
-    dev: true
 
   /@volar/language-service/1.2.0-alpha.5:
     resolution: {integrity: sha512-M0HSiR80YN4kgXV63WGwVK4mxzqmwEKzqSNlWpsS8Intre3STbWFnaSqaxeWXndEuOprAZ/c03wZK0XJUkiehQ==}
@@ -439,32 +440,22 @@ packages:
       vscode-languageserver-protocol: 3.17.2
       vscode-languageserver-textdocument: 1.0.8
       vscode-uri: 3.0.7
-    dev: true
 
   /@volar/shared/1.2.0-alpha.5:
     resolution: {integrity: sha512-1nAKdMy+AlnNpQBP+8kWr3hgr6cWJdc/o1eA6XyNo9OznBoEAskkl4V0iN89O5mza2enr4YcjJfCRk5CKY4jrA==}
     dependencies:
       typesafe-path: 0.2.2
       vscode-uri: 3.0.7
-    dev: true
-
-  /@volar/source-map/1.0.24:
-    resolution: {integrity: sha512-Qsv/tkplx18pgBr8lKAbM1vcDqgkGKQzbChg6NW+v0CZc3G7FLmK+WrqEPzKlN7Cwdc6XVL559Nod8WKAfKr4A==}
-    dependencies:
-      muggle-string: 0.1.0
-    dev: false
 
   /@volar/source-map/1.2.0-alpha.5:
     resolution: {integrity: sha512-o/KUctcPYrlB3FWJe4SuNLLxpAKhENHbsAweyul49Yv3D6wElpX70Fj7Ha3esXN11uXfiSo9ruwP63udwcUbIA==}
     dependencies:
       muggle-string: 0.1.0
-    dev: true
 
   /@volar/typescript-faster/1.2.0-alpha.5:
     resolution: {integrity: sha512-ukDZOIKPyQ1WNYjsRAK/OqG6bw7j4//hUWUyARarNihI5iGA2NZoMC82DQGqkVvEbKFb5wdyapifq2ocdxG97w==}
     dependencies:
       semver: 7.3.8
-    dev: true
 
   /@vscode/emmet-helper/2.8.6:
     resolution: {integrity: sha512-IIB8jbiKy37zN8bAIHx59YmnIelY78CGHtThnibD/d3tQOKRY83bYVi9blwmZVUZh6l9nfkYH3tvReaiNxY9EQ==}
@@ -2530,7 +2521,6 @@ packages:
 
   /typesafe-path/0.2.2:
     resolution: {integrity: sha512-OJabfkAg1WLZSqJAJ0Z6Sdt3utnbzr/jh+NAHoyWHJe8CMSy79Gm085094M9nvTPy22KzTVn5Zq5mbapCI/hPA==}
-    dev: true
 
   /typescript/4.9.5:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}

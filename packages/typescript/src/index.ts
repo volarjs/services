@@ -57,6 +57,19 @@ export = (): LanguageServicePlugin => (context) => {
 
 	return {
 
+		rules: {
+			prepare(ruleCtx) {
+				if (isTsDocument(ruleCtx.document)) {
+					ruleCtx.typescript = {
+						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
+						getTextDocument: tsLs2.getTextDocument,
+						...typescript,
+					};
+				}
+				return ruleCtx;
+			},
+		},
+
 		doAutoInsert(document, position, ctx) {
 			if (
 				(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
@@ -198,16 +211,6 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 
 		validation: {
-			setupRuleContext(ruleCtx) {
-				if (isTsDocument(ruleCtx.document)) {
-					ruleCtx.typescript = {
-						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
-						getTextDocument: tsLs2.getTextDocument,
-						...typescript,
-					};
-				}
-				return ruleCtx;
-			},
 			onSemantic(document) {
 				if (isTsDocument(document)) {
 					return tsLs2.doValidation(document.uri, { semantic: true });

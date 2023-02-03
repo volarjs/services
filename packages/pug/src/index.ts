@@ -30,17 +30,8 @@ export = (): LanguageServicePlugin<{
 		getPugLs: () => pugLs,
 		getPugDocument,
 
-		complete: {
-
-			on(document, position, _) {
-				return worker(document, (pugDocument) => {
-					return pugLs.doComplete(pugDocument, position, context.env.documentContext, /** TODO: CompletionConfiguration */);
-				});
-			},
-		},
-
-		validation: {
-			async setupRuleContext(context) {
+		rules: {
+			async prepare(context) {
 				await worker(context.document, (pugDocument) => {
 					if (pugDocument.ast) {
 						context.pug = {
@@ -51,6 +42,19 @@ export = (): LanguageServicePlugin<{
 				});
 				return context;
 			},
+		},
+
+
+		complete: {
+
+			on(document, position, _) {
+				return worker(document, (pugDocument) => {
+					return pugLs.doComplete(pugDocument, position, context.env.documentContext, /** TODO: CompletionConfiguration */);
+				});
+			},
+		},
+
+		validation: {
 			onSyntactic(document) {
 				return worker(document, (pugDocument) => {
 

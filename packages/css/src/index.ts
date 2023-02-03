@@ -34,6 +34,18 @@ export = (): LanguageServicePlugin => (context) => {
 
 	return {
 
+		rules: {
+			async prepare(context) {
+				await worker(context.document, (stylesheet, cssLs) => {
+					context.css = {
+						stylesheet,
+						languageService: cssLs,
+					};
+				});
+				return context;
+			},
+		},
+
 		complete: {
 
 			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
@@ -91,15 +103,6 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 
 		validation: {
-			async setupRuleContext(context) {
-				await worker(context.document, (stylesheet, cssLs) => {
-					context.css = {
-						stylesheet,
-						languageService: cssLs,
-					};
-				});
-				return context;
-			},
 			async onSyntactic(document) {
 				return worker(document, async (stylesheet, cssLs) => {
 

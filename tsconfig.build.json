@@ -3,46 +3,46 @@
 	"include": [],
 	"references": [
 		{
-			"path": "packages/css/tsconfig.build.json"
+			"path": "./packages/css/tsconfig.build.json"
 		},
 		{
-			"path": "packages/emmet/tsconfig.build.json"
+			"path": "./packages/emmet/tsconfig.build.json"
 		},
 		{
-			"path": "packages/eslint/tsconfig.build.json"
+			"path": "./packages/eslint/tsconfig.build.json"
 		},
 		{
-			"path": "packages/html/tsconfig.build.json"
+			"path": "./packages/html/tsconfig.build.json"
 		},
 		{
-			"path": "packages/json/tsconfig.build.json"
+			"path": "./packages/json/tsconfig.build.json"
 		},
 		{
-			"path": "packages/prettier/tsconfig.build.json"
+			"path": "./packages/prettier/tsconfig.build.json"
 		},
 		{
-			"path": "packages/prettyhtml/tsconfig.build.json"
+			"path": "./packages/prettyhtml/tsconfig.build.json"
 		},
 		{
-			"path": "packages/pug/tsconfig.build.json"
+			"path": "./packages/pug/tsconfig.build.json"
 		},
 		{
-			"path": "packages/pug-beautify/tsconfig.build.json"
+			"path": "./packages/pug-beautify/tsconfig.build.json"
 		},
 		{
-			"path": "packages/sass-formatter/tsconfig.build.json"
+			"path": "./packages/sass-formatter/tsconfig.build.json"
 		},
 		{
-			"path": "packages/tslint/tsconfig.build.json"
+			"path": "./packages/tslint/tsconfig.build.json"
 		},
 		{
-			"path": "packages/typescript/tsconfig.build.json"
+			"path": "./packages/typescript/tsconfig.build.json"
 		},
 		{
-			"path": "packages/typescript-twoslash-queries/tsconfig.build.json"
+			"path": "./packages/typescript-twoslash-queries/tsconfig.build.json"
 		},
 		{
-			"path": "packages/vetur/tsconfig.build.json"
+			"path": "./packages/vetur/tsconfig.build.json"
 		},
 	]
 }

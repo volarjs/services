@@ -1,12 +1,14 @@
 {
 	"private": true,
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json",
-		"watch": "tsc -p tsconfig.build.json -w"
+		"build": "tsc -b tsconfig.build.json",
+		"watch": "tsc -b tsconfig.build.json -w",
+		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
+		"release:next": "lerna publish --exact --force-publish --yes --sync-workspace-lock --dist-tag next"
 	},
 	"devDependencies": {
 		"@types/node": "latest",
-		"@volar/language-service": "next",
+		"@volar/language-service": "1.2.0-alpha.5",
 		"typescript": "latest"
 	}
 }

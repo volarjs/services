@@ -23,6 +23,18 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 
 	return {
 
+		rules: {
+			async prepare(context) {
+				await worker(context.document, async (jsonDocument) => {
+					context.json = {
+						document: jsonDocument,
+						languageService: jsonLs,
+					};
+				});
+				return context;
+			},
+		},
+
 		complete: {
 
 			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
@@ -49,15 +61,6 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 		},
 
 		validation: {
-			async setupRuleContext(context) {
-				await worker(context.document, async (jsonDocument) => {
-					context.json = {
-						document: jsonDocument,
-						languageService: jsonLs,
-					};
-				});
-				return context;
-			},
 			onSyntactic(document) {
 				return worker(document, async (jsonDocument) => {
 
