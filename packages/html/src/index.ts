@@ -4,15 +4,6 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-declare module '@volar/language-service' {
-	interface RuleContext {
-		html?: {
-			document: html.HTMLDocument;
-			languageService: html.LanguageService;
-		}
-	}
-}
-
 export = (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
@@ -35,6 +26,7 @@ export = (options: {
 				if (options.validLang === 'html') {
 					await worker(context.document, (htmlDocument) => {
 						context.html = {
+							version: 'alpha',
 							document: htmlDocument,
 							languageService: htmlLs,
 						};

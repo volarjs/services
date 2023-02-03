@@ -5,18 +5,6 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-declare module '@volar/language-service' {
-	interface RuleContext {
-		typescript?: {
-			sourceFile: ts.SourceFile;
-			getTextDocument(uri: string): TextDocument | undefined;
-			module: typeof ts;
-			languageService: ts.LanguageService;
-			languageServiceHost: ts.LanguageServiceHost;
-		}
-	}
-}
-
 function getBasicTriggerCharacters(tsVersion: string) {
 
 	const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
@@ -62,6 +50,7 @@ export = (): LanguageServicePlugin => (context) => {
 			prepare(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					ruleCtx.typescript = {
+						version: 'alpha',
 						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
 						getTextDocument: tsLs2.getTextDocument,
 						...typescript,

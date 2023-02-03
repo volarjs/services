@@ -25,5 +25,6 @@
 	},
 	"include": [
 		"packages/*/src",
+		"packages/*/rules.d.ts",
 	],
 }

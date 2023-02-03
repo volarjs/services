@@ -3,15 +3,6 @@ import * as json from 'vscode-json-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-declare module '@volar/language-service' {
-	interface RuleContext {
-		json?: {
-			document: json.JSONDocument;
-			languageService: json.LanguageService;
-		}
-	}
-}
-
 export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) => {
 
 	const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
@@ -27,6 +18,7 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 			async prepare(context) {
 				await worker(context.document, async (jsonDocument) => {
 					context.json = {
+						version: 'alpha',
 						document: jsonDocument,
 						languageService: jsonLs,
 					};

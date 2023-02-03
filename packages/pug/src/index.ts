@@ -4,15 +4,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 import * as useHtmlPlugin from '@volar-plugins/html';
 
-declare module '@volar/language-service' {
-	interface RuleContext {
-		pug?: {
-			ast: pug.Node;
-			languageService: pug.LanguageService;
-		}
-	}
-}
-
 export = (): LanguageServicePlugin<{
 	getHtmlLs: () => html.LanguageService,
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
@@ -35,7 +26,8 @@ export = (): LanguageServicePlugin<{
 				await worker(context.document, (pugDocument) => {
 					if (pugDocument.ast) {
 						context.pug = {
-							ast: pugDocument.ast,
+							version: 'alpha',
+							rootNode: pugDocument.ast,
 							languageService: pugLs,
 						};
 					}

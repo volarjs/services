@@ -4,15 +4,6 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-declare module '@volar/language-service' {
-	interface RuleContext {
-		css?: {
-			stylesheet: css.Stylesheet;
-			languageService: css.LanguageService;
-		}
-	}
-}
-
 export = (): LanguageServicePlugin => (context) => {
 
 	let inited = false;
@@ -38,6 +29,7 @@ export = (): LanguageServicePlugin => (context) => {
 			async prepare(context) {
 				await worker(context.document, (stylesheet, cssLs) => {
 					context.css = {
+						version: 'alpha',
 						stylesheet,
 						languageService: cssLs,
 					};

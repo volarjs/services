@@ -4,7 +4,7 @@
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
-		"index.d.ts",
+		"rules.d.ts",
 		"out/**/*.js",
 		"out/**/*.d.ts"
 	],
