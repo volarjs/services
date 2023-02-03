@@ -76,10 +76,7 @@ export const volarPrettierPlugin: (
 			};
 
 			if (config.useVscodeIndentation) {
-				currentPrettierConfig.useTabs =
-					typeof opts.insertSpaces === 'boolean'
-						? opts.insertSpaces
-						: typeof opts.tabSize !== 'number';
+				currentPrettierConfig.useTabs = !opts.insertSpaces;
 				currentPrettierConfig.tabWidth = opts.tabSize;
 			}
 
