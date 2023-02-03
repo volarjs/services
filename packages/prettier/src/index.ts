@@ -23,7 +23,7 @@ const plugin = (
 		 *
 		 * @see https://github.com/volarjs/plugins/issues/5
 		 */
-		ignoreIDEOptions?: boolean,
+		ignoreIdeOptions?: boolean,
 	},
 	getPrettierConfig = () => {
 		const prettierConfigFile = resolveConfigFile.sync();
@@ -58,7 +58,7 @@ const plugin = (
 				filepath: context.uriToFileName(document.uri),
 			};
 
-			if (!options.ignoreIDEOptions) {
+			if (!options.ignoreIdeOptions) {
 				currentPrettierConfig.useTabs = !formatOptions.insertSpaces;
 				currentPrettierConfig.tabWidth = formatOptions.tabSize;
 			}

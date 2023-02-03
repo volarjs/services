@@ -25,7 +25,7 @@ module.exports = {
 				html: {
 					breakContentsFromTags: true,
 				},
-				ignoreIDEOptions: true,
+				ignoreIdeOptions: true,
 			},
 			// provide your prettier options, otherwise auto resolve config file by plugin
 			() => ({

@@ -4,7 +4,7 @@ module.exports = {
 			html: {
 				// breakContentsFromTags: true,
 			},
-			// ignoreIDEOptions: true,
+			// ignoreIdeOptions: true,
 		}),
 	],
 };
