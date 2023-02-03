@@ -17,6 +17,7 @@ export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
 	getConfiguration: GetConfiguration,
+	ts: typeof import('typescript/lib/tsserverlibrary'),
 	shared: Shared,
 ) {
 	return async (item: vscode.CompletionItem, newPosition?: vscode.Position): Promise<vscode.CompletionItem> => {
@@ -49,6 +50,11 @@ export function register(
 
 		if (!details)
 			return item;
+
+		const { sourceDisplay } = details;
+		if (sourceDisplay) {
+			item.labelDetails = { description: ts.displayPartsToString(sourceDisplay) };
+		}
 
 		const detailTexts: string[] = [];
 		if (details.codeActions) {

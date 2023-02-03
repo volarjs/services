@@ -71,7 +71,7 @@ export function createLanguageService(
 		findDocumentSymbols: documentSymbol.register(languageService, getTextDocument, shared),
 		findWorkspaceSymbols: workspaceSymbols.register(languageService, getTextDocument, shared),
 		doComplete: completions.register(rootUri, languageService, getTextDocument, getConfiguration, ts, shared),
-		doCompletionResolve: completionResolve.register(rootUri, languageService, getTextDocument, getConfiguration, shared),
+		doCompletionResolve: completionResolve.register(rootUri, languageService, getTextDocument, getConfiguration, ts, shared),
 		doDirectiveCommentComplete: directiveCommentCompletions.register(getTextDocument),
 		doJsDocComplete: jsDocCompletions.register(languageService, getTextDocument, shared),
 		doHover: hover.register(languageService, getTextDocument, ts, shared),

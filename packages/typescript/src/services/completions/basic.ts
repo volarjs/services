@@ -88,7 +88,7 @@ export function register(
 
 			const { sourceDisplay, isSnippet } = tsEntry;
 			if (sourceDisplay) {
-				item.labelDetails = { description: ts.displayPartsToString(tsEntry.sourceDisplay) };
+				item.labelDetails = { description: ts.displayPartsToString(sourceDisplay) };
 			}
 
 			item.preselect = tsEntry.isRecommended;
