@@ -28,7 +28,7 @@ export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Lang
 				+ document.getText({
 					start: range.end,
 					end: document.positionAt(document.getText().length),
-				})
+				});
 
 			return [{
 				range: {
@@ -38,5 +38,5 @@ export = function (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Lang
 				newText: '\n' + newText.trim() + '\n',
 			}];
 		},
-	})
-}
+	});
+};
