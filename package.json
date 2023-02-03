@@ -8,8 +8,9 @@
 		"release:next": "npm run release -- --dist-tag next"
 	},
 	"devDependencies": {
+		"@lerna-lite/cli": "latest",
 		"@types/node": "latest",
-		"@volar/language-service": "1.2.0-alpha.5",
+		"@volar/language-service": "1.2.0-alpha.7",
 		"typescript": "latest"
 	}
 }
