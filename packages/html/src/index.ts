@@ -26,7 +26,6 @@ export = (options: {
 				if (options.validLang === 'html') {
 					await worker(context.document, (htmlDocument) => {
 						context.html = {
-							version: 'alpha',
 							document: htmlDocument,
 							languageService: htmlLs,
 						};

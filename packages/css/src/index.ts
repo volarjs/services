@@ -29,7 +29,6 @@ export = (): LanguageServicePlugin => (context) => {
 			async prepare(context) {
 				await worker(context.document, (stylesheet, cssLs) => {
 					context.css = {
-						version: 'alpha',
 						stylesheet,
 						languageService: cssLs,
 					};

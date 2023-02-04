@@ -50,7 +50,6 @@ export = (): LanguageServicePlugin => (context) => {
 			prepare(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					ruleCtx.typescript = {
-						version: 'alpha',
 						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
 						getTextDocument: tsLs2.getTextDocument,
 						...typescript,

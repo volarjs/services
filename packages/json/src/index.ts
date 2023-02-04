@@ -18,7 +18,6 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 			async prepare(context) {
 				await worker(context.document, async (jsonDocument) => {
 					context.json = {
-						version: 'alpha',
 						document: jsonDocument,
 						languageService: jsonLs,
 					};

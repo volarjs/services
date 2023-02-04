@@ -26,7 +26,6 @@ export = (): LanguageServicePlugin<{
 				await worker(context.document, (pugDocument) => {
 					if (pugDocument.ast) {
 						context.pug = {
-							version: 'alpha',
 							rootNode: pugDocument.ast,
 							languageService: pugLs,
 						};
