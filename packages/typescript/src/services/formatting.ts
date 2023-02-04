@@ -11,13 +11,16 @@ export function register(
 	shared: Shared,
 ) {
 	return {
-		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions): Promise<vscode.TextEdit[]> => {
+		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions, tsOptions2: ts.FormatCodeSettings): Promise<vscode.TextEdit[]> => {
 
 			const document = getTextDocument(uri);
 			if (!document) return [];
 
 			const fileName = shared.uriToFileName(document.uri);
-			const tsOptions = await getFormatCodeSettings(getConfiguration, document.uri, options);
+			const tsOptions: ts.FormatCodeSettings = {
+				...await getFormatCodeSettings(getConfiguration, document.uri, options),
+				...tsOptions2,
+			};
 			if (typeof (tsOptions.indentSize) === "boolean" || typeof (tsOptions.indentSize) === "string") {
 				tsOptions.indentSize = undefined;
 			}

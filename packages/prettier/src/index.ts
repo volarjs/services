@@ -66,10 +66,17 @@ export = (
 
 			let newText = format(oldText, currentPrettierConfig);
 
-			newText = '\n' + newText.trim() + '\n';
-
-			if (newText === oldText) {
-				return [];
+			if (!newText.startsWith('\n')) {
+				newText = '\n' + newText;
+			}
+			if (!newText.endsWith('\n')) {
+				newText = newText + '\n';
+			}
+			if (formatOptions.initialIndent) {
+				const baseIndent = formatOptions.insertSpaces ? ' '.repeat(formatOptions.tabSize) : '\t';
+				newText = newText.split('\n')
+					.map(line => line ? (baseIndent + line) : line)
+					.join('\n');
 			}
 
 			return [

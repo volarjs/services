@@ -300,7 +300,9 @@ export = (): LanguageServicePlugin => (context) => {
 					return;
 				}
 
-				return tsLs2.doFormatting.onRange(document.uri, range, options_2);
+				return tsLs2.doFormatting.onRange(document.uri, range, options_2, {
+					baseIndentSize: options_2.initialIndent ? options_2.tabSize : 0,
+				});
 			}
 		},
 

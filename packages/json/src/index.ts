@@ -129,10 +129,23 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 					return edits;
 				}
 
-				const newText = TextDocument.applyEdits(document, edits);
+				let newText = TextDocument.applyEdits(document, edits);
+
+				if (!newText.startsWith('\n')) {
+					newText = '\n' + newText;
+				}
+				if (!newText.endsWith('\n')) {
+					newText = newText + '\n';
+				}
+				if (options.initialIndent) {
+					const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+					newText = newText.split('\n')
+						.map(line => line ? (baseIndent + line) : line)
+						.join('\n');
+				}
 
 				return [{
-					newText: '\n' + newText.trim() + '\n',
+					newText,
 					range: {
 						start: document.positionAt(0),
 						end: document.positionAt(document.getText().length),

@@ -166,24 +166,36 @@ export = (): LanguageServicePlugin => (context) => {
 			});
 		},
 
-		async format(document, range, options) {
+		async format(document, formatRange, options) {
 			return worker(document, async (_stylesheet, cssLs) => {
 
 				const options_2 = await context.env.configurationHost?.getConfiguration<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');
-
 				if (options_2?.enable === false) {
 					return;
 				}
 
-				const edits = cssLs.format(document, range, {
+				const edits = cssLs.format(document, formatRange, {
 					...options_2,
 					...options,
 				});
 
-				const newText = TextDocument.applyEdits(document, edits);
+				let newText = TextDocument.applyEdits(document, edits);
+
+				if (!newText.startsWith('\n')) {
+					newText = '\n' + newText;
+				}
+				if (!newText.endsWith('\n')) {
+					newText = newText + '\n';
+				}
+				if (options.initialIndent) {
+					const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+					newText = newText.split('\n')
+						.map(line => line ? (baseIndent + line) : line)
+						.join('\n');
+				}
 
 				return [{
-					newText: '\n' + newText.trim() + '\n',
+					newText,
 					range: {
 						start: document.positionAt(0),
 						end: document.positionAt(document.getText().length),

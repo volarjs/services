@@ -17,15 +17,24 @@ export = (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServiceP
 		if (options.insertSpaces)
 			_options.tabSize = options.tabSize;
 
-		const oldText = document.getText(range);
-		const newText = SassFormatter.Format(oldText, _options);
+		let newText = SassFormatter.Format(document.getText(), _options);
 
-		if (newText === oldText)
-			return [];
+		if (!newText.startsWith('\n')) {
+			newText = '\n' + newText;
+		}
+		if (!newText.endsWith('\n')) {
+			newText = newText + '\n';
+		}
+		if (options.initialIndent) {
+			const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+			newText = newText.split('\n')
+				.map(line => line ? (baseIndent + line) : line)
+				.join('\n');
+		}
 
 		return [{
 			range: range,
 			newText: newText,
 		}];
 	},
-})
+});

@@ -18,7 +18,7 @@ export = (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServi
 		if (newRangeText === oldRangeText)
 			return [];
 
-		const newText = document.getText({
+		let newText = document.getText({
 			start: document.positionAt(0),
 			end: range.start,
 		})
@@ -28,12 +28,25 @@ export = (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServi
 				end: document.positionAt(document.getText().length),
 			});
 
+		if (!newText.startsWith('\n')) {
+			newText = '\n' + newText;
+		}
+		if (!newText.endsWith('\n')) {
+			newText = newText + '\n';
+		}
+		if (options.initialIndent) {
+			const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+			newText = newText.split('\n')
+				.map(line => line ? (baseIndent + line) : line)
+				.join('\n');
+		}
+
 		return [{
+			newText,
 			range: {
 				start: document.positionAt(0),
 				end: document.positionAt(document.getText().length),
 			},
-			newText: '\n' + newText.trim() + '\n',
 		}];
 	},
 });

@@ -18,17 +18,22 @@ export = (): LanguageServicePlugin => () => ({
 		const suffixesLength = pugCode.length - pugCode.trimEnd().length;
 		const prefixes = pugCode.slice(0, prefixesLength);
 		const suffixes = pugCode.slice(pugCode.length - suffixesLength);
-		const newPugCode: string = pugBeautify(pugCode, {
+
+		let newText: string = pugBeautify(pugCode, {
 			tab_size: options.tabSize,
 			fill_tab: !options.insertSpaces,
 		});
 
-		if (newPugCode === document.getText())
-			return [];
+		if (options.initialIndent) {
+			const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
+			newText = newText.split('\n')
+				.map(line => line ? (baseIndent + line) : line)
+				.join('\n');
+		}
 
 		return [{
 			range,
-			newText: prefixes + newPugCode.trim() + suffixes,
+			newText: prefixes + newText.trim() + suffixes,
 		}];
 	},
 });
