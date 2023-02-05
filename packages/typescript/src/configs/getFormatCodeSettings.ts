@@ -1,15 +1,15 @@
+import type { LanguageServicePluginContext } from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import type { GetConfiguration } from '../createLanguageService';
 import { isTypeScriptDocument } from './shared';
 
 export async function getFormatCodeSettings(
-	getConfiguration: GetConfiguration,
+	ctx: LanguageServicePluginContext,
 	uri: string,
 	options?: vscode.FormattingOptions,
 ): Promise<ts.FormatCodeSettings> {
 
-	let config = await getConfiguration(isTypeScriptDocument(uri) ? 'typescript.format' : 'javascript.format');
+	let config = await ctx.env.configurationHost?.getConfiguration<any>(isTypeScriptDocument(uri) ? 'typescript.format' : 'javascript.format');
 
 	config = config ?? {};
 

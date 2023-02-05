@@ -1,8 +1,8 @@
+import type { LanguageServicePluginContext } from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
-import { Shared } from '../../createLanguageService';
 import { getLineText } from './resolve';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
@@ -12,7 +12,7 @@ const defaultJsDoc = `/**\n * $0\n */`;
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	return (uri: string, position: vscode.Position) => {
 
@@ -23,7 +23,7 @@ export function register(
 		if (!isPotentiallyValidDocCompletionPosition(document, position))
 			return;
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 
 		const docCommentTemplate = languageService.getDocCommentTemplateAtPosition(fileName, offset);

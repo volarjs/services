@@ -1,30 +1,30 @@
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import { Shared } from '../createLanguageService';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
-	host: ts.LanguageServiceHost,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
+	const ts = ctx.typescript!.module;
+
 	return (uri: string, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
 
 		const document = getTextDocument(uri);
 		if (!document) return;
 
-		const file = shared.uriToFileName(uri);
+		const file = ctx.uriToFileName(uri);
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
-		if (host.getCancellationToken?.().isCancellationRequested()) return;
+		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
 		let response2: ReturnType<typeof languageService.getEncodedSyntacticClassifications> | undefined;
 		try { response2 = languageService.getEncodedSyntacticClassifications(file, { start, length }); } catch { }
 		if (!response2) return;
 
-		if (host.getCancellationToken?.().isCancellationRequested()) return;
+		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
 		let response1: ReturnType<typeof languageService.getEncodedSemanticClassifications> | undefined;
 		try { response1 = languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty); } catch { }
 		if (!response1) return;

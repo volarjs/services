@@ -5,19 +5,19 @@ import * as PConst from '../protocol.const';
 import { parseKindModifier } from '../utils/modifiers';
 import * as typeConverters from '../utils/typeConverters';
 import { posix as path } from 'path';
-import { Shared } from '../createLanguageService';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	function doPrepare(uri: string, position: vscode.Position) {
 
 		const document = getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 
 		let calls: ReturnType<typeof languageService.prepareCallHierarchy> | undefined;
@@ -32,7 +32,7 @@ export function register(
 		const document = getTextDocument(item.uri);
 		if (!document) return [];
 
-		const fileName = shared.uriToFileName(item.uri);
+		const fileName = ctx.uriToFileName(item.uri);
 		const offset = document.offsetAt(item.selectionRange.start);
 
 		let calls: ReturnType<typeof languageService.provideCallHierarchyIncomingCalls> | undefined;
@@ -40,14 +40,14 @@ export function register(
 		if (!calls) return [];
 
 		const items = Array.isArray(calls) ? calls : [calls];
-		return items.map(item => fromProtocolCallHierchyIncomingCall(item));
+		return items.map(item => fromProtocolCallHierarchyIncomingCall(item));
 	}
 	function getOutgoingCalls(item: vscode.CallHierarchyItem) {
 
 		const document = getTextDocument(item.uri);
 		if (!document) return [];
 
-		const fileName = shared.uriToFileName(item.uri);
+		const fileName = ctx.uriToFileName(item.uri);
 		const offset = document.offsetAt(item.selectionRange.start);
 
 		let calls: ReturnType<typeof languageService.provideCallHierarchyOutgoingCalls> | undefined;
@@ -55,7 +55,7 @@ export function register(
 		if (!calls) return [];
 
 		const items = Array.isArray(calls) ? calls : [calls];
-		return items.map(item => fromProtocolCallHierchyOutgoingCall(item, document));
+		return items.map(item => fromProtocolCallHierarchyOutgoingCall(item, document));
 	}
 
 	return {
@@ -70,7 +70,7 @@ export function register(
 
 	function fromProtocolCallHierarchyItem(item: ts.CallHierarchyItem): vscode.CallHierarchyItem {
 		const rootPath = languageService.getProgram()?.getCompilerOptions().rootDir ?? '';
-		const document = getTextDocument(shared.fileNameToUri(item.file))!; // TODO
+		const document = getTextDocument(ctx.fileNameToUri(item.file))!; // TODO
 		const useFileName = isSourceFileItem(item);
 		const name = useFileName ? path.basename(item.file) : item.name;
 		const detail = useFileName ? path.relative(rootPath, path.dirname(item.file)) : item.containerName ?? '';
@@ -78,7 +78,7 @@ export function register(
 			kind: typeConverters.SymbolKind.fromProtocolScriptElementKind(item.kind),
 			name,
 			detail,
-			uri: shared.fileNameToUri(item.file),
+			uri: ctx.fileNameToUri(item.file),
 			range: {
 				start: document.positionAt(item.span.start),
 				end: document.positionAt(item.span.start + item.span.length),
@@ -96,8 +96,8 @@ export function register(
 		return result;
 	}
 
-	function fromProtocolCallHierchyIncomingCall(item: ts.CallHierarchyIncomingCall): vscode.CallHierarchyIncomingCall {
-		const document = getTextDocument(shared.fileNameToUri(item.from.file))!;
+	function fromProtocolCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingCall): vscode.CallHierarchyIncomingCall {
+		const document = getTextDocument(ctx.fileNameToUri(item.from.file))!;
 		return {
 			from: fromProtocolCallHierarchyItem(item.from),
 			fromRanges: item.fromSpans.map(fromSpan => ({
@@ -107,7 +107,7 @@ export function register(
 		};
 	}
 
-	function fromProtocolCallHierchyOutgoingCall(item: ts.CallHierarchyOutgoingCall, document: TextDocument): vscode.CallHierarchyOutgoingCall {
+	function fromProtocolCallHierarchyOutgoingCall(item: ts.CallHierarchyOutgoingCall, document: TextDocument): vscode.CallHierarchyOutgoingCall {
 		return {
 			to: fromProtocolCallHierarchyItem(item.to),
 			fromRanges: item.fromSpans.map(fromSpan => ({

@@ -3,24 +3,21 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { posix as path } from 'path';
 import { renameInfoOptions } from './prepareRename';
-import type { GetConfiguration, Shared } from '../createLanguageService';
-import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
-	rootUri: URI,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	getConfiguration: GetConfiguration,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 
 	return async (uri: string, position: vscode.Position, newName: string): Promise<vscode.WorkspaceEdit | undefined> => {
 		const document = getTextDocument(uri);
 		if (!document) return;
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 
 		let renameInfo: ReturnType<typeof languageService.getRenameInfo> | undefined;
@@ -29,18 +26,18 @@ export function register(
 
 		if (renameInfo.fileToRename) {
 			const [formatOptions, preferences] = await Promise.all([
-				getFormatCodeSettings(getConfiguration, document.uri),
-				getUserPreferences(getConfiguration, document.uri, rootUri),
+				getFormatCodeSettings(ctx, document.uri),
+				getUserPreferences(ctx, document.uri),
 			]);
 			return renameFile(renameInfo.fileToRename, newName, formatOptions, preferences);
 		}
 
-		const { providePrefixAndSuffixTextForRename } = await getUserPreferences(getConfiguration, document.uri, rootUri);
+		const { providePrefixAndSuffixTextForRename } = await getUserPreferences(ctx, document.uri);
 		const entries = languageService.findRenameLocations(fileName, offset, false, false, providePrefixAndSuffixTextForRename);
 		if (!entries)
 			return;
 
-		const locations = locationsToWorkspaceEdit(newName, entries, getTextDocument, shared);
+		const locations = locationsToWorkspaceEdit(newName, entries, getTextDocument, ctx);
 		return locations;
 	};
 
@@ -59,14 +56,14 @@ export function register(
 		const newFilePath = path.join(dirname, newName);
 
 		const response = languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences);
-		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument, shared);
+		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument, ctx);
 		if (!edits.documentChanges) {
 			edits.documentChanges = [];
 		}
 
 		edits.documentChanges.push(vscode.RenameFile.create(
-			shared.fileNameToUri(fileToRename),
-			shared.fileNameToUri(newFilePath),
+			ctx.fileNameToUri(fileToRename),
+			ctx.fileNameToUri(newFilePath),
 		));
 
 		return edits;
@@ -76,7 +73,7 @@ export function register(
 export function fileTextChangesToWorkspaceEdit(
 	changes: readonly ts.FileTextChanges[],
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 
@@ -86,7 +83,7 @@ export function fileTextChangesToWorkspaceEdit(
 			workspaceEdit.documentChanges = [];
 		}
 
-		const uri = shared.fileNameToUri(change.fileName);
+		const uri = ctx.fileNameToUri(change.fileName);
 		let doc = getTextDocument(uri);
 
 		if (change.isNewFile) {
@@ -123,7 +120,7 @@ function locationsToWorkspaceEdit(
 	newText: string,
 	locations: readonly ts.RenameLocation[],
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 
@@ -133,7 +130,7 @@ function locationsToWorkspaceEdit(
 			workspaceEdit.changes = {};
 		}
 
-		const uri = shared.fileNameToUri(location.fileName);
+		const uri = ctx.fileNameToUri(location.fileName);
 		const doc = getTextDocument(uri);
 		if (!doc) continue;
 

@@ -1,25 +1,23 @@
+import type { LanguageServicePluginContext } from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { entriesToLocations } from '../../utils/transforms';
-import { handleKindModifiers } from './basic';
-import type { Data } from './basic';
-import * as previewer from '../../utils/previewer';
-import type { GetConfiguration, Shared } from '../../createLanguageService';
-import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../../configs/getUserPreferences';
-import { snippetForFunctionCall } from '../../utils/snippetForFunctionCall';
 import { isTypeScriptDocument } from '../../configs/shared';
+import * as previewer from '../../utils/previewer';
+import { snippetForFunctionCall } from '../../utils/snippetForFunctionCall';
+import { entriesToLocations } from '../../utils/transforms';
+import type { Data } from './basic';
+import { handleKindModifiers } from './basic';
 
 export function register(
-	rootUri: URI,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	getConfiguration: GetConfiguration,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
+	const ts = ctx.typescript!.module;
+
 	return async (item: vscode.CompletionItem, newPosition?: vscode.Position): Promise<vscode.CompletionItem> => {
 
 		const data: Data | undefined = item.data;
@@ -36,8 +34,8 @@ export function register(
 		}
 
 		const [formatOptions, preferences] = document ? await Promise.all([
-			getFormatCodeSettings(getConfiguration, document.uri),
-			getUserPreferences(getConfiguration, document.uri, rootUri),
+			getFormatCodeSettings(ctx, document.uri),
+			getUserPreferences(ctx, document.uri),
 		]) : [{}, {}];
 
 		let details: ts.CompletionEntryDetails | undefined;
@@ -65,7 +63,7 @@ export function register(
 					const entries = changes.textChanges.map(textChange => {
 						return { fileName, textSpan: textChange.span };
 					});
-					const locs = entriesToLocations(entries, getTextDocument, shared);
+					const locs = entriesToLocations(entries, getTextDocument, ctx);
 					locs.forEach((loc, index) => {
 						item.additionalTextEdits?.push(vscode.TextEdit.replace(loc.range, changes.textChanges[index].newText));
 					});
@@ -73,7 +71,7 @@ export function register(
 			}
 		}
 		if (details.displayParts) {
-			detailTexts.push(previewer.plainWithLinks(details.displayParts, { toResource }, getTextDocument, shared));
+			detailTexts.push(previewer.plainWithLinks(details.displayParts, { toResource }, getTextDocument, ctx));
 		}
 		if (detailTexts.length) {
 			item.detail = detailTexts.join('\n');
@@ -81,7 +79,7 @@ export function register(
 
 		item.documentation = {
 			kind: 'markdown',
-			value: previewer.markdownDocumentation(details.documentation, details.tags, { toResource }, getTextDocument, shared),
+			value: previewer.markdownDocumentation(details.documentation, details.tags, { toResource }, getTextDocument, ctx),
 		};
 
 		if (details) {
@@ -90,7 +88,7 @@ export function register(
 
 		if (document) {
 
-			const useCodeSnippetsOnMethodSuggest = await getConfiguration<boolean>((isTypeScriptDocument(document.uri) ? 'typescript' : 'javascript') + '.suggest.completeFunctionCalls') ?? false;
+			const useCodeSnippetsOnMethodSuggest = await ctx.env.configurationHost?.getConfiguration<boolean>((isTypeScriptDocument(document.uri) ? 'typescript' : 'javascript') + '.suggest.completeFunctionCalls') ?? false;
 			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === vscode.CompletionItemKind.Function || item.kind === vscode.CompletionItemKind.Method);
 
 			if (useCodeSnippet) {
@@ -127,7 +125,7 @@ export function register(
 		return item;
 
 		function toResource(path: string) {
-			return shared.fileNameToUri(path);
+			return ctx.fileNameToUri(path);
 		}
 	};
 }

@@ -1,14 +1,13 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { GetConfiguration, Shared } from '../createLanguageService';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	getConfiguration: GetConfiguration,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	return {
 		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions, tsOptions2: ts.FormatCodeSettings): Promise<vscode.TextEdit[]> => {
@@ -16,9 +15,9 @@ export function register(
 			const document = getTextDocument(uri);
 			if (!document) return [];
 
-			const fileName = shared.uriToFileName(document.uri);
+			const fileName = ctx.uriToFileName(document.uri);
 			const tsOptions: ts.FormatCodeSettings = {
-				...await getFormatCodeSettings(getConfiguration, document.uri, options),
+				...await getFormatCodeSettings(ctx, document.uri, options),
 				...tsOptions2,
 			};
 			if (typeof (tsOptions.indentSize) === "boolean" || typeof (tsOptions.indentSize) === "string") {
@@ -52,8 +51,8 @@ export function register(
 			const document = getTextDocument(uri);
 			if (!document) return [];
 
-			const fileName = shared.uriToFileName(document.uri);
-			const tsOptions = await getFormatCodeSettings(getConfiguration, document.uri, options);
+			const fileName = ctx.uriToFileName(document.uri);
+			const tsOptions = await getFormatCodeSettings(ctx, document.uri, options);
 
 			let scriptEdits: ReturnType<typeof languageService.getFormattingEditsForRange> | undefined;
 			try {

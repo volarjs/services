@@ -1,16 +1,16 @@
+import type { LanguageServicePluginContext } from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { Shared } from '../createLanguageService';
 
 export function entriesToLocations(
 	entries: { fileName: string, textSpan: ts.TextSpan; }[],
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	const locations: vscode.Location[] = [];
 	for (const entry of entries) {
-		const entryUri = shared.fileNameToUri(entry.fileName);
+		const entryUri = ctx.fileNameToUri(entry.fileName);
 		const doc = getTextDocument(entryUri);
 		if (!doc) continue;
 		const range = vscode.Range.create(
@@ -25,11 +25,11 @@ export function entriesToLocations(
 export function entriesToLocationLinks<T extends ts.DocumentSpan>(
 	entries: T[],
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ): vscode.LocationLink[] {
 	const locations: vscode.LocationLink[] = [];
 	for (const entry of entries) {
-		const entryUri = shared.fileNameToUri(entry.fileName);
+		const entryUri = ctx.fileNameToUri(entry.fileName);
 		const doc = getTextDocument(entryUri);
 		if (!doc) continue;
 		const targetSelectionRange = vscode.Range.create(
@@ -53,7 +53,7 @@ export function boundSpanToLocationLinks(
 	info: ts.DefinitionInfoAndBoundSpan,
 	originalDoc: TextDocument,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ): vscode.LocationLink[] {
 	const locations: vscode.LocationLink[] = [];
 	if (!info.definitions) return locations;
@@ -62,7 +62,7 @@ export function boundSpanToLocationLinks(
 		originalDoc.positionAt(info.textSpan.start + info.textSpan.length),
 	);
 	for (const entry of info.definitions) {
-		const entryUri = shared.fileNameToUri(entry.fileName);
+		const entryUri = ctx.fileNameToUri(entry.fileName);
 		const doc = getTextDocument(entryUri);
 		if (!doc) continue;
 		const targetSelectionRange = vscode.Range.create(

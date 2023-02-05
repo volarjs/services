@@ -3,7 +3,7 @@ import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { Shared } from '../createLanguageService';
+import { LanguageServicePluginContext } from '@volar/language-service';
 
 function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 	switch (item.kind) {
@@ -25,7 +25,7 @@ function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument2: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	return (query: string): vscode.SymbolInformation[] => {
 
@@ -40,7 +40,7 @@ export function register(
 
 		function toSymbolInformation(item: ts.NavigateToItem) {
 			const label = getLabel(item);
-			const uri = shared.fileNameToUri(item.fileName);
+			const uri = ctx.fileNameToUri(item.fileName);
 			const document = getTextDocument2(uri);
 			if (document) {
 				const range = vscode.Range.create(document.positionAt(item.textSpan.start), document.positionAt(item.textSpan.start + item.textSpan.length));

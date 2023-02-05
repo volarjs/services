@@ -3,10 +3,9 @@ import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { fileTextChangesToWorkspaceEdit } from './rename';
 import * as fixNames from '../utils/fixNames';
-import type { GetConfiguration, Shared } from '../createLanguageService';
-import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export interface FixAllData {
 	type: 'fixAll',
@@ -32,11 +31,9 @@ export interface OrganizeImportsData {
 export type Data = FixAllData | RefactorData | OrganizeImportsData;
 
 export function register(
-	rootUri: URI,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	getConfiguration: GetConfiguration,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	return async (uri: string, range: vscode.Range, context: vscode.CodeActionContext) => {
 
@@ -44,11 +41,11 @@ export function register(
 		if (!document) return;
 
 		const [formatOptions, preferences] = await Promise.all([
-			getFormatCodeSettings(getConfiguration, document.uri),
-			getUserPreferences(getConfiguration, document.uri, rootUri),
+			getFormatCodeSettings(ctx, document.uri),
+			getUserPreferences(ctx, document.uri),
 		]);
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		let result: vscode.CodeAction[] = [];
@@ -189,7 +186,7 @@ export function register(
 			}
 		}
 		function transformCodeFix(codeFix: ts.CodeFixAction, diagnostics: vscode.Diagnostic[], kind: vscode.CodeActionKind) {
-			const edit = fileTextChangesToWorkspaceEdit(codeFix.changes, getTextDocument, shared);
+			const edit = fileTextChangesToWorkspaceEdit(codeFix.changes, getTextDocument, ctx);
 			const codeActions: vscode.CodeAction[] = [];
 			const fix = vscode.CodeAction.create(
 				codeFix.description,

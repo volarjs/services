@@ -3,7 +3,7 @@ import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { Shared } from '../createLanguageService';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 const getSymbolKind = (kind: string): vscode.SymbolKind => {
 	switch (kind) {
@@ -29,14 +29,14 @@ const getSymbolKind = (kind: string): vscode.SymbolKind => {
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 	return (uri: string): vscode.SymbolInformation[] => {
 
 		const document = getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 
 		let barItems: ReturnType<typeof languageService.getNavigationTree> | undefined;
 		try { barItems = languageService.getNavigationTree(fileName); } catch { }
@@ -57,7 +57,7 @@ export function register(
 			item: ts.NavigationTree,
 			parent: ts.NavigationTree | undefined,
 		): boolean {
-			let shouldInclude = shouldInclueEntry(item);
+			let shouldInclude = shouldIncludeEntry(item);
 			if (!shouldInclude && !item.childItems?.length) {
 				return false;
 			}
@@ -92,7 +92,7 @@ export function register(
 
 			return shouldInclude;
 		}
-		function shouldInclueEntry(item: ts.NavigationTree): boolean {
+		function shouldIncludeEntry(item: ts.NavigationTree): boolean {
 			if (item.kind === PConst.Kind.alias) {
 				return false;
 			}

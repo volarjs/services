@@ -1,15 +1,15 @@
 import * as vscode from 'vscode-languageserver-protocol';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { Shared } from '../createLanguageService';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
-	host: ts.LanguageServiceHost,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
+	const ts = ctx.typescript!.module;
+
 	return (
 		uri: string,
 		options: {
@@ -23,14 +23,14 @@ export function register(
 		const document = getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const program = languageService.getProgram();
 		const sourceFile = program?.getSourceFile(fileName);
 		if (!program || !sourceFile) return [];
 
 		const token: ts.CancellationToken = {
 			isCancellationRequested() {
-				return host.getCancellationToken?.().isCancellationRequested() ?? false;
+				return ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
 			},
 			throwIfCancellationRequested() { },
 		};
@@ -94,7 +94,7 @@ export function register(
 
 			let document: TextDocument | undefined;
 			if (diag.file) {
-				document = getTextDocument(shared.fileNameToUri(diag.file.fileName));
+				document = getTextDocument(ctx.fileNameToUri(diag.file.fileName));
 			}
 			if (!document) return;
 

@@ -1,16 +1,15 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import type { GetConfiguration } from '../createLanguageService';
 import { isTypeScriptDocument } from './shared';
 import { posix as path } from 'path';
 import { URI } from 'vscode-uri';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export async function getUserPreferences(
-	getConfiguration: GetConfiguration,
+	ctx: LanguageServicePluginContext,
 	uri: string,
-	workspaceFolder: URI | undefined,
 ): Promise<ts.UserPreferences> {
 
-	const config = await getConfiguration(isTypeScriptDocument(uri) ? 'typescript' : 'javascript') ?? {};
+	const config = await ctx.env.configurationHost?.getConfiguration<any>(isTypeScriptDocument(uri) ? 'typescript' : 'javascript') ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
 		...config.unstable ?? {},
@@ -28,7 +27,7 @@ export async function getUserPreferences(
 		includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ?? true,
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
-		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, workspaceFolder),
+		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.env.rootUri),
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,

@@ -2,19 +2,20 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import * as previewer from '../utils/previewer';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { Shared } from '../createLanguageService';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
+	const ts = ctx.typescript!.module;
+
 	return (uri: string, position: vscode.Position, documentOnly = false): vscode.Hover | undefined => {
 		const document = getTextDocument(uri);
 		if (!document) return;
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 
 		let info: ReturnType<typeof languageService.getQuickInfoAtPosition> | undefined;
@@ -23,7 +24,7 @@ export function register(
 
 		const parts: string[] = [];
 		const displayString = ts.displayPartsToString(info.displayParts);
-		const documentation = previewer.markdownDocumentation(info.documentation ?? [], info.tags, { toResource }, getTextDocument, shared);
+		const documentation = previewer.markdownDocumentation(info.documentation ?? [], info.tags, { toResource }, getTextDocument, ctx);
 
 		if (displayString && !documentOnly) {
 			parts.push(['```typescript', displayString, '```'].join('\n'));
@@ -46,7 +47,7 @@ export function register(
 		};
 
 		function toResource(path: string) {
-			return shared.fileNameToUri(path);
+			return ctx.fileNameToUri(path);
 		}
 	};
 }

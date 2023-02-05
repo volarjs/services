@@ -1,20 +1,21 @@
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import { Shared } from '../createLanguageService';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 export function register(
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
+	const ts = ctx.typescript!.module;
+
 	return (uri: string) => {
 
 		const document = getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = shared.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 
 		let outliningSpans: ReturnType<typeof languageService.getOutliningSpans> | undefined;
 		try { outliningSpans = languageService.getOutliningSpans(fileName); } catch { }

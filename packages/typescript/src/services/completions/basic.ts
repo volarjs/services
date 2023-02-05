@@ -1,12 +1,11 @@
+import type { LanguageServicePluginContext } from '@volar/language-service';
+import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as PConst from '../../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import * as semver from 'semver';
-import { parseKindModifier } from '../../utils/modifiers';
-import type { GetConfiguration, Shared } from '../../createLanguageService';
 import { getUserPreferences } from '../../configs/getUserPreferences';
-import { URI } from 'vscode-uri';
+import * as PConst from '../../protocol.const';
+import { parseKindModifier } from '../../utils/modifiers';
 
 export interface Data {
 	uri: string,
@@ -16,14 +15,12 @@ export interface Data {
 }
 
 export function register(
-	rootUri: URI,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	getConfiguration: GetConfiguration,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
 
+	const ts = ctx.typescript!.module;
 	const lt_320 = semver.lt(ts.version, '3.2.0');
 	const gte_300 = semver.gte(ts.version, '3.0.0');
 
@@ -33,8 +30,8 @@ export function register(
 		if (!document)
 			return;
 
-		const preferences = await getUserPreferences(getConfiguration, document.uri, rootUri);
-		const fileName = shared.uriToFileName(document.uri);
+		const preferences = await getUserPreferences(ctx, document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 
 		let completionContext: ReturnType<typeof languageService.getCompletionsAtPosition> | undefined;

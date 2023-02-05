@@ -1,25 +1,23 @@
+import type { LanguageServicePluginContext } from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import { URI } from 'vscode-uri';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { GetConfiguration, Shared } from '../createLanguageService';
 import { getUserPreferences } from '../configs/getUserPreferences';
 
 export function register(
-	rootUri: URI,
 	languageService: ts.LanguageService,
 	getTextDocument: (uri: string) => TextDocument | undefined,
-	getConfiguration: GetConfiguration,
-	ts: typeof import('typescript/lib/tsserverlibrary'),
-	shared: Shared,
+	ctx: LanguageServicePluginContext,
 ) {
+	const ts = ctx.typescript!.module;
+
 	return async (uri: string, range: vscode.Range) => {
 
 		const document = getTextDocument(uri);
 		if (!document) return;
 
-		const preferences = await getUserPreferences(getConfiguration, document.uri, rootUri);
-		const fileName = shared.uriToFileName(document.uri);
+		const preferences = await getUserPreferences(ctx, document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		let inlayHints: ts.InlayHint[] = [];
