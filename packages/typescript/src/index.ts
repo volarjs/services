@@ -95,11 +95,17 @@ export = (): LanguageServicePlugin => (context) => {
 		rules: {
 			prepare(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
-					ruleCtx.typescript = {
-						sourceFile: typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri))!,
-						getTextDocument,
-						...typescript,
-					};
+					const sourceFile = typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					if (sourceFile) {
+						ruleCtx.typescript = {
+							sourceFile,
+							getTextDocument,
+							...typescript,
+						};
+					}
+					else {
+						console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
+					}
 				}
 				return ruleCtx;
 			},
