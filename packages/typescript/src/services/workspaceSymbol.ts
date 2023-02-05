@@ -3,7 +3,7 @@ import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { LanguageServicePluginContext } from '@volar/language-service';
+import type { LanguageServicePluginContext } from '@volar/language-service';
 
 function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 	switch (item.kind) {

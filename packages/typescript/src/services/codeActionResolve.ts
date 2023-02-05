@@ -17,8 +17,8 @@ export function register(
 		const data: Data = codeAction.data;
 		const document = getTextDocument(data.uri);
 		const [formatOptions, preferences] = document ? await Promise.all([
-			getFormatCodeSettings(ctx, document.uri),
-			getUserPreferences(ctx, document.uri),
+			getFormatCodeSettings(ctx, document),
+			getUserPreferences(ctx, document),
 		]) : [{}, {}];
 
 		if (data?.type === 'fixAll') {

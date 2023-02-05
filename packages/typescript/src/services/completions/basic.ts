@@ -30,7 +30,7 @@ export function register(
 		if (!document)
 			return;
 
-		const preferences = await getUserPreferences(ctx, document.uri);
+		const preferences = await getUserPreferences(ctx, document);
 		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 

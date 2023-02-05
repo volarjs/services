@@ -4,7 +4,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../../configs/getUserPreferences';
-import { isTypeScriptDocument } from '../../configs/shared';
+import { getConfigTitle } from '../../shared';
 import * as previewer from '../../utils/previewer';
 import { snippetForFunctionCall } from '../../utils/snippetForFunctionCall';
 import { entriesToLocations } from '../../utils/transforms';
@@ -34,8 +34,8 @@ export function register(
 		}
 
 		const [formatOptions, preferences] = document ? await Promise.all([
-			getFormatCodeSettings(ctx, document.uri),
-			getUserPreferences(ctx, document.uri),
+			getFormatCodeSettings(ctx, document),
+			getUserPreferences(ctx, document),
 		]) : [{}, {}];
 
 		let details: ts.CompletionEntryDetails | undefined;
@@ -88,7 +88,7 @@ export function register(
 
 		if (document) {
 
-			const useCodeSnippetsOnMethodSuggest = await ctx.env.configurationHost?.getConfiguration<boolean>((isTypeScriptDocument(document.uri) ? 'typescript' : 'javascript') + '.suggest.completeFunctionCalls') ?? false;
+			const useCodeSnippetsOnMethodSuggest = await ctx.env.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.suggest.completeFunctionCalls') ?? false;
 			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === vscode.CompletionItemKind.Function || item.kind === vscode.CompletionItemKind.Method);
 
 			if (useCodeSnippet) {

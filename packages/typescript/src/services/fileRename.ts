@@ -15,8 +15,8 @@ export function register(
 
 		const document = getTextDocument(oldUri);
 		const [formatOptions, preferences] = document ? await Promise.all([
-			getFormatCodeSettings(ctx, document.uri),
-			getUserPreferences(ctx, document.uri),
+			getFormatCodeSettings(ctx, document),
+			getUserPreferences(ctx, document),
 		]) : [{}, {}];
 
 		const fileToRename = ctx.uriToFileName(oldUri);

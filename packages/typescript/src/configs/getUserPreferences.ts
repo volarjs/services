@@ -1,15 +1,16 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import { isTypeScriptDocument } from './shared';
+import { getConfigTitle } from '../shared';
 import { posix as path } from 'path';
 import { URI } from 'vscode-uri';
 import type { LanguageServicePluginContext } from '@volar/language-service';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export async function getUserPreferences(
 	ctx: LanguageServicePluginContext,
-	uri: string,
+	document: TextDocument,
 ): Promise<ts.UserPreferences> {
 
-	const config = await ctx.env.configurationHost?.getConfiguration<any>(isTypeScriptDocument(uri) ? 'typescript' : 'javascript') ?? {};
+	const config = await ctx.env.configurationHost?.getConfiguration<any>(getConfigTitle(document)) ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
 		...config.unstable ?? {},
@@ -17,7 +18,7 @@ export async function getUserPreferences(
 		importModuleSpecifierPreference: getImportModuleSpecifierPreference(preferencesConfig),
 		importModuleSpecifierEnding: getImportModuleSpecifierEndingPreference(preferencesConfig),
 		jsxAttributeCompletionStyle: getJsxAttributeCompletionStyle(preferencesConfig),
-		allowTextChangesInNewFiles: uri.startsWith('file://'),
+		allowTextChangesInNewFiles: document.uri.startsWith('file://'),
 		providePrefixAndSuffixTextForRename: (preferencesConfig.renameShorthandProperties ?? true) === false ? false : (preferencesConfig.useAliasesForRenames ?? true),
 		allowRenameOfImportPath: true,
 		includeAutomaticOptionalChainCompletions: config.suggest?.includeAutomaticOptionalChainCompletions ?? true,

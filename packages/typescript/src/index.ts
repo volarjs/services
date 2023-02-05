@@ -3,33 +3,34 @@ import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
 
+import * as _callHierarchy from './services/callHierarchy';
+import * as codeActions from './services/codeAction';
+import * as codeActionResolve from './services/codeActionResolve';
 import * as completions from './services/completions/basic';
 import * as directiveCommentCompletions from './services/completions/directiveComment';
 import * as jsDocCompletions from './services/completions/jsDoc';
 import * as completionResolve from './services/completions/resolve';
 import * as definitions from './services/definition';
-import * as typeDefinitions from './services/typeDefinition';
-import * as references from './services/references';
-import * as fileReferences from './services/fileReferences';
-import * as prepareRename from './services/prepareRename';
-import * as rename from './services/rename';
-import * as fileRename from './services/fileRename';
-import * as codeActions from './services/codeAction';
-import * as codeActionResolve from './services/codeActionResolve';
-import * as hover from './services/hover';
-import * as signatureHelp from './services/signatureHelp';
-import * as selectionRanges from './services/selectionRanges';
 import * as diagnostics from './services/diagnostics';
 import * as documentHighlight from './services/documentHighlight';
 import * as documentSymbol from './services/documentSymbol';
-import * as workspaceSymbols from './services/workspaceSymbol';
-import * as formatting from './services/formatting';
-import * as semanticTokens from './services/semanticTokens';
+import * as fileReferences from './services/fileReferences';
+import * as fileRename from './services/fileRename';
 import * as foldingRanges from './services/foldingRanges';
-import * as _callHierarchy from './services/callHierarchy';
+import * as formatting from './services/formatting';
+import * as hover from './services/hover';
 import * as implementation from './services/implementation';
 import * as inlayHints from './services/inlayHints';
+import * as prepareRename from './services/prepareRename';
+import * as references from './services/references';
+import * as rename from './services/rename';
+import * as selectionRanges from './services/selectionRanges';
+import * as semanticTokens from './services/semanticTokens';
+import * as signatureHelp from './services/signatureHelp';
+import * as typeDefinitions from './services/typeDefinition';
+import * as workspaceSymbols from './services/workspaceSymbol';
 
 function getBasicTriggerCharacters(tsVersion: string) {
 
@@ -339,7 +340,6 @@ export = (): LanguageServicePlugin => (context) => {
 			if (isTsDocument(document)) {
 
 				const enable = await context.env.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
-
 				if (enable === false) {
 					return;
 				}
@@ -354,7 +354,6 @@ export = (): LanguageServicePlugin => (context) => {
 			if (isTsDocument(document)) {
 
 				const enable = await context.env.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
-
 				if (enable === false) {
 					return;
 				}
@@ -379,25 +378,3 @@ export = (): LanguageServicePlugin => (context) => {
 		return documents.get(uri)?.[1];
 	}
 };
-
-function getConfigTitle(document: TextDocument) {
-	if (document.languageId === 'javascriptreact') {
-		return 'javascript';
-	}
-	if (document.languageId === 'typescriptreact') {
-		return 'typescript';
-	}
-	return document.languageId;
-}
-
-function isTsDocument(document: TextDocument) {
-	return document.languageId === 'javascript' ||
-		document.languageId === 'typescript' ||
-		document.languageId === 'javascriptreact' ||
-		document.languageId === 'typescriptreact';
-}
-
-function isJsonDocument(document: TextDocument) {
-	return document.languageId === 'json' ||
-		document.languageId === 'jsonc';
-}

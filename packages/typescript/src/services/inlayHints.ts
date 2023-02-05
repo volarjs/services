@@ -16,7 +16,7 @@ export function register(
 		const document = getTextDocument(uri);
 		if (!document) return;
 
-		const preferences = await getUserPreferences(ctx, document.uri);
+		const preferences = await getUserPreferences(ctx, document);
 		const fileName = ctx.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);

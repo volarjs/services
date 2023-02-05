@@ -41,8 +41,8 @@ export function register(
 		if (!document) return;
 
 		const [formatOptions, preferences] = await Promise.all([
-			getFormatCodeSettings(ctx, document.uri),
-			getUserPreferences(ctx, document.uri),
+			getFormatCodeSettings(ctx, document),
+			getUserPreferences(ctx, document),
 		]);
 
 		const fileName = ctx.uriToFileName(document.uri);
