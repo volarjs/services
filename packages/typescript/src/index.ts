@@ -32,27 +32,6 @@ import * as signatureHelp from './services/signatureHelp';
 import * as typeDefinitions from './services/typeDefinition';
 import * as workspaceSymbols from './services/workspaceSymbol';
 
-function getBasicTriggerCharacters(tsVersion: string) {
-
-	const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
-
-	// https://github.com/microsoft/vscode/blob/8e65ae28d5fb8b3c931135da1a41edb9c80ae46f/extensions/typescript-language-features/src/languageFeatures/completions.ts#L811-L833
-	if (semver.lt(tsVersion, '3.1.0') || semver.gte(tsVersion, '3.2.0')) {
-		triggerCharacters.push('@');
-	}
-	if (semver.gte(tsVersion, '3.8.1')) {
-		triggerCharacters.push('#');
-	}
-	if (semver.gte(tsVersion, '4.3.0')) {
-		triggerCharacters.push(' ');
-	}
-
-	return triggerCharacters;
-}
-
-const jsDocTriggerCharacters = ['*'];
-const directiveCommentTriggerCharacters = ['@'];
-
 export = (): LanguageServicePlugin => (context) => {
 
 	if (!context.typescript) {
@@ -61,6 +40,8 @@ export = (): LanguageServicePlugin => (context) => {
 	}
 
 	const basicTriggerCharacters = getBasicTriggerCharacters('4.3.0');
+	const jsDocTriggerCharacters = ['*'];
+	const directiveCommentTriggerCharacters = ['@'];
 	const typescript = context.typescript;
 	const documents = new Map<string, [string, TextDocument]>();
 	const findDefinition = definitions.register(typescript.languageService, getTextDocument, context);
@@ -368,6 +349,24 @@ export = (): LanguageServicePlugin => (context) => {
 			}
 		},
 	};
+
+	function getBasicTriggerCharacters(tsVersion: string) {
+
+		const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
+
+		// https://github.com/microsoft/vscode/blob/8e65ae28d5fb8b3c931135da1a41edb9c80ae46f/extensions/typescript-language-features/src/languageFeatures/completions.ts#L811-L833
+		if (semver.lt(tsVersion, '3.1.0') || semver.gte(tsVersion, '3.2.0')) {
+			triggerCharacters.push('@');
+		}
+		if (semver.gte(tsVersion, '3.8.1')) {
+			triggerCharacters.push('#');
+		}
+		if (semver.gte(tsVersion, '4.3.0')) {
+			triggerCharacters.push(' ');
+		}
+
+		return triggerCharacters;
+	}
 
 	function getTextDocument(uri: string) {
 		const fileName = context.uriToFileName(uri);
