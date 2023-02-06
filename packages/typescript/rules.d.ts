@@ -6,7 +6,6 @@ declare module '@volar/language-service' {
 		typescript?: {
 			sourceFile: ts.SourceFile;
 			getTextDocument(uri: string): TextDocument | undefined;
-			module: typeof ts;
 			languageService: ts.LanguageService;
 			languageServiceHost: ts.LanguageServiceHost;
 		}
