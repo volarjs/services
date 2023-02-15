@@ -18,7 +18,7 @@ export = (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServi
 		if (newRangeText === oldRangeText)
 			return [];
 
-		let newText = document.getText({
+		const newText = document.getText({
 			start: document.positionAt(0),
 			end: range.start,
 		})
@@ -27,13 +27,6 @@ export = (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServi
 				start: range.end,
 				end: document.positionAt(document.getText().length),
 			});
-
-		if (!newText.startsWith('\n')) {
-			newText = '\n' + newText;
-		}
-		if (!newText.endsWith('\n')) {
-			newText = newText + '\n';
-		}
 
 		return [{
 			newText,

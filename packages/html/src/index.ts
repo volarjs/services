@@ -133,27 +133,10 @@ export = (options: {
 					}
 				}
 
-				const edits = htmlLs.format(document, formatRange, {
+				return htmlLs.format(document, formatRange, {
 					...options_2,
 					...options,
 				});
-
-				let newText = TextDocument.applyEdits(document, edits);
-
-				if (!newText.startsWith('\n')) {
-					newText = '\n' + newText;
-				}
-				if (!newText.endsWith('\n')) {
-					newText = newText + '\n';
-				}
-
-				return [{
-					newText,
-					range: {
-						start: document.positionAt(0),
-						end: document.positionAt(document.getText().length),
-					},
-				}];
 			});
 		},
 

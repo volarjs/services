@@ -64,24 +64,13 @@ export = (
 				currentPrettierConfig.tabWidth = formatOptions.tabSize;
 			}
 
-			let newText = format(oldText, currentPrettierConfig);
-
-			if (!newText.startsWith('\n')) {
-				newText = '\n' + newText;
-			}
-			if (!newText.endsWith('\n')) {
-				newText = newText + '\n';
-			}
-
-			return [
-				{
-					range: {
-						start: document.positionAt(0),
-						end: document.positionAt(fullText.length),
-					},
-					newText: newText,
+			return [{
+				newText: format(oldText, currentPrettierConfig),
+				range: {
+					start: document.positionAt(0),
+					end: document.positionAt(fullText.length),
 				},
-			];
+			}];
 		},
 	};
 };

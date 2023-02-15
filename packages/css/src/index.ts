@@ -173,27 +173,10 @@ export = (): LanguageServicePlugin => (context) => {
 					return;
 				}
 
-				const edits = cssLs.format(document, formatRange, {
+				return cssLs.format(document, formatRange, {
 					...options_2,
 					...options,
 				});
-
-				let newText = TextDocument.applyEdits(document, edits);
-
-				if (!newText.startsWith('\n')) {
-					newText = '\n' + newText;
-				}
-				if (!newText.endsWith('\n')) {
-					newText = newText + '\n';
-				}
-
-				return [{
-					newText,
-					range: {
-						start: document.positionAt(0),
-						end: document.positionAt(document.getText().length),
-					},
-				}];
 			});
 		},
 	};

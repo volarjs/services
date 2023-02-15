@@ -113,37 +113,14 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 			return worker(document, async () => {
 
 				const options_2 = await context.env.configurationHost?.getConfiguration<json.FormattingOptions & { enable: boolean; }>('json.format');
-
-				if (options_2?.enable === false) {
+				if (!(options_2?.enable ?? true)) {
 					return;
 				}
 
-				const edits = jsonLs.format(document, range, {
+				return jsonLs.format(document, range, {
 					...options_2,
 					...options,
-					insertFinalNewline: true,
 				});
-
-				if (!edits.length) {
-					return edits;
-				}
-
-				let newText = TextDocument.applyEdits(document, edits);
-
-				if (!newText.startsWith('\n')) {
-					newText = '\n' + newText;
-				}
-				if (!newText.endsWith('\n')) {
-					newText = newText + '\n';
-				}
-
-				return [{
-					newText,
-					range: {
-						start: document.positionAt(0),
-						end: document.positionAt(document.getText().length),
-					},
-				}];
 			});
 		},
 	};
