@@ -24,13 +24,6 @@ export = (): LanguageServicePlugin => () => ({
 			fill_tab: !options.insertSpaces,
 		});
 
-		if (options.initialIndent) {
-			const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
-			newText = newText.split('\n')
-				.map(line => line ? (baseIndent + line) : line)
-				.join('\n');
-		}
-
 		return [{
 			range,
 			newText: prefixes + newText.trim() + suffixes,

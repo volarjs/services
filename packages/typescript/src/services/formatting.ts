@@ -1,4 +1,3 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { safeCall } from '../shared';
@@ -6,16 +5,13 @@ import { SharedContext } from '../types';
 
 export function register(ctx: SharedContext) {
 	return {
-		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions, tsOptions2: ts.FormatCodeSettings): Promise<vscode.TextEdit[]> => {
+		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions): Promise<vscode.TextEdit[]> => {
 
 			const document = ctx.getTextDocument(uri);
 			if (!document) return [];
 
 			const fileName = ctx.uriToFileName(document.uri);
-			const tsOptions: ts.FormatCodeSettings = {
-				...await getFormatCodeSettings(ctx, document, options),
-				...tsOptions2,
-			};
+			const tsOptions = await getFormatCodeSettings(ctx, document, options);
 			if (typeof (tsOptions.indentSize) === "boolean" || typeof (tsOptions.indentSize) === "string") {
 				tsOptions.indentSize = undefined;
 			}

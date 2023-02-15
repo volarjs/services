@@ -72,12 +72,6 @@ export = (
 			if (!newText.endsWith('\n')) {
 				newText = newText + '\n';
 			}
-			if (formatOptions.initialIndent) {
-				const baseIndent = formatOptions.insertSpaces ? ' '.repeat(formatOptions.tabSize) : '\t';
-				newText = newText.split('\n')
-					.map(line => line ? (baseIndent + line) : line)
-					.join('\n');
-			}
 
 			return [
 				{

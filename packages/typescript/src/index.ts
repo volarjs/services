@@ -99,7 +99,7 @@ export = (): LanguageServicePlugin => (context) => {
 			languageServiceHost: syntacticServiceHost,
 			languageService: ts.createLanguageService(syntacticServiceHost),
 		},
-	} as SharedContext;
+	};
 	const findDocumentSymbols = documentSymbol.register(syntacticCtx);
 	const doFormatting = formatting.register(syntacticCtx);
 	const getFoldingRanges = foldingRanges.register(syntacticCtx);
@@ -406,9 +406,7 @@ export = (): LanguageServicePlugin => (context) => {
 
 				prepareSyntacticService(document);
 
-				return doFormatting.onRange(document.uri, range, options_2, {
-					baseIndentSize: options_2.initialIndent ? options_2.tabSize : 0,
-				});
+				return doFormatting.onRange(document.uri, range, options_2);
 			}
 		},
 

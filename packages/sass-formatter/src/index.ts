@@ -25,12 +25,6 @@ export = (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServiceP
 		if (!newText.endsWith('\n')) {
 			newText = newText + '\n';
 		}
-		if (options.initialIndent) {
-			const baseIndent = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
-			newText = newText.split('\n')
-				.map(line => line ? (baseIndent + line) : line)
-				.join('\n');
-		}
 
 		return [{
 			range: range,
