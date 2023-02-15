@@ -40,11 +40,7 @@ export = (): LanguageServicePlugin => (context) => {
 		return {};
 	}
 
-	const {
-		module: ts,
-		languageService,
-	} = context.typescript;
-
+	const { module: ts } = context.typescript;
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
@@ -113,7 +109,8 @@ export = (): LanguageServicePlugin => (context) => {
 		rules: {
 			onFormat(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
-					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					prepareSyntacticService(ruleCtx.document);
+					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
@@ -128,7 +125,8 @@ export = (): LanguageServicePlugin => (context) => {
 			},
 			onSyntax(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
-					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					prepareSyntacticService(ruleCtx.document);
+					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
@@ -143,7 +141,7 @@ export = (): LanguageServicePlugin => (context) => {
 			},
 			onSemantic(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
-					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					const sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
@@ -166,8 +164,11 @@ export = (): LanguageServicePlugin => (context) => {
 				const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
 				const config = context.env.configurationHost?.getConfiguration<boolean>(configName) ?? true;
 				if (config) {
-					const tsLs = languageService;
-					const close = tsLs.getJsxClosingTagAtPosition(context.uriToFileName(document.uri), document.offsetAt(position));
+
+					prepareSyntacticService(document);
+
+					const close = syntacticCtx.typescript.languageService.getJsxClosingTagAtPosition(context.uriToFileName(document.uri), document.offsetAt(position));
+
 					if (close) {
 						return '$0' + close.newText;
 					}
