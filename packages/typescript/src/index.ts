@@ -2,7 +2,6 @@ import type { LanguageServicePlugin } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
 
 import * as _callHierarchy from './services/callHierarchy';
@@ -31,6 +30,7 @@ import * as semanticTokens from './services/semanticTokens';
 import * as signatureHelp from './services/signatureHelp';
 import * as typeDefinitions from './services/typeDefinition';
 import * as workspaceSymbols from './services/workspaceSymbol';
+import { SharedContext } from './types';
 
 export = (): LanguageServicePlugin => (context) => {
 
@@ -39,49 +39,60 @@ export = (): LanguageServicePlugin => (context) => {
 		return {};
 	}
 
-	const basicTriggerCharacters = getBasicTriggerCharacters('4.3.0');
-	const jsDocTriggerCharacters = ['*'];
-	const directiveCommentTriggerCharacters = ['@'];
-	const typescript = context.typescript;
-	const documents = new Map<string, [string, TextDocument]>();
-	const findDefinition = definitions.register(typescript.languageService, getTextDocument, context);
-	const findTypeDefinition = typeDefinitions.register(typescript.languageService, getTextDocument, context);
-	const findReferences = references.register(typescript.languageService, getTextDocument, context);
-	const findFileReferences = fileReferences.register(typescript.languageService, getTextDocument, context);
-	const findImplementations = implementation.register(typescript.languageService, getTextDocument, context);
-	const doPrepareRename = prepareRename.register(typescript.languageService, getTextDocument, context);
-	const doRename = rename.register(typescript.languageService, getTextDocument, context);
-	const getEditsForFileRename = fileRename.register(typescript.languageService, getTextDocument, context);
-	const getCodeActions = codeActions.register(typescript.languageService, getTextDocument, context);
-	const doCodeActionResolve = codeActionResolve.register(typescript.languageService, getTextDocument, context);
-	const getInlayHints = inlayHints.register(typescript.languageService, getTextDocument, context);
-	const findDocumentHighlights = documentHighlight.register(typescript.languageService, getTextDocument, context);
-	const findDocumentSymbols = documentSymbol.register(typescript.languageService, getTextDocument, context);
-	const findWorkspaceSymbols = workspaceSymbols.register(typescript.languageService, getTextDocument, context);
-	const doComplete = completions.register(typescript.languageService, getTextDocument, context);
-	const doCompletionResolve = completionResolve.register(typescript.languageService, getTextDocument, context);
-	const doDirectiveCommentComplete = directiveCommentCompletions.register(getTextDocument);
-	const doJsDocComplete = jsDocCompletions.register(typescript.languageService, getTextDocument, context);
-	const doHover = hover.register(typescript.languageService, getTextDocument, context);
-	const doFormatting = formatting.register(typescript.languageService, getTextDocument, context);
-	const getSignatureHelp = signatureHelp.register(typescript.languageService, getTextDocument, context);
-	const getSelectionRanges = selectionRanges.register(typescript.languageService, getTextDocument, context);
-	const doValidation = diagnostics.register(typescript.languageService, getTextDocument, context);
-	const getFoldingRanges = foldingRanges.register(typescript.languageService, getTextDocument, context);
-	const getDocumentSemanticTokens = semanticTokens.register(typescript.languageService, getTextDocument, context);
-	const callHierarchy = _callHierarchy.register(typescript.languageService, getTextDocument, context);
+	const {
+		module: ts,
+		languageService,
+	} = context.typescript;
+
+	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
+	const jsDocTriggerCharacter = '*';
+	const directiveCommentTriggerCharacter = '@';
+	const serviceCtx: SharedContext = {
+		...context,
+		getTextDocument(uri) {
+			for (const [_, map] of context.documents.getMapsByVirtualFileUri(uri)) {
+				return map.virtualFileDocument;
+			}
+			return context.getTextDocument(uri);
+		},
+	} as SharedContext;
+	const findDefinition = definitions.register(serviceCtx);
+	const findTypeDefinition = typeDefinitions.register(serviceCtx);
+	const findReferences = references.register(serviceCtx);
+	const findFileReferences = fileReferences.register(serviceCtx);
+	const findImplementations = implementation.register(serviceCtx);
+	const doPrepareRename = prepareRename.register(serviceCtx);
+	const doRename = rename.register(serviceCtx);
+	const getEditsForFileRename = fileRename.register(serviceCtx);
+	const getCodeActions = codeActions.register(serviceCtx);
+	const doCodeActionResolve = codeActionResolve.register(serviceCtx);
+	const getInlayHints = inlayHints.register(serviceCtx);
+	const findDocumentHighlights = documentHighlight.register(serviceCtx);
+	const findDocumentSymbols = documentSymbol.register(serviceCtx);
+	const findWorkspaceSymbols = workspaceSymbols.register(serviceCtx);
+	const doComplete = completions.register(serviceCtx);
+	const doCompletionResolve = completionResolve.register(serviceCtx);
+	const doDirectiveCommentComplete = directiveCommentCompletions.register(serviceCtx);
+	const doJsDocComplete = jsDocCompletions.register(serviceCtx);
+	const doHover = hover.register(serviceCtx);
+	const doFormatting = formatting.register(serviceCtx);
+	const getSignatureHelp = signatureHelp.register(serviceCtx);
+	const getSelectionRanges = selectionRanges.register(serviceCtx);
+	const doValidation = diagnostics.register(serviceCtx);
+	const getFoldingRanges = foldingRanges.register(serviceCtx);
+	const getDocumentSemanticTokens = semanticTokens.register(serviceCtx);
+	const callHierarchy = _callHierarchy.register(serviceCtx);
 
 	return {
 
 		rules: {
 			onAny(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
-					const sourceFile = typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
-							getTextDocument,
-							...typescript,
+							...serviceCtx.typescript,
 						};
 					}
 					else {
@@ -100,7 +111,7 @@ export = (): LanguageServicePlugin => (context) => {
 				const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
 				const config = context.env.configurationHost?.getConfiguration<boolean>(configName) ?? true;
 				if (config) {
-					const tsLs = typescript.languageService;
+					const tsLs = languageService;
 					const close = tsLs.getJsxClosingTagAtPosition(context.uriToFileName(document.uri), document.offsetAt(position));
 					if (close) {
 						return '$0' + close.newText;
@@ -113,8 +124,8 @@ export = (): LanguageServicePlugin => (context) => {
 
 			triggerCharacters: [
 				...basicTriggerCharacters,
-				...jsDocTriggerCharacters,
-				...directiveCommentTriggerCharacters,
+				jsDocTriggerCharacter,
+				directiveCommentTriggerCharacter,
 			],
 
 			async on(document, position, context) {
@@ -137,7 +148,7 @@ export = (): LanguageServicePlugin => (context) => {
 							result = basicResult;
 						}
 					}
-					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && jsDocTriggerCharacters.includes(context.triggerCharacter))) {
+					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === jsDocTriggerCharacter) {
 
 						const jsdocResult = await doJsDocComplete(document.uri, position);
 
@@ -145,7 +156,7 @@ export = (): LanguageServicePlugin => (context) => {
 							result.items.push(jsdocResult);
 						}
 					}
-					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && directiveCommentTriggerCharacters.includes(context.triggerCharacter))) {
+					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === directiveCommentTriggerCharacter) {
 
 						const directiveCommentResult = await doDirectiveCommentComplete(document.uri, position);
 
@@ -366,20 +377,5 @@ export = (): LanguageServicePlugin => (context) => {
 		}
 
 		return triggerCharacters;
-	}
-
-	function getTextDocument(uri: string) {
-		const fileName = context.uriToFileName(uri);
-		const version = typescript.languageServiceHost.getScriptVersion(fileName);
-		const oldDoc = documents.get(uri);
-		if (!oldDoc || oldDoc[0] !== version) {
-			const scriptSnapshot = typescript.languageServiceHost.getScriptSnapshot(fileName);
-			if (scriptSnapshot) {
-				const scriptText = scriptSnapshot.getText(0, scriptSnapshot.getLength());
-				const document = TextDocument.create(uri, 'txt' /* not important */, oldDoc ? oldDoc[1].version + 1 : 0, scriptText);
-				documents.set(uri, [version, document]);
-			}
-		}
-		return documents.get(uri)?.[1];
 	}
 };

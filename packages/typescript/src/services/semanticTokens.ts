@@ -1,18 +1,14 @@
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import type * as ts from 'typescript/lib/tsserverlibrary';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	const ts = ctx.typescript!.module;
 
 	return (uri: string, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
 		const file = ctx.uriToFileName(uri);
@@ -20,13 +16,11 @@ export function register(
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
 		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		let response2: ReturnType<typeof languageService.getEncodedSyntacticClassifications> | undefined;
-		try { response2 = languageService.getEncodedSyntacticClassifications(file, { start, length }); } catch { }
+		const response2 = safeCall(() => ctx.typescript.languageService.getEncodedSyntacticClassifications(file, { start, length }));
 		if (!response2) return;
 
 		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		let response1: ReturnType<typeof languageService.getEncodedSemanticClassifications> | undefined;
-		try { response1 = languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty); } catch { }
+		const response1 = safeCall(() => ctx.typescript.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
 		if (!response1) return;
 
 		let tokenModifiersTable: number[] = [];

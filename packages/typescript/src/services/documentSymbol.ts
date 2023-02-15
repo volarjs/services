@@ -3,7 +3,8 @@ import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
 const getSymbolKind = (kind: string): vscode.SymbolKind => {
 	switch (kind) {
@@ -26,20 +27,14 @@ const getSymbolKind = (kind: string): vscode.SymbolKind => {
 	return vscode.SymbolKind.Variable;
 };
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return (uri: string): vscode.SymbolInformation[] => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(document.uri);
-
-		let barItems: ReturnType<typeof languageService.getNavigationTree> | undefined;
-		try { barItems = languageService.getNavigationTree(fileName); } catch { }
+		const barItems = safeCall(() => ctx.typescript.languageService.getNavigationTree(fileName));
 		if (!barItems) return [];
 
 		// The root represents the file. Ignore this when showing in the UI

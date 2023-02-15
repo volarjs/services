@@ -1,18 +1,14 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { safeCall } from '../shared';
+import { SharedContext } from '../types';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return {
 		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions, tsOptions2: ts.FormatCodeSettings): Promise<vscode.TextEdit[]> => {
 
-			const document = getTextDocument(uri);
+			const document = ctx.getTextDocument(uri);
 			if (!document) return [];
 
 			const fileName = ctx.uriToFileName(document.uri);
@@ -24,12 +20,9 @@ export function register(
 				tsOptions.indentSize = undefined;
 			}
 
-			let scriptEdits: ReturnType<typeof languageService.getFormattingEditsForRange> | undefined;
-			try {
-				scriptEdits = range
-					? languageService.getFormattingEditsForRange(fileName, document.offsetAt(range.start), document.offsetAt(range.end), tsOptions)
-					: languageService.getFormattingEditsForDocument(fileName, tsOptions);
-			} catch { }
+			const scriptEdits = range
+				? safeCall(() => ctx.typescript.languageService.getFormattingEditsForRange(fileName, document.offsetAt(range.start), document.offsetAt(range.end), tsOptions))
+				: safeCall(() => ctx.typescript.languageService.getFormattingEditsForDocument(fileName, tsOptions));
 			if (!scriptEdits) return [];
 
 			const result: vscode.TextEdit[] = [];
@@ -48,16 +41,12 @@ export function register(
 		},
 		onType: async (uri: string, options: vscode.FormattingOptions, position: vscode.Position, key: string): Promise<vscode.TextEdit[]> => {
 
-			const document = getTextDocument(uri);
+			const document = ctx.getTextDocument(uri);
 			if (!document) return [];
 
 			const fileName = ctx.uriToFileName(document.uri);
 			const tsOptions = await getFormatCodeSettings(ctx, document, options);
-
-			let scriptEdits: ReturnType<typeof languageService.getFormattingEditsForRange> | undefined;
-			try {
-				scriptEdits = languageService.getFormattingEditsAfterKeystroke(fileName, document.offsetAt(position), key, tsOptions);
-			} catch { }
+			const scriptEdits = safeCall(() => ctx.typescript.languageService.getFormattingEditsAfterKeystroke(fileName, document.offsetAt(position), key, tsOptions));
 			if (!scriptEdits) return [];
 
 			const result: vscode.TextEdit[] = [];

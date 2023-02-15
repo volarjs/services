@@ -5,23 +5,18 @@ import { posix as path } from 'path';
 import { renameInfoOptions } from './prepareRename';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 
 	return async (uri: string, position: vscode.Position, newName: string): Promise<vscode.WorkspaceEdit | undefined> => {
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
 		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-
-		let renameInfo: ReturnType<typeof languageService.getRenameInfo> | undefined;
-		try { renameInfo = languageService.getRenameInfo(fileName, offset, renameInfoOptions); } catch { }
+		const renameInfo = safeCall(() => ctx.typescript.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
 		if (!renameInfo?.canRename) return;
 
 		if (renameInfo.fileToRename) {
@@ -33,11 +28,11 @@ export function register(
 		}
 
 		const { providePrefixAndSuffixTextForRename } = await getUserPreferences(ctx, document);
-		const entries = languageService.findRenameLocations(fileName, offset, false, false, providePrefixAndSuffixTextForRename);
+		const entries = ctx.typescript.languageService.findRenameLocations(fileName, offset, false, false, providePrefixAndSuffixTextForRename);
 		if (!entries)
 			return;
 
-		const locations = locationsToWorkspaceEdit(newName, entries, getTextDocument, ctx);
+		const locations = locationsToWorkspaceEdit(newName, entries, ctx);
 		return locations;
 	};
 
@@ -55,8 +50,8 @@ export function register(
 		const dirname = path.dirname(fileToRename);
 		const newFilePath = path.join(dirname, newName);
 
-		const response = languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences);
-		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument, ctx);
+		const response = ctx.typescript.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences);
+		const edits = fileTextChangesToWorkspaceEdit(response, ctx);
 		if (!edits.documentChanges) {
 			edits.documentChanges = [];
 		}
@@ -72,8 +67,7 @@ export function register(
 
 export function fileTextChangesToWorkspaceEdit(
 	changes: readonly ts.FileTextChanges[],
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 
@@ -84,7 +78,7 @@ export function fileTextChangesToWorkspaceEdit(
 		}
 
 		const uri = ctx.fileNameToUri(change.fileName);
-		let doc = getTextDocument(uri);
+		let doc = ctx.getTextDocument(uri);
 
 		if (change.isNewFile) {
 			workspaceEdit.documentChanges.push(vscode.CreateFile.create(uri));
@@ -119,8 +113,7 @@ export function fileTextChangesToWorkspaceEdit(
 function locationsToWorkspaceEdit(
 	newText: string,
 	locations: readonly ts.RenameLocation[],
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 
@@ -131,7 +124,7 @@ function locationsToWorkspaceEdit(
 		}
 
 		const uri = ctx.fileNameToUri(location.fileName);
-		const doc = getTextDocument(uri);
+		const doc = ctx.getTextDocument(uri);
 		if (!doc) continue;
 
 		if (!workspaceEdit.changes[uri]) {

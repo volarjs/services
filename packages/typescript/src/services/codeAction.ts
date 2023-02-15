@@ -1,11 +1,11 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { fileTextChangesToWorkspaceEdit } from './rename';
 import * as fixNames from '../utils/fixNames';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
 export interface FixAllData {
 	type: 'fixAll',
@@ -30,14 +30,10 @@ export interface OrganizeImportsData {
 
 export type Data = FixAllData | RefactorData | OrganizeImportsData;
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return async (uri: string, range: vscode.Range, context: vscode.CodeActionContext) => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
 		const [formatOptions, preferences] = await Promise.all([
@@ -53,41 +49,47 @@ export function register(
 		const onlyQuickFix = matchOnlyKind(`${vscode.CodeActionKind.QuickFix}.ts`);
 		if (!context.only || onlyQuickFix) {
 			for (const error of context.diagnostics) {
-				try {
-					const codeFixes = languageService.getCodeFixesAtPosition(
-						fileName,
-						document.offsetAt(error.range.start),
-						document.offsetAt(error.range.end),
-						[Number(error.code)],
-						formatOptions,
-						preferences,
-					);
-					for (const codeFix of codeFixes) {
-						result = result.concat(transformCodeFix(codeFix, [error], onlyQuickFix ?? vscode.CodeActionKind.Empty));
-					}
-				} catch { }
+				const codeFixes = safeCall(() => ctx.typescript.languageService.getCodeFixesAtPosition(
+					fileName,
+					document.offsetAt(error.range.start),
+					document.offsetAt(error.range.end),
+					[Number(error.code)],
+					formatOptions,
+					preferences,
+				)) ?? [];
+				for (const codeFix of codeFixes) {
+					result = result.concat(transformCodeFix(codeFix, [error], onlyQuickFix ?? vscode.CodeActionKind.Empty));
+				}
 			}
 		}
 
 		if (context.only) {
 			for (const only of context.only) {
 				if (only.split('.')[0] === vscode.CodeActionKind.Refactor) {
-					try {
-						const refactors = languageService.getApplicableRefactors(fileName, { pos: start, end: end }, preferences, undefined, only);
-						for (const refactor of refactors) {
-							result = result.concat(transformRefactor(refactor));
-						}
-					} catch { }
+					const refactors = safeCall(() => ctx.typescript.languageService.getApplicableRefactors(
+						fileName,
+						{ pos: start, end: end },
+						preferences,
+						undefined,
+						only,
+					)) ?? [];
+					for (const refactor of refactors) {
+						result = result.concat(transformRefactor(refactor));
+					}
 				}
 			}
 		}
 		else {
-			try {
-				const refactors = languageService.getApplicableRefactors(fileName, { pos: start, end: end }, preferences, undefined, undefined);
-				for (const refactor of refactors) {
-					result = result.concat(transformRefactor(refactor));
-				}
-			} catch { }
+			const refactors = safeCall(() => ctx.typescript.languageService.getApplicableRefactors(
+				fileName,
+				{ pos: start, end: end },
+				preferences,
+				undefined,
+				undefined,
+			)) ?? [];
+			for (const refactor of refactors) {
+				result = result.concat(transformRefactor(refactor));
+			}
 		}
 
 		const onlySourceOrganizeImports = matchOnlyKind(`${vscode.CodeActionKind.SourceOrganizeImports}.ts`);
@@ -186,7 +188,7 @@ export function register(
 			}
 		}
 		function transformCodeFix(codeFix: ts.CodeFixAction, diagnostics: vscode.Diagnostic[], kind: vscode.CodeActionKind) {
-			const edit = fileTextChangesToWorkspaceEdit(codeFix.changes, getTextDocument, ctx);
+			const edit = fileTextChangesToWorkspaceEdit(codeFix.changes, ctx);
 			const codeActions: vscode.CodeAction[] = [];
 			const fix = vscode.CodeAction.create(
 				codeFix.description,

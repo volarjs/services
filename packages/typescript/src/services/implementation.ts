@@ -1,25 +1,18 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from 'vscode-languageserver-protocol';
 import { entriesToLocationLinks } from '../utils/transforms';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return (uri: string, position: vscode.Position) => {
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-
-		let entries: ReturnType<typeof languageService.getImplementationAtPosition>;
-		try { entries = languageService.getImplementationAtPosition(fileName, offset); } catch { }
+		const entries = safeCall(() => ctx.typescript.languageService.getImplementationAtPosition(fileName, offset));
 		if (!entries) return [];
 
-		return entriesToLocationLinks([...entries], getTextDocument, ctx);
+		return entriesToLocationLinks([...entries], ctx);
 	};
 }

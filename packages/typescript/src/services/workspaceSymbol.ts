@@ -2,8 +2,8 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
 function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 	switch (item.kind) {
@@ -22,15 +22,10 @@ function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 	}
 }
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument2: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return (query: string): vscode.SymbolInformation[] => {
 
-		let items: ReturnType<typeof languageService.getNavigateToItems> | undefined;
-		try { items = languageService.getNavigateToItems(query); } catch { }
+		const items = safeCall(() => ctx.typescript.languageService.getNavigateToItems(query));
 		if (!items) return [];
 
 		return items
@@ -41,7 +36,7 @@ export function register(
 		function toSymbolInformation(item: ts.NavigateToItem) {
 			const label = getLabel(item);
 			const uri = ctx.fileNameToUri(item.fileName);
-			const document = getTextDocument2(uri);
+			const document = ctx.getTextDocument(uri);
 			if (document) {
 				const range = vscode.Range.create(document.positionAt(item.textSpan.start), document.positionAt(item.textSpan.start + item.textSpan.length));
 				const info = vscode.SymbolInformation.create(

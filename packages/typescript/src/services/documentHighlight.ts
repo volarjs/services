@@ -1,25 +1,18 @@
-import type { LanguageServicePluginContext } from '@volar/language-service';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import { SharedContext } from '../types';
 import * as vscode from 'vscode-languageserver-protocol';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	const ts = ctx.typescript!.module;
 
 	return (uri: string, position: vscode.Position): vscode.DocumentHighlight[] => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-
-		let highlights: ReturnType<typeof languageService.getDocumentHighlights> | undefined;
-		try { highlights = languageService.getDocumentHighlights(fileName, offset, [fileName]); } catch { }
+		const highlights = safeCall(() => ctx.typescript.languageService.getDocumentHighlights(fileName, offset, [fileName]));
 		if (!highlights) return [];
 
 		const results: vscode.DocumentHighlight[] = [];

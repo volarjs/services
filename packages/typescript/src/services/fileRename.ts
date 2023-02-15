@@ -1,19 +1,14 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from 'vscode-languageserver-protocol';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { fileTextChangesToWorkspaceEdit } from './rename';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return async (oldUri: string, newUri: string): Promise<vscode.WorkspaceEdit | undefined> => {
 
-		const document = getTextDocument(oldUri);
+		const document = ctx.getTextDocument(oldUri);
 		const [formatOptions, preferences] = document ? await Promise.all([
 			getFormatCodeSettings(ctx, document),
 			getUserPreferences(ctx, document),
@@ -21,12 +16,10 @@ export function register(
 
 		const fileToRename = ctx.uriToFileName(oldUri);
 		const newFilePath = ctx.uriToFileName(newUri);
-
-		let response: ReturnType<typeof languageService.getEditsForFileRename> | undefined;
-		try { response = languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences); } catch { }
+		const response = safeCall(() => ctx.typescript.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences));
 		if (!response?.length) return;
 
-		const edits = fileTextChangesToWorkspaceEdit(response, getTextDocument, ctx);
+		const edits = fileTextChangesToWorkspaceEdit(response, ctx);
 		return edits;
 	};
 }

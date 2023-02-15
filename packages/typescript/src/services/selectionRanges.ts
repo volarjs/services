@@ -1,16 +1,13 @@
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	return (uri: string, positions: vscode.Position[]): vscode.SelectionRange[] => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const result: vscode.SelectionRange[] = [];
@@ -18,9 +15,7 @@ export function register(
 		for (const position of positions) {
 			const fileName = ctx.uriToFileName(document.uri);
 			const offset = document.offsetAt(position);
-
-			let range: ReturnType<typeof languageService.getSmartSelectionRange> | undefined;
-			try { range = languageService.getSmartSelectionRange(fileName, offset); } catch { }
+			const range = safeCall(() => ctx.typescript.languageService.getSmartSelectionRange(fileName, offset));
 			if (!range) continue;
 
 			result.push(transformSelectionRange(range, document));

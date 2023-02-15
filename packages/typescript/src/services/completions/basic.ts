@@ -1,4 +1,4 @@
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../../types';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
@@ -6,6 +6,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import * as PConst from '../../protocol.const';
 import { parseKindModifier } from '../../utils/modifiers';
+import { safeCall } from '../../shared';
 
 export interface Data {
 	uri: string,
@@ -14,11 +15,7 @@ export interface Data {
 	originalItem: ts.CompletionEntry;
 }
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 
 	const ts = ctx.typescript!.module;
 	const lt_320 = semver.lt(ts.version, '3.2.0');
@@ -26,21 +23,17 @@ export function register(
 
 	return async (uri: string, position: vscode.Position, options?: ts.GetCompletionsAtPositionOptions): Promise<vscode.CompletionList | undefined> => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document)
 			return;
 
 		const preferences = await getUserPreferences(ctx, document);
 		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-
-		let completionContext: ReturnType<typeof languageService.getCompletionsAtPosition> | undefined;
-		try {
-			completionContext = languageService.getCompletionsAtPosition(fileName, offset, {
-				...preferences,
-				...options,
-			});
-		} catch { }
+		const completionContext = safeCall(() => ctx.typescript.languageService.getCompletionsAtPosition(fileName, offset, {
+			...preferences,
+			...options,
+		}));
 
 		if (completionContext === undefined)
 			return;

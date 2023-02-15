@@ -21,3 +21,9 @@ export function isJsonDocument(document: TextDocument) {
 	return document.languageId === 'json' ||
 		document.languageId === 'jsonc';
 }
+
+export function safeCall<T>(cb: () => T) {
+	try {
+		return cb();
+	} catch { }
+}

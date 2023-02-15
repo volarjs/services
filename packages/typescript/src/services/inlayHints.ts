@@ -1,27 +1,25 @@
-import type { LanguageServicePluginContext } from '@volar/language-service';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import { SharedContext } from '../types';
 import * as vscode from 'vscode-languageserver-protocol';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getUserPreferences } from '../configs/getUserPreferences';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	const ts = ctx.typescript!.module;
 
 	return async (uri: string, range: vscode.Range) => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
 		const preferences = await getUserPreferences(ctx, document);
 		const fileName = ctx.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
-		let inlayHints: ts.InlayHint[] = [];
-		try { inlayHints = 'provideInlayHints' in languageService ? languageService.provideInlayHints(fileName, { start, length: end - start }, preferences) : []; } catch { }
+		const inlayHints = safeCall(() =>
+			'provideInlayHints' in ctx.typescript.languageService
+				? ctx.typescript.languageService.provideInlayHints(fileName, { start, length: end - start }, preferences)
+				: []
+		) ?? [];
 
 		return inlayHints.map(inlayHint => {
 			const result = vscode.InlayHint.create(

@@ -1,4 +1,4 @@
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -11,11 +11,7 @@ import { entriesToLocations } from '../../utils/transforms';
 import type { Data } from './basic';
 import { handleKindModifiers } from './basic';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	const ts = ctx.typescript!.module;
 
 	return async (item: vscode.CompletionItem, newPosition?: vscode.Position): Promise<vscode.CompletionItem> => {
@@ -27,7 +23,7 @@ export function register(
 
 		const fileName = data.fileName;
 		let offset = data.offset;
-		const document = getTextDocument(data.uri);
+		const document = ctx.getTextDocument(data.uri);
 
 		if (newPosition && document) {
 			offset = document.offsetAt(newPosition);
@@ -40,7 +36,7 @@ export function register(
 
 		let details: ts.CompletionEntryDetails | undefined;
 		try {
-			details = languageService.getCompletionEntryDetails(fileName, offset, data.originalItem.name, formatOptions, data.originalItem.source, preferences, data.originalItem.data);
+			details = ctx.typescript.languageService.getCompletionEntryDetails(fileName, offset, data.originalItem.name, formatOptions, data.originalItem.source, preferences, data.originalItem.data);
 		}
 		catch (err) {
 			item.detail = `[TS Error]\n${err}\n${JSON.stringify(err, undefined, 2)}`;
@@ -63,7 +59,7 @@ export function register(
 					const entries = changes.textChanges.map(textChange => {
 						return { fileName, textSpan: textChange.span };
 					});
-					const locs = entriesToLocations(entries, getTextDocument, ctx);
+					const locs = entriesToLocations(entries, ctx);
 					locs.forEach((loc, index) => {
 						item.additionalTextEdits?.push(vscode.TextEdit.replace(loc.range, changes.textChanges[index].newText));
 					});
@@ -71,7 +67,7 @@ export function register(
 			}
 		}
 		if (details.displayParts) {
-			detailTexts.push(previewer.plainWithLinks(details.displayParts, { toResource }, getTextDocument, ctx));
+			detailTexts.push(previewer.plainWithLinks(details.displayParts, { toResource }, ctx));
 		}
 		if (detailTexts.length) {
 			item.detail = detailTexts.join('\n');
@@ -79,7 +75,7 @@ export function register(
 
 		item.documentation = {
 			kind: 'markdown',
-			value: previewer.markdownDocumentation(details.documentation, details.tags, { toResource }, getTextDocument, ctx),
+			value: previewer.markdownDocumentation(details.documentation, details.tags, { toResource }, ctx),
 		};
 
 		if (details) {
@@ -92,7 +88,7 @@ export function register(
 			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === vscode.CompletionItemKind.Function || item.kind === vscode.CompletionItemKind.Method);
 
 			if (useCodeSnippet) {
-				const shouldCompleteFunction = isValidFunctionCompletionContext(languageService, fileName, offset, document);
+				const shouldCompleteFunction = isValidFunctionCompletionContext(ctx.typescript.languageService, fileName, offset, document);
 				if (shouldCompleteFunction) {
 					const { snippet, parameterCount } = snippetForFunctionCall(
 						{

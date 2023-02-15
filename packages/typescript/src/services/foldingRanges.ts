@@ -1,24 +1,19 @@
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	const ts = ctx.typescript!.module;
 
 	return (uri: string) => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(document.uri);
-
-		let outliningSpans: ReturnType<typeof languageService.getOutliningSpans> | undefined;
-		try { outliningSpans = languageService.getOutliningSpans(fileName); } catch { }
+		const outliningSpans = safeCall(() => ctx.typescript.languageService.getOutliningSpans(fileName));
 		if (!outliningSpans) return [];
 
 		const foldingRanges: vscode.FoldingRange[] = [];

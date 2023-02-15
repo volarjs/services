@@ -1,6 +1,6 @@
 import * as vscode from 'vscode-languageserver-protocol';
 import * as nls from 'vscode-nls';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { SharedContext } from '../../types';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 
@@ -33,12 +33,10 @@ const directives: Directive[] = [
 	}
 ];
 
-export function register(
-	getTextDocument: (uri: string) => TextDocument | undefined,
-) {
+export function register(ctx: SharedContext) {
 	return (uri: string, position: vscode.Position) => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document)
 			return;
 

@@ -2,11 +2,11 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getConfigTitle } from '../shared';
 import { posix as path } from 'path';
 import { URI } from 'vscode-uri';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export async function getUserPreferences(
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 	document: TextDocument,
 ): Promise<ts.UserPreferences> {
 

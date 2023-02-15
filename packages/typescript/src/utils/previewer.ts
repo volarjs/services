@@ -3,9 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as Proto from '../protocol';
 
 export interface IFilePathToResourceConverter {
@@ -36,8 +35,7 @@ function processInlineTags(text: string): string {
 function getTagBodyText(
 	tag: Proto.JSDocTagInfo,
 	filePathConverter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string | undefined {
 	if (!tag.text) {
 		return undefined;
@@ -51,7 +49,7 @@ function getTagBodyText(
 		return '```\n' + text + '\n```';
 	}
 
-	const text = convertLinkTags(tag.text, filePathConverter, getTextDocument, ctx);
+	const text = convertLinkTags(tag.text, filePathConverter, ctx);
 	switch (tag.name) {
 		case 'example':
 			// check for caption tags, fix for #79704
@@ -80,15 +78,14 @@ function getTagBodyText(
 function getTagDocumentation(
 	tag: Proto.JSDocTagInfo,
 	filePathConverter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string | undefined {
 	switch (tag.name) {
 		case 'augments':
 		case 'extends':
 		case 'param':
 		case 'template':
-			const body = (convertLinkTags(tag.text, filePathConverter, getTextDocument, ctx)).split(/^(\S+)\s*-?\s*/);
+			const body = (convertLinkTags(tag.text, filePathConverter, ctx)).split(/^(\S+)\s*-?\s*/);
 			if (body?.length === 3) {
 				const param = body[1];
 				const doc = body[2];
@@ -102,7 +99,7 @@ function getTagDocumentation(
 
 	// Generic tag
 	const label = `*@${tag.name}*`;
-	const text = getTagBodyText(tag, filePathConverter, getTextDocument, ctx);
+	const text = getTagBodyText(tag, filePathConverter, ctx);
 	if (!text) {
 		return label;
 	}
@@ -112,10 +109,9 @@ function getTagDocumentation(
 export function plainWithLinks(
 	parts: readonly Proto.SymbolDisplayPart[] | string,
 	filePathConverter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string {
-	return processInlineTags(convertLinkTags(parts, filePathConverter, getTextDocument, ctx));
+	return processInlineTags(convertLinkTags(parts, filePathConverter, ctx));
 }
 
 /**
@@ -124,8 +120,7 @@ export function plainWithLinks(
 function convertLinkTags(
 	parts: readonly Proto.SymbolDisplayPart[] | string | undefined,
 	filePathConverter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string {
 	if (!parts) {
 		return '';
@@ -150,7 +145,7 @@ function convertLinkTags(
 							fileName: string,
 							textSpan: { start: number, length: number; },
 						};
-						const fileDoc = getTextDocument(ctx.uriToFileName(_target.fileName));
+						const fileDoc = ctx.getTextDocument(ctx.uriToFileName(_target.fileName));
 						if (fileDoc) {
 							const start = fileDoc.positionAt(_target.textSpan.start);
 							const end = fileDoc.positionAt(_target.textSpan.start + _target.textSpan.length);
@@ -210,20 +205,18 @@ function convertLinkTags(
 export function tagsMarkdownPreview(
 	tags: readonly ts.JSDocTagInfo[],
 	filePathConverter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string {
-	return tags.map(tag => getTagDocumentation(tag, filePathConverter, getTextDocument, ctx)).join('  \n\n');
+	return tags.map(tag => getTagDocumentation(tag, filePathConverter, ctx)).join('  \n\n');
 }
 
 export function markdownDocumentation(
 	documentation: Proto.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	filePathConverter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string {
-	return addMarkdownDocumentation('', documentation, tags, filePathConverter, getTextDocument, ctx);
+	return addMarkdownDocumentation('', documentation, tags, filePathConverter, ctx);
 }
 
 export function addMarkdownDocumentation(
@@ -231,15 +224,14 @@ export function addMarkdownDocumentation(
 	documentation: Proto.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	converter: IFilePathToResourceConverter,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
+	ctx: SharedContext,
 ): string {
 	if (documentation) {
-		out += plainWithLinks(documentation, converter, getTextDocument, ctx);
+		out += plainWithLinks(documentation, converter, ctx);
 	}
 
 	if (tags) {
-		const tagsPreview = tagsMarkdownPreview(tags, converter, getTextDocument, ctx);
+		const tagsPreview = tagsMarkdownPreview(tags, converter, ctx);
 		if (tagsPreview) {
 			out += '\n\n' + tagsPreview;
 		}

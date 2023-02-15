@@ -1,13 +1,10 @@
 import * as vscode from 'vscode-languageserver-protocol';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	const ts = ctx.typescript!.module;
 
 	return (
@@ -20,11 +17,11 @@ export function register(
 		},
 	): vscode.Diagnostic[] => {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(document.uri);
-		const program = languageService.getProgram();
+		const program = ctx.typescript.languageService.getProgram();
 		const sourceFile = program?.getSourceFile(fileName);
 		if (!program || !sourceFile) return [];
 
@@ -35,20 +32,15 @@ export function register(
 			throwIfCancellationRequested() { },
 		};
 
-		let errors: ts.Diagnostic[] = [];
+		let errors = safeCall(() => [
+			...options.semantic ? program.getSemanticDiagnostics(sourceFile, token) : [],
+			...options.syntactic ? program.getSyntacticDiagnostics(sourceFile, token) : [],
+			...options.suggestion ? ctx.typescript.languageService.getSuggestionDiagnostics(fileName) : [],
+		]) ?? [];
 
-		try {
-			errors = [
-				...options.semantic ? program.getSemanticDiagnostics(sourceFile, token) : [],
-				...options.syntactic ? program.getSyntacticDiagnostics(sourceFile, token) : [],
-				...options.suggestion ? languageService.getSuggestionDiagnostics(fileName) : [],
-			];
-
-			if (options.declaration && getEmitDeclarations(program.getCompilerOptions())) {
-				errors = errors.concat(program.getDeclarationDiagnostics(sourceFile, token));
-			}
+		if (options.declaration && getEmitDeclarations(program.getCompilerOptions())) {
+			errors = errors.concat(program.getDeclarationDiagnostics(sourceFile, token));
 		}
-		catch { }
 
 		return translateDiagnostics(document, errors);
 
@@ -94,7 +86,7 @@ export function register(
 
 			let document: TextDocument | undefined;
 			if (diag.file) {
-				document = getTextDocument(ctx.fileNameToUri(diag.file.fileName));
+				document = ctx.getTextDocument(ctx.fileNameToUri(diag.file.fileName));
 			}
 			if (!document) return;
 

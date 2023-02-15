@@ -5,56 +5,50 @@ import * as PConst from '../protocol.const';
 import { parseKindModifier } from '../utils/modifiers';
 import * as typeConverters from '../utils/typeConverters';
 import { posix as path } from 'path';
-import type { LanguageServicePluginContext } from '@volar/language-service';
+import { SharedContext } from '../types';
+import { safeCall } from '../shared';
 
-export function register(
-	languageService: ts.LanguageService,
-	getTextDocument: (uri: string) => TextDocument | undefined,
-	ctx: LanguageServicePluginContext,
-) {
+export function register(ctx: SharedContext) {
 	function doPrepare(uri: string, position: vscode.Position) {
 
-		const document = getTextDocument(uri);
+		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-
-		let calls: ReturnType<typeof languageService.prepareCallHierarchy> | undefined;
-		try { calls = languageService.prepareCallHierarchy(fileName, offset); } catch { }
+		const calls = safeCall(() => ctx.typescript.languageService.prepareCallHierarchy(fileName, offset));
 		if (!calls) return [];
 
 		const items = Array.isArray(calls) ? calls : [calls];
+
 		return items.map(item => fromProtocolCallHierarchyItem(item));
 	}
 	function getIncomingCalls(item: vscode.CallHierarchyItem) {
 
-		const document = getTextDocument(item.uri);
+		const document = ctx.getTextDocument(item.uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(item.uri);
 		const offset = document.offsetAt(item.selectionRange.start);
-
-		let calls: ReturnType<typeof languageService.provideCallHierarchyIncomingCalls> | undefined;
-		try { calls = languageService.provideCallHierarchyIncomingCalls(fileName, offset); } catch { }
+		const calls = safeCall(() => ctx.typescript.languageService.provideCallHierarchyIncomingCalls(fileName, offset));
 		if (!calls) return [];
 
 		const items = Array.isArray(calls) ? calls : [calls];
+
 		return items.map(item => fromProtocolCallHierarchyIncomingCall(item));
 	}
 	function getOutgoingCalls(item: vscode.CallHierarchyItem) {
 
-		const document = getTextDocument(item.uri);
+		const document = ctx.getTextDocument(item.uri);
 		if (!document) return [];
 
 		const fileName = ctx.uriToFileName(item.uri);
 		const offset = document.offsetAt(item.selectionRange.start);
-
-		let calls: ReturnType<typeof languageService.provideCallHierarchyOutgoingCalls> | undefined;
-		try { calls = languageService.provideCallHierarchyOutgoingCalls(fileName, offset); } catch { }
+		const calls = safeCall(() => ctx.typescript.languageService.provideCallHierarchyOutgoingCalls(fileName, offset));
 		if (!calls) return [];
 
 		const items = Array.isArray(calls) ? calls : [calls];
+
 		return items.map(item => fromProtocolCallHierarchyOutgoingCall(item, document));
 	}
 
@@ -69,8 +63,8 @@ export function register(
 	}
 
 	function fromProtocolCallHierarchyItem(item: ts.CallHierarchyItem): vscode.CallHierarchyItem {
-		const rootPath = languageService.getProgram()?.getCompilerOptions().rootDir ?? '';
-		const document = getTextDocument(ctx.fileNameToUri(item.file))!; // TODO
+		const rootPath = ctx.typescript.languageService.getProgram()?.getCompilerOptions().rootDir ?? '';
+		const document = ctx.getTextDocument(ctx.fileNameToUri(item.file))!; // TODO
 		const useFileName = isSourceFileItem(item);
 		const name = useFileName ? path.basename(item.file) : item.name;
 		const detail = useFileName ? path.relative(rootPath, path.dirname(item.file)) : item.containerName ?? '';
@@ -97,7 +91,7 @@ export function register(
 	}
 
 	function fromProtocolCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingCall): vscode.CallHierarchyIncomingCall {
-		const document = getTextDocument(ctx.fileNameToUri(item.from.file))!;
+		const document = ctx.getTextDocument(ctx.fileNameToUri(item.from.file))!;
 		return {
 			from: fromProtocolCallHierarchyItem(item.from),
 			fromRanges: item.fromSpans.map(fromSpan => ({
