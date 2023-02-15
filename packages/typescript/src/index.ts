@@ -86,7 +86,7 @@ export = (): LanguageServicePlugin => (context) => {
 		getScriptFileNames: () => [syntacticHostCtx.fileName],
 		getScriptVersion: () => syntacticHostCtx.fileVersion.toString(),
 		getScriptSnapshot: () => context.core.virtualFiles.getVirtualFile(syntacticHostCtx.fileName)[0]?.snapshot,
-		getCompilationSettings: () => ({}),
+		getCompilationSettings: () => context.typescript?.languageServiceHost.getCompilationSettings() ?? {},
 		getCurrentDirectory: () => '',
 		getDefaultLibFileName: () => '',
 		readFile: () => '',
