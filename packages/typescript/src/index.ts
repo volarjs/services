@@ -3,6 +3,7 @@ import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 import * as _callHierarchy from './services/callHierarchy';
 import * as codeActions from './services/codeAction';
@@ -47,7 +48,8 @@ export = (): LanguageServicePlugin => (context) => {
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
-	const serviceCtx: SharedContext = {
+
+	const semanticCtx: SharedContext = {
 		...context,
 		getTextDocument(uri) {
 			for (const [_, map] of context.documents.getMapsByVirtualFileUri(uri)) {
@@ -56,43 +58,96 @@ export = (): LanguageServicePlugin => (context) => {
 			return context.getTextDocument(uri);
 		},
 	} as SharedContext;
-	const findDefinition = definitions.register(serviceCtx);
-	const findTypeDefinition = typeDefinitions.register(serviceCtx);
-	const findReferences = references.register(serviceCtx);
-	const findFileReferences = fileReferences.register(serviceCtx);
-	const findImplementations = implementation.register(serviceCtx);
-	const doPrepareRename = prepareRename.register(serviceCtx);
-	const doRename = rename.register(serviceCtx);
-	const getEditsForFileRename = fileRename.register(serviceCtx);
-	const getCodeActions = codeActions.register(serviceCtx);
-	const doCodeActionResolve = codeActionResolve.register(serviceCtx);
-	const getInlayHints = inlayHints.register(serviceCtx);
-	const findDocumentHighlights = documentHighlight.register(serviceCtx);
-	const findDocumentSymbols = documentSymbol.register(serviceCtx);
-	const findWorkspaceSymbols = workspaceSymbols.register(serviceCtx);
-	const doComplete = completions.register(serviceCtx);
-	const doCompletionResolve = completionResolve.register(serviceCtx);
-	const doDirectiveCommentComplete = directiveCommentCompletions.register(serviceCtx);
-	const doJsDocComplete = jsDocCompletions.register(serviceCtx);
-	const doHover = hover.register(serviceCtx);
-	const doFormatting = formatting.register(serviceCtx);
-	const getSignatureHelp = signatureHelp.register(serviceCtx);
-	const getSelectionRanges = selectionRanges.register(serviceCtx);
-	const doValidation = diagnostics.register(serviceCtx);
-	const getFoldingRanges = foldingRanges.register(serviceCtx);
-	const getDocumentSemanticTokens = semanticTokens.register(serviceCtx);
-	const callHierarchy = _callHierarchy.register(serviceCtx);
+	const findDefinition = definitions.register(semanticCtx);
+	const findTypeDefinition = typeDefinitions.register(semanticCtx);
+	const findReferences = references.register(semanticCtx);
+	const findFileReferences = fileReferences.register(semanticCtx);
+	const findImplementations = implementation.register(semanticCtx);
+	const doPrepareRename = prepareRename.register(semanticCtx);
+	const doRename = rename.register(semanticCtx);
+	const getEditsForFileRename = fileRename.register(semanticCtx);
+	const getCodeActions = codeActions.register(semanticCtx);
+	const doCodeActionResolve = codeActionResolve.register(semanticCtx);
+	const getInlayHints = inlayHints.register(semanticCtx);
+	const findDocumentHighlights = documentHighlight.register(semanticCtx);
+	const findWorkspaceSymbols = workspaceSymbols.register(semanticCtx);
+	const doComplete = completions.register(semanticCtx);
+	const doCompletionResolve = completionResolve.register(semanticCtx);
+	const doDirectiveCommentComplete = directiveCommentCompletions.register(semanticCtx);
+	const doJsDocComplete = jsDocCompletions.register(semanticCtx);
+	const doHover = hover.register(semanticCtx);
+	const getSignatureHelp = signatureHelp.register(semanticCtx);
+	const getSelectionRanges = selectionRanges.register(semanticCtx);
+	const doValidation = diagnostics.register(semanticCtx);
+	const getDocumentSemanticTokens = semanticTokens.register(semanticCtx);
+	const callHierarchy = _callHierarchy.register(semanticCtx);
+
+	let syntacticHostCtx = {
+		fileName: '',
+		fileVersion: 0,
+	};
+	const syntacticServiceHost: ts.LanguageServiceHost = {
+		getScriptFileNames: () => [syntacticHostCtx.fileName],
+		getScriptVersion: () => syntacticHostCtx.fileVersion.toString(),
+		getScriptSnapshot: () => context.core.virtualFiles.getVirtualFile(syntacticHostCtx.fileName)[0]?.snapshot,
+		getCompilationSettings: () => ({}),
+		getCurrentDirectory: () => '',
+		getDefaultLibFileName: () => '',
+		readFile: () => '',
+		fileExists: () => false,
+	};
+	const syntacticCtx: SharedContext = {
+		...semanticCtx,
+		typescript: {
+			...semanticCtx.typescript,
+			languageServiceHost: syntacticServiceHost,
+			languageService: ts.createLanguageService(syntacticServiceHost),
+		},
+	} as SharedContext;
+	const findDocumentSymbols = documentSymbol.register(syntacticCtx);
+	const doFormatting = formatting.register(syntacticCtx);
+	const getFoldingRanges = foldingRanges.register(syntacticCtx);
 
 	return {
 
 		rules: {
-			onAny(ruleCtx) {
+			onFormat(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
-							...serviceCtx.typescript,
+							...syntacticCtx.typescript,
+						};
+					}
+					else {
+						console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
+					}
+				}
+				return ruleCtx;
+			},
+			onSyntax(ruleCtx) {
+				if (isTsDocument(ruleCtx.document)) {
+					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					if (sourceFile) {
+						ruleCtx.typescript = {
+							sourceFile,
+							...syntacticCtx.typescript,
+						};
+					}
+					else {
+						console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
+					}
+				}
+				return ruleCtx;
+			},
+			onSemantic(ruleCtx) {
+				if (isTsDocument(ruleCtx.document)) {
+					const sourceFile = languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					if (sourceFile) {
+						ruleCtx.typescript = {
+							sourceFile,
+							...semanticCtx.typescript,
 						};
 					}
 					else {
@@ -298,6 +353,9 @@ export = (): LanguageServicePlugin => (context) => {
 
 		findDocumentSymbols(document) {
 			if (isTsDocument(document)) {
+
+				prepareSyntacticService(document);
+
 				return findDocumentSymbols(document.uri);
 			}
 		},
@@ -318,6 +376,9 @@ export = (): LanguageServicePlugin => (context) => {
 
 		getFoldingRanges(document) {
 			if (isTsDocument(document)) {
+
+				prepareSyntacticService(document);
+
 				return getFoldingRanges(document.uri);
 			}
 		},
@@ -342,6 +403,8 @@ export = (): LanguageServicePlugin => (context) => {
 					return;
 				}
 
+				prepareSyntacticService(document);
+
 				return doFormatting.onRange(document.uri, range, options_2, {
 					baseIndentSize: options_2.initialIndent ? options_2.tabSize : 0,
 				});
@@ -361,21 +424,26 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 	};
 
-	function getBasicTriggerCharacters(tsVersion: string) {
-
-		const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
-
-		// https://github.com/microsoft/vscode/blob/8e65ae28d5fb8b3c931135da1a41edb9c80ae46f/extensions/typescript-language-features/src/languageFeatures/completions.ts#L811-L833
-		if (semver.lt(tsVersion, '3.1.0') || semver.gte(tsVersion, '3.2.0')) {
-			triggerCharacters.push('@');
-		}
-		if (semver.gte(tsVersion, '3.8.1')) {
-			triggerCharacters.push('#');
-		}
-		if (semver.gte(tsVersion, '4.3.0')) {
-			triggerCharacters.push(' ');
-		}
-
-		return triggerCharacters;
+	function prepareSyntacticService(document: TextDocument) {
+		syntacticHostCtx.fileName = context.uriToFileName(document.uri);
+		syntacticHostCtx.fileVersion = document.version;
 	}
 };
+
+function getBasicTriggerCharacters(tsVersion: string) {
+
+	const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
+
+	// https://github.com/microsoft/vscode/blob/8e65ae28d5fb8b3c931135da1a41edb9c80ae46f/extensions/typescript-language-features/src/languageFeatures/completions.ts#L811-L833
+	if (semver.lt(tsVersion, '3.1.0') || semver.gte(tsVersion, '3.2.0')) {
+		triggerCharacters.push('@');
+	}
+	if (semver.gte(tsVersion, '3.8.1')) {
+		triggerCharacters.push('#');
+	}
+	if (semver.gte(tsVersion, '4.3.0')) {
+		triggerCharacters.push(' ');
+	}
+
+	return triggerCharacters;
+}
