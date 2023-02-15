@@ -26,7 +26,7 @@ export = (): LanguageServicePlugin => (context) => {
 	return {
 
 		rules: {
-			async prepare(context) {
+			async onAny(context) {
 				await worker(context.document, (stylesheet, cssLs) => {
 					context.css = {
 						stylesheet,

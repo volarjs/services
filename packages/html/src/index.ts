@@ -22,7 +22,7 @@ export = (options: {
 	return {
 
 		rules: {
-			async prepare(context) {
+			async onAny(context) {
 				if (options.validLang === 'html') {
 					await worker(context.document, (htmlDocument) => {
 						context.html = {

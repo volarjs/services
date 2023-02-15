@@ -9,10 +9,10 @@ export = (): LanguageServicePlugin<{
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
 	getPugLs: () => pug.LanguageService,
 	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined,
-}> => (context, service) => {
+}> => (context) => {
 
 	const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
-	const htmlPlugin = useHtmlPlugin()(context, service);
+	const htmlPlugin = useHtmlPlugin()(context);
 	const pugLs = pug.getLanguageService(htmlPlugin.getHtmlLs());
 
 	return {
@@ -22,7 +22,7 @@ export = (): LanguageServicePlugin<{
 		getPugDocument,
 
 		rules: {
-			async prepare(context) {
+			async onAny(context) {
 				await worker(context.document, (pugDocument) => {
 					if (pugDocument.ast) {
 						context.pug = {

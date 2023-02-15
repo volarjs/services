@@ -15,7 +15,7 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 	return {
 
 		rules: {
-			async prepare(context) {
+			async onAny(context) {
 				await worker(context.document, async (jsonDocument) => {
 					context.json = {
 						document: jsonDocument,

@@ -74,7 +74,7 @@ export = (): LanguageServicePlugin => (context) => {
 	return {
 
 		rules: {
-			prepare(ruleCtx) {
+			onAny(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					const sourceFile = typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 					if (sourceFile) {
