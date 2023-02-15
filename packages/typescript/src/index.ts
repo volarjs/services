@@ -418,6 +418,8 @@ export = (): LanguageServicePlugin => (context) => {
 					return;
 				}
 
+				prepareSyntacticService(document);
+
 				return doFormatting.onType(document.uri, options_2, position, key);
 			}
 		},
