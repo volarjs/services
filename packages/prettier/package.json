@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/prettier",
-	"version": "2.0.0-alpha.4",
+	"version": "2.0.0-alpha.5",
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
