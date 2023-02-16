@@ -6,12 +6,12 @@ importers:
     specifiers:
       '@lerna-lite/cli': latest
       '@types/node': latest
-      '@volar/language-service': 1.2.0-alpha.11
+      '@volar/language-service': 1.2.0-alpha.12
       typescript: latest
     devDependencies:
       '@lerna-lite/cli': 1.15.1
       '@types/node': 18.13.0
-      '@volar/language-service': 1.2.0-alpha.11
+      '@volar/language-service': 1.2.0-alpha.12
       typescript: 4.9.5
 
   packages/css:
@@ -886,31 +886,10 @@ packages:
       '@types/vfile-message': 2.0.0
     dev: false
 
-  /@volar/language-core/1.2.0-alpha.11:
-    resolution: {integrity: sha512-OfbPmmFa4LUA8kJCg77V9ud4NASjJ3VKJ79QCQSfHa5SwXeZ5w7lvQe2yILFBjZ3JDB5EfFnHZUSct6ziK3x5Q==}
-    dependencies:
-      '@volar/source-map': 1.2.0-alpha.11
-    dev: true
-
   /@volar/language-core/1.2.0-alpha.12:
     resolution: {integrity: sha512-eKHHiRsll4H4Bm2mJwJPT+XC6p22JABdpm7Z9Dh/vXm12HFZ4QaKgLRXYfrzP1SzSJyIHPJHU9X816bifiJrAg==}
     dependencies:
       '@volar/source-map': 1.2.0-alpha.12
-    dev: false
-
-  /@volar/language-service/1.2.0-alpha.11:
-    resolution: {integrity: sha512-MF3mdtwRv3Vx+eDG69G39+wOsFVkASn8fL7CVAjXfHKF6/qq2ylP06psqJDYwAvzzYvBXjUr2D4yypkwyQlQNQ==}
-    dependencies:
-      '@volar/language-core': 1.2.0-alpha.11
-      '@volar/shared': 1.2.0-alpha.11
-      '@volar/source-map': 1.2.0-alpha.11
-      '@volar/typescript-faster': 1.2.0-alpha.11
-      vscode-html-languageservice: 5.0.4
-      vscode-json-languageservice: 5.2.0
-      vscode-languageserver-protocol: 3.17.3
-      vscode-languageserver-textdocument: 1.0.8
-      vscode-uri: 3.0.7
-    dev: true
 
   /@volar/language-service/1.2.0-alpha.12:
     resolution: {integrity: sha512-2f++R7X9TXUetw8LyRCg3IpzJWqbB0NR1eSnNY2ut3M9lM+8t+n7iyek22dlC4f59aiHSDz6VqvRF0nSVKl6Zg==}
@@ -924,45 +903,22 @@ packages:
       vscode-languageserver-protocol: 3.17.3
       vscode-languageserver-textdocument: 1.0.8
       vscode-uri: 3.0.7
-    dev: false
-
-  /@volar/shared/1.2.0-alpha.11:
-    resolution: {integrity: sha512-6N5ysmMbq5C1mVX1Vd3NyjEzWnVUeyia3fcZICLHViRIijvFUA7mTs4g8rMyARBQ+UV2ByuZ+eshTZ/Ab6eGRw==}
-    dependencies:
-      typesafe-path: 0.2.2
-      vscode-uri: 3.0.7
-    dev: true
 
   /@volar/shared/1.2.0-alpha.12:
     resolution: {integrity: sha512-xtgQ8DM+UKz14nt1EXuxmv3mgSd2WGJ9aCyDe1LxkAwYZDKL1i8y0uDUvBED8kQckAgm4O0chPFb3nKwy6A2lQ==}
     dependencies:
       typesafe-path: 0.2.2
       vscode-uri: 3.0.7
-    dev: false
-
-  /@volar/source-map/1.2.0-alpha.11:
-    resolution: {integrity: sha512-GCRqcq2bn8Gf9N/qbdl8GgfGbmYuuSIB8arhl+gRZfCIWvT5NhIRVlG5GX0lkgpp02lA8ZYWZ0GLGOkwz7+DMQ==}
-    dependencies:
-      muggle-string: 0.2.2
-    dev: true
 
   /@volar/source-map/1.2.0-alpha.12:
     resolution: {integrity: sha512-noqPg/ENI0cEzwqyUsIU6VdnCJt8Ab4jzLnmyqZFPnoyELmIjiemduLHgdLkIUmHC33dx34pgqCH8zsTg5TfEw==}
     dependencies:
       muggle-string: 0.2.2
-    dev: false
-
-  /@volar/typescript-faster/1.2.0-alpha.11:
-    resolution: {integrity: sha512-bhF+/2D2KG/Pj+tXTBsr4+W+xvHS4P+3D3rtGd4TGUwp/P8BxBOXAieCYivFxk1w05gBXHtPK8M+zRDXOc3Xsw==}
-    dependencies:
-      semver: 7.3.8
-    dev: true
 
   /@volar/typescript-faster/1.2.0-alpha.12:
     resolution: {integrity: sha512-o9xjDtgnLTzZe9QbcLj1rPIfGFUyyfKtnmf9Y7i9n0GCbwUEUsMWM7KN8iuIpfbaKyOP2gH0KWXzNiFyWb/1iw==}
     dependencies:
       semver: 7.3.8
-    dev: false
 
   /@vscode/emmet-helper/2.8.6:
     resolution: {integrity: sha512-IIB8jbiKy37zN8bAIHx59YmnIelY78CGHtThnibD/d3tQOKRY83bYVi9blwmZVUZh6l9nfkYH3tvReaiNxY9EQ==}
@@ -1316,7 +1272,7 @@ packages:
     dependencies:
       clone-response: 1.0.2
       get-stream: 5.2.0
-      http-cache-semantics: 4.1.0
+      http-cache-semantics: 4.1.1
       keyv: 3.1.0
       lowercase-keys: 2.0.0
       normalize-url: 4.5.1
@@ -2552,13 +2508,8 @@ packages:
     resolution: {integrity: sha512-GX1UguduCBEAEo1hjFxc2Bz04/sDq0ACNyT7LsuoDcPfXYI3nS0NRPp3dyazLJyVUMp3GPBB56i/0Zr6CqD2PQ==}
     dev: false
 
-  /http-cache-semantics/4.1.0:
-    resolution: {integrity: sha512-carPklcUh7ROWRK7Cv27RPtdhYhUsela/ue5/jKzjegVvXDqM2ILE9Q2BGn9JZJh1g87cp56su/FgQSzcWS8cQ==}
-    dev: false
-
   /http-cache-semantics/4.1.1:
     resolution: {integrity: sha512-er295DKPVsV82j5kw1Gjt+ADA/XYHsajl82cGNQG2eyoPkvgUhX+nDIyelzhIWbbsXP39EHcI6l5tYs2FYqYXQ==}
-    dev: true
 
   /http-proxy-agent/5.0.0:
     resolution: {integrity: sha512-n2hY8YdoRE1i7r6M0w9DIw5GgZN0G25P8zLCRQ8rjXtTU3vsNFBI/vWK/UIeE6g5MUUz6avwAPXmL6Fy9D/90w==}
