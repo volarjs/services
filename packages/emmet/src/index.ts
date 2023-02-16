@@ -26,8 +26,11 @@ export = (): LanguageServicePlugin => (context) => {
 				if (syntax === 'html') {
 					const htmlDocument = getHtmlDocument(textDocument);
 					const node = htmlDocument.findNodeAt(textDocument.offsetAt(position));
-					if (node.tag && node.startTagEnd !== undefined && node.endTagStart !== undefined) {
-						const insideBlock = textDocument.offsetAt(position) >= node.startTagEnd && textDocument.offsetAt(position) <= node.endTagStart;
+					if (node.tag) {
+						let insideBlock = false;
+						if (node.startTagEnd !== undefined && node.endTagStart !== undefined) {
+							insideBlock = textDocument.offsetAt(position) >= node.startTagEnd && textDocument.offsetAt(position) <= node.endTagStart;
+						}
 						if (!insideBlock) {
 							return;
 						}
