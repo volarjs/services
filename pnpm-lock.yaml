@@ -72,7 +72,7 @@ importers:
 
   packages/pug:
     specifiers:
-      '@volar-plugins/html': 2.0.0-alpha.5
+      '@volar-plugins/html': 2.0.0-alpha.6
       '@volar/language-service': 1.2.0-alpha.13
       '@volar/source-map': 1.2.0-alpha.13
       muggle-string: ^0.2.2
