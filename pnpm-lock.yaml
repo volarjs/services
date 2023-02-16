@@ -27,8 +27,10 @@ importers:
   packages/emmet:
     specifiers:
       '@vscode/emmet-helper': ^2.8.6
+      vscode-html-languageservice: ^5.0.4
     dependencies:
       '@vscode/emmet-helper': 2.8.6
+      vscode-html-languageservice: 5.0.4
 
   packages/eslint:
     specifiers:

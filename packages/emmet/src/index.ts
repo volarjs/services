@@ -1,7 +1,11 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
+import * as html from 'vscode-html-languageservice';
 
 export = (): LanguageServicePlugin => (context) => {
+
+	const htmlLs = html.getLanguageService();
+	const htmlDocuments = new WeakMap<html.TextDocument, [number, html.HTMLDocument]>();
 
 	return {
 
@@ -17,6 +21,18 @@ export = (): LanguageServicePlugin => (context) => {
 				const syntax = emmet.getEmmetMode(textDocument.languageId === 'vue' ? 'html' : textDocument.languageId);
 				if (!syntax)
 					return;
+
+				// fix https://github.com/vuejs/language-tools/issues/1329
+				if (syntax === 'html') {
+					const htmlDocument = getHtmlDocument(textDocument);
+					const node = htmlDocument.findNodeAt(textDocument.offsetAt(position));
+					if (node.tag && node.startTagEnd !== undefined && node.endTagStart !== undefined) {
+						const insideBlock = textDocument.offsetAt(position) >= node.startTagEnd && textDocument.offsetAt(position) <= node.endTagStart;
+						if (!insideBlock) {
+							return;
+						}
+					}
+				}
 
 				// monkey fix https://github.com/johnsoncodehk/volar/issues/1105
 				if (syntax === 'jsx')
@@ -58,5 +74,21 @@ export = (): LanguageServicePlugin => (context) => {
 			excludeLanguages: emmetConfig['excludeLanguages'],
 			showSuggestionsAsSnippets: emmetConfig['showSuggestionsAsSnippets']
 		};
+	}
+
+	function getHtmlDocument(document: html.TextDocument) {
+
+		const cache = htmlDocuments.get(document);
+		if (cache) {
+			const [cacheVersion, cacheDoc] = cache;
+			if (cacheVersion === document.version) {
+				return cacheDoc;
+			}
+		}
+
+		const doc = htmlLs.parseHTMLDocument(document);
+		htmlDocuments.set(document, [document.version, doc]);
+
+		return doc;
 	}
 };

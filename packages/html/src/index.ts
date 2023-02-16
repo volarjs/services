@@ -12,12 +12,13 @@ export = (options: {
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
 }> => (context) => {
 
-	const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 
 	let inited = false;
 	let customData: html.IHTMLDataProvider[] = [];
 	let extraData: html.IHTMLDataProvider[] = [];
+
 	const htmlLs = html.getLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
+	const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 
 	return {
 
