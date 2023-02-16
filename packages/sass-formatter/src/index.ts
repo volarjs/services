@@ -17,18 +17,9 @@ export = (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServiceP
 		if (options.insertSpaces)
 			_options.tabSize = options.tabSize;
 
-		let newText = SassFormatter.Format(document.getText(), _options);
-
-		if (!newText.startsWith('\n')) {
-			newText = '\n' + newText;
-		}
-		if (!newText.endsWith('\n')) {
-			newText = newText + '\n';
-		}
-
 		return [{
+			newText: SassFormatter.Format(document.getText(), _options),
 			range: range,
-			newText: newText,
 		}];
 	},
 });
