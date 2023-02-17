@@ -81,16 +81,18 @@ export = (): LanguageServicePlugin => (context) => {
 	let syntacticHostCtx = {
 		fileName: '',
 		fileVersion: 0,
+		snapshot: ts.ScriptSnapshot.fromString(''),
 	};
 	const syntacticServiceHost: ts.LanguageServiceHost = {
+		getProjectVersion: () => syntacticHostCtx.fileName + '::' + syntacticHostCtx.fileVersion,
 		getScriptFileNames: () => [syntacticHostCtx.fileName],
-		getScriptVersion: () => syntacticHostCtx.fileVersion.toString(),
-		getScriptSnapshot: () => context.core.virtualFiles.getVirtualFile(syntacticHostCtx.fileName)[0]?.snapshot,
+		getScriptVersion: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.fileVersion.toString() : '',
+		getScriptSnapshot: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.snapshot : undefined,
 		getCompilationSettings: () => context.typescript?.languageServiceHost.getCompilationSettings() ?? {},
 		getCurrentDirectory: () => '',
 		getDefaultLibFileName: () => '',
-		readFile: () => '',
-		fileExists: () => false,
+		readFile: () => undefined,
+		fileExists: fileName => fileName === syntacticHostCtx.fileName,
 	};
 	const syntacticCtx: SharedContext = {
 		...semanticCtx,
@@ -110,7 +112,7 @@ export = (): LanguageServicePlugin => (context) => {
 			onFormat(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					prepareSyntacticService(ruleCtx.document);
-					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
@@ -126,7 +128,7 @@ export = (): LanguageServicePlugin => (context) => {
 			onSyntax(ruleCtx) {
 				if (isTsDocument(ruleCtx.document)) {
 					prepareSyntacticService(ruleCtx.document);
-					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 					if (sourceFile) {
 						ruleCtx.typescript = {
 							sourceFile,
@@ -428,6 +430,24 @@ export = (): LanguageServicePlugin => (context) => {
 	function prepareSyntacticService(document: TextDocument) {
 		syntacticHostCtx.fileName = context.uriToFileName(document.uri);
 		syntacticHostCtx.fileVersion = document.version;
+		if (context.documents.hasVirtualFileByUri(document.uri)) {
+			const snapshot = context.documents.getVirtualFileByUri(document.uri)[0]?.snapshot;
+			if (snapshot) {
+				syntacticHostCtx.snapshot = snapshot;
+			}
+			else {
+				throw new Error('No snapshot found for ' + document.uri);
+			}
+		}
+		else {
+			const snapshot = context.host.getScriptSnapshot(syntacticHostCtx.fileName);
+			if (snapshot) {
+				syntacticHostCtx.snapshot = snapshot;
+			}
+			else {
+				throw new Error('No snapshot found for ' + document.uri);
+			}
+		}
 	}
 };
 
