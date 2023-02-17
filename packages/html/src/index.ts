@@ -62,6 +62,16 @@ export = (options: {
 
 		rename: {
 
+			prepare(document, position) {
+				return worker(document, (htmlDocument) => {
+					const offset = document.offsetAt(position);
+					return htmlLs
+						.findDocumentHighlights(document, position, htmlDocument)
+						?.find(h => offset >= document.offsetAt(h.range.start) && offset <= document.offsetAt(h.range.end))
+						?.range;
+				});
+			},
+
 			on(document, position, newName) {
 				return worker(document, (htmlDocument) => {
 					return htmlLs.doRename(document, position, newName, htmlDocument);
