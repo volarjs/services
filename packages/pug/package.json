@@ -15,8 +15,8 @@
 	},
 	"dependencies": {
 		"@volar-plugins/html": "2.0.0-alpha.8",
-		"@volar/language-service": "1.2.0-alpha.15",
-		"@volar/source-map": "1.2.0-alpha.15",
+		"@volar/language-service": "1.2.0-alpha.16",
+		"@volar/source-map": "1.2.0-alpha.16",
 		"muggle-string": "^0.2.2",
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
