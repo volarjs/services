@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/eslint",
-	"version": "2.0.0-alpha.7",
+	"version": "2.0.0-alpha.8",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
