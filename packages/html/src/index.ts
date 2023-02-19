@@ -151,6 +151,28 @@ export = (options: {
 			});
 		},
 
+		getIndentSensitiveLines(document) {
+			return worker(document, () => {
+				const lines: number[] = [];
+				const scanner = htmlLs.createScanner(document.getText());
+				let token = scanner.scan();
+				let startCommentTagLine: number | undefined;
+				while (token !== html.TokenType.EOS) {
+					if (token === html.TokenType.StartCommentTag) {
+						startCommentTagLine = document.positionAt(scanner.getTokenOffset()).line;
+					}
+					else if (token === html.TokenType.EndCommentTag) {
+						const line = document.positionAt(scanner.getTokenOffset()).line;
+						for (let i = startCommentTagLine! + 1; i <= line; i++) {
+							lines.push(i);
+						}
+					}
+					token = scanner.scan();
+				}
+				return lines;
+			});
+		},
+
 		findLinkedEditingRanges(document, position) {
 			return worker(document, (htmlDocument) => {
 
