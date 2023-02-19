@@ -425,6 +425,37 @@ export = (): LanguageServicePlugin => (context) => {
 				return doFormatting.onType(document.uri, options_2, position, key);
 			}
 		},
+
+		getIndentSensitiveLines(document) {
+			if (isTsDocument(document)) {
+
+				prepareSyntacticService(document);
+
+				const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(document.uri));
+
+				if (sourceFile) {
+
+					const lines: number[] = [];
+
+					sourceFile.forEachChild(function walk(node) {
+						if (
+							node.kind === ts.SyntaxKind.FirstTemplateToken
+							|| node.kind === ts.SyntaxKind.LastTemplateToken
+							|| node.kind === ts.SyntaxKind.TemplateHead
+						) {
+							const startLine = document.positionAt(node.getStart(sourceFile)).line;
+							const endLine = document.positionAt(node.getEnd()).line;
+							for (let i = startLine + 1; i <= endLine; i++) {
+								lines.push(i);
+							}
+						}
+						node.forEachChild(walk);
+					});
+
+					return lines;
+				}
+			}
+		},
 	};
 
 	function prepareSyntacticService(document: TextDocument) {
