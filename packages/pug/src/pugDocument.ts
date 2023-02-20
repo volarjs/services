@@ -20,12 +20,10 @@ export function register(htmlLs: html.LanguageService) {
 		const htmlDocument = htmlLs.parseHTMLDocument(htmlTextDocument);
 
 		return {
-			pugTextDocument: parsed.pugTextDocument,
+			...parsed,
 			htmlTextDocument,
 			htmlDocument,
 			map: sourceMap,
-			error: parsed.error,
-			ast: parsed.ast,
 		};
 	};
 }

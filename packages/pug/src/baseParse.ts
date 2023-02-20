@@ -5,15 +5,11 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 
 const pugParser = require('pug-parser');
 
-export enum MappingKind {
-	EmptyTagCompletion,
-}
-
 export function baseParse(pugCode: string) {
 
 	const fileName = 'foo.pug';
 	const pugTextDocument = TextDocument.create('file:///a.pug', 'jade', 0, pugCode);
-	const codeGen: Segment<MappingKind | undefined>[] = [];
+	const codeGen: Segment<any>[] = [];
 	let error: {
 		code: string,
 		msg: string,
@@ -21,7 +17,7 @@ export function baseParse(pugCode: string) {
 		column: number,
 		filename: string,
 	} | undefined;
-	let emptyLineEnds: ReturnType<typeof collectEmptyLineEnds>;
+	let emptyLineEnds: ReturnType<typeof collectEmptyLineEnds> = [];
 	let attrsBlocks: ReturnType<typeof collectAttrsBlocks>;
 	let ast: Node | undefined;
 
@@ -34,23 +30,10 @@ export function baseParse(pugCode: string) {
 		ast = pugParser(tokens, { filename: fileName, src: pugCode }) as Node;
 		visitNode(ast, undefined, undefined);
 
-		// support tag auto-complete in empty lines
-		for (const emptyLineEnd of emptyLineEnds) {
-			codeGen.push('<');
-			codeGen.push([
-				'x',
-				undefined,
-				emptyLineEnd,
-				MappingKind.EmptyTagCompletion,
-			]);
-			codeGen.push('x />');
-		}
-
 		codeGen.push([
 			'',
 			undefined,
 			pugCode.trimEnd().length,
-			undefined,
 		]);
 	}
 	catch (e) {
@@ -68,6 +51,7 @@ export function baseParse(pugCode: string) {
 		pugTextDocument,
 		error,
 		ast,
+		emptyLineEnds,
 	};
 
 	function visitNode(node: Node, next: Node | undefined, parent: Node | undefined) {
@@ -84,7 +68,6 @@ export function baseParse(pugCode: string) {
 				'',
 				undefined,
 				pugTagRange.start,
-				undefined,
 			]);
 
 			const selfClosing = node.block.nodes.length === 0;
@@ -97,7 +80,6 @@ export function baseParse(pugCode: string) {
 				'',
 				undefined,
 				pugTagRange.start,
-				undefined,
 			]);
 		}
 		else if (node.type === 'Text') {
@@ -105,7 +87,6 @@ export function baseParse(pugCode: string) {
 				node.val,
 				undefined,
 				getDocOffset(node.line, node.column),
-				undefined,
 			]);
 		}
 	}
@@ -114,7 +95,6 @@ export function baseParse(pugCode: string) {
 			'',
 			undefined,
 			getDocOffset(node.line, node.column),
-			undefined,
 		]);
 		codeGen.push('<');
 		const tagRange = getDocRange(node.line, node.column, node.name.length);
@@ -123,7 +103,6 @@ export function baseParse(pugCode: string) {
 				node.name,
 				undefined,
 				tagRange.start,
-				undefined,
 			]);
 		}
 		else {
@@ -148,7 +127,6 @@ export function baseParse(pugCode: string) {
 					attr.val,
 					undefined,
 					getDocOffset(attr.line, attr.column),
-					undefined
 				]);
 			}
 		}
@@ -159,7 +137,6 @@ export function baseParse(pugCode: string) {
 				attrsBlock.text,
 				undefined,
 				attrsBlock.offset,
-				undefined,
 			]);
 		}
 
@@ -188,7 +165,6 @@ export function baseParse(pugCode: string) {
 				'',
 				undefined,
 				nextStart,
-				undefined,
 			]);
 		}
 		codeGen.push(`</${node.name}>`);
@@ -206,7 +182,6 @@ export function baseParse(pugCode: string) {
 					attr.val.slice(1, -1), // remove "
 					undefined,
 					getDocOffset(attr.line, attr.column + 1),
-					undefined
 				]);
 			}
 		}

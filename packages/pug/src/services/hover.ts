@@ -1,12 +1,11 @@
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
-import { MappingKind } from '../baseParse';
 import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position, options?: html.HoverSettings | undefined) => {
 
-		const htmlPos = pugDoc.map.toGeneratedPosition(pos, data => data !== MappingKind.EmptyTagCompletion);
+		const htmlPos = pugDoc.map.toGeneratedPosition(pos);
 		if (!htmlPos)
 			return;
 
