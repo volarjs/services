@@ -2,7 +2,6 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import * as vscode from 'vscode-languageserver-protocol';
 import { parseKindModifier } from '../utils/modifiers';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
@@ -28,7 +27,7 @@ const getSymbolKind = (kind: string): vscode.SymbolKind => {
 };
 
 export function register(ctx: SharedContext) {
-	return (uri: string): vscode.SymbolInformation[] => {
+	return (uri: string): vscode.DocumentSymbol[] => {
 
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
@@ -38,55 +37,55 @@ export function register(ctx: SharedContext) {
 		if (!barItems) return [];
 
 		// The root represents the file. Ignore this when showing in the UI
-		const result: vscode.SymbolInformation[] = [];
-		if (barItems.childItems) {
-			for (const item of barItems.childItems) {
-				convertNavTree(document, item, undefined);
-			}
-		}
-
-		return result;
-
-		function convertNavTree(
-			document: TextDocument,
-			item: ts.NavigationTree,
-			parent: ts.NavigationTree | undefined,
-		): boolean {
-			let shouldInclude = shouldIncludeEntry(item);
-			if (!shouldInclude && !item.childItems?.length) {
-				return false;
-			}
-
-			for (const span of item.spans) {
-				const range = vscode.Range.create(document.positionAt(span.start), document.positionAt(span.start + span.length));
-				const symbolInfo = vscode.SymbolInformation.create(
-					item.text,
-					getSymbolKind(item.kind),
-					range,
-					document.uri,
-					parent?.text,
-				);
-
-				if (item.childItems) {
-					for (const child of item.childItems) {
-						convertNavTree(document, child, item);
+		const result = barItems.childItems
+			?.map(
+				function convertNavTree(item): vscode.DocumentSymbol[] {
+					if (!shouldIncludeEntry(item)) {
+						return [];
 					}
+					let remain = item.childItems ?? [];
+					return item.spans.map(span => {
+						const childItems: ts.NavigationTree[] = [];
+						remain = remain.filter(child => {
+							const childStart = child.spans[0].start;
+							const childEnd = child.spans[child.spans.length - 1].start + child.spans[child.spans.length - 1].length;
+							if (childStart >= span.start && childEnd <= span.start + span.length) {
+								childItems.push(child);
+								return false;
+							}
+							return true;
+						});
+						const nameSpan = item.spans.length === 1
+							? (item.nameSpan ?? span)
+							: span;
+						const symbol = vscode.DocumentSymbol.create(
+							item.text,
+							undefined,
+							getSymbolKind(item.kind),
+							vscode.Range.create(
+								document.positionAt(span.start),
+								document.positionAt(span.start + span.length),
+							),
+							vscode.Range.create(
+								document.positionAt(nameSpan.start),
+								document.positionAt(nameSpan.start + nameSpan.length),
+							),
+							childItems.map(convertNavTree).flat(),
+						);
+						const kindModifiers = parseKindModifier(item.kindModifiers);
+						if (kindModifiers.has(PConst.KindModifiers.deprecated)) {
+							symbol.deprecated = true;
+							symbol.tags ??= [];
+							symbol.tags.push(vscode.SymbolTag.Deprecated);
+						}
+						return symbol;
+					});
 				}
+			)
+			.flat();
 
-				const kindModifiers = parseKindModifier(item.kindModifiers);
-				if (kindModifiers.has(PConst.KindModifiers.deprecated)) {
-					symbolInfo.deprecated = true;
-					if (!symbolInfo.tags) symbolInfo.tags = [];
-					symbolInfo.tags.push(vscode.SymbolTag.Deprecated);
-				}
+		return result ?? [];
 
-				if (shouldInclude) {
-					result.push(symbolInfo);
-				}
-			}
-
-			return shouldInclude;
-		}
 		function shouldIncludeEntry(item: ts.NavigationTree): boolean {
 			if (item.kind === PConst.Kind.alias) {
 				return false;

@@ -23,28 +23,27 @@ function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 }
 
 export function register(ctx: SharedContext) {
-	return (query: string): vscode.SymbolInformation[] => {
+	return (query: string): vscode.WorkspaceSymbol[] => {
 
 		const items = safeCall(() => ctx.typescript.languageService.getNavigateToItems(query));
 		if (!items) return [];
 
 		return items
 			.filter(item => item.containerName || item.kind !== 'alias')
-			.map(toSymbolInformation)
+			.map(toWorkspaceSymbol)
 			.filter((v): v is NonNullable<typeof v> => !!v);
 
-		function toSymbolInformation(item: ts.NavigateToItem) {
+		function toWorkspaceSymbol(item: ts.NavigateToItem) {
 			const label = getLabel(item);
 			const uri = ctx.fileNameToUri(item.fileName);
 			const document = ctx.getTextDocument(uri);
 			if (document) {
 				const range = vscode.Range.create(document.positionAt(item.textSpan.start), document.positionAt(item.textSpan.start + item.textSpan.length));
-				const info = vscode.SymbolInformation.create(
+				const info = vscode.WorkspaceSymbol.create(
 					label,
 					getSymbolKind(item),
-					range,
 					uri,
-					item.containerName || '',
+					range,
 				);
 				const kindModifiers = item.kindModifiers ? parseKindModifier(item.kindModifiers) : undefined;
 				if (kindModifiers?.has(PConst.KindModifiers.deprecated)) {
