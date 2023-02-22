@@ -58,13 +58,17 @@ export function register(ctx: SharedContext) {
 						const nameSpan = item.spans.length === 1
 							? (item.nameSpan ?? span)
 							: span;
+						const fullRange = {
+							start: Math.min(span.start, nameSpan.start),
+							end: Math.max(span.start + span.length, nameSpan.start + nameSpan.length),
+						};
 						const symbol = vscode.DocumentSymbol.create(
 							item.text,
 							undefined,
 							getSymbolKind(item.kind),
 							vscode.Range.create(
-								document.positionAt(span.start),
-								document.positionAt(span.start + span.length),
+								document.positionAt(fullRange.start),
+								document.positionAt(fullRange.end),
 							),
 							vscode.Range.create(
 								document.positionAt(nameSpan.start),
