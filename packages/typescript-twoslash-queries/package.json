@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/typescript-twoslash-queries",
-	"version": "2.0.0-alpha.11",
+	"version": "2.0.0-alpha.12",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
