@@ -81,7 +81,7 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 
 		findDocumentSymbols(document) {
 			return worker(document, async (jsonDocument) => {
-				return await jsonLs.findDocumentSymbols(document, jsonDocument);
+				return await jsonLs.findDocumentSymbols2(document, jsonDocument);
 			});
 		},
 

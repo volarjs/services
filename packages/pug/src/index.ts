@@ -1,8 +1,9 @@
+import useHtmlPlugin from '@volar-plugins/html';
 import type { LanguageServicePlugin } from '@volar/language-service';
+import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
-import useHtmlPlugin from '@volar-plugins/html';
 
 export = (): LanguageServicePlugin<{
 	getHtmlLs: () => html.LanguageService,
@@ -91,8 +92,15 @@ export = (): LanguageServicePlugin<{
 		},
 
 		findDocumentSymbols(document) {
-			return worker(document, (pugDocument) => {
-				return pugLs.findDocumentSymbols(pugDocument);
+			return worker(document, async (pugDoc) => {
+
+				const htmlResult = await htmlPlugin.findDocumentSymbols?.(pugDoc.map.virtualFileDocument) ?? [];
+				const pugResult = htmlResult.map(htmlSymbol => transformer.asDocumentSymbol(
+					htmlSymbol,
+					range => pugDoc.map.toSourceRange(range),
+				)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
+
+				return pugResult;
 			});
 		},
 

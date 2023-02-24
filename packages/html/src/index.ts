@@ -12,13 +12,16 @@ export = (options: {
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
 }> => (context) => {
 
-
-	let inited = false;
+	let shouldUpdateCustomData = true;
 	let customData: html.IHTMLDataProvider[] = [];
 	let extraData: html.IHTMLDataProvider[] = [];
 
 	const htmlLs = html.getLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
 	const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
+
+	context.env.configurationHost?.onDidChangeConfiguration(() => {
+		shouldUpdateCustomData = true;
+	});
 
 	return {
 
@@ -38,7 +41,7 @@ export = (options: {
 
 		getHtmlLs: () => htmlLs,
 
-		updateCustomData,
+		updateCustomData: updateExtraCustomData,
 
 		complete: {
 
@@ -106,7 +109,13 @@ export = (options: {
 
 		findDocumentSymbols(document) {
 			return worker(document, (htmlDocument) => {
-				return htmlLs.findDocumentSymbols(document, htmlDocument);
+				// TODO: wait for https://github.com/microsoft/vscode-html-languageservice/pull/152
+				const symbols: vscode.DocumentSymbol[] = [];
+				htmlDocument.roots.forEach(node => {
+					provideFileSymbolsInternal(document, node, symbols);
+				});
+				// console.log(symbols);
+				return symbols;
 			});
 		},
 
@@ -222,21 +231,14 @@ export = (options: {
 	};
 
 	async function initCustomData() {
-		if (!inited && !options.disableCustomData) {
-
-			inited = true;
-
-			context.env.configurationHost?.onDidChangeConfiguration(async () => {
-				customData = await getCustomData();
-				htmlLs.setDataProviders(true, [...customData, ...extraData]);
-			});
-
+		if (shouldUpdateCustomData && !options.disableCustomData) {
+			shouldUpdateCustomData = false;
 			customData = await getCustomData();
 			htmlLs.setDataProviders(true, [...customData, ...extraData]);
 		}
 	}
 
-	function updateCustomData(data: html.IHTMLDataProvider[]) {
+	function updateExtraCustomData(data: html.IHTMLDataProvider[]) {
 		extraData = data;
 		htmlLs.setDataProviders(true, [...customData, ...extraData]);
 	}
@@ -305,4 +307,43 @@ const CR = '\r'.charCodeAt(0);
 const NL = '\n'.charCodeAt(0);
 function isNewlineCharacter(charCode: number) {
 	return charCode === CR || charCode === NL;
+}
+
+function provideFileSymbolsInternal(document: TextDocument, node: html.Node, symbols: vscode.DocumentSymbol[]): void {
+
+	const name = nodeToName(node);
+	const range = vscode.Range.create(document.positionAt(node.start), document.positionAt(node.end));
+	const symbol = vscode.DocumentSymbol.create(
+		name,
+		undefined,
+		vscode.SymbolKind.Field,
+		range,
+		range,
+	);
+
+	symbols.push(symbol);
+
+	node.children.forEach(child => {
+		symbol.children ??= [];
+		provideFileSymbolsInternal(document, child, symbol.children);
+	});
+}
+
+function nodeToName(node: html.Node): string {
+	let name = node.tag;
+
+	if (node.attributes) {
+		const id = node.attributes['id'];
+		const classes = node.attributes['class'];
+
+		if (id) {
+			name += `#${id.replace(/[\"\']/g, '')}`;
+		}
+
+		if (classes) {
+			name += classes.replace(/[\"\']/g, '').split(/\s+/).map(className => `.${className}`).join('');
+		}
+	}
+
+	return name || '?';
 }

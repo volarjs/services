@@ -1,10 +1,10 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-export = (): LanguageServicePlugin => (context) => {
+export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
 	let inited = false;
 
@@ -125,19 +125,19 @@ export = (): LanguageServicePlugin => (context) => {
 			});
 		},
 
-		findDocumentLinks(document) {
-			return worker(document, (stylesheet, cssLs) => {
+		async findDocumentLinks(document) {
+			return await worker(document, (stylesheet, cssLs) => {
 
 				if (!context.env.documentContext)
 					return;
 
-				return cssLs.findDocumentLinks(document, stylesheet, context.env.documentContext);
+				return cssLs.findDocumentLinks2(document, stylesheet, context.env.documentContext);
 			});
 		},
 
 		findDocumentSymbols(document) {
 			return worker(document, (stylesheet, cssLs) => {
-				return cssLs.findDocumentSymbols(document, stylesheet);
+				return cssLs.findDocumentSymbols2(document, stylesheet);
 			});
 		},
 
