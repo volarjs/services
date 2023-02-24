@@ -60,6 +60,11 @@ export function baseParse(pugCode: string) {
 				visitNode(node.nodes[i], node.nodes[i + 1], node);
 			}
 		}
+		else if (node.type === 'Mixin') {
+			if (node.block) {
+				visitNode(node.block, undefined, node);
+			}
+		}
 		else if (node.type === 'Tag') {
 
 			const pugTagRange = getDocRange(node.line, node.column, node.name.length);
@@ -293,56 +298,65 @@ export function baseParse(pugCode: string) {
 	}
 }
 
-export type Node = BlockNode | TagNode | TextNode | CommentNode | BlockCommentNode;
+export type Node = BlockNode | MixinNode | TagNode | TextNode | CommentNode | BlockCommentNode;
 
 export interface BlockNode {
-	type: 'Block',
-	nodes: Node[],
-	line: number,
+	type: 'Block';
+	nodes: Node[];
+	line: number;
 }
 
 export interface TagNode {
-	type: 'Tag',
-	name: string,
-	selfClosing: boolean,
-	block: BlockNode,
+	type: 'Tag';
+	name: string;
+	selfClosing: boolean;
+	block: BlockNode;
 	attrs: {
-		name: string,
-		val: string | true,
-		line: number,
-		column: number,
-		mustEscape: boolean,
-	}[],
+		name: string;
+		val: string | true;
+		line: number;
+		column: number;
+		mustEscape: boolean;
+	}[];
 	attributeBlocks: {
 		// ?
-	}[],
-	isInline: boolean,
-	line: number,
-	column: number,
+	}[];
+	isInline: boolean;
+	line: number;
+	column: number;
 }
 
 export interface TextNode {
-	type: 'Text',
-	val: string,
-	line: number,
-	column: number,
+	type: 'Text';
+	val: string;
+	line: number;
+	column: number;
 }
 
 export interface CommentNode {
-	type: 'Comment',
-	val: string,
-	buffer: boolean,
-	line: number,
-	column: number,
+	type: 'Comment';
+	val: string;
+	buffer: boolean;
+	line: number;
+	column: number;
 }
 
 export interface BlockCommentNode {
-	type: 'BlockComment',
-	block: BlockNode,
-	val: string,
-	buffer: boolean,
-	line: number,
-	column: number,
+	type: 'BlockComment';
+	block: BlockNode;
+	val: string;
+	buffer: boolean;
+	line: number;
+	column: number;
+}
+
+export interface MixinNode {
+	type: 'Mixin';
+	name: string;
+	args: null;
+	block: BlockNode | null;
+	line: number;
+	column: number;
 }
 
 function getLineText(document: TextDocument, line: number) {
