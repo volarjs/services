@@ -16,10 +16,10 @@ export = (options: {
 	let customData: html.IHTMLDataProvider[] = [];
 	let extraData: html.IHTMLDataProvider[] = [];
 
-	const htmlLs = html.getLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
+	const htmlLs = html.getLanguageService({ fileSystemProvider: context.fileSystemProvider });
 	const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 
-	context.env.configurationHost?.onDidChangeConfiguration(() => {
+	context.configurationHost?.onDidChangeConfiguration(() => {
 		shouldUpdateCustomData = true;
 	});
 
@@ -51,10 +51,10 @@ export = (options: {
 			async on(document, position) {
 				return worker(document, async (htmlDocument) => {
 
-					const configs = await context.env.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion');
+					const configs = await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion');
 
-					if (context.env.documentContext) {
-						return htmlLs.doComplete2(document, position, htmlDocument, context.env.documentContext, configs);
+					if (context.documentContext) {
+						return htmlLs.doComplete2(document, position, htmlDocument, context.documentContext, configs);
 					}
 					else {
 						return htmlLs.doComplete(document, position, htmlDocument, configs);
@@ -85,7 +85,7 @@ export = (options: {
 		async doHover(document, position) {
 			return worker(document, async (htmlDocument) => {
 
-				const hoverSettings = await context.env.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
+				const hoverSettings = await context.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
 
 				return htmlLs.doHover(document, position, htmlDocument, hoverSettings);
 			});
@@ -100,10 +100,10 @@ export = (options: {
 		findDocumentLinks(document) {
 			return worker(document, () => {
 
-				if (!context.env.documentContext)
+				if (!context.documentContext)
 					return;
 
-				return htmlLs.findDocumentLinks(document, context.env.documentContext);
+				return htmlLs.findDocumentLinks(document, context.documentContext);
 			});
 		},
 
@@ -134,7 +134,7 @@ export = (options: {
 		async format(document, formatRange, options) {
 			return worker(document, async () => {
 
-				const options_2 = await context.env.configurationHost?.getConfiguration<html.HTMLFormatConfiguration & { enable: boolean; }>('html.format');
+				const options_2 = await context.configurationHost?.getConfiguration<html.HTMLFormatConfiguration & { enable: boolean; }>('html.format');
 				if (options_2?.enable === false) {
 					return;
 				}
@@ -201,11 +201,11 @@ export = (options: {
 
 				if (insertContext.lastChange.rangeLength === 0 && lastCharacter === '=') {
 
-					const enabled = (await context.env.configurationHost?.getConfiguration<boolean>('html.autoCreateQuotes')) ?? true;
+					const enabled = (await context.configurationHost?.getConfiguration<boolean>('html.autoCreateQuotes')) ?? true;
 
 					if (enabled) {
 
-						const text = htmlLs.doQuoteComplete(document, position, htmlDocument, await context.env.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion'));
+						const text = htmlLs.doQuoteComplete(document, position, htmlDocument, await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion'));
 
 						if (text) {
 							return text;
@@ -215,7 +215,7 @@ export = (options: {
 
 				if (insertContext.lastChange.rangeLength === 0 && (lastCharacter === '>' || lastCharacter === '/')) {
 
-					const enabled = (await context.env.configurationHost?.getConfiguration<boolean>('html.autoClosingTags')) ?? true;
+					const enabled = (await context.configurationHost?.getConfiguration<boolean>('html.autoClosingTags')) ?? true;
 
 					if (enabled) {
 
@@ -245,7 +245,7 @@ export = (options: {
 
 	async function getCustomData() {
 
-		const configHost = context.env.configurationHost;
+		const configHost = context.configurationHost;
 
 		if (configHost) {
 

@@ -164,7 +164,7 @@ export = (): LanguageServicePlugin => (context) => {
 				&& ctx.lastChange.text.endsWith('>')
 			) {
 				const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
-				const config = context.env.configurationHost?.getConfiguration<boolean>(configName) ?? true;
+				const config = context.configurationHost?.getConfiguration<boolean>(configName) ?? true;
 				if (config) {
 
 					prepareSyntacticService(document);
@@ -401,7 +401,7 @@ export = (): LanguageServicePlugin => (context) => {
 		async format(document, range, options_2) {
 			if (isTsDocument(document)) {
 
-				const enable = await context.env.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
+				const enable = await context.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
 				if (enable === false) {
 					return;
 				}
@@ -415,7 +415,7 @@ export = (): LanguageServicePlugin => (context) => {
 		async formatOnType(document, position, key, options_2) {
 			if (isTsDocument(document)) {
 
-				const enable = await context.env.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
+				const enable = await context.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
 				if (enable === false) {
 					return;
 				}

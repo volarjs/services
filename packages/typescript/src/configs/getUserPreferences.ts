@@ -10,7 +10,7 @@ export async function getUserPreferences(
 	document: TextDocument,
 ): Promise<ts.UserPreferences> {
 
-	const config = await ctx.env.configurationHost?.getConfiguration<any>(getConfigTitle(document)) ?? {};
+	const config = await ctx.configurationHost?.getConfiguration<any>(getConfigTitle(document)) ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
 		...config.unstable ?? {},
@@ -28,7 +28,7 @@ export async function getUserPreferences(
 		includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ?? true,
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
-		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.env.rootUri),
+		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.rootUri),
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,

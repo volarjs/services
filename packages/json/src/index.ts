@@ -6,7 +6,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) => {
 
 	const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
-	const jsonLs = json.getLanguageService({ schemaRequestService: context.env.schemaRequestService });
+	const jsonLs = json.getLanguageService({ schemaRequestService: context.schemaRequestService });
 
 	if (settings) {
 		jsonLs.configure(settings);
@@ -112,7 +112,7 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 		format(document, range, options) {
 			return worker(document, async () => {
 
-				const options_2 = await context.env.configurationHost?.getConfiguration<json.FormattingOptions & { enable: boolean; }>('json.format');
+				const options_2 = await context.configurationHost?.getConfiguration<json.FormattingOptions & { enable: boolean; }>('json.format');
 				if (!(options_2?.enable ?? true)) {
 					return;
 				}

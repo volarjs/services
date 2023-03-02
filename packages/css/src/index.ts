@@ -9,9 +9,9 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 	let inited = false;
 
 	const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
-	const cssLs = css.getCSSLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
-	const scssLs = css.getSCSSLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
-	const lessLs = css.getLESSLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
+	const cssLs = css.getCSSLanguageService({ fileSystemProvider: context.fileSystemProvider });
+	const scssLs = css.getSCSSLanguageService({ fileSystemProvider: context.fileSystemProvider });
+	const lessLs = css.getLESSLanguageService({ fileSystemProvider: context.fileSystemProvider });
 	const postcssLs: css.LanguageService = {
 		...scssLs,
 		doValidation: (document, stylesheet, documentSettings) => {
@@ -45,9 +45,9 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 			async on(document, position) {
 				return worker(document, async (stylesheet, cssLs) => {
 
-					const settings = await context.env.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
-					const cssResult = context.env.documentContext
-						? await cssLs.doComplete2(document, position, stylesheet, context.env.documentContext, settings?.completion)
+					const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
+					const cssResult = context.documentContext
+						? await cssLs.doComplete2(document, position, stylesheet, context.documentContext, settings?.completion)
 						: await cssLs.doComplete(document, position, stylesheet, settings?.completion);
 
 					return cssResult;
@@ -97,7 +97,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 			async onSyntactic(document) {
 				return worker(document, async (stylesheet, cssLs) => {
 
-					const settings = await context.env.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
+					const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
 
 					return cssLs.doValidation(document, stylesheet, settings) as vscode.Diagnostic[];
 				});
@@ -107,7 +107,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 		async doHover(document, position) {
 			return worker(document, async (stylesheet, cssLs) => {
 
-				const settings = await context.env.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
+				const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
 
 				return cssLs.doHover(document, position, stylesheet, settings?.hover);
 			});
@@ -128,10 +128,10 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 		async findDocumentLinks(document) {
 			return await worker(document, (stylesheet, cssLs) => {
 
-				if (!context.env.documentContext)
+				if (!context.documentContext)
 					return;
 
-				return cssLs.findDocumentLinks2(document, stylesheet, context.env.documentContext);
+				return cssLs.findDocumentLinks2(document, stylesheet, context.documentContext);
 			});
 		},
 
@@ -168,7 +168,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 		async format(document, formatRange, options) {
 			return worker(document, async (_stylesheet, cssLs) => {
 
-				const options_2 = await context.env.configurationHost?.getConfiguration<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');
+				const options_2 = await context.configurationHost?.getConfiguration<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');
 				if (options_2?.enable === false) {
 					return;
 				}
@@ -184,7 +184,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 	async function initCustomData() {
 		if (!inited) {
 
-			context.env.configurationHost?.onDidChangeConfiguration(async () => {
+			context.configurationHost?.onDidChangeConfiguration(async () => {
 				const customData = await getCustomData();
 				cssLs.setDataProviders(true, customData);
 				scssLs.setDataProviders(true, customData);
@@ -201,7 +201,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 
 	async function getCustomData() {
 
-		const configHost = context.env.configurationHost;
+		const configHost = context.configurationHost;
 
 		if (configHost) {
 

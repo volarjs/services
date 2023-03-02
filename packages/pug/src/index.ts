@@ -41,7 +41,7 @@ export = (): LanguageServicePlugin<{
 
 			on(document, position, _) {
 				return worker(document, (pugDocument) => {
-					return pugLs.doComplete(pugDocument, position, context.env.documentContext, /** TODO: CompletionConfiguration */);
+					return pugLs.doComplete(pugDocument, position, context.documentContext, /** TODO: CompletionConfiguration */);
 				});
 			},
 		},
@@ -71,7 +71,7 @@ export = (): LanguageServicePlugin<{
 		doHover(document, position) {
 			return worker(document, async (pugDocument) => {
 
-				const hoverSettings = await context.env.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
+				const hoverSettings = await context.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
 
 				return pugLs.doHover(pugDocument, position, hoverSettings);
 			});
@@ -85,8 +85,8 @@ export = (): LanguageServicePlugin<{
 
 		findDocumentLinks(document) {
 			return worker(document, (pugDocument) => {
-				if (context.env.documentContext) {
-					return pugLs.findDocumentLinks(pugDocument, context.env.documentContext);
+				if (context.documentContext) {
+					return pugLs.findDocumentLinks(pugDocument, context.documentContext);
 				}
 			});
 		},
@@ -123,11 +123,11 @@ export = (): LanguageServicePlugin<{
 
 				if (insertContext.lastChange.rangeLength === 0 && lastCharacter === '=') {
 
-					const enabled = (await context.env.configurationHost?.getConfiguration<boolean>('html.autoCreateQuotes')) ?? true;
+					const enabled = (await context.configurationHost?.getConfiguration<boolean>('html.autoCreateQuotes')) ?? true;
 
 					if (enabled) {
 
-						const text = pugLs.doQuoteComplete(pugDocument, position, await context.env.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion'));
+						const text = pugLs.doQuoteComplete(pugDocument, position, await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion'));
 
 						if (text) {
 							return text;

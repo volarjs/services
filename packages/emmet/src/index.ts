@@ -50,7 +50,7 @@ export = (): LanguageServicePlugin => (context) => {
 
 	async function getEmmetConfig(syntax: string): Promise<emmet.VSCodeEmmetConfig> {
 
-		const emmetConfig: any = await context.env.configurationHost?.getConfiguration<emmet.VSCodeEmmetConfig>('emmet') ?? {};
+		const emmetConfig: any = await context.configurationHost?.getConfiguration<emmet.VSCodeEmmetConfig>('emmet') ?? {};
 		const syntaxProfiles = Object.assign({}, emmetConfig['syntaxProfiles'] || {});
 		const preferences = Object.assign({}, emmetConfig['preferences'] || {});
 
