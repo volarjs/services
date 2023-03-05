@@ -6,14 +6,14 @@ importers:
     specifiers:
       '@lerna-lite/cli': latest
       '@types/node': latest
-      '@volar/language-service': 1.4.0-alpha.0
-      '@volar/source-map': 1.4.0-alpha.0
+      '@volar/language-service': 1.4.0-alpha.1
+      '@volar/source-map': 1.4.0-alpha.1
       typescript: latest
     devDependencies:
       '@lerna-lite/cli': 1.16.0
       '@types/node': 18.14.6
-      '@volar/language-service': 1.4.0-alpha.0
-      '@volar/source-map': 1.4.0-alpha.0
+      '@volar/language-service': 1.4.0-alpha.1
+      '@volar/source-map': 1.4.0-alpha.1
       typescript: 4.9.5
 
   packages/css:
@@ -891,17 +891,17 @@ packages:
       '@types/vfile-message': 2.0.0
     dev: false
 
-  /@volar/language-core/1.4.0-alpha.0:
-    resolution: {integrity: sha512-h8Pasz2iNaZsNULu3jkJxK9r94aSCVLfv50DEpJhE/5HTbPRmXdRWU42ozdx6jp7PXpRwsz2z+HGGZycqy3F9Q==}
+  /@volar/language-core/1.4.0-alpha.1:
+    resolution: {integrity: sha512-2W2nGPkpr7SidYofA0ok3for5t3WQqDZZSPm1zm6OVjhO2PId8DJ++bVGcS+E9EskYLVserjJbCCdn1UY8M5lA==}
     dependencies:
-      '@volar/source-map': 1.4.0-alpha.0
+      '@volar/source-map': 1.4.0-alpha.1
     dev: true
 
-  /@volar/language-service/1.4.0-alpha.0:
-    resolution: {integrity: sha512-gXwmbZfHSsGrgWS4dw2/d7G93Sb+Ch/wPjOLPCBU/bRQKQ346SvjL5e6PrMjp46d90ohID1RCE3pdMd4sJfRGw==}
+  /@volar/language-service/1.4.0-alpha.1:
+    resolution: {integrity: sha512-GV06CCo8pm7BxmA1wGAgVLLzd3o7/YP7f9iINIC2uYRMUbWhZr8Oy16bPFb8cESxX853Rim/7z3Jo1NJjtcmyw==}
     dependencies:
-      '@volar/language-core': 1.4.0-alpha.0
-      '@volar/source-map': 1.4.0-alpha.0
+      '@volar/language-core': 1.4.0-alpha.1
+      '@volar/source-map': 1.4.0-alpha.1
       typescript-auto-import-cache: 0.0.1
       vscode-html-languageservice: 5.0.4
       vscode-json-languageservice: 5.2.0
@@ -910,8 +910,8 @@ packages:
       vscode-uri: 3.0.7
     dev: true
 
-  /@volar/source-map/1.4.0-alpha.0:
-    resolution: {integrity: sha512-IcZBHblfbNyA1P7cF3apPmzfm0vSSlTMu3XXzaWZYMoTRy11nj6BtO+kAa+UG3RSC+hBVIW/cR3G+Drs5dYo5w==}
+  /@volar/source-map/1.4.0-alpha.1:
+    resolution: {integrity: sha512-kKwUYlSq6lfUWAzT5qgsv6ibeMe9Lj6bGy7Ml1sapNP9rmhwagOei0BUauriL62Hxu7fimbV2g4nmcOPrbzmdQ==}
     dependencies:
       muggle-string: 0.2.2
     dev: true
