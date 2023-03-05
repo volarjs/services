@@ -8,7 +8,7 @@ import { getGlobalSnippetDir } from './userSnippetDir';
 
 export default (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance => {
 
-	const triggerCharacters = {
+	const triggerCharacters: LanguageServicePluginInstance = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
 	};
@@ -31,41 +31,38 @@ export default (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance
 
 		...triggerCharacters,
 
-		complete: {
+		isAdditionalCompletion: true,
 
-			isAdditional: true,
+		provideCompletionItems(document, position, context) {
 
-			on(document, position, context) {
+			let result: html.CompletionList | undefined;
 
-				let result: html.CompletionList | undefined;
+			htmlWorker(document, htmlDocument => {
+				result = htmlLs.doComplete(document, position, htmlDocument);
+			});
 
-				htmlWorker(document, htmlDocument => {
-					result = htmlLs.doComplete(document, position, htmlDocument);
+			if (!context?.triggerCharacter) {
+				vueWorker(document, () => {
+					const items = snippetManager.completeSnippets(scaffoldSnippetSources);
+					if (items.length) {
+						result = {
+							isIncomplete: false,
+							items: items,
+						};
+					}
 				});
+			}
 
-				if (!context?.triggerCharacter) {
-					vueWorker(document, () => {
-						const items = snippetManager.completeSnippets(scaffoldSnippetSources);
-						if (items.length) {
-							result = {
-								isIncomplete: false,
-								items: items,
-							};
-						}
-					});
-				}
-
-				return result;
-			},
+			return result;
 		},
 
-		doHover(document, position) {
+		provideHover(document, position) {
 			return htmlWorker(document, htmlDocument => {
 				return htmlLs.doHover(document, position, htmlDocument);
 			});
 		},
 
-		findDocumentSemanticTokens(document, range) {
+		provideDocumentSemanticTokens(document, range) {
 			return htmlWorker(document, htmlDocument => {
 
 				const packageJsonPath = getPackageJsonPath(document);

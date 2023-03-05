@@ -42,7 +42,7 @@ export default (
 	const prettierOptions = getPrettierConfig();
 
 	return {
-		format(document, _, formatOptions) {
+		provideDocumentFormattingEdits(document, _, formatOptions) {
 
 			if (!languages.includes(document.languageId)) {
 				return;

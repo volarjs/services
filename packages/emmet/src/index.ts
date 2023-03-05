@@ -4,7 +4,7 @@ import * as html from 'vscode-html-languageservice';
 
 export default (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
-	const triggerCharacters = {
+	const triggerCharacters: LanguageServicePluginInstance = {
 		// https://docs.emmet.io/abbreviations/syntax/
 		triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
 	};
@@ -19,39 +19,36 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 
 		...triggerCharacters,
 
-		complete: {
+		isAdditionalCompletion: true,
 
-			isAdditional: true,
+		async provideCompletionItems(textDocument, position) {
 
-			async on(textDocument, position) {
+			const syntax = emmet.getEmmetMode(textDocument.languageId === 'vue' ? 'html' : textDocument.languageId);
+			if (!syntax)
+				return;
 
-				const syntax = emmet.getEmmetMode(textDocument.languageId === 'vue' ? 'html' : textDocument.languageId);
-				if (!syntax)
-					return;
-
-				// fix https://github.com/vuejs/language-tools/issues/1329
-				if (syntax === 'html') {
-					const htmlDocument = getHtmlDocument(textDocument);
-					const node = htmlDocument.findNodeAt(textDocument.offsetAt(position));
-					if (node.tag) {
-						let insideBlock = false;
-						if (node.startTagEnd !== undefined && node.endTagStart !== undefined) {
-							insideBlock = textDocument.offsetAt(position) >= node.startTagEnd && textDocument.offsetAt(position) <= node.endTagStart;
-						}
-						if (!insideBlock) {
-							return;
-						}
+			// fix https://github.com/vuejs/language-tools/issues/1329
+			if (syntax === 'html') {
+				const htmlDocument = getHtmlDocument(textDocument);
+				const node = htmlDocument.findNodeAt(textDocument.offsetAt(position));
+				if (node.tag) {
+					let insideBlock = false;
+					if (node.startTagEnd !== undefined && node.endTagStart !== undefined) {
+						insideBlock = textDocument.offsetAt(position) >= node.startTagEnd && textDocument.offsetAt(position) <= node.endTagStart;
+					}
+					if (!insideBlock) {
+						return;
 					}
 				}
+			}
 
-				// monkey fix https://github.com/johnsoncodehk/volar/issues/1105
-				if (syntax === 'jsx')
-					return;
+			// monkey fix https://github.com/johnsoncodehk/volar/issues/1105
+			if (syntax === 'jsx')
+				return;
 
-				const emmetConfig = await getEmmetConfig(syntax);
+			const emmetConfig = await getEmmetConfig(syntax);
 
-				return emmet.doComplete(textDocument, position, syntax, emmetConfig);
-			},
+			return emmet.doComplete(textDocument, position, syntax, emmetConfig);
 		},
 	};
 

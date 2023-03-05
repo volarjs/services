@@ -132,57 +132,30 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			directiveCommentTriggerCharacter,
 		],
 
-		rules: {
-			onFormat(ruleCtx) {
-				if (isTsDocument(ruleCtx.document)) {
+		resolveRuleContext(ruleCtx, type) {
+			if (isTsDocument(ruleCtx.document)) {
+				let sourceFile: ts.SourceFile | undefined;
+				if (type === 'format' || type === 'syntax') {
 					prepareSyntacticService(ruleCtx.document);
-					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
-					if (sourceFile) {
-						ruleCtx.typescript = {
-							sourceFile,
-							...syntacticCtx.typescript,
-						};
-					}
-					else {
-						console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
-					}
+					sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 				}
-				return ruleCtx;
-			},
-			onSyntax(ruleCtx) {
-				if (isTsDocument(ruleCtx.document)) {
-					prepareSyntacticService(ruleCtx.document);
-					const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
-					if (sourceFile) {
-						ruleCtx.typescript = {
-							sourceFile,
-							...syntacticCtx.typescript,
-						};
-					}
-					else {
-						console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
-					}
+				else {
+					sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
 				}
-				return ruleCtx;
-			},
-			onSemantic(ruleCtx) {
-				if (isTsDocument(ruleCtx.document)) {
-					const sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
-					if (sourceFile) {
-						ruleCtx.typescript = {
-							sourceFile,
-							...semanticCtx.typescript,
-						};
-					}
-					else {
-						console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
-					}
+				if (sourceFile) {
+					ruleCtx.typescript = {
+						sourceFile,
+						...syntacticCtx.typescript,
+					};
 				}
-				return ruleCtx;
-			},
+				else {
+					console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
+				}
+			}
+			return ruleCtx;
 		},
 
-		doAutoInsert(document, position, ctx) {
+		provideAutoInsertionEdit(document, position, ctx) {
 			if (
 				(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 				&& ctx.lastChange.text.endsWith('>')
@@ -202,177 +175,148 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			}
 		},
 
-		complete: {
+		async provideCompletionItems(document, position, context) {
+			if (isTsDocument(document)) {
 
-			async on(document, position, context) {
-				if (isTsDocument(document)) {
+				let result: vscode.CompletionList = {
+					isIncomplete: false,
+					items: [],
+				};
 
-					let result: vscode.CompletionList = {
-						isIncomplete: false,
-						items: [],
+				if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && basicTriggerCharacters.includes(context.triggerCharacter))) {
+
+					const completeOptions: ts.GetCompletionsAtPositionOptions = {
+						triggerCharacter: context?.triggerCharacter as ts.CompletionsTriggerCharacter,
+						triggerKind: context?.triggerKind,
 					};
+					const basicResult = await doComplete(document.uri, position, completeOptions);
 
-					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && basicTriggerCharacters.includes(context.triggerCharacter))) {
-
-						const completeOptions: ts.GetCompletionsAtPositionOptions = {
-							triggerCharacter: context?.triggerCharacter as ts.CompletionsTriggerCharacter,
-							triggerKind: context?.triggerKind,
-						};
-						const basicResult = await doComplete(document.uri, position, completeOptions);
-
-						if (basicResult) {
-							result = basicResult;
-						}
+					if (basicResult) {
+						result = basicResult;
 					}
-					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === jsDocTriggerCharacter) {
+				}
+				if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === jsDocTriggerCharacter) {
 
-						const jsdocResult = await doJsDocComplete(document.uri, position);
+					const jsdocResult = await doJsDocComplete(document.uri, position);
 
-						if (jsdocResult) {
-							result.items.push(jsdocResult);
-						}
+					if (jsdocResult) {
+						result.items.push(jsdocResult);
 					}
-					if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === directiveCommentTriggerCharacter) {
+				}
+				if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === directiveCommentTriggerCharacter) {
 
-						const directiveCommentResult = await doDirectiveCommentComplete(document.uri, position);
+					const directiveCommentResult = await doDirectiveCommentComplete(document.uri, position);
 
-						if (directiveCommentResult) {
-							result.items = result.items.concat(directiveCommentResult);
-						}
+					if (directiveCommentResult) {
+						result.items = result.items.concat(directiveCommentResult);
 					}
-
-					return result;
 				}
-			},
 
-			resolve(item) {
-				return doCompletionResolve(item);
-			},
+				return result;
+			}
 		},
 
-		rename: {
-
-			prepare(document, position) {
-				if (isTsDocument(document)) {
-					return doPrepareRename(document.uri, position);
-				}
-			},
-
-			on(document, position, newName) {
-				if (isTsDocument(document) || isJsonDocument(document)) {
-					return doRename(document.uri, position, newName);
-				}
-			},
+		resolveCompletionItem(item) {
+			return doCompletionResolve(item);
 		},
 
-		codeAction: {
-
-			on(document, range, context) {
-				if (isTsDocument(document)) {
-					return getCodeActions(document.uri, range, context);
-				}
-			},
-
-			resolve(codeAction) {
-				return doCodeActionResolve(codeAction);
-			},
+		provideRenameRange(document, position) {
+			if (isTsDocument(document)) {
+				return doPrepareRename(document.uri, position);
+			}
 		},
 
-		inlayHints: {
-
-			on(document, range) {
-				if (isTsDocument(document)) {
-					return getInlayHints(document.uri, range);
-				}
-			},
+		provideRenameEdits(document, position, newName) {
+			if (isTsDocument(document) || isJsonDocument(document)) {
+				return doRename(document.uri, position, newName);
+			}
 		},
 
-		callHierarchy: {
-
-			prepare(document, position) {
-				if (isTsDocument(document)) {
-					return callHierarchy.doPrepare(document.uri, position);
-				}
-			},
-
-			onIncomingCalls(item) {
-				return callHierarchy.getIncomingCalls(item);
-			},
-
-			onOutgoingCalls(item) {
-				return callHierarchy.getOutgoingCalls(item);
-			},
+		provideCodeActions(document, range, context) {
+			if (isTsDocument(document)) {
+				return getCodeActions(document.uri, range, context);
+			}
 		},
 
-		definition: {
-
-			on(document, position) {
-				if (isTsDocument(document)) {
-					return findDefinition(document.uri, position);
-				}
-			},
-
-			onType(document, position) {
-				if (isTsDocument(document)) {
-					return findTypeDefinition(document.uri, position);
-				}
-			},
+		resolveCodeAction(codeAction) {
+			return doCodeActionResolve(codeAction);
 		},
 
-		validation: {
-			onSemantic(document) {
-				if (isTsDocument(document)) {
-					return doValidation(document.uri, { semantic: true });
-				}
-			},
-			onDeclaration(document) {
-				if (isTsDocument(document)) {
-					return doValidation(document.uri, { declaration: true });
-				}
-			},
-			onSuggestion(document) {
-				if (isTsDocument(document)) {
-					return doValidation(document.uri, { suggestion: true });
-				}
-			},
-			onSyntactic(document) {
-				if (isTsDocument(document)) {
-					return doValidation(document.uri, { syntactic: true });
-				}
-			},
+		provideInlayHints(document, range) {
+			if (isTsDocument(document)) {
+				return getInlayHints(document.uri, range);
+			}
 		},
 
-		doHover(document, position) {
+		provideCallHierarchyItems(document, position) {
+			if (isTsDocument(document)) {
+				return callHierarchy.doPrepare(document.uri, position);
+			}
+		},
+
+		provideCallHierarchyIncomingCalls(item) {
+			return callHierarchy.getIncomingCalls(item);
+		},
+
+		provideCallHierarchyOutgoingCalls(item) {
+			return callHierarchy.getOutgoingCalls(item);
+		},
+
+		provideDefinition(document, position) {
+			if (isTsDocument(document)) {
+				return findDefinition(document.uri, position);
+			}
+		},
+
+		provideTypeDefinition(document, position) {
+			if (isTsDocument(document)) {
+				return findTypeDefinition(document.uri, position);
+			}
+		},
+
+		provideSyntacticDiagnostics(document) {
+			if (isTsDocument(document)) {
+				return doValidation(document.uri, { syntactic: true, suggestion: true });
+			}
+		},
+
+		provideSemanticDiagnostics(document) {
+			if (isTsDocument(document)) {
+				return doValidation(document.uri, { semantic: true, declaration: true });
+			}
+		},
+
+		provideHover(document, position) {
 			if (isTsDocument(document)) {
 				return doHover(document.uri, position);
 			}
 		},
 
-		findImplementations(document, position) {
+		provideImplementation(document, position) {
 			if (isTsDocument(document)) {
 				return findImplementations(document.uri, position);
 			}
 		},
 
-		findReferences(document, position) {
+		provideReferences(document, position) {
 			if (isTsDocument(document) || isJsonDocument(document)) {
 				return findReferences(document.uri, position);
 			}
 		},
 
-		findFileReferences(document) {
+		provideFileReferences(document) {
 			if (isTsDocument(document) || isJsonDocument(document)) {
 				return findFileReferences(document.uri);
 			}
 		},
 
-		findDocumentHighlights(document, position) {
+		provideDocumentHighlights(document, position) {
 			if (isTsDocument(document)) {
 				return findDocumentHighlights(document.uri, position);
 			}
 		},
 
-		findDocumentSymbols(document) {
+		provideDocumentSymbols(document) {
 			if (isTsDocument(document)) {
 
 				prepareSyntacticService(document);
@@ -381,21 +325,21 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			}
 		},
 
-		findDocumentSemanticTokens(document, range, legend) {
+		provideDocumentSemanticTokens(document, range, legend) {
 			if (isTsDocument(document)) {
 				return getDocumentSemanticTokens(document.uri, range, legend);
 			}
 		},
 
-		findWorkspaceSymbols(query) {
+		provideWorkspaceSymbols(query) {
 			return findWorkspaceSymbols(query);
 		},
 
-		doFileRename(oldUri, newUri) {
+		provideFileRenameEdits(oldUri, newUri) {
 			return getEditsForFileRename(oldUri, newUri);
 		},
 
-		getFoldingRanges(document) {
+		provideFoldingRanges(document) {
 			if (isTsDocument(document)) {
 
 				prepareSyntacticService(document);
@@ -404,19 +348,19 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			}
 		},
 
-		getSelectionRanges(document, positions) {
+		provideSelectionRanges(document, positions) {
 			if (isTsDocument(document)) {
 				return getSelectionRanges(document.uri, positions);
 			}
 		},
 
-		getSignatureHelp(document, position, context) {
+		provideSignatureHelp(document, position, context) {
 			if (isTsDocument(document)) {
 				return getSignatureHelp(document.uri, position, context);
 			}
 		},
 
-		async format(document, range, options_2) {
+		async provideDocumentFormattingEdits(document, range, options_2) {
 			if (isTsDocument(document)) {
 
 				const enable = await context.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
@@ -430,7 +374,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			}
 		},
 
-		async formatOnType(document, position, key, options_2) {
+		async provideOnTypeFormattingEdits(document, position, key, options_2) {
 			if (isTsDocument(document)) {
 
 				const enable = await context.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
@@ -444,7 +388,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			}
 		},
 
-		getIndentSensitiveLines(document) {
+		provideFormattingIndentSensitiveLines(document) {
 			if (isTsDocument(document)) {
 
 				prepareSyntacticService(document);

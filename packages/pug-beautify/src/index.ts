@@ -1,8 +1,8 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 
-export default (): LanguageServicePlugin => () => ({
+export default (): LanguageServicePlugin => (): LanguageServicePluginInstance => ({
 
-	format(document, range, options) {
+	provideDocumentFormattingEdits(document, range, options) {
 
 		if (document.languageId !== 'jade')
 			return;

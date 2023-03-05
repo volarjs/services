@@ -6,7 +6,7 @@ import * as path from 'path';
 
 export default (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
-	const triggerCharacters = {
+	const triggerCharacters: LanguageServicePluginInstance = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
 		triggerCharacters: ['/', '-', ':'],
 	};
@@ -35,83 +35,67 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 
 		...triggerCharacters,
 
-		rules: {
-			async onAny(context) {
-				await worker(context.document, (stylesheet, cssLs) => {
-					context.css = {
-						stylesheet,
-						languageService: cssLs,
-					};
-				});
-				return context;
-			},
+		async resolveRuleContext(context) {
+			await worker(context.document, (stylesheet, cssLs) => {
+				context.css = {
+					stylesheet,
+					languageService: cssLs,
+				};
+			});
+			return context;
 		},
 
-		complete: {
+		async provideCompletionItems(document, position) {
+			return worker(document, async (stylesheet, cssLs) => {
 
-			async on(document, position) {
-				return worker(document, async (stylesheet, cssLs) => {
+				const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
+				const cssResult = context.documentContext
+					? await cssLs.doComplete2(document, position, stylesheet, context.documentContext, settings?.completion)
+					: await cssLs.doComplete(document, position, stylesheet, settings?.completion);
 
-					const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
-					const cssResult = context.documentContext
-						? await cssLs.doComplete2(document, position, stylesheet, context.documentContext, settings?.completion)
-						: await cssLs.doComplete(document, position, stylesheet, settings?.completion);
-
-					return cssResult;
-				});
-			},
+				return cssResult;
+			});
 		},
 
-		rename: {
-
-			prepare(document, position) {
-				return worker(document, (stylesheet, cssLs) => {
-					return cssLs.prepareRename(document, position, stylesheet);
-				});
-			},
-
-			on(document, position, newName) {
-				return worker(document, (stylesheet, cssLs) => {
-					return cssLs.doRename(document, position, newName, stylesheet);
-				});
-			},
+		provideRenameRange(document, position) {
+			return worker(document, (stylesheet, cssLs) => {
+				return cssLs.prepareRename(document, position, stylesheet);
+			});
 		},
 
-		codeAction: {
-
-			on(document, range, context) {
-				return worker(document, (stylesheet, cssLs) => {
-					return cssLs.doCodeActions2(document, range, context, stylesheet) as vscode.CodeAction[];
-				});
-			},
+		provideRenameEdits(document, position, newName) {
+			return worker(document, (stylesheet, cssLs) => {
+				return cssLs.doRename(document, position, newName, stylesheet);
+			});
 		},
 
-		definition: {
-
-			on(document, position) {
-				return worker(document, (stylesheet, cssLs) => {
-
-					const location = cssLs.findDefinition(document, position, stylesheet);
-
-					if (location) {
-						return [vscode.LocationLink.create(location.uri, location.range, location.range)];
-					}
-				});
-			},
+		provideCodeActions(document, range, context) {
+			return worker(document, (stylesheet, cssLs) => {
+				return cssLs.doCodeActions2(document, range, context, stylesheet) as vscode.CodeAction[];
+			});
 		},
 
-		validation: {
-			async onSyntactic(document) {
-				return worker(document, async (stylesheet, cssLs) => {
+		provideDefinition(document, position) {
+			return worker(document, (stylesheet, cssLs) => {
 
-					const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
+				const location = cssLs.findDefinition(document, position, stylesheet);
 
-					return cssLs.doValidation(document, stylesheet, settings) as vscode.Diagnostic[];
-				});
-			},
+				if (location) {
+					return [vscode.LocationLink.create(location.uri, location.range, location.range)];
+				}
+			});
 		},
 
-		async doHover(document, position) {
+		async provideSyntacticDiagnostics(document) {
+			return worker(document, async (stylesheet, cssLs) => {
+
+				const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
+
+				return cssLs.doValidation(document, stylesheet, settings) as vscode.Diagnostic[];
+			});
+		},
+
+		async provideHover(document, position) {
 			return worker(document, async (stylesheet, cssLs) => {
 
 				const settings = await context.configurationHost?.getConfiguration<css.LanguageSettings>(document.languageId);
@@ -120,19 +104,19 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 			});
 		},
 
-		findReferences(document, position) {
+		provideReferences(document, position) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.findReferences(document, position, stylesheet);
 			});
 		},
 
-		findDocumentHighlights(document, position) {
+		provideDocumentHighlights(document, position) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.findDocumentHighlights(document, position, stylesheet);
 			});
 		},
 
-		async findDocumentLinks(document) {
+		async provideLinks(document) {
 			return await worker(document, (stylesheet, cssLs) => {
 
 				if (!context.documentContext)
@@ -142,37 +126,37 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 			});
 		},
 
-		findDocumentSymbols(document) {
+		provideDocumentSymbols(document) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.findDocumentSymbols2(document, stylesheet);
 			});
 		},
 
-		findDocumentColors(document) {
+		provideDocumentColors(document) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.findDocumentColors(document, stylesheet);
 			});
 		},
 
-		getColorPresentations(document, color, range) {
+		provideColorPresentations(document, color, range) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.getColorPresentations(document, stylesheet, color, range);
 			});
 		},
 
-		getFoldingRanges(document) {
+		provideFoldingRanges(document) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.getFoldingRanges(document, stylesheet);
 			});
 		},
 
-		getSelectionRanges(document, positions) {
+		provideSelectionRanges(document, positions) {
 			return worker(document, (stylesheet, cssLs) => {
 				return cssLs.getSelectionRanges(document, positions, stylesheet);
 			});
 		},
 
-		async format(document, formatRange, options) {
+		async provideDocumentFormattingEdits(document, formatRange, options) {
 			return worker(document, async (_stylesheet, cssLs) => {
 
 				const options_2 = await context.configurationHost?.getConfiguration<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');

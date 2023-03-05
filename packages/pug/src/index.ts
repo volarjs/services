@@ -5,12 +5,14 @@ import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 
-export default () => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {
-	getHtmlLs: () => html.LanguageService,
-	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
-	getPugLs: () => pug.LanguageService,
-	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined,
-} => {
+export interface PluginInstance extends LanguageServicePluginInstance {
+	getHtmlLs: () => html.LanguageService;
+	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
+	getPugLs: () => pug.LanguageService;
+	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined;
+}
+
+export default () => (context: LanguageServicePluginContext | undefined): PluginInstance => {
 
 	if (!context) {
 		return {} as any;
@@ -26,53 +28,45 @@ export default () => (context: LanguageServicePluginContext | undefined): Langua
 		getPugLs: () => pugLs,
 		getPugDocument,
 
-		rules: {
-			async onAny(context) {
-				await worker(context.document, (pugDocument) => {
-					if (pugDocument.ast) {
-						context.pug = {
-							rootNode: pugDocument.ast,
-							languageService: pugLs,
-						};
-					}
-				});
-				return context;
-			},
+		resolveRuleContext(context) {
+			worker(context.document, (pugDocument) => {
+				if (pugDocument.ast) {
+					context.pug = {
+						rootNode: pugDocument.ast,
+						languageService: pugLs,
+					};
+				}
+			});
+			return context;
 		},
 
-
-		complete: {
-
-			on(document, position, _) {
-				return worker(document, (pugDocument) => {
-					return pugLs.doComplete(pugDocument, position, context.documentContext, /** TODO: CompletionConfiguration */);
-				});
-			},
+		provideCompletionItems(document, position, _) {
+			return worker(document, (pugDocument) => {
+				return pugLs.doComplete(pugDocument, position, context.documentContext, /** TODO: CompletionConfiguration */);
+			});
 		},
 
-		validation: {
-			onSyntactic(document) {
-				return worker(document, (pugDocument) => {
+		provideSyntacticDiagnostics(document) {
+			return worker(document, (pugDocument) => {
 
-					if (pugDocument.error) {
+				if (pugDocument.error) {
 
-						return [{
-							source: 'pug',
-							code: pugDocument.error.code,
-							message: pugDocument.error.msg,
-							range: {
-								start: { line: pugDocument.error.line, character: pugDocument.error.column },
-								end: { line: pugDocument.error.line, character: pugDocument.error.column },
-							},
-						}];
-					}
+					return [{
+						source: 'pug',
+						code: pugDocument.error.code,
+						message: pugDocument.error.msg,
+						range: {
+							start: { line: pugDocument.error.line, character: pugDocument.error.column },
+							end: { line: pugDocument.error.line, character: pugDocument.error.column },
+						},
+					}];
+				}
 
-					return [];
-				});
-			},
+				return [];
+			});
 		},
 
-		doHover(document, position) {
+		provideHover(document, position) {
 			return worker(document, async (pugDocument) => {
 
 				const hoverSettings = await context.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
@@ -81,13 +75,13 @@ export default () => (context: LanguageServicePluginContext | undefined): Langua
 			});
 		},
 
-		findDocumentHighlights(document, position) {
+		provideDocumentHighlights(document, position) {
 			return worker(document, (pugDocument) => {
 				return pugLs.findDocumentHighlights(pugDocument, position);
 			});
 		},
 
-		findDocumentLinks(document) {
+		provideLinks(document) {
 			return worker(document, (pugDocument) => {
 				if (context.documentContext) {
 					return pugLs.findDocumentLinks(pugDocument, context.documentContext);
@@ -95,10 +89,10 @@ export default () => (context: LanguageServicePluginContext | undefined): Langua
 			});
 		},
 
-		findDocumentSymbols(document) {
+		provideDocumentSymbols(document, token) {
 			return worker(document, async (pugDoc) => {
 
-				const htmlResult = await htmlPlugin.findDocumentSymbols?.(pugDoc.map.virtualFileDocument) ?? [];
+				const htmlResult = await htmlPlugin.provideDocumentSymbols?.(pugDoc.map.virtualFileDocument, token) ?? [];
 				const pugResult = htmlResult.map(htmlSymbol => transformer.asDocumentSymbol(
 					htmlSymbol,
 					range => pugDoc.map.toSourceRange(range),
@@ -108,19 +102,19 @@ export default () => (context: LanguageServicePluginContext | undefined): Langua
 			});
 		},
 
-		getFoldingRanges(document) {
+		provideFoldingRanges(document) {
 			return worker(document, (pugDocument) => {
 				return pugLs.getFoldingRanges(pugDocument);
 			});
 		},
 
-		getSelectionRanges(document, positions) {
+		provideSelectionRanges(document, positions) {
 			return worker(document, (pugDocument) => {
 				return pugLs.getSelectionRanges(pugDocument, positions);
 			});
 		},
 
-		async doAutoInsert(document, position, insertContext) {
+		async provideAutoInsertionEdit(document, position, insertContext) {
 			return worker(document, async (pugDocument) => {
 
 				const lastCharacter = insertContext.lastChange.text[insertContext.lastChange.text.length - 1];

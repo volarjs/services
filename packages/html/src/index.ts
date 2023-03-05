@@ -4,15 +4,17 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
+export interface PluginInstance extends LanguageServicePluginInstance {
+	getHtmlLs: () => html.LanguageService;
+	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
+}
+
 export default (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
-} = {}) => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {
-	getHtmlLs: () => html.LanguageService,
-	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
-} => {
+} = {}) => (context: LanguageServicePluginContext | undefined): PluginInstance => {
 
-	const triggerCharacters = {
+	const triggerCharacters: LanguageServicePluginInstance = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
 	};
@@ -35,61 +37,53 @@ export default (options: {
 
 		...triggerCharacters,
 
-		rules: {
-			async onAny(context) {
-				if (options.validLang === 'html') {
-					await worker(context.document, (htmlDocument) => {
-						context.html = {
-							document: htmlDocument,
-							languageService: htmlLs,
-						};
-					});
-				}
-				return context;
-			},
+		async resolveRuleContext(context) {
+			if (options.validLang === 'html') {
+				await worker(context.document, (htmlDocument) => {
+					context.html = {
+						document: htmlDocument,
+						languageService: htmlLs,
+					};
+				});
+			}
+			return context;
 		},
 
 		getHtmlLs: () => htmlLs,
 
 		updateCustomData: updateExtraCustomData,
 
-		complete: {
+		async provideCompletionItems(document, position) {
+			return worker(document, async (htmlDocument) => {
 
-			async on(document, position) {
-				return worker(document, async (htmlDocument) => {
+				const configs = await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion');
 
-					const configs = await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion');
-
-					if (context.documentContext) {
-						return htmlLs.doComplete2(document, position, htmlDocument, context.documentContext, configs);
-					}
-					else {
-						return htmlLs.doComplete(document, position, htmlDocument, configs);
-					}
-				});
-			},
+				if (context.documentContext) {
+					return htmlLs.doComplete2(document, position, htmlDocument, context.documentContext, configs);
+				}
+				else {
+					return htmlLs.doComplete(document, position, htmlDocument, configs);
+				}
+			});
 		},
 
-		rename: {
-
-			prepare(document, position) {
-				return worker(document, (htmlDocument) => {
-					const offset = document.offsetAt(position);
-					return htmlLs
-						.findDocumentHighlights(document, position, htmlDocument)
-						?.find(h => offset >= document.offsetAt(h.range.start) && offset <= document.offsetAt(h.range.end))
-						?.range;
-				});
-			},
-
-			on(document, position, newName) {
-				return worker(document, (htmlDocument) => {
-					return htmlLs.doRename(document, position, newName, htmlDocument);
-				});
-			},
+		provideRenameRange(document, position) {
+			return worker(document, (htmlDocument) => {
+				const offset = document.offsetAt(position);
+				return htmlLs
+					.findDocumentHighlights(document, position, htmlDocument)
+					?.find(h => offset >= document.offsetAt(h.range.start) && offset <= document.offsetAt(h.range.end))
+					?.range;
+			});
 		},
 
-		async doHover(document, position) {
+		provideRenameEdits(document, position, newName) {
+			return worker(document, (htmlDocument) => {
+				return htmlLs.doRename(document, position, newName, htmlDocument);
+			});
+		},
+
+		async provideHover(document, position) {
 			return worker(document, async (htmlDocument) => {
 
 				const hoverSettings = await context.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
@@ -98,13 +92,13 @@ export default (options: {
 			});
 		},
 
-		findDocumentHighlights(document, position) {
+		provideDocumentHighlights(document, position) {
 			return worker(document, (htmlDocument) => {
 				return htmlLs.findDocumentHighlights(document, position, htmlDocument);
 			});
 		},
 
-		findDocumentLinks(document) {
+		provideLinks(document) {
 			return worker(document, () => {
 
 				if (!context.documentContext)
@@ -114,7 +108,7 @@ export default (options: {
 			});
 		},
 
-		findDocumentSymbols(document) {
+		provideDocumentSymbols(document) {
 			return worker(document, (htmlDocument) => {
 				// TODO: wait for https://github.com/microsoft/vscode-html-languageservice/pull/152
 				const symbols: vscode.DocumentSymbol[] = [];
@@ -126,19 +120,19 @@ export default (options: {
 			});
 		},
 
-		getFoldingRanges(document) {
+		provideFoldingRanges(document) {
 			return worker(document, () => {
 				return htmlLs.getFoldingRanges(document);
 			});
 		},
 
-		getSelectionRanges(document, positions) {
+		provideSelectionRanges(document, positions) {
 			return worker(document, () => {
 				return htmlLs.getSelectionRanges(document, positions);
 			});
 		},
 
-		async format(document, formatRange, options) {
+		async provideDocumentFormattingEdits(document, formatRange, options) {
 			return worker(document, async () => {
 
 				const options_2 = await context.configurationHost?.getConfiguration<html.HTMLFormatConfiguration & { enable: boolean; }>('html.format');
@@ -167,7 +161,7 @@ export default (options: {
 			});
 		},
 
-		getIndentSensitiveLines(document) {
+		provideFormattingIndentSensitiveLines(document) {
 			return worker(document, () => {
 				const lines: number[] = [];
 				const scanner = htmlLs.createScanner(document.getText());
@@ -189,7 +183,7 @@ export default (options: {
 			});
 		},
 
-		findLinkedEditingRanges(document, position) {
+		provideLinkedEditingRanges(document, position) {
 			return worker(document, (htmlDocument) => {
 
 				const ranges = htmlLs.findLinkedEditingRanges(document, position, htmlDocument);
@@ -201,7 +195,7 @@ export default (options: {
 			});
 		},
 
-		async doAutoInsert(document, position, insertContext) {
+		async provideAutoInsertionEdit(document, position, insertContext) {
 			return worker(document, async (htmlDocument) => {
 
 				const lastCharacter = insertContext.lastChange.text[insertContext.lastChange.text.length - 1];

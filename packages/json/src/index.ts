@@ -5,7 +5,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 
 export default (settings?: json.LanguageSettings): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
-	const triggerCharacters = {
+	const triggerCharacters: LanguageServicePluginInstance = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
 		triggerCharacters: ['"', ':'],
 	};
@@ -23,99 +23,89 @@ export default (settings?: json.LanguageSettings): LanguageServicePlugin => (con
 
 		...triggerCharacters,
 
-		rules: {
-			async onAny(context) {
-				await worker(context.document, async (jsonDocument) => {
-					context.json = {
-						document: jsonDocument,
-						languageService: jsonLs,
-					};
-				});
-				return context;
-			},
+		async resolveRuleContext(context) {
+			await worker(context.document, async (jsonDocument) => {
+				context.json = {
+					document: jsonDocument,
+					languageService: jsonLs,
+				};
+			});
+			return context;
 		},
 
-		complete: {
-
-			on(document, position) {
-				return worker(document, async (jsonDocument) => {
-					return await jsonLs.doComplete(document, position, jsonDocument);
-				});
-			},
-
-			async resolve(item) {
-				return await jsonLs.doResolve(item);
-			},
+		provideCompletionItems(document, position) {
+			return worker(document, async (jsonDocument) => {
+				return await jsonLs.doComplete(document, position, jsonDocument);
+			});
 		},
 
-		definition: {
-
-			on(document, position) {
-				return worker(document, async (jsonDocument) => {
-					return await jsonLs.findDefinition(document, position, jsonDocument);
-				});
-			},
+		resolveCompletionItem(item) {
+			return jsonLs.doResolve(item);
 		},
 
-		validation: {
-			onSyntactic(document) {
-				return worker(document, async (jsonDocument) => {
-
-					const documentLanguageSettings = undefined; // await getSettings(); // TODO
-
-					return await jsonLs.doValidation(
-						document,
-						jsonDocument,
-						documentLanguageSettings,
-						undefined, // TODO
-					) as vscode.Diagnostic[];
-				});
-			},
+		provideDefinition(document, position) {
+			return worker(document, async (jsonDocument) => {
+				return await jsonLs.findDefinition(document, position, jsonDocument);
+			});
 		},
 
-		doHover(document, position) {
+		provideSyntacticDiagnostics(document) {
+			return worker(document, async (jsonDocument) => {
+
+				const documentLanguageSettings = undefined; // await getSettings(); // TODO
+
+				return await jsonLs.doValidation(
+					document,
+					jsonDocument,
+					documentLanguageSettings,
+					undefined, // TODO
+				) as vscode.Diagnostic[];
+			});
+		},
+
+		provideHover(document, position) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.doHover(document, position, jsonDocument);
 			});
 		},
 
-		findDocumentLinks(document) {
+		provideLinks(document) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.findLinks(document, jsonDocument);
 			});
 		},
 
-		findDocumentSymbols(document) {
+		provideDocumentSymbols(document) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.findDocumentSymbols2(document, jsonDocument);
 			});
 		},
 
-		findDocumentColors(document) {
+		provideDocumentColors(document) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.findDocumentColors(document, jsonDocument);
 			});
 		},
 
-		getColorPresentations(document, color, range) {
+		provideColorPresentations(document, color, range) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.getColorPresentations(document, jsonDocument, color, range);
 			});
 		},
 
-		getFoldingRanges(document) {
+		provideFoldingRanges(document) {
 			return worker(document, async () => {
 				return await jsonLs.getFoldingRanges(document);
 			});
 		},
 
-		getSelectionRanges(document, positions) {
+		provideSelectionRanges(document, positions) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.getSelectionRanges(document, positions, jsonDocument);
 			});
 		},
 
-		format(document, range, options) {
+		provideDocumentFormattingEdits(document, range, options) {
 			return worker(document, async () => {
 
 				const options_2 = await context.configurationHost?.getConfiguration<json.FormattingOptions & { enable: boolean; }>('json.format');

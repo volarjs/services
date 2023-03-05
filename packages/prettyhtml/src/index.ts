@@ -3,7 +3,7 @@ import prettyhtml from '@starptech/prettyhtml';
 
 export default (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServicePlugin => () => ({
 
-	format(document, range, options) {
+	provideDocumentFormattingEdits(document, range, options) {
 
 		if (document.languageId !== 'html')
 			return;
