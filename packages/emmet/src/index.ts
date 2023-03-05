@@ -1,18 +1,25 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
 import * as html from 'vscode-html-languageservice';
 
-export = (): LanguageServicePlugin => (context) => {
+export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
+
+	const triggerCharacters = {
+		// https://docs.emmet.io/abbreviations/syntax/
+		triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
+	};
+	if (!context) {
+		return triggerCharacters;
+	}
 
 	const htmlLs = html.getLanguageService();
 	const htmlDocuments = new WeakMap<html.TextDocument, [number, html.HTMLDocument]>();
 
 	return {
 
-		complete: {
+		...triggerCharacters,
 
-			// https://docs.emmet.io/abbreviations/syntax/
-			triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
+		complete: {
 
 			isAdditional: true,
 
@@ -50,7 +57,7 @@ export = (): LanguageServicePlugin => (context) => {
 
 	async function getEmmetConfig(syntax: string): Promise<emmet.VSCodeEmmetConfig> {
 
-		const emmetConfig: any = await context.configurationHost?.getConfiguration<emmet.VSCodeEmmetConfig>('emmet') ?? {};
+		const emmetConfig: any = await context?.configurationHost?.getConfiguration<emmet.VSCodeEmmetConfig>('emmet') ?? {};
 		const syntaxProfiles = Object.assign({}, emmetConfig['syntaxProfiles'] || {});
 		const preferences = Object.assign({}, emmetConfig['preferences'] || {});
 

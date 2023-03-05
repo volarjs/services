@@ -6,6 +6,14 @@ import * as path from 'path';
 
 export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
+	const triggerCharacters = {
+		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
+		triggerCharacters: ['/', '-', ':'],
+	};
+	if (!context) {
+		return triggerCharacters;
+	}
+
 	let inited = false;
 
 	const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
@@ -25,6 +33,8 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 
 	return {
 
+		...triggerCharacters,
+
 		rules: {
 			async onAny(context) {
 				await worker(context.document, (stylesheet, cssLs) => {
@@ -38,9 +48,6 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 		},
 
 		complete: {
-
-			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
-			triggerCharacters: ['/', '-', ':'],
 
 			async on(document, position) {
 				return worker(document, async (stylesheet, cssLs) => {
@@ -184,7 +191,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 	async function initCustomData() {
 		if (!inited) {
 
-			context.configurationHost?.onDidChangeConfiguration(async () => {
+			context?.configurationHost?.onDidChangeConfiguration(async () => {
 				const customData = await getCustomData();
 				cssLs.setDataProviders(true, customData);
 				scssLs.setDataProviders(true, customData);
@@ -201,7 +208,7 @@ export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance =
 
 	async function getCustomData() {
 
-		const configHost = context.configurationHost;
+		const configHost = context?.configurationHost;
 
 		if (configHost) {
 

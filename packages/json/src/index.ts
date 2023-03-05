@@ -1,10 +1,17 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) => {
+export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
+	const triggerCharacters = {
+		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
+		triggerCharacters: ['"', ':'],
+	};
+	if (!context) {
+		return triggerCharacters;
+	}
 	const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 	const jsonLs = json.getLanguageService({ schemaRequestService: context.schemaRequestService });
 
@@ -13,6 +20,8 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 	}
 
 	return {
+
+		...triggerCharacters,
 
 		rules: {
 			async onAny(context) {
@@ -27,9 +36,6 @@ export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context) 
 		},
 
 		complete: {
-
-			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
-			triggerCharacters: ['"', ':'],
 
 			on(document, position) {
 				return worker(document, async (jsonDocument) => {

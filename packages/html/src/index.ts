@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePluginContext, LanguageServicePluginInstance } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -7,10 +7,18 @@ import * as path from 'path';
 export = (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
-} = {}): LanguageServicePlugin<{
+} = {}) => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {
 	getHtmlLs: () => html.LanguageService,
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
-}> => (context) => {
+} => {
+
+	const triggerCharacters = {
+		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
+	};
+	if (!context) {
+		return triggerCharacters as any;
+	}
 
 	let shouldUpdateCustomData = true;
 	let customData: html.IHTMLDataProvider[] = [];
@@ -24,6 +32,8 @@ export = (options: {
 	});
 
 	return {
+
+		...triggerCharacters,
 
 		rules: {
 			async onAny(context) {
@@ -44,9 +54,6 @@ export = (options: {
 		updateCustomData: updateExtraCustomData,
 
 		complete: {
-
-			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-			triggerCharacters: ['.', ':', '<', '"', '=', '/'],
 
 			async on(document, position) {
 				return worker(document, async (htmlDocument) => {
@@ -245,7 +252,7 @@ export = (options: {
 
 	async function getCustomData() {
 
-		const configHost = context.configurationHost;
+		const configHost = context?.configurationHost;
 
 		if (configHost) {
 

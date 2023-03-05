@@ -5,7 +5,7 @@ export = (): LanguageServicePlugin => (context) => ({
 	inlayHints: {
 
 		on(document, range) {
-			if (context.typescript && isTsDocument(document.languageId)) {
+			if (context?.typescript && isTsDocument(document.languageId)) {
 
 				const ts = context.typescript.module;
 				const inlayHints: InlayHint[] = [];

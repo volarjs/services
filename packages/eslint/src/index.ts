@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin, Diagnostic, CodeAction } from '@volar/language-service';
+import type { LanguageServicePlugin, Diagnostic, CodeAction, LanguageServicePluginInstance } from '@volar/language-service';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 
@@ -7,13 +7,13 @@ export = (resolveConfig?: (program: ts.Program) => Linter.Config): LanguageServi
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
 
-	return (ctx) => ({
+	return (ctx): LanguageServicePluginInstance => ({
 
 		validation: {
 
 			async onSemantic(document) {
 
-				if (!ctx.typescript) return;
+				if (!ctx?.typescript) return;
 
 				const eslint = getEslint(ctx.typescript.languageService.getProgram()!);
 				const lintResult = await eslint.lintText(

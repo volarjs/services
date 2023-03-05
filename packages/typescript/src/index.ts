@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
@@ -33,8 +33,27 @@ import * as typeDefinitions from './services/typeDefinition';
 import * as workspaceSymbols from './services/workspaceSymbol';
 import { SharedContext } from './types';
 
-export = (): LanguageServicePlugin => (context) => {
+export = (): LanguageServicePlugin => (contextOrNull): LanguageServicePluginInstance => {
 
+	const jsDocTriggerCharacter = '*';
+	const directiveCommentTriggerCharacter = '@';
+	const triggerCharacters: LanguageServicePluginInstance = {
+		triggerCharacters: [
+			...getBasicTriggerCharacters('4.3.0'),
+			jsDocTriggerCharacter,
+			directiveCommentTriggerCharacter,
+		],
+		signatureHelpTriggerCharacters: ['(', ',', '<'],
+		signatureHelpRetriggerCharacters: [')'],
+		// https://github.com/microsoft/vscode/blob/ce119308e8fd4cd3f992d42b297588e7abe33a0c/extensions/typescript-language-features/src/languageFeatures/formatting.ts#L99
+		autoFormatTriggerCharacters: [';', '}', '\n'],
+	};
+
+	if (!contextOrNull) {
+		return triggerCharacters;
+	}
+
+	const context = contextOrNull;
 	if (!context.typescript) {
 		console.warn('[@volar-plugins/typescript] context.typescript not found, @volar/typescript plugin disabled. Make sure you have provide tsdk in language client.');
 		return {};
@@ -42,10 +61,8 @@ export = (): LanguageServicePlugin => (context) => {
 
 	const { module: ts } = context.typescript;
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
-	const jsDocTriggerCharacter = '*';
-	const directiveCommentTriggerCharacter = '@';
 
-	const semanticCtx: SharedContext = {
+	const semanticCtx = {
 		...context,
 		getTextDocument(uri) {
 			for (const [_, map] of context.documents.getMapsByVirtualFileUri(uri)) {
@@ -107,6 +124,13 @@ export = (): LanguageServicePlugin => (context) => {
 	const getFoldingRanges = foldingRanges.register(syntacticCtx);
 
 	return {
+
+		...triggerCharacters,
+		triggerCharacters: [
+			...basicTriggerCharacters,
+			jsDocTriggerCharacter,
+			directiveCommentTriggerCharacter,
+		],
 
 		rules: {
 			onFormat(ruleCtx) {
@@ -179,12 +203,6 @@ export = (): LanguageServicePlugin => (context) => {
 		},
 
 		complete: {
-
-			triggerCharacters: [
-				...basicTriggerCharacters,
-				jsDocTriggerCharacter,
-				directiveCommentTriggerCharacter,
-			],
 
 			async on(document, position, context) {
 				if (isTsDocument(document)) {

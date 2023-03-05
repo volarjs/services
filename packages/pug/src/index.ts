@@ -1,16 +1,20 @@
 import useHtmlPlugin from '@volar-plugins/html';
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePluginContext, LanguageServicePluginInstance } from '@volar/language-service';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 
-export = (): LanguageServicePlugin<{
+export = () => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {
 	getHtmlLs: () => html.LanguageService,
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
 	getPugLs: () => pug.LanguageService,
 	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined,
-}> => (context) => {
+} => {
+
+	if (!context) {
+		return {} as any;
+	}
 
 	const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 	const htmlPlugin = useHtmlPlugin()(context);

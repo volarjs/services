@@ -1,4 +1,4 @@
-import { LanguageServicePlugin, SemanticToken } from '@volar/language-service';
+import { LanguageServicePlugin, LanguageServicePluginInstance, SemanticToken } from '@volar/language-service';
 import * as vls from 'vls';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
@@ -6,7 +6,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getGlobalSnippetDir } from './userSnippetDir';
 
-export = (): LanguageServicePlugin => (ctx) => {
+export = (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance => {
+
+	const triggerCharacters = {
+		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
+	};
+	if (!ctx) {
+		return triggerCharacters;
+	}
 
 	const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 	const uriToPackageJsonPath = new Map<string, string | undefined>();
@@ -21,10 +29,9 @@ export = (): LanguageServicePlugin => (ctx) => {
 
 	return {
 
-		complete: {
+		...triggerCharacters,
 
-			// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-			triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
+		complete: {
 
 			isAdditional: true,
 
@@ -104,7 +111,7 @@ export = (): LanguageServicePlugin => (ctx) => {
 				return result;
 			});
 		},
-	}
+	};
 
 	function htmlWorker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
@@ -136,7 +143,7 @@ export = (): LanguageServicePlugin => (ctx) => {
 
 		if (!packageJsonPath) {
 
-			let lastDirname = ctx.uriToFileName(document.uri);
+			let lastDirname = ctx!.uriToFileName(document.uri);
 
 			while (true) {
 
@@ -273,4 +280,4 @@ export = (): LanguageServicePlugin => (ctx) => {
 
 		return htmlDocument;
 	}
-}
+};

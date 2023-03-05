@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
 
 export = (
@@ -32,7 +32,11 @@ export = (
 		}
 		return {};
 	},
-): LanguageServicePlugin => (context) => {
+): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
+
+	if (!context) {
+		return {};
+	}
 
 	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 	const prettierOptions = getPrettierConfig();
