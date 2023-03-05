@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/pug",
-	"version": "2.0.0-alpha.15",
+	"version": "2.0.0-alpha.16",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -14,7 +14,7 @@
 		"directory": "packages/pug"
 	},
 	"dependencies": {
-		"@volar-plugins/html": "2.0.0-alpha.15",
+		"@volar-plugins/html": "2.0.0-alpha.16",
 		"muggle-string": "^0.2.2",
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
@@ -23,8 +23,8 @@
 		"vscode-languageserver-types": "^3.17.2"
 	},
 	"peerDependencies": {
-		"@volar/source-map": "*",
-		"@volar/language-service": "*"
+		"@volar/language-service": "*",
+		"@volar/source-map": "*"
 	},
 	"browser": {
 		"./out/index.js": "./out/empty.js"
