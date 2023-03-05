@@ -19,7 +19,7 @@ Volar plugin for [prettier](https://prettier.io/).
 ```js
 module.exports = {
 	plugins: [
-		require('@volar-plugins/prettier')(
+		require('@volar-plugins/prettier').default(
 			{
 				languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
 				html: {

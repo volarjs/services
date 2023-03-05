@@ -1,6 +1,6 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 
-export = (): LanguageServicePlugin => () => ({
+export default (): LanguageServicePlugin => () => ({
 
 	format(document, range, options) {
 

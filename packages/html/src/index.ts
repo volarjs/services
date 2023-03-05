@@ -4,7 +4,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-export = (options: {
+export default (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
 } = {}) => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {

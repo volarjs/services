@@ -5,7 +5,7 @@ import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 
-export = () => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {
+export default () => (context: LanguageServicePluginContext | undefined): LanguageServicePluginInstance & {
 	getHtmlLs: () => html.LanguageService,
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void,
 	getPugLs: () => pug.LanguageService,

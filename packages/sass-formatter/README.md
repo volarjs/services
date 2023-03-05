@@ -17,7 +17,7 @@ Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 `volar.config.js`
 
 ```js
-const sassFormatter = require('@volar-plugins/sass-formatter');
+const sassFormatter = require('@volar-plugins/sass-formatter').default;
 
 module.exports = {
 	plugins: [

@@ -33,7 +33,7 @@ import * as typeDefinitions from './services/typeDefinition';
 import * as workspaceSymbols from './services/workspaceSymbol';
 import { SharedContext } from './types';
 
-export = (): LanguageServicePlugin => (contextOrNull): LanguageServicePluginInstance => {
+export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePluginInstance => {
 
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';

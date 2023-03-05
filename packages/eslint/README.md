@@ -30,7 +30,7 @@ module.exports = {
 
 	plugins: [
 
-		require('@volar-plugins/eslint')(program => ({
+		require('@volar-plugins/eslint').default(program => ({
 			...baseConfig,
 			ignorePatterns: ['**/*.vue.*'], // ignore virtual files: *.vue.ts, *.vue.html, *.vue.css
 			parserOptions: {

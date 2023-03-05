@@ -24,7 +24,7 @@ With this plugin you can use this Vetur base features in Volar:
 ```js
 module.exports = {
 	plugins: [
-		require('@volar-plugins/vetur')(),
+		require('@volar-plugins/vetur').default(),
 	],
 };
 ```

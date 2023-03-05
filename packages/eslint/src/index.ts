@@ -2,7 +2,7 @@ import type { LanguageServicePlugin, Diagnostic, CodeAction, LanguageServicePlug
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 
-export = (resolveConfig?: (program: ts.Program) => Linter.Config): LanguageServicePlugin => {
+export default (resolveConfig?: (program: ts.Program) => Linter.Config): LanguageServicePlugin => {
 
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();

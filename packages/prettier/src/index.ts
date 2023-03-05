@@ -1,7 +1,7 @@
 import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
 
-export = (
+export default (
 	options: {
 		/**
 		 * Languages to be formatted by prettier.

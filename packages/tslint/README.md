@@ -22,7 +22,7 @@ module.exports = {
 
 	plugins: [
 
-		require('@volar-plugins/tslint')([
+		require('@volar-plugins/tslint').default([
 
 			new (require('tslint/lib/rules/banTsIgnoreRule').Rule)({
 				ruleName: 'ban-ts-ignore',

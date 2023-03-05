@@ -1,7 +1,7 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
 import { SassFormatter } from 'sass-formatter';
 
-export = (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServicePlugin => () => ({
+export default (configs: Parameters<typeof SassFormatter.Format>[1]): LanguageServicePlugin => () => ({
 
 	format(document, range, options) {
 

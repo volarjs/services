@@ -1,7 +1,7 @@
 import type { LanguageServicePlugin, Diagnostic, CodeAction, LanguageServicePluginInstance } from '@volar/language-service';
 import type { IRule, RuleFailure } from 'tslint';
 
-export = (rules: IRule[]): LanguageServicePlugin => {
+export default (rules: IRule[]): LanguageServicePlugin => {
 
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 

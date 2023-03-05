@@ -3,7 +3,7 @@ import * as json from 'vscode-json-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-export = (settings?: json.LanguageSettings): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
+export default (settings?: json.LanguageSettings): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
 	const triggerCharacters = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150

@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getGlobalSnippetDir } from './userSnippetDir';
 
-export = (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance => {
+export default (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance => {
 
 	const triggerCharacters = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183

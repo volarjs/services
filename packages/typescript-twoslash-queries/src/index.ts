@@ -1,6 +1,6 @@
 import type { LanguageServicePlugin, InlayHint } from '@volar/language-service';
 
-export = (): LanguageServicePlugin => (context) => ({
+export default (): LanguageServicePlugin => (context) => ({
 
 	inlayHints: {
 

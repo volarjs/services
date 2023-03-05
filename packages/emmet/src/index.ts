@@ -2,7 +2,7 @@ import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@vola
 import * as emmet from '@vscode/emmet-helper';
 import * as html from 'vscode-html-languageservice';
 
-export = (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
+export default (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
 	const triggerCharacters = {
 		// https://docs.emmet.io/abbreviations/syntax/
