@@ -5,6 +5,7 @@ import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import { URI } from 'vscode-uri'
 
 export function register(ctx: SharedContext) {
 	return async (codeAction: vscode.CodeAction) => {
@@ -28,6 +29,22 @@ export function register(ctx: SharedContext) {
 			if (editInfo) {
 				const edit = fileTextChangesToWorkspaceEdit(editInfo.edits, ctx);
 				codeAction.edit = edit;
+				if (editInfo.renameLocation && editInfo.renameFilename === data.fileName) {
+					const renameLocationPos = ctx.getTextDocument(data.fileName)!.positionAt(editInfo.renameLocation)
+					for (const [_, map] of ctx.documents.getMapsByVirtualFileUri(data.fileName)) {
+						const pos = map.toSourcePosition(renameLocationPos)
+						if (!pos) continue
+						codeAction.data ??= {}
+						codeAction.data.command = {
+							command: 'editor.action.rename',
+							arguments: [
+								URI.parse(data.fileName.slice(0, -3)),
+								pos
+							],
+						}
+						break
+					}
+				}
 			}
 		}
 		else if (data?.type === 'organizeImports') {
