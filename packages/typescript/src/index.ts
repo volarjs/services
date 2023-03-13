@@ -423,7 +423,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 	function prepareSyntacticService(document: TextDocument) {
 		syntacticHostCtx.fileName = context.uriToFileName(document.uri);
 		syntacticHostCtx.fileVersion = document.version;
-		if (context.documents.hasVirtualFileByUri(document.uri)) {
+		if (context.documents.isVirtualFileUri(document.uri)) {
 			const snapshot = context.documents.getVirtualFileByUri(document.uri)[0]?.snapshot;
 			if (snapshot) {
 				syntacticHostCtx.snapshot = snapshot;
