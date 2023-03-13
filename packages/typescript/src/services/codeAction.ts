@@ -6,6 +6,7 @@ import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import { resolveFixAllCodeAction, resolveOrganizeImportsCodeAction, resolveRefactorCodeAction } from './codeActionResolve';
 
 export interface FixAllData {
 	type: 'fixAll',
@@ -13,6 +14,7 @@ export interface FixAllData {
 	fileName: string,
 	fixIds: {}[],
 }
+
 export interface RefactorData {
 	type: 'refactor',
 	uri: string,
@@ -31,6 +33,15 @@ export interface OrganizeImportsData {
 export type Data = FixAllData | RefactorData | OrganizeImportsData;
 
 export function register(ctx: SharedContext) {
+
+	let resolveCommandSupport = ctx.capabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('command');
+	let resolveEditSupport = ctx.capabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('edit');
+
+	if (!ctx.capabilities) {
+		resolveCommandSupport = true;
+		resolveEditSupport = true;
+	}
+
 	return async (uri: string, range: vscode.Range, context: vscode.CodeActionContext) => {
 
 		const document = ctx.getTextDocument(uri);
@@ -95,18 +106,24 @@ export function register(ctx: SharedContext) {
 		const onlySourceOrganizeImports = matchOnlyKind(`${vscode.CodeActionKind.SourceOrganizeImports}.ts`);
 		if (onlySourceOrganizeImports) {
 			const action = vscode.CodeAction.create('Organize Imports', onlySourceOrganizeImports);
-			action.data = {
+			const data: OrganizeImportsData = {
 				type: 'organizeImports',
 				uri,
 				fileName,
-			} satisfies OrganizeImportsData;
+			};
+			if (resolveEditSupport) {
+				action.data = data;
+			}
+			else {
+				resolveOrganizeImportsCodeAction(ctx, action, data, formatOptions, preferences);
+			}
 			result.push(action);
 		}
 
 		const onlySourceFixAll = matchOnlyKind(`${vscode.CodeActionKind.SourceFixAll}.ts`);
 		if (onlySourceFixAll) {
 			const action = vscode.CodeAction.create('Fix All', onlySourceFixAll);
-			action.data = {
+			const data: FixAllData = {
 				uri,
 				type: 'fixAll',
 				fileName,
@@ -115,14 +132,20 @@ export function register(ctx: SharedContext) {
 					fixNames.awaitInSyncFunction,
 					fixNames.unreachableCode,
 				],
-			} satisfies FixAllData;
+			};
+			if (resolveEditSupport) {
+				action.data = data;
+			}
+			else {
+				resolveFixAllCodeAction(ctx, action, data, formatOptions, preferences);
+			}
 			result.push(action);
 		}
 
 		const onlyRemoveUnused = matchOnlyKind(`${vscode.CodeActionKind.Source}.removeUnused.ts`);
 		if (onlyRemoveUnused) {
 			const action = vscode.CodeAction.create('Remove all unused code', onlyRemoveUnused);
-			action.data = {
+			const data: FixAllData = {
 				uri,
 				type: 'fixAll',
 				fileName,
@@ -135,14 +158,20 @@ export function register(ctx: SharedContext) {
 					'unusedIdentifier_delete',
 					'unusedIdentifier_infer',
 				],
-			} satisfies FixAllData;
+			};
+			if (resolveEditSupport) {
+				action.data = data;
+			}
+			else {
+				resolveFixAllCodeAction(ctx, action, data, formatOptions, preferences);
+			}
 			result.push(action);
 		}
 
 		const onlyAddMissingImports = matchOnlyKind(`${vscode.CodeActionKind.Source}.addMissingImports.ts`);
 		if (onlyAddMissingImports) {
 			const action = vscode.CodeAction.create('Add all missing imports', onlyAddMissingImports);
-			action.data = {
+			const data: FixAllData = {
 				uri,
 				type: 'fixAll',
 				fileName,
@@ -152,7 +181,13 @@ export function register(ctx: SharedContext) {
 					// TODO: remove patching
 					'fixMissingImport',
 				],
-			} satisfies FixAllData;
+			};
+			if (resolveEditSupport) {
+				action.data = data;
+			}
+			else {
+				resolveFixAllCodeAction(ctx, action, data, formatOptions, preferences);
+			}
 			result.push(action);
 		}
 
@@ -202,12 +237,18 @@ export function register(ctx: SharedContext) {
 					codeFix.fixAllDescription,
 					kind,
 				);
-				fixAll.data = {
+				const data: FixAllData = {
 					uri,
 					type: 'fixAll',
 					fileName,
 					fixIds: [codeFix.fixId],
-				} satisfies FixAllData;
+				};
+				if (resolveEditSupport) {
+					fixAll.data = data;
+				}
+				else {
+					resolveFixAllCodeAction(ctx, fixAll, data, formatOptions, preferences);
+				}
 				fixAll.diagnostics = diagnostics;
 				codeActions.push(fixAll);
 			}
@@ -220,19 +261,25 @@ export function register(ctx: SharedContext) {
 					action.description,
 					action.kind,
 				);
-				codeAction.data = {
+				if (action.notApplicableReason) {
+					codeAction.disabled = { reason: action.notApplicableReason };
+				}
+				if (refactor.inlineable) {
+					codeAction.isPreferred = true;
+				}
+				const data: RefactorData = {
 					uri,
 					type: 'refactor',
 					fileName,
 					range: { pos: start, end: end },
 					refactorName: refactor.name,
 					actionName: action.name,
-				} satisfies RefactorData;
-				if (action.notApplicableReason) {
-					codeAction.disabled = { reason: action.notApplicableReason };
+				};
+				if (resolveCommandSupport && resolveEditSupport) {
+					codeAction.data = data;
 				}
-				if (refactor.inlineable) {
-					codeAction.isPreferred = true;
+				else if (!codeAction.disabled && document) {
+					resolveRefactorCodeAction(ctx, codeAction, data, document, formatOptions, preferences);
 				}
 				codeActions.push(codeAction);
 			}
