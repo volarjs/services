@@ -76,9 +76,14 @@ export function register(ctx: SharedContext) {
 				item.sortText = tsEntry.sortText;
 			}
 
-			const { sourceDisplay, isSnippet } = tsEntry;
+			const { sourceDisplay, isSnippet, labelDetails } = tsEntry;
 			if (sourceDisplay) {
 				item.labelDetails = { description: ts.displayPartsToString(sourceDisplay) };
+			}
+
+			if (labelDetails) {
+				item.labelDetails ??= {};
+				Object.assign(item.labelDetails, labelDetails);
 			}
 
 			item.preselect = tsEntry.isRecommended;
