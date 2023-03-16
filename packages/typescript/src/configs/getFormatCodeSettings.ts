@@ -17,7 +17,7 @@ export async function getFormatCodeSettings(
 	const defaultFormatOptions = ctx.typescript.module.getDefaultFormatCodeSettings();
 
 	return Object.assign({}, defaultFormatOptions, filterUndefined({
-		convertTabsToSpaces: options?.insertSpaces,
+		convertTabsToSpaces: options?.insertSpaces ?? false,
 		tabSize: options?.tabSize,
 		indentSize: options?.tabSize,
 		indentStyle: 2 /** ts.IndentStyle.Smart */,
