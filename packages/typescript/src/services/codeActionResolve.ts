@@ -55,14 +55,19 @@ export function resolveRefactorCodeAction(
 	if (!editInfo) {
 		return;
 	}
-	const sourceFile = ctx.typescript.languageService.getProgram()!.getSourceFile(data.fileName)!;
+	const fullText = document.getText();
 	const patchedEdits = editInfo.edits.map(edit => {
 		if (edit.fileName !== data.fileName) return edit;
 		return {
 			...edit,
 			textChanges: edit.textChanges.map((change) => {
+				const changePos = document.positionAt(change.span.start);
+				const startLineOffset = document.offsetAt({
+					line: changePos.line,
+					character: 0,
+				});
+				if (/^\s/.test(fullText.slice(startLineOffset))) return change;
 				const { newText, span } = change;
-				if (isNodeWithinBlock(ctx, sourceFile, change.span.start)) return change;
 				return {
 					newText: newText.split('\n').map(line => line.replace(/^\t/, '')).join('\n'),
 					span
@@ -78,24 +83,6 @@ export function resolveRefactorCodeAction(
 			document.positionAt(editInfo.renameLocation),
 		);
 	}
-}
-
-function isNodeWithinBlock(ctx: SharedContext, sourceFile: ts.SourceFile, position: number): boolean | undefined {
-	const ts = ctx.typescript.module;
-	function find(node: ts.Node): boolean | undefined {
-		if (position >= node.getStart() && position <= node.getEnd()) {
-			if (ts.isBlock(node)) {
-				const ignoreBlock = ts.findAncestor(node.parent, (n) => ts.isBlock(n) ? 'quit' : ts.isExportAssignment(n) || (
-					ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.name.text === '__VLS_setup'
-				));
-				if (!ignoreBlock) return true;
-			}
-			return ts.forEachChild(node, find);
-		}
-
-		return;
-	}
-	return find(sourceFile);
 }
 
 export function resolveOrganizeImportsCodeAction(
