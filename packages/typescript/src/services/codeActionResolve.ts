@@ -61,13 +61,13 @@ export function resolveRefactorCodeAction(
 		return {
 			...edit,
 			textChanges: edit.textChanges.map((change) => {
-				const changePos = document.positionAt(change.span.start);
+				const { newText, span } = change;
+				const changePos = document.positionAt(span.start);
 				const startLineOffset = document.offsetAt({
 					line: changePos.line,
 					character: 0,
 				});
-				if (/^\s/.test(fullText.slice(startLineOffset))) return change;
-				const { newText, span } = change;
+				if (/^\s/.test(fullText.slice(startLineOffset)) || !newText.split('\n')[0].startsWith('\t')) return change;
 				return {
 					newText: newText.split('\n').map(line => line.replace(/^\t/, '')).join('\n'),
 					span
