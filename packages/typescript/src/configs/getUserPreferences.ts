@@ -46,9 +46,7 @@ export async function getUserPreferences(
 		// https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/src/languageFeatures/completions.ts#L728-L730
 		includeCompletionsForModuleExports: config.suggest?.autoImports ?? true,
 		includeCompletionsWithInsertText: true,
-
-		// includePackageJsonAutoImports have no effect because this is used only in tsserver but not language service
-		// includePackageJsonAutoImports: tsPreferencesConfig.includePackageJsonAutoImports ?? 'auto',
+		includePackageJsonAutoImports: preferencesConfig.includePackageJsonAutoImports ?? 'auto',
 	};
 
 	return preferences;
