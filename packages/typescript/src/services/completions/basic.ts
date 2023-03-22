@@ -83,7 +83,8 @@ export function register(ctx: SharedContext) {
 
 			const { sourceDisplay, isSnippet, labelDetails } = tsEntry;
 			if (sourceDisplay) {
-				item.labelDetails = { description: ts.displayPartsToString(sourceDisplay) };
+				item.labelDetails ??= {};
+				item.labelDetails.description = ts.displayPartsToString(sourceDisplay);
 			}
 
 			if (labelDetails) {
