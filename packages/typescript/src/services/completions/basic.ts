@@ -12,7 +12,12 @@ export interface Data {
 	uri: string,
 	fileName: string,
 	offset: number,
-	originalItem: ts.CompletionEntry;
+	originalItem: {
+		name: ts.CompletionEntry['name'],
+		source: ts.CompletionEntry['source'],
+		data: ts.CompletionEntry['data'],
+		labelDetails: ts.CompletionEntry['labelDetails'],
+	};
 }
 
 export function register(ctx: SharedContext) {
@@ -138,7 +143,12 @@ export function register(ctx: SharedContext) {
 					uri,
 					fileName,
 					offset,
-					originalItem: tsEntry,
+					originalItem: {
+						name: tsEntry.name,
+						source: tsEntry.source,
+						data: tsEntry.data,
+						labelDetails: tsEntry.labelDetails,
+					},
 				} satisfies Data,
 			};
 		}
