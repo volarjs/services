@@ -1,11 +1,12 @@
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
-import { fileTextChangesToWorkspaceEdit } from './rename';
-import { Data, FixAllData, RefactorData } from './codeAction';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { SharedContext } from '../types';
+import { Data, FixAllData, RefactorData } from './codeAction';
+import { fileTextChangesToWorkspaceEdit } from './rename';
 
 export function register(ctx: SharedContext) {
 	return async (codeAction: vscode.CodeAction) => {

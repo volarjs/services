@@ -45,9 +45,15 @@ export function register(ctx: SharedContext) {
 		if (!details)
 			return item;
 
+		if (data.originalItem.labelDetails) {
+			item.labelDetails ??= {};
+			Object.assign(item.labelDetails, data.originalItem.labelDetails);
+		}
+
 		const { sourceDisplay } = details;
 		if (sourceDisplay) {
-			item.labelDetails = { description: ts.displayPartsToString(sourceDisplay) };
+			item.labelDetails ??= {};
+			item.labelDetails.description = ts.displayPartsToString(sourceDisplay);
 		}
 
 		const detailTexts: string[] = [];
