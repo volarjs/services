@@ -162,8 +162,11 @@ export default (options: {
 		},
 
 		provideFormattingIndentSensitiveLines(document) {
-			return worker(document, () => {
+			return worker(document, (htmlDocument) => {
 				const lines: number[] = [];
+				/**
+				 * comments
+				 */
 				const scanner = htmlLs.createScanner(document.getText());
 				let token = scanner.scan();
 				let startCommentTagLine: number | undefined;
@@ -176,9 +179,24 @@ export default (options: {
 						for (let i = startCommentTagLine! + 1; i <= line; i++) {
 							lines.push(i);
 						}
+						startCommentTagLine = undefined;
 					}
 					token = scanner.scan();
 				}
+				/**
+				 * tags
+				 */
+				htmlDocument.roots.forEach(function visit(node) {
+					// TODO: check source code for all sensitive tags
+					if (node.tag === 'pre' && node.startTagEnd !== undefined && node.endTagStart !== undefined) {
+						for (let i = document.positionAt(node.startTagEnd).line + 1; i <= document.positionAt(node.endTagStart).line; i++) {
+							lines.push(i);
+						}
+					}
+					else {
+						node.children.forEach(visit);
+					}
+				});
 				return lines;
 			});
 		},
