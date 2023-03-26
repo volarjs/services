@@ -181,6 +181,12 @@ export default (options: {
 						}
 						startCommentTagLine = undefined;
 					}
+					else if (token === html.TokenType.AttributeValue) {
+						const startLine = document.positionAt(scanner.getTokenOffset()).line;
+						for (let i = 1; i < scanner.getTokenText().split('\n').length; i++) {
+							lines.push(startLine + i);
+						}
+					}
 					token = scanner.scan();
 				}
 				/**
