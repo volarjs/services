@@ -74,7 +74,7 @@ importers:
 
   packages/pug:
     specifiers:
-      '@volar-plugins/html': 2.0.0-alpha.18
+      '@volar-plugins/html': 2.0.0-alpha.19
       muggle-string: ^0.2.2
       pug-lexer: ^5.0.1
       pug-parser: ^6.0.0

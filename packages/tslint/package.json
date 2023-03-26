@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/tslint",
-	"version": "2.0.0-alpha.18",
+	"version": "2.0.0-alpha.19",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
