@@ -192,9 +192,15 @@ export default (options: {
 				/**
 				 * tags
 				 */
+				// https://github.com/beautify-web/js-beautify/blob/686f8c1b265990908ece86ce39291733c75c997c/js/src/html/options.js#L81
+				const indentSensitiveTags = new Set(['pre', 'textarea']);
 				htmlDocument.roots.forEach(function visit(node) {
-					// TODO: check source code for all sensitive tags
-					if (node.tag === 'pre' && node.startTagEnd !== undefined && node.endTagStart !== undefined) {
+					if (
+						node.tag !== undefined
+						&& node.startTagEnd !== undefined
+						&& node.endTagStart !== undefined
+						&& indentSensitiveTags.has(node.tag)
+					) {
 						for (let i = document.positionAt(node.startTagEnd).line + 1; i <= document.positionAt(node.endTagStart).line; i++) {
 							lines.push(i);
 						}
