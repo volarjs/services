@@ -115,7 +115,7 @@ importers:
   packages/pug:
     dependencies:
       '@volar-plugins/html':
-        specifier: 2.0.0-alpha.19
+        specifier: 2.0.0-alpha.20
         version: link:../html
       '@volar/language-service':
         specifier: '*'

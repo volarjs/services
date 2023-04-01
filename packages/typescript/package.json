@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/typescript",
-	"version": "2.0.0-alpha.19",
+	"version": "2.0.0-alpha.20",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
