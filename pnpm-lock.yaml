@@ -11,14 +11,14 @@ importers:
         specifier: latest
         version: 18.15.11
       '@volar/language-service':
-        specifier: 1.4.0-alpha.5
-        version: 1.4.0-alpha.5
+        specifier: 1.4.0-alpha.6
+        version: 1.4.0-alpha.6
       '@volar/source-map':
-        specifier: 1.4.0-alpha.5
-        version: 1.4.0-alpha.5
+        specifier: 1.4.0-alpha.6
+        version: 1.4.0-alpha.6
       typescript:
         specifier: latest
-        version: 5.0.2
+        version: 5.0.3
 
   packages/css:
     dependencies:
@@ -58,7 +58,7 @@ importers:
     devDependencies:
       '@types/eslint':
         specifier: latest
-        version: 8.21.3
+        version: 8.37.0
 
   packages/html:
     dependencies:
@@ -168,7 +168,7 @@ importers:
     devDependencies:
       tslint:
         specifier: latest
-        version: 6.1.3(typescript@5.0.2)
+        version: 6.1.3(typescript@5.0.3)
 
   packages/typescript:
     dependencies:
@@ -903,8 +903,8 @@ packages:
       minimatch: 6.2.0
     dev: true
 
-  /@types/eslint@8.21.3:
-    resolution: {integrity: sha512-fa7GkppZVEByMWGbTtE5MbmXWJTVbrjjaS8K6uQj+XtuuUv1fsuPAxhygfqLmsb/Ufb3CV8deFCpiMfAgi00Sw==}
+  /@types/eslint@8.37.0:
+    resolution: {integrity: sha512-Piet7dG2JBuDIfohBngQ3rCt7MgO9xCO4xIMKxBThCq5PNRB91IjlJ10eJVwfoNtvTErmxLzwBZ7rHZtbOMmFQ==}
     dependencies:
       '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
@@ -982,10 +982,10 @@ packages:
       '@vue/reactivity': 3.2.47
     dev: false
 
-  /@volar/language-core@1.4.0-alpha.5:
-    resolution: {integrity: sha512-tYOztUpB7Sv6gf+0EBLW4bLWaj51XDlOisdVAOtv+z9kNdoZjQ2XWjNtzm0DSJ3ECFwB9iHlXGfmxqaV15k8/Q==}
+  /@volar/language-core@1.4.0-alpha.6:
+    resolution: {integrity: sha512-NjR1UDKbbw3ovT5RmNObtY1P2D5Os0KXdIxLUoDp+ZVrCbEaeUKUjSM13KcxJj0ec/r0B/rxw8Lq63+DlXf7sg==}
     dependencies:
-      '@volar/source-map': 1.4.0-alpha.5
+      '@volar/source-map': 1.4.0-alpha.6
     dev: true
 
   /@volar/language-service@1.0.0-alpha.0:
@@ -1005,11 +1005,11 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /@volar/language-service@1.4.0-alpha.5:
-    resolution: {integrity: sha512-TVB8yIMV3Vzrd3QKDgKNef7WYyicerMMYyzrc8eZ3VVTUJV/qTcwyiftxtt+u192f8JORH9Gpq77XRDGJJUHtA==}
+  /@volar/language-service@1.4.0-alpha.6:
+    resolution: {integrity: sha512-5rirOII8LWuBrLTiDs7ZvA9AXjxwSwLmNV5q0tOIlqjeTe0Ybk9kbWToBv++/n6k1IQEUob2+quvuVCz8E3aUw==}
     dependencies:
-      '@volar/language-core': 1.4.0-alpha.5
-      '@volar/source-map': 1.4.0-alpha.5
+      '@volar/language-core': 1.4.0-alpha.6
+      '@volar/source-map': 1.4.0-alpha.6
       typescript-auto-import-cache: 0.0.1
       vscode-html-languageservice: 5.0.4
       vscode-json-languageservice: 5.2.0
@@ -1046,8 +1046,8 @@ packages:
       '@vue/reactivity': 3.2.47
     dev: false
 
-  /@volar/source-map@1.4.0-alpha.5:
-    resolution: {integrity: sha512-YO46N/hh/hOEpUJ0UXbJVnvUUY6wCvHdoLXnkMrlJx0tzRLylWvrHXz9neGov324JwnuQzbPHa4AehvP9WhWvQ==}
+  /@volar/source-map@1.4.0-alpha.6:
+    resolution: {integrity: sha512-uE9MZ7fosur9JTKpyaExwY23VLP7m24x4L1AEum/EyFp0SBG4q8xIcpaU3wtC3EGBC+0+TjVJY8PSxDClGsy6A==}
     dependencies:
       muggle-string: 0.2.2
     dev: true
@@ -4928,7 +4928,7 @@ packages:
       typescript: 4.9.5
     dev: false
 
-  /tslint@6.1.3(typescript@5.0.2):
+  /tslint@6.1.3(typescript@5.0.3):
     resolution: {integrity: sha512-IbR4nkT96EQOvKE2PW/djGz8iGNeJ4rF2mBfiYaR/nvUWYKJhLwimoJKgjIFEIDibBtOevj7BqCRL4oHeWWUCg==}
     engines: {node: '>=4.8.0'}
     deprecated: TSLint has been deprecated in favor of ESLint. Please see https://github.com/palantir/tslint/issues/4534 for more information.
@@ -4948,8 +4948,8 @@ packages:
       resolve: 1.22.0
       semver: 5.7.1
       tslib: 1.14.1
-      tsutils: 2.29.0(typescript@5.0.2)
-      typescript: 5.0.2
+      tsutils: 2.29.0(typescript@5.0.3)
+      typescript: 5.0.3
     dev: true
 
   /tsutils@2.29.0(typescript@4.9.5):
@@ -4961,13 +4961,13 @@ packages:
       typescript: 4.9.5
     dev: false
 
-  /tsutils@2.29.0(typescript@5.0.2):
+  /tsutils@2.29.0(typescript@5.0.3):
     resolution: {integrity: sha512-g5JVHCIJwzfISaXpXE1qvNalca5Jwob6FjI4AoPlqMusJ6ftFE7IkkFoMhVLRgK+4Kx3gkzb8UZK5t5yTTvEmA==}
     peerDependencies:
       typescript: '>=2.1.0 || >=2.1.0-dev || >=2.2.0-dev || >=2.3.0-dev || >=2.4.0-dev || >=2.5.0-dev || >=2.6.0-dev || >=2.7.0-dev || >=2.8.0-dev || >=2.9.0-dev || >= 3.0.0-dev || >= 3.1.0-dev'
     dependencies:
       tslib: 1.14.1
-      typescript: 5.0.2
+      typescript: 5.0.3
     dev: true
 
   /tuf-js@1.1.1:
@@ -5044,8 +5044,8 @@ packages:
     hasBin: true
     dev: false
 
-  /typescript@5.0.2:
-    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
+  /typescript@5.0.3:
+    resolution: {integrity: sha512-xv8mOEDnigb/tN9PSMTwSEqAnUvkoXMQlicOb0IUVDBSQCgBSaAAROUZYy2IcUy5qU6XajK5jjjO7TMWqBTKZA==}
     engines: {node: '>=12.20'}
     hasBin: true
     dev: true
