@@ -9,7 +9,7 @@ export function baseParse(pugCode: string) {
 
 	const fileName = 'foo.pug';
 	const pugTextDocument = TextDocument.create('file:///a.pug', 'jade', 0, pugCode);
-	const codeGen: Segment<any>[] = [];
+	const codes: Segment<any>[] = [];
 	let error: {
 		code: string,
 		msg: string,
@@ -30,7 +30,7 @@ export function baseParse(pugCode: string) {
 		ast = pugParser(tokens, { filename: fileName, src: pugCode }) as Node;
 		visitNode(ast, undefined, undefined);
 
-		codeGen.push([
+		codes.push([
 			'',
 			undefined,
 			pugCode.trimEnd().length,
@@ -46,8 +46,8 @@ export function baseParse(pugCode: string) {
 	};
 
 	return {
-		htmlCode: toString(codeGen),
-		mappings: buildMappings(codeGen),
+		htmlCode: toString(codes),
+		mappings: buildMappings(codes),
 		pugTextDocument,
 		error,
 		ast,
@@ -69,7 +69,7 @@ export function baseParse(pugCode: string) {
 
 			const pugTagRange = getDocRange(node.line, node.column, node.name.length);
 
-			codeGen.push([
+			codes.push([
 				'',
 				undefined,
 				pugTagRange.start,
@@ -81,14 +81,14 @@ export function baseParse(pugCode: string) {
 				visitNode(node.block, next, parent);
 				addEndTag(node, next, parent);
 			}
-			codeGen.push([
+			codes.push([
 				'',
 				undefined,
 				pugTagRange.start,
 			]);
 		}
 		else if (node.type === 'Text') {
-			codeGen.push([
+			codes.push([
 				node.val,
 				undefined,
 				getDocOffset(node.line, node.column),
@@ -96,22 +96,22 @@ export function baseParse(pugCode: string) {
 		}
 	}
 	function addStartTag(node: TagNode, selfClosing: boolean) {
-		codeGen.push([
+		codes.push([
 			'',
 			undefined,
 			getDocOffset(node.line, node.column),
 		]);
-		codeGen.push('<');
+		codes.push('<');
 		const tagRange = getDocRange(node.line, node.column, node.name.length);
 		if (pugCode.substring(tagRange.start, tagRange.end) === node.name) {
-			codeGen.push([
+			codes.push([
 				node.name,
 				undefined,
 				tagRange.start,
 			]);
 		}
 		else {
-			codeGen.push(node.name);
+			codes.push(node.name);
 		}
 
 		const noTitleAttrs = node.attrs.filter(attr => !attr.mustEscape && attr.name !== 'class');
@@ -124,11 +124,11 @@ export function baseParse(pugCode: string) {
 		}
 
 		for (const attr of noTitleAttrs) {
-			codeGen.push(' ');
-			codeGen.push(attr.name);
+			codes.push(' ');
+			codes.push(attr.name);
 			if (typeof attr.val !== 'boolean') {
-				codeGen.push('=');
-				codeGen.push([
+				codes.push('=');
+				codes.push([
 					attr.val,
 					undefined,
 					getDocOffset(attr.line, attr.column),
@@ -137,8 +137,8 @@ export function baseParse(pugCode: string) {
 		}
 
 		if (attrsBlock) {
-			codeGen.push(' ');
-			codeGen.push([
+			codes.push(' ');
+			codes.push([
 				attrsBlock.text,
 				undefined,
 				attrsBlock.offset,
@@ -146,10 +146,10 @@ export function baseParse(pugCode: string) {
 		}
 
 		if (selfClosing) {
-			codeGen.push(' />');
+			codes.push(' />');
 		}
 		else {
-			codeGen.push('>');
+			codes.push('>');
 		}
 	}
 	function addEndTag(node: TagNode, next: Node | undefined, parent: Node | undefined) {
@@ -166,31 +166,31 @@ export function baseParse(pugCode: string) {
 			nextStart = pugCode.length;
 		}
 		if (nextStart !== undefined) {
-			codeGen.push([
+			codes.push([
 				'',
 				undefined,
 				nextStart,
 			]);
 		}
-		codeGen.push(`</${node.name}>`);
+		codes.push(`</${node.name}>`);
 	}
 	function addClassesOrStyles(attrs: TagNode['attrs'], attrName: string) {
 		if (!attrs.length) return;
-		codeGen.push(' ');
-		codeGen.push(attrName);
-		codeGen.push('=');
-		codeGen.push('"');
+		codes.push(' ');
+		codes.push(attrName);
+		codes.push('=');
+		codes.push('"');
 		for (const attr of attrs) {
 			if (typeof attr.val !== 'boolean') {
-				codeGen.push(' ');
-				codeGen.push([
+				codes.push(' ');
+				codes.push([
 					attr.val.slice(1, -1), // remove "
 					undefined,
 					getDocOffset(attr.line, attr.column + 1),
 				]);
 			}
 		}
-		codeGen.push('"');
+		codes.push('"');
 	}
 	function collectEmptyLineEnds(tokens: pugLex.Token[]) {
 
