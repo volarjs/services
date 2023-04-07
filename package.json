@@ -10,8 +10,8 @@
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
 		"@types/node": "latest",
-		"@volar/source-map": "1.4.0-alpha.6",
-		"@volar/language-service": "1.4.0-alpha.6",
+		"@volar/source-map": "1.4.0-alpha.7",
+		"@volar/language-service": "1.4.0-alpha.7",
 		"typescript": "latest"
 	}
 }
