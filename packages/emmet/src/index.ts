@@ -1,6 +1,6 @@
 import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
-import * as html from 'vscode-html-languageservice';
+import { getHtmlDocument } from '@volar-plugins/html';
 
 export default (): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
 
@@ -11,9 +11,6 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 	if (!context) {
 		return triggerCharacters;
 	}
-
-	const htmlLs = html.getLanguageService();
-	const htmlDocuments = new WeakMap<html.TextDocument, [number, html.HTMLDocument]>();
 
 	return {
 
@@ -81,21 +78,5 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 			excludeLanguages: emmetConfig['excludeLanguages'],
 			showSuggestionsAsSnippets: emmetConfig['showSuggestionsAsSnippets']
 		};
-	}
-
-	function getHtmlDocument(document: html.TextDocument) {
-
-		const cache = htmlDocuments.get(document);
-		if (cache) {
-			const [cacheVersion, cacheDoc] = cache;
-			if (cacheVersion === document.version) {
-				return cacheDoc;
-			}
-		}
-
-		const doc = htmlLs.parseHTMLDocument(document);
-		htmlDocuments.set(document, [document.version, doc]);
-
-		return doc;
 	}
 };

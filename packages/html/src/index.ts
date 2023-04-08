@@ -4,6 +4,25 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
+const parserLs = html.getLanguageService();
+const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
+
+export function getHtmlDocument(document: TextDocument) {
+
+	const cache = htmlDocuments.get(document);
+	if (cache) {
+		const [cacheVersion, cacheDoc] = cache;
+		if (cacheVersion === document.version) {
+			return cacheDoc;
+		}
+	}
+
+	const doc = parserLs.parseHTMLDocument(document);
+	htmlDocuments.set(document, [document.version, doc]);
+
+	return doc;
+}
+
 export interface PluginInstance extends LanguageServicePluginInstance {
 	getHtmlLs: () => html.LanguageService;
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
@@ -27,7 +46,6 @@ export default (options: {
 	let extraData: html.IHTMLDataProvider[] = [];
 
 	const htmlLs = html.getLanguageService({ fileSystemProvider: context.fileSystemProvider });
-	const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 
 	context.configurationHost?.onDidChangeConfiguration(() => {
 		shouldUpdateCustomData = true;
@@ -301,6 +319,9 @@ export default (options: {
 
 	async function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
+		if (document.languageId !== (options.validLang ?? 'html'))
+			return;
+
 		const htmlDocument = getHtmlDocument(document);
 		if (!htmlDocument)
 			return;
@@ -308,25 +329,6 @@ export default (options: {
 		await initCustomData();
 
 		return callback(htmlDocument);
-	}
-
-	function getHtmlDocument(document: TextDocument) {
-
-		if (document.languageId !== (options.validLang ?? 'html'))
-			return;
-
-		const cache = htmlDocuments.get(document);
-		if (cache) {
-			const [cacheVersion, cacheDoc] = cache;
-			if (cacheVersion === document.version) {
-				return cacheDoc;
-			}
-		}
-
-		const doc = htmlLs.parseHTMLDocument(document);
-		htmlDocuments.set(document, [document.version, doc]);
-
-		return doc;
 	}
 };
 
