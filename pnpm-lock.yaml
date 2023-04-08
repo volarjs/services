@@ -35,7 +35,7 @@ importers:
   packages/emmet:
     dependencies:
       '@volar-plugins/html':
-        specifier: 2.0.0-alpha.20
+        specifier: 2.0.0-alpha.21
         version: link:../html
       '@vscode/emmet-helper':
         specifier: ^2.8.6
@@ -86,7 +86,7 @@ importers:
   packages/pug:
     dependencies:
       '@volar-plugins/html':
-        specifier: 2.0.0-alpha.20
+        specifier: 2.0.0-alpha.21
         version: link:../html
       muggle-string:
         specifier: ^0.2.2
