@@ -133,7 +133,6 @@ export default (options: {
 				htmlDocument.roots.forEach(node => {
 					provideFileSymbolsInternal(document, node, symbols);
 				});
-				// console.log(symbols);
 				return symbols;
 			});
 		},
