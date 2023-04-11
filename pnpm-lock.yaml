@@ -7,6 +7,9 @@ importers:
       '@lerna-lite/cli':
         specifier: latest
         version: 1.17.0
+      '@lerna-lite/publish':
+        specifier: latest
+        version: 1.17.0
       '@types/node':
         specifier: latest
         version: 18.15.11
