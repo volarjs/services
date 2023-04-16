@@ -116,7 +116,7 @@ export default (options: {
 			});
 		},
 
-		provideLinks(document) {
+		provideDocumentLinks(document) {
 			return worker(document, () => {
 
 				if (!context.documentContext)

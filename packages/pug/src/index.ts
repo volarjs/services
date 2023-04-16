@@ -81,7 +81,7 @@ export default () => (context: LanguageServicePluginContext | undefined): Plugin
 			});
 		},
 
-		provideLinks(document) {
+		provideDocumentLinks(document) {
 			return worker(document, (pugDocument) => {
 				if (context.documentContext) {
 					return pugLs.findDocumentLinks(pugDocument, context.documentContext);

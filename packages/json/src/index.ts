@@ -69,7 +69,7 @@ export default (settings?: json.LanguageSettings): LanguageServicePlugin => (con
 			});
 		},
 
-		provideLinks(document) {
+		provideDocumentLinks(document) {
 			return worker(document, async (jsonDocument) => {
 				return await jsonLs.findLinks(document, jsonDocument);
 			});

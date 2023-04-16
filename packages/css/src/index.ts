@@ -116,7 +116,7 @@ export default (): LanguageServicePlugin => (context): LanguageServicePluginInst
 			});
 		},
 
-		async provideLinks(document) {
+		async provideDocumentLinks(document) {
 			return await worker(document, (stylesheet, cssLs) => {
 
 				if (!context.documentContext)
