@@ -31,6 +31,7 @@ import * as semanticTokens from './services/semanticTokens';
 import * as signatureHelp from './services/signatureHelp';
 import * as typeDefinitions from './services/typeDefinition';
 import * as workspaceSymbols from './services/workspaceSymbol';
+import * as tsconfig from './services/tsconfig';
 import { SharedContext } from './types';
 
 export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePluginInstance => {
@@ -94,6 +95,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 	const doValidation = diagnostics.register(semanticCtx);
 	const getDocumentSemanticTokens = semanticTokens.register(semanticCtx);
 	const callHierarchy = _callHierarchy.register(semanticCtx);
+	const tsconfigRequests = tsconfig.register(semanticCtx);
 
 	let syntacticHostCtx = {
 		fileName: '',
@@ -417,6 +419,18 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 					return lines;
 				}
 			}
+		},
+
+		/**
+		 * for tsconfig: https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/src/languageFeatures/tsconfig.ts
+		 */
+
+		provideDocumentLinks(document, token) {
+			return tsconfigRequests.provideDocumentLinks(document, token);
+		},
+
+		resolveDocumentLink(link, token) {
+			return tsconfigRequests.resolve(link, token);
 		},
 	};
 
