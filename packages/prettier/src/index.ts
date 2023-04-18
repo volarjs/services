@@ -1,5 +1,5 @@
 import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
-import { format, resolveConfigFile, resolveConfig, Options } from 'prettier';
+import { format, resolveConfigFile, resolveConfig, type Options, type ResolveConfigOptions, getFileInfo } from 'prettier';
 
 export default (
 	options: {
@@ -24,11 +24,20 @@ export default (
 		 * @see https://github.com/volarjs/plugins/issues/5
 		 */
 		ignoreIdeOptions?: boolean,
+		/**
+		 * Additional options to pass to Prettier
+		 * This is useful, for instance, to add specific plugins you need.
+		 */
+		additionalOptions?: (resolvedConfig: Options) => Options
+		/**
+		 * Options to use when resolving the Prettier config
+		 */
+		resolveConfigOptions?: ResolveConfigOptions
 	} = {},
-	getPrettierConfig = () => {
+	getPrettierConfig = (config?:ResolveConfigOptions) => {
 		const configFile = resolveConfigFile.sync();
 		if (configFile) {
-			return resolveConfig.sync(configFile) ?? {};
+			return resolveConfig.sync(configFile, config) ?? {};
 		}
 		return {};
 	},
@@ -39,14 +48,28 @@ export default (
 	}
 
 	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
-	const prettierOptions = getPrettierConfig();
+	const filePrettierOptions = getPrettierConfig(options.resolveConfigOptions);
 
 	return {
-		provideDocumentFormattingEdits(document, _, formatOptions) {
-
+		async provideDocumentFormattingEdits(document, _, formatOptions) {
 			if (!languages.includes(document.languageId)) {
 				return;
 			}
+
+			const fileInfo = await getFileInfo(context.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
+
+			if (fileInfo.ignored) {
+				return;
+			}
+
+			const editorPrettierOptions = await context.configurationHost?.getConfiguration('prettier', document.uri)
+			const ideFormattingOptions =
+			formatOptions !== undefined && !options.ignoreIdeOptions // We need to check for options existing here because some editors might not have it
+				? {
+						tabWidth: formatOptions.tabSize,
+						useTabs: !formatOptions.insertSpaces,
+				  }
+				: {};
 
 			const fullText = document.getText();
 			let oldText = fullText;
@@ -58,8 +81,14 @@ export default (
 					.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, '$1 $2');
 			}
 
+			// Return a config with the following cascade:
+			// - Prettier config file should always win if it exists, if it doesn't:
+			// - Prettier config from the VS Code extension is used, if it doesn't exist:
+			// - Use the editor's basic configuration settings
+			const prettierOptions = returnObjectIfHasKeys(filePrettierOptions) || returnObjectIfHasKeys(editorPrettierOptions) || ideFormattingOptions;
+
 			const currentPrettierConfig: Options = {
-				...prettierOptions,
+				...options.additionalOptions ? options.additionalOptions(prettierOptions) : prettierOptions,
 				filepath: context.uriToFileName(document.uri),
 			};
 
@@ -78,3 +107,9 @@ export default (
 		},
 	};
 };
+
+function returnObjectIfHasKeys<T>(obj: T | undefined): T | undefined {
+	if (Object.keys(obj || {}).length > 0) {
+		return obj;
+	}
+}
