@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/emmet",
-	"version": "2.0.0-alpha.22",
+	"version": "2.0.0-alpha.23",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -13,7 +13,7 @@
 		"directory": "packages/emmet"
 	},
 	"dependencies": {
-		"@volar-plugins/html": "2.0.0-alpha.22",
+		"@volar-plugins/html": "2.0.0-alpha.23",
 		"@vscode/emmet-helper": "^2.8.6"
 	},
 	"peerDependencies": {
