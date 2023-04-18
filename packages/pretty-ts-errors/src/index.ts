@@ -1,5 +1,5 @@
 import type { LanguageServicePlugin } from '@volar/language-service';
-import { formatDiagnostic } from 'pretty-ts-errors-lsp/out/format/formatDiagnostic';
+import { formatDiagnostic } from 'pretty-ts-errors-lsp';
 
 export default (format: (text: string) => string): LanguageServicePlugin => (contextOrNull): ReturnType<LanguageServicePlugin> => {
 
@@ -7,7 +7,11 @@ export default (format: (text: string) => string): LanguageServicePlugin => (con
 
 	return {
 		provideDiagnosticMarkupContent(diagnostic) {
-			return formatDiagnostic(diagnostic, format);
+			console.log(formatDiagnostic(diagnostic, format));
+			return {
+				kind: 'markdown',
+				value: formatDiagnostic(diagnostic, format),
+			};
 		},
 	};
 };
