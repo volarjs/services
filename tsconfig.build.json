@@ -21,6 +21,9 @@
 			"path": "./packages/prettier/tsconfig.build.json"
 		},
 		{
+			"path": "./packages/pretty-ts-errors/tsconfig.build.json"
+		},
+		{
 			"path": "./packages/prettyhtml/tsconfig.build.json"
 		},
 		{

@@ -1,0 +1,26 @@
+{
+	"name": "@volar-plugins/pretty-ts-errors",
+	"version": "2.0.0-alpha.22",
+	"main": "out/index.js",
+	"license": "MIT",
+	"files": [
+		"out/**/*.js",
+		"out/**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/plugins.git",
+		"directory": "packages/pretty-ts-errors"
+	},
+	"dependencies": {
+		"pretty-ts-errors-lsp": "^0.0.2"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	}
+}

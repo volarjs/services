@@ -7,6 +7,7 @@
 | eslint                      	|           	|             	| ✅          	|            	|
 | html                        	| ✅         	| ✅           	|            	| ✅          	|
 | json                        	| ✅         	| ✅           	| ✅          	| ✅          	|
+| pretty-ts-errors              |           	| ✅           	|            	|            	|
 | prettier                    	|           	|             	|            	| ✅          	|
 | prettyhtml                  	|           	|             	|            	| ✅          	|
 | pug                         	| ✅         	| ✅           	| ✅          	|            	|
