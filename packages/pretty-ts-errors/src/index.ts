@@ -7,7 +7,6 @@ export default (format: (text: string) => string): LanguageServicePlugin => (con
 
 	return {
 		provideDiagnosticMarkupContent(diagnostic) {
-			console.log(formatDiagnostic(diagnostic, format));
 			return {
 				kind: 'markdown',
 				value: formatDiagnostic(diagnostic, format),
