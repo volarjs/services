@@ -14,11 +14,11 @@ importers:
         specifier: latest
         version: 18.15.11
       '@volar/language-service':
-        specifier: 1.4.0-alpha.10
-        version: 1.4.0-alpha.10
+        specifier: 1.4.0-alpha.12
+        version: 1.4.0-alpha.12
       '@volar/source-map':
-        specifier: 1.4.0-alpha.10
-        version: 1.4.0-alpha.10
+        specifier: 1.4.0-alpha.12
+        version: 1.4.0-alpha.12
       typescript:
         specifier: latest
         version: 5.0.4
@@ -79,6 +79,12 @@ importers:
       '@types/prettier':
         specifier: ^2.7.2
         version: 2.7.2
+
+  packages/pretty-ts-errors:
+    dependencies:
+      pretty-ts-errors-lsp:
+        specifier: ^0.0.2
+        version: 0.0.2
 
   packages/prettyhtml:
     dependencies:
@@ -903,17 +909,17 @@ packages:
       '@types/vfile-message': 2.0.0
     dev: false
 
-  /@volar/language-core@1.4.0-alpha.10:
-    resolution: {integrity: sha512-7swgKqR32nRR5JFZAHkHX07ojYZsTxxClp9ewACIXMjMSnX1F/8/BQsNcNEzYraa3aju6xkK+dvmltt6CNxnDw==}
+  /@volar/language-core@1.4.0-alpha.12:
+    resolution: {integrity: sha512-k4jLYyrIFBGjfwV2SYwEpBeB2X4V5mS5gcw5VdWu+oM5STxUkiDiwog9NXezX0r49N2B2KfooRBh1xFBQfACEQ==}
     dependencies:
-      '@volar/source-map': 1.4.0-alpha.10
+      '@volar/source-map': 1.4.0-alpha.12
     dev: true
 
-  /@volar/language-service@1.4.0-alpha.10:
-    resolution: {integrity: sha512-fhqbalC7kJ8SdG72H7npDZsQPP5WKQhjRfO1NK7rky5Vahxw5ybdyF59V+gDGOp9XV85+WTpWdlgBxLY3rgY1w==}
+  /@volar/language-service@1.4.0-alpha.12:
+    resolution: {integrity: sha512-1/2nH1CksrZZfkDxbyboLnp6Te3QlcV3xhyS5kM4aKCx/jR4fN1B7aKuvD9HneKnO5uCoY4mi22NaiA653SbRw==}
     dependencies:
-      '@volar/language-core': 1.4.0-alpha.10
-      '@volar/source-map': 1.4.0-alpha.10
+      '@volar/language-core': 1.4.0-alpha.12
+      '@volar/source-map': 1.4.0-alpha.12
       typescript-auto-import-cache: 0.2.1
       vscode-html-languageservice: 5.0.4
       vscode-json-languageservice: 5.2.0
@@ -922,8 +928,8 @@ packages:
       vscode-uri: 3.0.7
     dev: true
 
-  /@volar/source-map@1.4.0-alpha.10:
-    resolution: {integrity: sha512-Jjl6de2kBi/AA7SjcLvu89Uh7zqKHqoxiT6IJVjdrhGQ7XzIPgq3U2i955KUP7d8cJ5A3AZ8Jot2Rbjrtn+oaA==}
+  /@volar/source-map@1.4.0-alpha.12:
+    resolution: {integrity: sha512-DnHA/NRloWEmgTJE5TY9EwS/voqnhLihOsXzkvrH3gZfLl0//EVJBMDxdk7u+pJkzjE1RN0+DQaj2AbyCrxx6Q==}
     dependencies:
       muggle-string: 0.2.2
     dev: true
@@ -3189,6 +3195,11 @@ packages:
     engines: {node: 14 || >=16.14}
     dev: true
 
+  /lz-string@1.5.0:
+    resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
+    hasBin: true
+    dev: false
+
   /make-dir@1.3.0:
     resolution: {integrity: sha512-2w31R7SJtieJJnQtGc7RVL2StM2vGYVfqUOvUDxH6bC6aJTxPxTF0GnIgCyu7tjockiUWAYQRbxa7vKn34s5sQ==}
     engines: {node: '>=4'}
@@ -4060,6 +4071,15 @@ packages:
     hasBin: true
     dev: false
 
+  /pretty-ts-errors-lsp@0.0.2:
+    resolution: {integrity: sha512-YG0ytcLgGAVvOKjNCltboymSk8CFdLzxnWKYfv+uFywP2o58DYN3YQsUwx/3HA4KnN4ySiKKq32gkpQZHzMlnQ==}
+    dependencies:
+      lz-string: 1.5.0
+      ts-dedent: 2.2.0
+      vscode-languageserver-types: 3.17.3
+      vscode-uri: 3.0.7
+    dev: false
+
   /proc-log@3.0.0:
     resolution: {integrity: sha512-++Vn7NS4Xf9NacaU9Xq3URUuqZETPsf8L4j5/ckhaRYsfPeRyzGw+iDjFhV/Jr3uNmTvvddEJFWh5R1gRgUH8A==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -4885,6 +4905,11 @@ packages:
 
   /trough@1.0.5:
     resolution: {integrity: sha512-rvuRbTarPXmMb79SmzEp8aqXNKcK+y0XaB298IXueQ8I2PsrATcPBCSPyK/dDNa2iWOhKlfNnOjdAOTBU/nkFA==}
+    dev: false
+
+  /ts-dedent@2.2.0:
+    resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
+    engines: {node: '>=6.10'}
     dev: false
 
   /tslib@1.14.1:
