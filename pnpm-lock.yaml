@@ -12,13 +12,13 @@ importers:
         version: 2.0.0
       '@types/node':
         specifier: latest
-        version: 18.15.11
+        version: 18.15.12
       '@volar/language-service':
-        specifier: 1.4.0-alpha.12
-        version: 1.4.0-alpha.12
+        specifier: 1.4.0
+        version: 1.4.0
       '@volar/source-map':
-        specifier: 1.4.0-alpha.12
-        version: 1.4.0-alpha.12
+        specifier: 1.4.0
+        version: 1.4.0
       typescript:
         specifier: latest
         version: 5.0.4
@@ -83,8 +83,8 @@ importers:
   packages/pretty-ts-errors:
     dependencies:
       pretty-ts-errors-lsp:
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.0.3
+        version: 0.0.3
 
   packages/prettyhtml:
     dependencies:
@@ -862,15 +862,15 @@ packages:
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.15.12
     dev: false
 
   /@types/minimist@1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
 
-  /@types/node@18.15.11:
-    resolution: {integrity: sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==}
+  /@types/node@18.15.12:
+    resolution: {integrity: sha512-Wha1UwsB3CYdqUm2PPzh/1gujGCNtWVUYF0mB00fJFoR4gTyWTDPjSm+zBF787Ahw8vSGgBja90MkgFwvB86Dg==}
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -883,7 +883,7 @@ packages:
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.15.12
     dev: false
 
   /@types/semver@7.3.13:
@@ -904,22 +904,22 @@ packages:
   /@types/vfile@3.0.2:
     resolution: {integrity: sha512-b3nLFGaGkJ9rzOcuXRfHkZMdjsawuDD0ENL9fzTophtBg8FJHSGbH7daXkEpcwy3v7Xol3pAvsmlYyFhR4pqJw==}
     dependencies:
-      '@types/node': 18.15.11
+      '@types/node': 18.15.12
       '@types/unist': 2.0.6
       '@types/vfile-message': 2.0.0
     dev: false
 
-  /@volar/language-core@1.4.0-alpha.12:
-    resolution: {integrity: sha512-k4jLYyrIFBGjfwV2SYwEpBeB2X4V5mS5gcw5VdWu+oM5STxUkiDiwog9NXezX0r49N2B2KfooRBh1xFBQfACEQ==}
+  /@volar/language-core@1.4.0:
+    resolution: {integrity: sha512-zZg771L/v4MCPwM1KJxvnQ3q3QgbGJtEytivqf+PsxPr0kQ7XtwB1J30dd+YSGN869pXXZ0V6vWdHkDpWC8F3A==}
     dependencies:
-      '@volar/source-map': 1.4.0-alpha.12
+      '@volar/source-map': 1.4.0
     dev: true
 
-  /@volar/language-service@1.4.0-alpha.12:
-    resolution: {integrity: sha512-1/2nH1CksrZZfkDxbyboLnp6Te3QlcV3xhyS5kM4aKCx/jR4fN1B7aKuvD9HneKnO5uCoY4mi22NaiA653SbRw==}
+  /@volar/language-service@1.4.0:
+    resolution: {integrity: sha512-1k8t/64uUQIzriL1u0qvnZ71LKIdDGPfydyUp3YOrQN6zbRXZbi7D6CQ3/uMDbM/zfDf3eCfY85m6+Pq+lKKxQ==}
     dependencies:
-      '@volar/language-core': 1.4.0-alpha.12
-      '@volar/source-map': 1.4.0-alpha.12
+      '@volar/language-core': 1.4.0
+      '@volar/source-map': 1.4.0
       typescript-auto-import-cache: 0.2.1
       vscode-html-languageservice: 5.0.4
       vscode-json-languageservice: 5.2.0
@@ -928,8 +928,8 @@ packages:
       vscode-uri: 3.0.7
     dev: true
 
-  /@volar/source-map@1.4.0-alpha.12:
-    resolution: {integrity: sha512-DnHA/NRloWEmgTJE5TY9EwS/voqnhLihOsXzkvrH3gZfLl0//EVJBMDxdk7u+pJkzjE1RN0+DQaj2AbyCrxx6Q==}
+  /@volar/source-map@1.4.0:
+    resolution: {integrity: sha512-gkV8ol9qtP7aMdgijc8a5Yoxxoo90TT55YCi9bsMbKxEUDsOAnlciFNlijR9Ebe42d67GV3w15/RzjveTRNGBw==}
     dependencies:
       muggle-string: 0.2.2
     dev: true
@@ -4071,8 +4071,9 @@ packages:
     hasBin: true
     dev: false
 
-  /pretty-ts-errors-lsp@0.0.2:
-    resolution: {integrity: sha512-YG0ytcLgGAVvOKjNCltboymSk8CFdLzxnWKYfv+uFywP2o58DYN3YQsUwx/3HA4KnN4ySiKKq32gkpQZHzMlnQ==}
+  /pretty-ts-errors-lsp@0.0.3:
+    resolution: {integrity: sha512-+86YMwlevewG0cVUe0ajbSXL981Y6zfxwpo4KwilUX2UsgmCFSO9LJOq9qxxUoGTIGmUIE/VQ3RN1ynpaN7i5g==}
+    engines: {vscode: ^1.70.0}
     dependencies:
       lz-string: 1.5.0
       ts-dedent: 2.2.0
