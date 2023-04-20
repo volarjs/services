@@ -1,6 +1,6 @@
 {
 	"name": "@volar-plugins/pug",
-	"version": "2.0.0-alpha.23",
+	"version": "2.0.0",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -14,7 +14,7 @@
 		"directory": "packages/pug"
 	},
 	"dependencies": {
-		"@volar-plugins/html": "2.0.0-alpha.23",
+		"@volar-plugins/html": "2.0.0",
 		"muggle-string": "^0.2.2",
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
