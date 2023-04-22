@@ -254,7 +254,12 @@ export function baseParse(pugCode: string) {
 						if (typeof attrToken.val === 'string' && attrText.indexOf('=') >= 0) {
 							let valText = attrToken.val;
 							if (valText.startsWith('`') && valText.endsWith('`')) {
-								valText = `"${valText.slice(1, -1)}"`;
+								if (valText.indexOf('"') === -1) {
+									valText = `"${valText.slice(1, -1)}"`;
+								}
+								else {
+									valText = `'${valText.slice(1, -1)}'`;
+								}
 							}
 							valText = valText.replace(/ \\\n/g, '//\n');
 							text += attrText.substring(0, attrText.lastIndexOf(attrToken.val)) + valText;
