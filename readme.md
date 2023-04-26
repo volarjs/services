@@ -1,4 +1,4 @@
-# volar-services-*
+# Services
 
 |                             	| Rules API 	| IntelliSense 	| Diagnostic 	| Formatting 	|
 |-----------------------------	|-----------	|-------------	|------------	|------------	|
