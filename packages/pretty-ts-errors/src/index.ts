@@ -1,7 +1,7 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import { formatDiagnostic } from 'pretty-ts-errors-lsp';
 
-export default (format: (text: string) => string): LanguageServicePlugin => (contextOrNull): ReturnType<LanguageServicePlugin> => {
+export default (format: (text: string) => string): Service => (contextOrNull): ReturnType<Service> => {
 
 	if (!contextOrNull) return {};
 

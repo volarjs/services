@@ -14,8 +14,8 @@ export function register(ctx: SharedContext) {
 			getUserPreferences(ctx, document),
 		]) : [{}, {}];
 
-		const fileToRename = ctx.uriToFileName(oldUri);
-		const newFilePath = ctx.uriToFileName(newUri);
+		const fileToRename = ctx.env.uriToFileName(oldUri);
+		const newFilePath = ctx.env.uriToFileName(newUri);
 		const response = safeCall(() => ctx.typescript.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences));
 		if (!response?.length) return;
 

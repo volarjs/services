@@ -14,7 +14,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const renameInfo = safeCall(() => ctx.typescript.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
 		if (!renameInfo?.canRename) return;
@@ -57,8 +57,8 @@ export function register(ctx: SharedContext) {
 		}
 
 		edits.documentChanges.push(vscode.RenameFile.create(
-			ctx.fileNameToUri(fileToRename),
-			ctx.fileNameToUri(newFilePath),
+			ctx.env.fileNameToUri(fileToRename),
+			ctx.env.fileNameToUri(newFilePath),
 		));
 
 		return edits;
@@ -77,7 +77,7 @@ export function fileTextChangesToWorkspaceEdit(
 			workspaceEdit.documentChanges = [];
 		}
 
-		const uri = ctx.fileNameToUri(change.fileName);
+		const uri = ctx.env.fileNameToUri(change.fileName);
 		let doc = ctx.getTextDocument(uri);
 
 		if (change.isNewFile) {
@@ -123,7 +123,7 @@ function locationsToWorkspaceEdit(
 			workspaceEdit.changes = {};
 		}
 
-		const uri = ctx.fileNameToUri(location.fileName);
+		const uri = ctx.env.fileNameToUri(location.fileName);
 		const doc = ctx.getTextDocument(uri);
 		if (!doc) continue;
 

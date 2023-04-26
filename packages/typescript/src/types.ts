@@ -1,5 +1,6 @@
-import { LanguageServicePluginContext } from "@volar/language-service";
+import { ServiceContext } from "@volar/language-service";
 
-export type SharedContext = LanguageServicePluginContext & {
-	typescript: NonNullable<LanguageServicePluginContext>;
+export type SharedContext = ServiceContext & {
+	typescript: NonNullable<ServiceContext['typescript']>;
+	ts: typeof import('typescript/lib/tsserverlibrary');
 };

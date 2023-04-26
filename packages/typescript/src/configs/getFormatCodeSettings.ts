@@ -10,7 +10,7 @@ export async function getFormatCodeSettings(
 	options?: vscode.FormattingOptions,
 ): Promise<ts.FormatCodeSettings> {
 
-	let config = await ctx.configurationHost?.getConfiguration<any>(getConfigTitle(document) + '.format');
+	let config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document) + '.format');
 
 	config = config ?? {};
 

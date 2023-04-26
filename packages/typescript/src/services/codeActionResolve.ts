@@ -58,7 +58,7 @@ export function resolveRefactorCodeAction(
 	}
 	codeAction.edit = fileTextChangesToWorkspaceEdit(editInfo.edits, ctx);
 	if (editInfo.renameLocation !== undefined && editInfo.renameFilename !== undefined) {
-		codeAction.command = ctx.commands.createRenameCommand(
+		codeAction.command = ctx.commands.rename.create(
 			document.uri,
 			document.positionAt(editInfo.renameLocation),
 		);

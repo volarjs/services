@@ -10,7 +10,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const renameInfo = safeCall(() => ctx.typescript.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
 		if (!renameInfo) return;

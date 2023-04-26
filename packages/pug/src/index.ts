@@ -1,18 +1,18 @@
 import useHtmlPlugin from '@volar-plugins/html';
-import type { LanguageServicePluginContext, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service, ServiceContext } from '@volar/language-service';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 
-export interface PluginInstance extends LanguageServicePluginInstance {
+export interface PluginInstance extends ReturnType<Service> {
 	getHtmlLs: () => html.LanguageService;
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
 	getPugLs: () => pug.LanguageService;
 	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined;
 }
 
-export default () => (context: LanguageServicePluginContext | undefined): PluginInstance => {
+export default () => (context: ServiceContext | undefined): PluginInstance => {
 
 	if (!context) {
 		return {} as any;
@@ -42,11 +42,11 @@ export default () => (context: LanguageServicePluginContext | undefined): Plugin
 
 		provideCompletionItems(document, position, _) {
 			return worker(document, (pugDocument) => {
-				return pugLs.doComplete(pugDocument, position, context.documentContext, /** TODO: CompletionConfiguration */);
+				return pugLs.doComplete(pugDocument, position, context.env.documentContext, /** TODO: CompletionConfiguration */);
 			});
 		},
 
-		provideSyntacticDiagnostics(document) {
+		provideDiagnostics(document) {
 			return worker(document, (pugDocument) => {
 
 				if (pugDocument.error) {
@@ -69,7 +69,7 @@ export default () => (context: LanguageServicePluginContext | undefined): Plugin
 		provideHover(document, position) {
 			return worker(document, async (pugDocument) => {
 
-				const hoverSettings = await context.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
+				const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
 
 				return pugLs.doHover(pugDocument, position, hoverSettings);
 			});
@@ -83,8 +83,8 @@ export default () => (context: LanguageServicePluginContext | undefined): Plugin
 
 		provideDocumentLinks(document) {
 			return worker(document, (pugDocument) => {
-				if (context.documentContext) {
-					return pugLs.findDocumentLinks(pugDocument, context.documentContext);
+				if (context.env.documentContext) {
+					return pugLs.findDocumentLinks(pugDocument, context.env.documentContext);
 				}
 			});
 		},
@@ -121,11 +121,11 @@ export default () => (context: LanguageServicePluginContext | undefined): Plugin
 
 				if (insertContext.lastChange.rangeLength === 0 && lastCharacter === '=') {
 
-					const enabled = (await context.configurationHost?.getConfiguration<boolean>('html.autoCreateQuotes')) ?? true;
+					const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
 
 					if (enabled) {
 
-						const text = pugLs.doQuoteComplete(pugDocument, position, await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion'));
+						const text = pugLs.doQuoteComplete(pugDocument, position, await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion'));
 
 						if (text) {
 							return text;

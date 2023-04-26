@@ -1,6 +1,6 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 
-export default (): LanguageServicePlugin => (): LanguageServicePluginInstance => ({
+export default (): Service => (): ReturnType<Service> => ({
 
 	provideDocumentFormattingEdits(document, range, options) {
 

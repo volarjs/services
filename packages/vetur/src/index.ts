@@ -1,4 +1,4 @@
-import { LanguageServicePlugin, LanguageServicePluginInstance, SemanticToken } from '@volar/language-service';
+import { Service, SemanticToken } from '@volar/language-service';
 import * as vls from 'vls';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
@@ -6,9 +6,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { getGlobalSnippetDir } from './userSnippetDir';
 
-export default (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance => {
+export default (): Service => (ctx): ReturnType<Service> => {
 
-	const triggerCharacters: LanguageServicePluginInstance = {
+	const triggerCharacters: ReturnType<Service> = {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
 	};
@@ -140,7 +140,7 @@ export default (): LanguageServicePlugin => (ctx): LanguageServicePluginInstance
 
 		if (!packageJsonPath) {
 
-			let lastDirname = ctx!.uriToFileName(document.uri);
+			let lastDirname = ctx!.env.uriToFileName(document.uri);
 
 			while (true) {
 

@@ -150,9 +150,9 @@ export function register(ctx: SharedContext) {
 		const moduleBasePath = baseCandidate.split('/').slice(0, sepIndex).join('/');
 		while (true) {
 			const moduleAbsoluteUrl = Utils.joinPath(currentUri, 'node_modules', moduleBasePath);
-			let moduleStat: Awaited<ReturnType<NonNullable<typeof ctx.fileSystemProvider>['stat']>> | undefined;
+			let moduleStat: Awaited<ReturnType<NonNullable<typeof ctx.env.fileSystemProvider>['stat']>> | undefined;
 			try {
-				moduleStat = await ctx.fileSystemProvider?.stat(moduleAbsoluteUrl.toString());
+				moduleStat = await ctx.env.fileSystemProvider?.stat(moduleAbsoluteUrl.toString());
 			} catch (err) {
 				// noop
 			}
@@ -212,7 +212,7 @@ export function register(ctx: SharedContext) {
 
 	async function exists(resource: URI): Promise<boolean> {
 		try {
-			const stat = await ctx.fileSystemProvider?.stat(resource.toString());
+			const stat = await ctx.env.fileSystemProvider?.stat(resource.toString());
 			// stat.type is an enum flag
 			return !!(stat?.type === 1);
 		} catch {

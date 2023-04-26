@@ -12,7 +12,7 @@ import type { Data } from './basic';
 import { handleKindModifiers } from './basic';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return async (item: vscode.CompletionItem, newPosition?: vscode.Position): Promise<vscode.CompletionItem> => {
 
@@ -90,7 +90,7 @@ export function register(ctx: SharedContext) {
 
 		if (document) {
 
-			const useCodeSnippetsOnMethodSuggest = await ctx.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.suggest.completeFunctionCalls') ?? false;
+			const useCodeSnippetsOnMethodSuggest = await ctx.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.completeFunctionCalls') ?? false;
 			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === vscode.CompletionItemKind.Function || item.kind === vscode.CompletionItemKind.Method);
 
 			if (useCodeSnippet) {
@@ -127,7 +127,7 @@ export function register(ctx: SharedContext) {
 		return item;
 
 		function toResource(path: string) {
-			return ctx.fileNameToUri(path);
+			return ctx.env.fileNameToUri(path);
 		}
 	};
 }

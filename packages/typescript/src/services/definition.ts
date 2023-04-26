@@ -9,7 +9,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const info = safeCall(() => ctx.typescript.languageService.getDefinitionAndBoundSpan(fileName, offset));
 		if (!info) return [];

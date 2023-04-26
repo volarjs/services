@@ -4,14 +4,14 @@ import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return (uri: string, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
 
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
-		const file = ctx.uriToFileName(uri);
+		const file = ctx.env.uriToFileName(uri);
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 

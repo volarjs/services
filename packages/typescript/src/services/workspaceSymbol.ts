@@ -35,7 +35,7 @@ export function register(ctx: SharedContext) {
 
 		function toWorkspaceSymbol(item: ts.NavigateToItem) {
 			const label = getLabel(item);
-			const uri = ctx.fileNameToUri(item.fileName);
+			const uri = ctx.env.fileNameToUri(item.fileName);
 			const document = ctx.getTextDocument(uri);
 			if (document) {
 				const range = vscode.Range.create(document.positionAt(item.textSpan.start), document.positionAt(item.textSpan.start + item.textSpan.length));

@@ -4,7 +4,7 @@ import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return async (uri: string, range: vscode.Range) => {
 
@@ -12,7 +12,7 @@ export function register(ctx: SharedContext) {
 		if (!document) return;
 
 		const preferences = await getUserPreferences(ctx, document);
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		const inlayHints = safeCall(() =>

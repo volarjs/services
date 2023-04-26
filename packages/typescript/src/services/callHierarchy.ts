@@ -14,7 +14,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const calls = safeCall(() => ctx.typescript.languageService.prepareCallHierarchy(fileName, offset));
 		if (!calls) return [];
@@ -28,7 +28,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(item.uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(item.uri);
+		const fileName = ctx.env.uriToFileName(item.uri);
 		const offset = document.offsetAt(item.selectionRange.start);
 		const calls = safeCall(() => ctx.typescript.languageService.provideCallHierarchyIncomingCalls(fileName, offset));
 		if (!calls) return [];
@@ -42,7 +42,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(item.uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(item.uri);
+		const fileName = ctx.env.uriToFileName(item.uri);
 		const offset = document.offsetAt(item.selectionRange.start);
 		const calls = safeCall(() => ctx.typescript.languageService.provideCallHierarchyOutgoingCalls(fileName, offset));
 		if (!calls) return [];
@@ -64,7 +64,7 @@ export function register(ctx: SharedContext) {
 
 	function fromProtocolCallHierarchyItem(item: ts.CallHierarchyItem): vscode.CallHierarchyItem {
 		const rootPath = ctx.typescript.languageService.getProgram()?.getCompilerOptions().rootDir ?? '';
-		const document = ctx.getTextDocument(ctx.fileNameToUri(item.file))!; // TODO
+		const document = ctx.getTextDocument(ctx.env.fileNameToUri(item.file))!; // TODO
 		const useFileName = isSourceFileItem(item);
 		const name = useFileName ? path.basename(item.file) : item.name;
 		const detail = useFileName ? path.relative(rootPath, path.dirname(item.file)) : item.containerName ?? '';
@@ -72,7 +72,7 @@ export function register(ctx: SharedContext) {
 			kind: typeConverters.SymbolKind.fromProtocolScriptElementKind(item.kind),
 			name,
 			detail,
-			uri: ctx.fileNameToUri(item.file),
+			uri: ctx.env.fileNameToUri(item.file),
 			range: {
 				start: document.positionAt(item.span.start),
 				end: document.positionAt(item.span.start + item.span.length),
@@ -91,7 +91,7 @@ export function register(ctx: SharedContext) {
 	}
 
 	function fromProtocolCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingCall): vscode.CallHierarchyIncomingCall {
-		const document = ctx.getTextDocument(ctx.fileNameToUri(item.from.file))!;
+		const document = ctx.getTextDocument(ctx.env.fileNameToUri(item.from.file))!;
 		return {
 			from: fromProtocolCallHierarchyItem(item.from),
 			fromRanges: item.fromSpans.map(fromSpan => ({

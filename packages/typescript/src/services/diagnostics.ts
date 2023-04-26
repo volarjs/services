@@ -5,7 +5,7 @@ import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return (
 		uri: string,
@@ -20,7 +20,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const program = ctx.typescript.languageService.getProgram();
 		const sourceFile = program?.getSourceFile(fileName);
 		if (!program || !sourceFile) return [];
@@ -86,7 +86,7 @@ export function register(ctx: SharedContext) {
 
 			let document: TextDocument | undefined;
 			if (diag.file) {
-				document = ctx.getTextDocument(ctx.fileNameToUri(diag.file.fileName));
+				document = ctx.getTextDocument(ctx.env.fileNameToUri(diag.file.fileName));
 			}
 			if (!document) return;
 

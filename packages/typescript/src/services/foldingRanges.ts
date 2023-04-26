@@ -5,14 +5,14 @@ import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return (uri: string) => {
 
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const outliningSpans = safeCall(() => ctx.typescript.languageService.getOutliningSpans(fileName));
 		if (!outliningSpans) return [];
 

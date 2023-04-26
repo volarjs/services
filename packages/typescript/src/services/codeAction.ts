@@ -34,10 +34,10 @@ export type Data = FixAllData | RefactorData | OrganizeImportsData;
 
 export function register(ctx: SharedContext) {
 
-	let resolveCommandSupport = ctx.capabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('command');
-	let resolveEditSupport = ctx.capabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('edit');
+	let resolveCommandSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('command');
+	let resolveEditSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('edit');
 
-	if (!ctx.capabilities) {
+	if (!ctx.env.clientCapabilities) {
 		resolveCommandSupport = true;
 		resolveEditSupport = true;
 	}
@@ -52,7 +52,7 @@ export function register(ctx: SharedContext) {
 			getUserPreferences(ctx, document),
 		]);
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		let result: vscode.CodeAction[] = [];

@@ -10,7 +10,7 @@ export function register(ctx: SharedContext) {
 			const document = ctx.getTextDocument(uri);
 			if (!document) return [];
 
-			const fileName = ctx.uriToFileName(document.uri);
+			const fileName = ctx.env.uriToFileName(document.uri);
 			const tsOptions = await getFormatCodeSettings(ctx, document, options);
 			if (typeof (tsOptions.indentSize) === "boolean" || typeof (tsOptions.indentSize) === "string") {
 				tsOptions.indentSize = undefined;
@@ -40,7 +40,7 @@ export function register(ctx: SharedContext) {
 			const document = ctx.getTextDocument(uri);
 			if (!document) return [];
 
-			const fileName = ctx.uriToFileName(document.uri);
+			const fileName = ctx.env.uriToFileName(document.uri);
 			const tsOptions = await getFormatCodeSettings(ctx, document, options);
 			const scriptEdits = safeCall(() => ctx.typescript.languageService.getFormattingEditsAfterKeystroke(fileName, document.offsetAt(position), key, tsOptions));
 			if (!scriptEdits) return [];

@@ -22,7 +22,7 @@ export interface Data {
 
 export function register(ctx: SharedContext) {
 
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 	const lt_320 = semver.lt(ts.version, '3.2.0');
 	const gte_300 = semver.gte(ts.version, '3.0.0');
 
@@ -33,7 +33,7 @@ export function register(ctx: SharedContext) {
 			return;
 
 		const preferences = await getUserPreferences(ctx, document);
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const completionContext = safeCall(() => ctx.typescript.languageService.getCompletionsAtPosition(fileName, offset, {
 			...preferences,

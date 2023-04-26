@@ -1,19 +1,18 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-export default (settings?: json.LanguageSettings): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
+export default (settings?: json.LanguageSettings): Service => (context): ReturnType<Service> => {
 
-	const triggerCharacters: LanguageServicePluginInstance = {
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
-		triggerCharacters: ['"', ':'],
-	};
+	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
+	const triggerCharacters = ['"', ':'];
+
 	if (!context) {
-		return triggerCharacters;
+		return { triggerCharacters };
 	}
 	const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
-	const jsonLs = json.getLanguageService({ schemaRequestService: context.schemaRequestService });
+	const jsonLs = json.getLanguageService({ schemaRequestService: context.env.schemaRequestService });
 
 	if (settings) {
 		jsonLs.configure(settings);
@@ -21,7 +20,7 @@ export default (settings?: json.LanguageSettings): LanguageServicePlugin => (con
 
 	return {
 
-		...triggerCharacters,
+		triggerCharacters,
 
 		async resolveRuleContext(context) {
 			await worker(context.document, async (jsonDocument) => {
@@ -49,7 +48,7 @@ export default (settings?: json.LanguageSettings): LanguageServicePlugin => (con
 			});
 		},
 
-		provideSyntacticDiagnostics(document) {
+		provideDiagnostics(document) {
 			return worker(document, async (jsonDocument) => {
 
 				const documentLanguageSettings = undefined; // await getSettings(); // TODO
@@ -108,7 +107,7 @@ export default (settings?: json.LanguageSettings): LanguageServicePlugin => (con
 		provideDocumentFormattingEdits(document, range, options) {
 			return worker(document, async () => {
 
-				const options_2 = await context.configurationHost?.getConfiguration<json.FormattingOptions & { enable: boolean; }>('json.format');
+				const options_2 = await context.env.getConfiguration?.<json.FormattingOptions & { enable: boolean; }>('json.format');
 				if (!(options_2?.enable ?? true)) {
 					return;
 				}

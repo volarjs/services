@@ -8,7 +8,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const entries = safeCall(() => ctx.typescript.languageService.getFileReferences(fileName));
 		if (!entries) return [];
 

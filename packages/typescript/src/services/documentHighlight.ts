@@ -3,14 +3,14 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return (uri: string, position: vscode.Position): vscode.DocumentHighlight[] => {
 
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const highlights = safeCall(() => ctx.typescript.languageService.getDocumentHighlights(fileName, offset, [fileName]));
 		if (!highlights) return [];

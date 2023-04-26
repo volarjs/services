@@ -32,7 +32,7 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const barItems = safeCall(() => ctx.typescript.languageService.getNavigationTree(fileName));
 		if (!barItems) return [];
 

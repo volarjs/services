@@ -1,7 +1,7 @@
-import type { LanguageServicePlugin } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import prettyhtml from '@starptech/prettyhtml';
 
-export default (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): LanguageServicePlugin => () => ({
+export default (configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Service => () => ({
 
 	provideDocumentFormattingEdits(document, range, options) {
 

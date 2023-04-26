@@ -1,17 +1,17 @@
-import type { LanguageServicePlugin, Diagnostic, CodeAction, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service, Diagnostic, CodeAction } from '@volar/language-service';
 import type { IRule, RuleFailure } from 'tslint';
 
-export default (rules: IRule[]): LanguageServicePlugin => {
+export default (rules: IRule[]): Service => {
 
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 
-	return (ctx): LanguageServicePluginInstance => ({
+	return (ctx): ReturnType<Service> => ({
 
 		provideSemanticDiagnostics(document) {
 
 			if (!ctx?.typescript) return;
 
-			const fileName = ctx.uriToFileName(document.uri);
+			const fileName = ctx.env.uriToFileName(document.uri);
 			const sourceFile = ctx.typescript.languageService.getProgram()?.getSourceFile(fileName);
 			if (!sourceFile) {
 				return;

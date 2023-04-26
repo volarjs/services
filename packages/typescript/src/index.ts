@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
@@ -34,11 +34,11 @@ import * as workspaceSymbols from './services/workspaceSymbol';
 import * as tsconfig from './services/tsconfig';
 import { SharedContext } from './types';
 
-export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePluginInstance => {
+export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
-	const triggerCharacters: LanguageServicePluginInstance = {
+	const triggerCharacters: ReturnType<Service> = {
 		triggerCharacters: [
 			...getBasicTriggerCharacters('4.3.0'),
 			jsDocTriggerCharacter,
@@ -55,23 +55,24 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 	}
 
 	const context = contextOrNull;
-	if (!context.typescript) {
+	if (!modules?.typescript) {
 		console.warn('[@volar-plugins/typescript] context.typescript not found, @volar/typescript plugin disabled. Make sure you have provide tsdk in language client.');
 		return {};
 	}
 
-	const { module: ts } = context.typescript;
+	const ts = modules.typescript;
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
-
-	const semanticCtx = {
+	const semanticCtx: SharedContext = {
 		...context,
+		typescript: context.typescript!,
+		ts,
 		getTextDocument(uri) {
 			for (const [_, map] of context.documents.getMapsByVirtualFileUri(uri)) {
 				return map.virtualFileDocument;
 			}
 			return context.getTextDocument(uri);
 		},
-	} as SharedContext;
+	};
 	const findDefinition = definitions.register(semanticCtx);
 	const findTypeDefinition = typeDefinitions.register(semanticCtx);
 	const findReferences = references.register(semanticCtx);
@@ -142,11 +143,12 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 					sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 				}
 				else {
-					sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(ruleCtx.document.uri));
+					sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(ruleCtx.document.uri));
 				}
 				if (sourceFile) {
 					ruleCtx.typescript = {
 						sourceFile,
+						getTextDocument: syntacticCtx.getTextDocument,
 						...syntacticCtx.typescript,
 					};
 				}
@@ -163,12 +165,12 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 				&& ctx.lastChange.text.endsWith('>')
 			) {
 				const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
-				const config = context.configurationHost?.getConfiguration<boolean>(configName) ?? true;
+				const config = context.env.getConfiguration?.<boolean>(configName) ?? true;
 				if (config) {
 
 					prepareSyntacticService(document);
 
-					const close = syntacticCtx.typescript.languageService.getJsxClosingTagAtPosition(context.uriToFileName(document.uri), document.offsetAt(position));
+					const close = syntacticCtx.typescript.languageService.getJsxClosingTagAtPosition(context.env.uriToFileName(document.uri), document.offsetAt(position));
 
 					if (close) {
 						return '$0' + close.newText;
@@ -276,7 +278,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 			}
 		},
 
-		provideSyntacticDiagnostics(document) {
+		provideDiagnostics(document) {
 			if (isTsDocument(document)) {
 				return doValidation(document.uri, { syntactic: true, suggestion: true });
 			}
@@ -365,7 +367,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 		async provideDocumentFormattingEdits(document, range, options_2) {
 			if (isTsDocument(document)) {
 
-				const enable = await context.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
+				const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
 				if (enable === false) {
 					return;
 				}
@@ -379,7 +381,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 		async provideOnTypeFormattingEdits(document, position, key, options_2) {
 			if (isTsDocument(document)) {
 
-				const enable = await context.configurationHost?.getConfiguration<boolean>(getConfigTitle(document) + '.format.enable');
+				const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
 				if (enable === false) {
 					return;
 				}
@@ -395,7 +397,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 
 				prepareSyntacticService(document);
 
-				const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.uriToFileName(document.uri));
+				const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
 
 				if (sourceFile) {
 
@@ -435,7 +437,7 @@ export default (): LanguageServicePlugin => (contextOrNull): LanguageServicePlug
 	};
 
 	function prepareSyntacticService(document: TextDocument) {
-		syntacticHostCtx.fileName = context.uriToFileName(document.uri);
+		syntacticHostCtx.fileName = context.env.uriToFileName(document.uri);
 		syntacticHostCtx.fileVersion = document.version;
 		if (context.documents.isVirtualFileUri(document.uri)) {
 			const snapshot = context.documents.getVirtualFileByUri(document.uri)[0]?.snapshot;

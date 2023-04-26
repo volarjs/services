@@ -1,4 +1,4 @@
-import type { LanguageServicePluginContext, LanguageServicePluginInstance } from '@volar/language-service';
+import type { ServiceContext, Service } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -23,7 +23,7 @@ export function getHtmlDocument(document: TextDocument) {
 	return doc;
 }
 
-export interface PluginInstance extends LanguageServicePluginInstance {
+export interface PluginInstance extends ReturnType<Service> {
 	getHtmlLs: () => html.LanguageService;
 	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
 }
@@ -31,29 +31,28 @@ export interface PluginInstance extends LanguageServicePluginInstance {
 export default (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
-} = {}) => (context: LanguageServicePluginContext | undefined): PluginInstance => {
+} = {}) => (context: ServiceContext | undefined): PluginInstance => {
 
-	const triggerCharacters: LanguageServicePluginInstance = {
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
-	};
+	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+	const triggerCharacters = ['.', ':', '<', '"', '=', '/'];
+
 	if (!context) {
-		return triggerCharacters as any;
+		return { triggerCharacters } as any;
 	}
 
 	let shouldUpdateCustomData = true;
 	let customData: html.IHTMLDataProvider[] = [];
 	let extraData: html.IHTMLDataProvider[] = [];
 
-	const htmlLs = html.getLanguageService({ fileSystemProvider: context.fileSystemProvider });
+	const htmlLs = html.getLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
 
-	context.configurationHost?.onDidChangeConfiguration(() => {
+	context.env.onDidChangeConfiguration?.(() => {
 		shouldUpdateCustomData = true;
 	});
 
 	return {
 
-		...triggerCharacters,
+		triggerCharacters,
 
 		async resolveRuleContext(context) {
 			if (options.validLang === 'html') {
@@ -74,10 +73,10 @@ export default (options: {
 		async provideCompletionItems(document, position) {
 			return worker(document, async (htmlDocument) => {
 
-				const configs = await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion');
+				const configs = await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion');
 
-				if (context.documentContext) {
-					return htmlLs.doComplete2(document, position, htmlDocument, context.documentContext, configs);
+				if (context.env.documentContext) {
+					return htmlLs.doComplete2(document, position, htmlDocument, context.env.documentContext, configs);
 				}
 				else {
 					return htmlLs.doComplete(document, position, htmlDocument, configs);
@@ -104,7 +103,7 @@ export default (options: {
 		async provideHover(document, position) {
 			return worker(document, async (htmlDocument) => {
 
-				const hoverSettings = await context.configurationHost?.getConfiguration<html.HoverSettings>('html.hover');
+				const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
 
 				return htmlLs.doHover(document, position, htmlDocument, hoverSettings);
 			});
@@ -119,10 +118,10 @@ export default (options: {
 		provideDocumentLinks(document) {
 			return worker(document, () => {
 
-				if (!context.documentContext)
+				if (!context.env.documentContext)
 					return;
 
-				return htmlLs.findDocumentLinks(document, context.documentContext);
+				return htmlLs.findDocumentLinks(document, context.env.documentContext);
 			});
 		},
 
@@ -152,7 +151,7 @@ export default (options: {
 		async provideDocumentFormattingEdits(document, formatRange, options) {
 			return worker(document, async () => {
 
-				const options_2 = await context.configurationHost?.getConfiguration<html.HTMLFormatConfiguration & { enable: boolean; }>('html.format');
+				const options_2 = await context.env.getConfiguration?.<html.HTMLFormatConfiguration & { enable: boolean; }>('html.format');
 				if (options_2?.enable === false) {
 					return;
 				}
@@ -249,11 +248,11 @@ export default (options: {
 
 				if (insertContext.lastChange.rangeLength === 0 && lastCharacter === '=') {
 
-					const enabled = (await context.configurationHost?.getConfiguration<boolean>('html.autoCreateQuotes')) ?? true;
+					const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
 
 					if (enabled) {
 
-						const text = htmlLs.doQuoteComplete(document, position, htmlDocument, await context.configurationHost?.getConfiguration<html.CompletionConfiguration>('html.completion'));
+						const text = htmlLs.doQuoteComplete(document, position, htmlDocument, await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion'));
 
 						if (text) {
 							return text;
@@ -263,7 +262,7 @@ export default (options: {
 
 				if (insertContext.lastChange.rangeLength === 0 && (lastCharacter === '>' || lastCharacter === '/')) {
 
-					const enabled = (await context.configurationHost?.getConfiguration<boolean>('html.autoClosingTags')) ?? true;
+					const enabled = (await context.env.getConfiguration?.<boolean>('html.autoClosingTags')) ?? true;
 
 					if (enabled) {
 
@@ -293,27 +292,20 @@ export default (options: {
 
 	async function getCustomData() {
 
-		const configHost = context?.configurationHost;
+		const customData: string[] = await context?.env.getConfiguration?.('html.customData') ?? [];
+		const newData: html.IHTMLDataProvider[] = [];
 
-		if (configHost) {
-
-			const customData: string[] = await configHost.getConfiguration('html.customData') ?? [];
-			const newData: html.IHTMLDataProvider[] = [];
-
-			for (const customDataPath of customData) {
-				try {
-					const jsonPath = path.resolve(customDataPath);
-					newData.push(html.newHTMLDataProvider(customDataPath, require(jsonPath)));
-				}
-				catch (error) {
-					console.error(error);
-				}
+		for (const customDataPath of customData) {
+			try {
+				const jsonPath = path.resolve(customDataPath);
+				newData.push(html.newHTMLDataProvider(customDataPath, require(jsonPath)));
 			}
-
-			return newData;
+			catch (error) {
+				console.error(error);
+			}
 		}
 
-		return [];
+		return newData;
 	}
 
 	async function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {

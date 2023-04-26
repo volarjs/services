@@ -1,13 +1,13 @@
-import type { LanguageServicePlugin, Diagnostic, CodeAction, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service, Diagnostic, CodeAction } from '@volar/language-service';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 
-export default (resolveConfig?: (program: ts.Program) => Linter.Config): LanguageServicePlugin => {
+export default (resolveConfig?: (program: ts.Program) => Linter.Config): Service => {
 
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
 
-	return (ctx): LanguageServicePluginInstance => ({
+	return (ctx): ReturnType<Service> => ({
 
 		async provideSemanticDiagnostics(document) {
 
@@ -16,7 +16,7 @@ export default (resolveConfig?: (program: ts.Program) => Linter.Config): Languag
 			const eslint = getEslint(ctx.typescript.languageService.getProgram()!);
 			const lintResult = await eslint.lintText(
 				document.getText(),
-				{ filePath: ctx.uriToFileName(document.uri) },
+				{ filePath: ctx.env.uriToFileName(document.uri) },
 			);
 			uriToLintResult.set(document.uri, lintResult);
 			const diagnostics: Diagnostic[] = [];

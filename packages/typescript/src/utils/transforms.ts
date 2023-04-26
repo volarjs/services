@@ -9,7 +9,7 @@ export function entriesToLocations(
 ) {
 	const locations: vscode.Location[] = [];
 	for (const entry of entries) {
-		const entryUri = ctx.fileNameToUri(entry.fileName);
+		const entryUri = ctx.env.fileNameToUri(entry.fileName);
 		const doc = ctx.getTextDocument(entryUri);
 		if (!doc) continue;
 		const range = vscode.Range.create(
@@ -27,7 +27,7 @@ export function entriesToLocationLinks<T extends ts.DocumentSpan>(
 ): vscode.LocationLink[] {
 	const locations: vscode.LocationLink[] = [];
 	for (const entry of entries) {
-		const entryUri = ctx.fileNameToUri(entry.fileName);
+		const entryUri = ctx.env.fileNameToUri(entry.fileName);
 		const doc = ctx.getTextDocument(entryUri);
 		if (!doc) continue;
 		const targetSelectionRange = vscode.Range.create(
@@ -59,7 +59,7 @@ export function boundSpanToLocationLinks(
 		originalDoc.positionAt(info.textSpan.start + info.textSpan.length),
 	);
 	for (const entry of info.definitions) {
-		const entryUri = ctx.fileNameToUri(entry.fileName);
+		const entryUri = ctx.env.fileNameToUri(entry.fileName);
 		const doc = ctx.getTextDocument(entryUri);
 		if (!doc) continue;
 		const targetSelectionRange = vscode.Range.create(

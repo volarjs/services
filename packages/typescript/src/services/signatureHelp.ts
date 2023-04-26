@@ -4,7 +4,7 @@ import * as vscode from 'vscode-languageserver-protocol';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return (uri: string, position: vscode.Position, context?: vscode.SignatureHelpContext): vscode.SignatureHelp | undefined => {
 		const document = ctx.getTextDocument(uri);
@@ -29,7 +29,7 @@ export function register(ctx: SharedContext) {
 			};
 		}
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const helpItems = safeCall(() => ctx.typescript.languageService.getSignatureHelpItems(fileName, offset, options));
 		if (!helpItems) return;

@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import { format, resolveConfigFile, resolveConfig, type Options, type ResolveConfigOptions, getFileInfo } from 'prettier';
 
 export default (
@@ -28,20 +28,20 @@ export default (
 		 * Additional options to pass to Prettier
 		 * This is useful, for instance, to add specific plugins you need.
 		 */
-		additionalOptions?: (resolvedConfig: Options) => Options
+		additionalOptions?: (resolvedConfig: Options) => Options;
 		/**
 		 * Options to use when resolving the Prettier config
 		 */
-		resolveConfigOptions?: ResolveConfigOptions
+		resolveConfigOptions?: ResolveConfigOptions;
 	} = {},
-	getPrettierConfig = (config?:ResolveConfigOptions) => {
+	getPrettierConfig = (config?: ResolveConfigOptions) => {
 		const configFile = resolveConfigFile.sync();
 		if (configFile) {
 			return resolveConfig.sync(configFile, config) ?? {};
 		}
 		return {};
 	},
-): LanguageServicePlugin => (context): LanguageServicePluginInstance => {
+): Service => (context): ReturnType<Service> => {
 
 	if (!context) {
 		return {};
@@ -56,20 +56,20 @@ export default (
 				return;
 			}
 
-			const fileInfo = await getFileInfo(context.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
+			const fileInfo = await getFileInfo(context.env.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
 
 			if (fileInfo.ignored) {
 				return;
 			}
 
-			const editorPrettierOptions = await context.configurationHost?.getConfiguration('prettier', document.uri)
+			const editorPrettierOptions = await context.env.getConfiguration?.('prettier', document.uri);
 			const ideFormattingOptions =
-			formatOptions !== undefined && !options.ignoreIdeOptions // We need to check for options existing here because some editors might not have it
-				? {
+				formatOptions !== undefined && !options.ignoreIdeOptions // We need to check for options existing here because some editors might not have it
+					? {
 						tabWidth: formatOptions.tabSize,
 						useTabs: !formatOptions.insertSpaces,
-				  }
-				: {};
+					}
+					: {};
 
 			const fullText = document.getText();
 			let oldText = fullText;
@@ -89,7 +89,7 @@ export default (
 
 			const currentPrettierConfig: Options = {
 				...options.additionalOptions ? options.additionalOptions(prettierOptions) : prettierOptions,
-				filepath: context.uriToFileName(document.uri),
+				filepath: context.env.uriToFileName(document.uri),
 			};
 
 			if (!options.ignoreIdeOptions) {

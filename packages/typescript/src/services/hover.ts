@@ -4,13 +4,13 @@ import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
-	const ts = ctx.typescript!.module;
+	const { ts } = ctx;
 
 	return (uri: string, position: vscode.Position, documentOnly = false): vscode.Hover | undefined => {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 		const info = safeCall(() => ctx.typescript.languageService.getQuickInfoAtPosition(fileName, offset));
 		if (!info) return;
@@ -40,7 +40,7 @@ export function register(ctx: SharedContext) {
 		};
 
 		function toResource(path: string) {
-			return ctx.fileNameToUri(path);
+			return ctx.env.fileNameToUri(path);
 		}
 	};
 }
