@@ -1,4 +1,4 @@
-# @volar-plugins/*
+# volar-services-*
 
 |                             	| Rules API 	| IntelliSense 	| Diagnostic 	| Formatting 	|
 |-----------------------------	|-----------	|-------------	|------------	|------------	|

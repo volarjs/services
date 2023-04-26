@@ -1,4 +1,4 @@
-# @volar-plugins/pretty-ts-errors
+# volar-service-pretty-ts-errors
 
 Volar plugin for [pretty-ts-errors](https://github.com/yoavbls/pretty-ts-errors).
 
@@ -9,7 +9,7 @@ Volar plugin for [pretty-ts-errors](https://github.com/yoavbls/pretty-ts-errors)
 ```json
 {
   "devDependencies": {
-    "@volar-plugins/pretty-ts-errors": "latest",
+    "volar-service-pretty-ts-errors": "latest",
     "prettier": "latest"
   }
 }
@@ -20,7 +20,7 @@ Volar plugin for [pretty-ts-errors](https://github.com/yoavbls/pretty-ts-errors)
 ```js
 module.exports = {
 	plugins: [
-		require('@volar-plugins/pretty-ts-errors').default(
+		require('volar-service-pretty-ts-errors').default(
 			type => require('prettier').format(type, {
 				parser: 'typescript',
 				printWidth: 60,

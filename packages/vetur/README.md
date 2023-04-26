@@ -1,4 +1,4 @@
-# @volar-plugins/vetur
+# volar-service-vetur
 
 Volar plugin for [VLS](https://www.npmjs.com/package/vls).
 
@@ -14,7 +14,7 @@ With this plugin you can use this Vetur base features in Volar:
 ```json
 {
   "devDependencies": {
-    "@volar-plugins/vetur": "latest"
+    "volar-service-vetur": "latest"
   }
 }
 ```
@@ -24,7 +24,7 @@ With this plugin you can use this Vetur base features in Volar:
 ```js
 module.exports = {
 	plugins: [
-		require('@volar-plugins/vetur').default(),
+		require('volar-service-vetur').default(),
 	],
 };
 ```

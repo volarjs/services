@@ -1,6 +1,6 @@
 {
-	"name": "@volar-plugins/prettier",
-	"version": "2.0.0",
+	"name": "volar-service-prettier",
+	"version": "0.0.0",
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
@@ -10,7 +10,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/volarjs/plugins.git",
+		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/prettier"
 	},
 	"author": {

@@ -1,4 +1,4 @@
-import * as pug from '@volar-plugins/pug';
+import * as pug from 'volar-service-pug';
 
 declare module '@volar/language-service' {
 	interface RuleContext {

@@ -1,4 +1,4 @@
-# @volar-plugins/prettier
+# volar-service-prettier
 
 Volar plugin for [prettier](https://prettier.io/).
 
@@ -9,7 +9,7 @@ Volar plugin for [prettier](https://prettier.io/).
 ```json
 {
   "devDependencies": {
-    "@volar-plugins/prettier": "latest"
+    "volar-service-prettier": "latest"
   }
 }
 ```
@@ -19,7 +19,7 @@ Volar plugin for [prettier](https://prettier.io/).
 ```js
 module.exports = {
 	plugins: [
-		require('@volar-plugins/prettier').default(
+		require('volar-service-prettier').default(
 			{
 				languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
 				html: {

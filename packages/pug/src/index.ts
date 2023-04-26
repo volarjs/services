@@ -1,4 +1,4 @@
-import useHtmlPlugin from '@volar-plugins/html';
+import useHtmlPlugin from 'volar-service-html';
 import type { Service, ServiceContext } from '@volar/language-service';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';

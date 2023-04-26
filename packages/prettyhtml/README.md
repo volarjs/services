@@ -1,4 +1,4 @@
-# @volar-plugins/prettyhtml
+# volar-service-prettyhtml
 
 Volar plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 
@@ -9,7 +9,7 @@ Volar plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 ```json
 {
   "devDependencies": {
-    "@volar-plugins/prettyhtml": "latest"
+    "volar-service-prettyhtml": "latest"
   }
 }
 ```
@@ -19,7 +19,7 @@ Volar plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 ```js
 module.exports = {
 	plugins: [
-		require('@volar-plugins/prettyhtml').default({ printWidth: 100 }),
+		require('volar-service-prettyhtml').default({ printWidth: 100 }),
 	],
 };
 ```

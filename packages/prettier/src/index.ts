@@ -21,7 +21,7 @@ export default (
 		/**
 		 * Do not use settings from VSCode's `editor.tabSize` and temporary tabSize on status bar
 		 *
-		 * @see https://github.com/volarjs/plugins/issues/5
+		 * @see https://github.com/volarjs/services/issues/5
 		 */
 		ignoreIdeOptions?: boolean,
 		/**

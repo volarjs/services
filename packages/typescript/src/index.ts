@@ -56,7 +56,7 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
 	const context = contextOrNull;
 	if (!modules?.typescript) {
-		console.warn('[@volar-plugins/typescript] context.typescript not found, @volar/typescript plugin disabled. Make sure you have provide tsdk in language client.');
+		console.warn('[volar-service-typescript] context.typescript not found, @volar/typescript plugin disabled. Make sure you have provide tsdk in language client.');
 		return {};
 	}
 
@@ -153,7 +153,7 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 					};
 				}
 				else {
-					console.warn('[@volar-plugins/typescript] sourceFile not found', ruleCtx.document.uri);
+					console.warn('[volar-service-typescript] sourceFile not found', ruleCtx.document.uri);
 				}
 			}
 			return ruleCtx;

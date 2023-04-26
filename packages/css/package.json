@@ -1,6 +1,6 @@
 {
-	"name": "@volar-plugins/css",
-	"version": "2.0.0",
+	"name": "volar-service-css",
+	"version": "0.0.0",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -10,7 +10,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/volarjs/plugins.git",
+		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/css"
 	},
 	"dependencies": {

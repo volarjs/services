@@ -1,6 +1,6 @@
 {
-	"name": "@volar-plugins/emmet",
-	"version": "2.0.0",
+	"name": "volar-service-emmet",
+	"version": "0.0.0",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -9,11 +9,11 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/volarjs/plugins.git",
+		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/emmet"
 	},
 	"dependencies": {
-		"@volar-plugins/html": "2.0.0",
+		"volar-service-html": "0.0.0",
 		"@vscode/emmet-helper": "^2.8.6"
 	},
 	"peerDependencies": {

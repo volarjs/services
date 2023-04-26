@@ -1,6 +1,6 @@
 import type { Service } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
-import { getHtmlDocument } from '@volar-plugins/html';
+import { getHtmlDocument } from 'volar-service-html';
 
 export default (): Service => (context): ReturnType<Service> => {
 

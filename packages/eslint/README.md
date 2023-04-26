@@ -1,4 +1,4 @@
-# @volar-plugins/eslint
+# volar-service-eslint
 
 Volar plugin for [ESLint](https://eslint.org/).
 
@@ -15,7 +15,7 @@ Example: https://github.com/DrJume/vue-volar-eslint
 ```json
 {
 	"devDependencies": {
-		"@volar-plugins/eslint": "latest",
+		"volar-service-eslint": "latest",
 		"eslint": "latest"
 	}
 }
@@ -30,7 +30,7 @@ module.exports = {
 
 	plugins: [
 
-		require('@volar-plugins/eslint').default(program => ({
+		require('volar-service-eslint').default(program => ({
 			...baseConfig,
 			ignorePatterns: ['**/*.vue.*'], // ignore virtual files: *.vue.ts, *.vue.html, *.vue.css
 			parserOptions: {

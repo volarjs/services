@@ -37,12 +37,12 @@ importers:
 
   packages/emmet:
     dependencies:
-      '@volar-plugins/html':
-        specifier: 2.0.0
-        version: link:../html
       '@vscode/emmet-helper':
         specifier: ^2.8.6
         version: 2.8.6
+      volar-service-html:
+        specifier: 0.0.0
+        version: link:../html
 
   packages/eslint:
     devDependencies:
@@ -94,9 +94,6 @@ importers:
 
   packages/pug:
     dependencies:
-      '@volar-plugins/html':
-        specifier: 2.0.0
-        version: link:../html
       muggle-string:
         specifier: ^0.2.2
         version: 0.2.2
@@ -106,6 +103,9 @@ importers:
       pug-parser:
         specifier: ^6.0.0
         version: 6.0.0
+      volar-service-html:
+        specifier: 0.0.0
+        version: link:../html
       vscode-html-languageservice:
         specifier: ^5.0.4
         version: 5.0.4
@@ -480,7 +480,7 @@ packages:
       hosted-git-info: 6.1.1
       json-parse-even-better-errors: 3.0.0
       json-stringify-nice: 1.1.4
-      minimatch: 7.4.2
+      minimatch: 7.4.6
       nopt: 7.0.0
       npm-install-checks: 6.0.0
       npm-package-arg: 10.1.0
@@ -884,13 +884,6 @@ packages:
   /@tufjs/canonical-json@1.0.0:
     resolution: {integrity: sha512-QTnf++uxunWvG2z3UFNzAoQPHxnSXOwtaI3iJ+AohhV+5vONuArPjJE7aPXPVXfXJsqrVbZBu9b81AJoSd09IQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-    dev: true
-
-  /@tufjs/models@1.0.0:
-    resolution: {integrity: sha512-RRMu4uMxWnZlxaIBxahSb2IssFZiu188sndesZflWOe1cA/qUqtemSIoBWbuVKPvvdktapImWNnKpBcc+VrCQw==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-    dependencies:
-      minimatch: 6.2.0
     dev: true
 
   /@tufjs/models@1.0.3:
@@ -3157,7 +3150,7 @@ packages:
       npm-registry-fetch: 14.0.4
       proc-log: 3.0.0
       semver: 7.5.0
-      sigstore: 1.0.0
+      sigstore: 1.4.0
       ssri: 10.0.3
     transitivePeerDependencies:
       - bluebird
@@ -3436,13 +3429,6 @@ packages:
 
   /minimatch@6.2.0:
     resolution: {integrity: sha512-sauLxniAmvnhhRjFwPNnJKaPFYyddAgbYdeUpHULtCT/GhzdCx/MDNy+Y40lBxTQUrMzDE8e0S43Z5uqfO0REg==}
-    engines: {node: '>=10'}
-    dependencies:
-      brace-expansion: 2.0.1
-    dev: true
-
-  /minimatch@7.4.2:
-    resolution: {integrity: sha512-xy4q7wou3vUoC9k1xGTXc+awNdGaGVHtFUaey8tiX4H1QRc04DZ/rmDFwNm2EBsuYEhAZ6SgMmYf3InGY6OauA==}
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
@@ -4603,18 +4589,6 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
-  /sigstore@1.0.0:
-    resolution: {integrity: sha512-e+qfbn/zf1+rCza/BhIA//Awmf0v1pa5HQS8Xk8iXrn9bgytytVLqYD0P7NSqZ6IELTgq+tcDvLPkQjNHyWLNg==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-    hasBin: true
-    dependencies:
-      make-fetch-happen: 11.0.3
-      tuf-js: 1.1.1
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-    dev: true
-
   /sigstore@1.4.0:
     resolution: {integrity: sha512-N7TRpSbFjY/TrFDg6yGAQSYBrQ5s6qmPiq4pD6fkv1LoyfMsLG0NwZWG2s5q+uttLHgyVyTa0Rogx2P78rN8kQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -5090,17 +5064,6 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 5.0.4
-    dev: true
-
-  /tuf-js@1.1.1:
-    resolution: {integrity: sha512-WTp382/PR96k0dI4GD5RdiRhgOU0rAC7+lnoih/5pZg3cyb3aNMqDozleEEWwyfT3+FOg7Qz9JU3n6A44tLSHw==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-    dependencies:
-      '@tufjs/models': 1.0.0
-      make-fetch-happen: 11.0.3
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
     dev: true
 
   /tuf-js@1.1.4:

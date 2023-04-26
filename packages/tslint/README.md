@@ -1,4 +1,4 @@
-# @volar-plugins/tslint
+# volar-service-tslint
 
 Volar plugin for [TSLint](https://palantir.github.io/tslint/).
 
@@ -9,7 +9,7 @@ Volar plugin for [TSLint](https://palantir.github.io/tslint/).
 ```json
 {
 	"devDependencies": {
-		"@volar-plugins/tslint": "latest",
+		"volar-service-tslint": "latest",
 		"tslint": "latest"
 	}
 }
@@ -22,7 +22,7 @@ module.exports = {
 
 	plugins: [
 
-		require('@volar-plugins/tslint').default([
+		require('volar-service-tslint').default([
 
 			new (require('tslint/lib/rules/banTsIgnoreRule').Rule)({
 				ruleName: 'ban-ts-ignore',

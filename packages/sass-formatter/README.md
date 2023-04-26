@@ -1,4 +1,4 @@
-# @volar-plugins/sass-formatter
+# volar-service-sass-formatter
 
 Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 
@@ -9,7 +9,7 @@ Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 ```json
 {
   "devDependencies": {
-    "@volar-plugins/sass-formatter": "latest"
+    "volar-service-sass-formatter": "latest"
   }
 }
 ```
@@ -17,7 +17,7 @@ Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 `volar.config.js`
 
 ```js
-const sassFormatter = require('@volar-plugins/sass-formatter').default;
+const sassFormatter = require('volar-service-sass-formatter').default;
 
 module.exports = {
 	plugins: [
