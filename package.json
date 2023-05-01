@@ -4,15 +4,15 @@
 		"build": "tsc -b tsconfig.build.json",
 		"watch": "tsc -b tsconfig.build.json -w",
 		"prerelease": "npm run build",
-		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock --no-push",
+		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
 		"release:next": "npm run release -- --dist-tag next"
 	},
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/publish": "latest",
 		"@types/node": "latest",
-		"@volar/source-map": "1.5.0-alpha.0",
-		"@volar/language-service": "1.5.0-alpha.0",
+		"@volar/source-map": "1.5.0",
+		"@volar/language-service": "1.5.0",
 		"typescript": "latest"
 	}
 }
