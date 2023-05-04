@@ -1,9 +1,14 @@
 import useHtmlPlugin from 'volar-service-html';
-import type { Service, ServiceContext } from '@volar/language-service';
+import type { InjectionKey, Service, ServiceContext } from '@volar/language-service';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
+
+export const rulesInjectionKey: InjectionKey<{
+	pugDocument: pug.PugDocument;
+	languageService: pug.LanguageService;
+}> = Symbol();
 
 export interface PluginInstance extends ReturnType<Service> {
 	getHtmlLs: () => html.LanguageService;
@@ -24,21 +29,22 @@ export default () => (context: ServiceContext | undefined): PluginInstance => {
 
 	return {
 
+		rules: {
+			provide: {
+				[rulesInjectionKey as any](document) {
+					return worker(document, (pugDocument) => {
+						return {
+							pugDocument,
+							languageService: pugLs,
+						};
+					});
+				},
+			},
+		},
+
 		...htmlPlugin,
 		getPugLs: () => pugLs,
 		getPugDocument,
-
-		resolveRuleContext(context) {
-			worker(context.document, (pugDocument) => {
-				if (pugDocument.ast) {
-					context.pug = {
-						rootNode: pugDocument.ast,
-						languageService: pugLs,
-					};
-				}
-			});
-			return context;
-		},
 
 		provideCompletionItems(document, position, _) {
 			return worker(document, (pugDocument) => {

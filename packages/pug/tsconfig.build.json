@@ -7,7 +7,6 @@
 	},
 	"include": [
 		"src",
-		"rules.d.ts",
 	],
 	"references": [
 		{

@@ -1,5 +1,5 @@
 import type { Service } from '@volar/language-service';
 
-console.warn('volar-service-emmet: This plugin is not support on web yet.')
+console.warn('volar-service-emmet: this module is not yet supported for web.')
 
 export default (): Service => () => ({});

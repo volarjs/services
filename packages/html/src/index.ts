@@ -1,4 +1,4 @@
-import type { ServiceContext, Service } from '@volar/language-service';
+import type { ServiceContext, Service, InjectionKey } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -6,6 +6,11 @@ import * as path from 'path';
 
 const parserLs = html.getLanguageService();
 const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
+
+export const rulesInjectionKey: InjectionKey<{
+	htmlDocument: html.HTMLDocument;
+	languageService: html.LanguageService;
+}> = Symbol();
 
 export function getHtmlDocument(document: TextDocument) {
 
@@ -52,19 +57,26 @@ export default (options: {
 
 	return {
 
-		triggerCharacters,
+		rules: {
+			provide: {
+				[rulesInjectionKey as any](document) {
 
-		async resolveRuleContext(context) {
-			if (options.validLang === 'html') {
-				await worker(context.document, (htmlDocument) => {
-					context.html = {
-						document: htmlDocument,
+					if (document.languageId !== (options.validLang ?? 'html'))
+						return;
+
+					const htmlDocument = getHtmlDocument(document);
+					if (!htmlDocument)
+						return;
+
+					return {
+						htmlDocument,
 						languageService: htmlLs,
 					};
-				});
-			}
-			return context;
+				},
+			},
 		},
+
+		triggerCharacters,
 
 		getHtmlLs: () => htmlLs,
 

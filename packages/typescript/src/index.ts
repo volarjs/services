@@ -1,4 +1,4 @@
-import type { Service } from '@volar/language-service';
+import { InjectionKey, RuleType, Service } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
@@ -34,6 +34,13 @@ import * as workspaceSymbols from './services/workspaceSymbol';
 import * as tsconfig from './services/tsconfig';
 import { SharedContext } from './types';
 
+export const rulesInjectionKey: InjectionKey<{
+	sourceFile: ts.SourceFile;
+	languageService: ts.LanguageService;
+	languageServiceHost: ts.LanguageServiceHost;
+	getTextDocument(uri: string): TextDocument | undefined;
+}> = Symbol();
+
 export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
 	const jsDocTriggerCharacter = '*';
@@ -56,7 +63,7 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
 	const context = contextOrNull;
 	if (!modules?.typescript) {
-		console.warn('[volar-service-typescript] context.typescript not found, @volar/typescript plugin disabled. Make sure you have provide tsdk in language client.');
+		console.warn('[volar-service-typescript] context.typescript not found, volar-service-typescript is disabled. Make sure you have provide tsdk in language client.');
 		return {};
 	}
 
@@ -128,36 +135,45 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
 	return {
 
+		rules: {
+			provide: {
+				[rulesInjectionKey as any](document, type) {
+					if (isTsDocument(document)) {
+						if (type === RuleType.Format || type === RuleType.Syntax) {
+							prepareSyntacticService(document);
+							const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
+							if (sourceFile) {
+								return {
+									sourceFile,
+									languageService: syntacticCtx.typescript.languageService,
+									languageServiceHost: syntacticCtx.typescript.languageServiceHost,
+									getTextDocument: syntacticCtx.getTextDocument,
+								};
+							}
+						}
+						else {
+							const sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
+							if (sourceFile) {
+								return {
+									sourceFile,
+									languageService: semanticCtx.typescript.languageService,
+									languageServiceHost: semanticCtx.typescript.languageServiceHost,
+									getTextDocument: semanticCtx.getTextDocument,
+								};
+							}
+						}
+					}
+				},
+			},
+		},
+
 		...triggerCharacters,
+
 		triggerCharacters: [
 			...basicTriggerCharacters,
 			jsDocTriggerCharacter,
 			directiveCommentTriggerCharacter,
 		],
-
-		resolveRuleContext(ruleCtx, type) {
-			if (isTsDocument(ruleCtx.document)) {
-				let sourceFile: ts.SourceFile | undefined;
-				if (type === 'format' || type === 'syntax') {
-					prepareSyntacticService(ruleCtx.document);
-					sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
-				}
-				else {
-					sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(ruleCtx.document.uri));
-				}
-				if (sourceFile) {
-					ruleCtx.typescript = {
-						sourceFile,
-						getTextDocument: syntacticCtx.getTextDocument,
-						...syntacticCtx.typescript,
-					};
-				}
-				else {
-					console.warn('[volar-service-typescript] sourceFile not found', ruleCtx.document.uri);
-				}
-			}
-			return ruleCtx;
-		},
 
 		provideAutoInsertionEdit(document, position, ctx) {
 			if (

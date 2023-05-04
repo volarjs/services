@@ -1,8 +1,13 @@
-import type { Service } from '@volar/language-service';
+import type { InjectionKey, Service } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
+
+export const rulesInjectionKey: InjectionKey<{
+	stylesheet: css.Stylesheet;
+	languageService: css.LanguageService;
+}> = Symbol();
 
 export default (): Service => (context): ReturnType<Service> => {
 
@@ -31,17 +36,27 @@ export default (): Service => (context): ReturnType<Service> => {
 
 	return {
 
-		triggerCharacters,
+		rules: {
+			provide: {
+				[rulesInjectionKey as any](document) {
 
-		async resolveRuleContext(context) {
-			await worker(context.document, (stylesheet, cssLs) => {
-				context.css = {
-					stylesheet,
-					languageService: cssLs,
-				};
-			});
-			return context;
+					const stylesheet = getStylesheet(document);
+					if (!stylesheet)
+						return;
+
+					const cssLs = getCssLs(document.languageId);
+					if (!cssLs)
+						return;
+
+					return {
+						stylesheet,
+						languageService: cssLs,
+					};
+				},
+			},
 		},
+
+		triggerCharacters,
 
 		async provideCompletionItems(document, position) {
 			return worker(document, async (stylesheet, cssLs) => {
