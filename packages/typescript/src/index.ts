@@ -1,4 +1,4 @@
-import { InjectionKey, RuleType, Service } from '@volar/language-service';
+import { InjectionKey, Service, defineProvide } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
@@ -34,12 +34,19 @@ import * as workspaceSymbols from './services/workspaceSymbol';
 import * as tsconfig from './services/tsconfig';
 import { SharedContext } from './types';
 
-export const rulesInjectionKey: InjectionKey<{
-	sourceFile: ts.SourceFile;
-	languageService: ts.LanguageService;
-	languageServiceHost: ts.LanguageServiceHost;
-	getTextDocument(uri: string): TextDocument | undefined;
-}> = Symbol();
+export const injectionKeys: {
+	typescript: InjectionKey<[], typeof import('typescript/lib/tsserverlibrary')>;
+	sourceFile: InjectionKey<[TextDocument], ts.SourceFile>;
+	languageService: InjectionKey<[TextDocument], ts.LanguageService>;
+	languageServiceHost: InjectionKey<[TextDocument], ts.LanguageServiceHost>;
+	textDocument: InjectionKey<[uri: string], TextDocument>;
+} = {
+	typescript: 'typescript/typescript',
+	sourceFile: 'typescript/sourceFile',
+	languageService: 'typescript/languageService',
+	languageServiceHost: 'typescript/languageServiceHost',
+	textDocument: 'typescript/textDocument',
+};
 
 export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
@@ -106,6 +113,7 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 	const tsconfigRequests = tsconfig.register(semanticCtx);
 
 	let syntacticHostCtx = {
+		document: undefined as TextDocument | undefined,
 		fileName: '',
 		fileVersion: 0,
 		snapshot: ts.ScriptSnapshot.fromString(''),
@@ -135,36 +143,35 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 
 	return {
 
-		rules: {
-			provide: {
-				[rulesInjectionKey as any](document, type) {
-					if (isTsDocument(document)) {
-						if (type === RuleType.Format || type === RuleType.Syntax) {
-							prepareSyntacticService(document);
-							const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
-							if (sourceFile) {
-								return {
-									sourceFile,
-									languageService: syntacticCtx.typescript.languageService,
-									languageServiceHost: syntacticCtx.typescript.languageServiceHost,
-									getTextDocument: syntacticCtx.getTextDocument,
-								};
-							}
-						}
-						else {
-							const sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
-							if (sourceFile) {
-								return {
-									sourceFile,
-									languageService: semanticCtx.typescript.languageService,
-									languageServiceHost: semanticCtx.typescript.languageServiceHost,
-									getTextDocument: semanticCtx.getTextDocument,
-								};
-							}
-						}
+		provide: {
+			...defineProvide(injectionKeys.typescript, () => ts),
+			...defineProvide(injectionKeys.sourceFile, document => {
+				if (isTsDocument(document)) {
+					const sourceFile = getSemanticServiceSourceFile(document.uri);
+					if (sourceFile) {
+						return sourceFile;
 					}
-				},
-			},
+					prepareSyntacticService(document);
+					return syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
+				}
+			}),
+			...defineProvide(injectionKeys.languageService, document => {
+				const sourceFile = getSemanticServiceSourceFile(document.uri);
+				if (sourceFile) {
+					return semanticCtx.typescript.languageService;
+				}
+				prepareSyntacticService(document);
+				return syntacticCtx.typescript.languageService;
+			}),
+			...defineProvide(injectionKeys.languageServiceHost, document => {
+				const sourceFile = getSemanticServiceSourceFile(document.uri);
+				if (sourceFile) {
+					return semanticCtx.typescript.languageServiceHost;
+				}
+				prepareSyntacticService(document);
+				return syntacticCtx.typescript.languageServiceHost;
+			}),
+			...defineProvide(injectionKeys.textDocument, semanticCtx.getTextDocument),
 		},
 
 		...triggerCharacters,
@@ -452,7 +459,17 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 		},
 	};
 
+	function getSemanticServiceSourceFile(uri: string) {
+		const sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(uri));
+		if (sourceFile) {
+			return sourceFile;
+		}
+	}
+
 	function prepareSyntacticService(document: TextDocument) {
+		if (syntacticHostCtx.document === document && syntacticHostCtx.fileVersion === document.version) {
+			return;
+		}
 		syntacticHostCtx.fileName = context.env.uriToFileName(document.uri);
 		syntacticHostCtx.fileVersion = document.version;
 		if (context.documents.isVirtualFileUri(document.uri)) {

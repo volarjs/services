@@ -1,12 +1,15 @@
-import type { InjectionKey, Service } from '@volar/language-service';
+import { InjectionKey, Service, defineProvide } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-export const rulesInjectionKey: InjectionKey<{
-	jsonDocument: json.JSONDocument;
-	languageService: json.LanguageService;
-}> = Symbol();
+export const injectionKeys: {
+	jsonDocument: InjectionKey<[TextDocument], json.JSONDocument>;
+	languageService: InjectionKey<[], json.LanguageService>;
+} = {
+	jsonDocument: 'json/jsonDocument',
+	languageService: 'json/languageService',
+};
 
 export default (settings?: json.LanguageSettings): Service => (context): ReturnType<Service> => {
 
@@ -25,17 +28,9 @@ export default (settings?: json.LanguageSettings): Service => (context): ReturnT
 
 	return {
 
-		rules: {
-			provide: {
-				[rulesInjectionKey as any](document) {
-					return worker(document, (jsonDocument) => {
-						return {
-							jsonDocument,
-							languageService: jsonLs,
-						};
-					});
-				},
-			},
+		provide: {
+			...defineProvide(injectionKeys.jsonDocument, getJsonDocument),
+			...defineProvide(injectionKeys.languageService, () => jsonLs),
 		},
 
 		triggerCharacters,

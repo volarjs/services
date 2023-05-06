@@ -1,6 +1,6 @@
 # Services
 
-|                             	| Rules API 	| IntelliSense 	| Diagnostic 	| Formatting 	|
+|                             	| AST Provide 	| IntelliSense 	| Diagnostic 	| Formatting 	|
 |-----------------------------	|-----------	|-------------	|------------	|------------	|
 | css                         	| ✅         	| ✅           	| ✅          	| ✅          	|
 | emmet                       	|           	| ✅           	|            	|            	|

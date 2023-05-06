@@ -11,8 +11,8 @@
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/publish": "latest",
 		"@types/node": "latest",
-		"@volar/source-map": "1.5.1",
-		"@volar/language-service": "1.5.1",
+		"@volar/source-map": "1.5.4",
+		"@volar/language-service": "1.5.4",
 		"typescript": "latest"
 	}
 }
