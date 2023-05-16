@@ -42,7 +42,7 @@ export interface Provide {
 	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 };
 
-export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
+export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
 
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
@@ -59,13 +59,13 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 	};
 
 	if (!contextOrNull) {
-		return triggerCharacters;
+		return triggerCharacters as any;
 	}
 
 	const context = contextOrNull;
 	if (!modules?.typescript) {
 		console.warn('[volar-service-typescript] context.typescript not found, volar-service-typescript is disabled. Make sure you have provide tsdk in language client.');
-		return {};
+		return {} as any;
 	}
 
 	const ts = modules.typescript;
@@ -166,7 +166,7 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 				return syntacticCtx.typescript.languageServiceHost;
 			},
 			'typescript/textDocument': semanticCtx.getTextDocument,
-		} satisfies Provide,
+		},
 
 		...triggerCharacters,
 

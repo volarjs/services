@@ -29,7 +29,7 @@ export default (): Service<Provide> => (context, modules): ReturnType<Service<Pr
 			'pug/pugDocument': getPugDocument,
 			'pug/languageService': () => pugLs,
 			'pug/updateCustomData': htmlService.provide['html/updateCustomData'],
-		} satisfies Provide,
+		},
 
 		provideCompletionItems(document, position, _) {
 			return worker(document, (pugDocument) => {

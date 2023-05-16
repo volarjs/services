@@ -8,13 +8,13 @@ export interface Provide {
 	'json/languageService': () => json.LanguageService;
 }
 
-export default (settings?: json.LanguageSettings): Service => (context): ReturnType<Service> => {
+export default (settings?: json.LanguageSettings): Service<Provide> => (context): ReturnType<Service<Provide>> => {
 
 	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
 	const triggerCharacters = ['"', ':'];
 
 	if (!context) {
-		return { triggerCharacters };
+		return { triggerCharacters } as any;
 	}
 	const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 	const jsonLs = json.getLanguageService({ schemaRequestService: context.env.schemaRequestService });
@@ -28,7 +28,7 @@ export default (settings?: json.LanguageSettings): Service => (context): ReturnT
 		provide: {
 			'json/jsonDocument': getJsonDocument,
 			'json/languageService': () => jsonLs,
-		} satisfies Provide,
+		},
 
 		triggerCharacters,
 
