@@ -1,4 +1,4 @@
-import type { Service, ServiceContext } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -10,6 +10,7 @@ const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 export interface Provide {
 	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
 	'html/languageService': () => html.LanguageService;
+	'html/updateCustomData': (extraData: html.IHTMLDataProvider[]) => void;
 }
 
 export function getHtmlDocument(document: TextDocument) {
@@ -28,15 +29,10 @@ export function getHtmlDocument(document: TextDocument) {
 	return doc;
 }
 
-export interface PluginInstance extends ReturnType<Service> {
-	getHtmlLs: () => html.LanguageService;
-	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
-}
-
 export default (options: {
 	validLang?: string,
 	disableCustomData?: boolean,
-} = {}) => (context: ServiceContext | undefined): PluginInstance => {
+} = {}): Service<Provide> => (context): ReturnType<Service<Provide>> => {
 
 	// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 	const triggerCharacters = ['.', ':', '<', '"', '=', '/'];
@@ -64,13 +60,10 @@ export default (options: {
 				}
 			},
 			'html/languageService': () => htmlLs,
-		} satisfies Provide,
+			'html/updateCustomData': updateExtraCustomData,
+		},
 
 		triggerCharacters,
-
-		getHtmlLs: () => htmlLs,
-
-		updateCustomData: updateExtraCustomData,
 
 		async provideCompletionItems(document, position) {
 			return worker(document, async (htmlDocument) => {

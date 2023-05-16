@@ -8,24 +8,19 @@ import * as pug from './languageService';
 export interface Provide {
 	'pug/pugDocument': (document: TextDocument) => pug.PugDocument | undefined;
 	'pug/languageService': () => pug.LanguageService;
+	'pug/updateCustomData': (extraData: html.IHTMLDataProvider[]) => void;
 }
 
-export interface PluginInstance extends ReturnType<Service> {
-	getHtmlLs: () => html.LanguageService;
-	updateCustomData(extraData: html.IHTMLDataProvider[]): void;
-	getPugLs: () => pug.LanguageService;
-	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined;
-}
+export default (): Service<Provide> => (context, modules): ReturnType<Service<Provide>> => {
 
-export default (): Service => (context): PluginInstance => {
+	const htmlService = createHtmlService()(context, modules);
 
 	if (!context) {
-		return {} as any;
+		return htmlService as any;
 	}
 
 	const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
-	const htmlService = createHtmlService()(context);
-	const pugLs = pug.getLanguageService(htmlService.getHtmlLs());
+	const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
 
 	return {
 		...htmlService,
@@ -33,10 +28,8 @@ export default (): Service => (context): PluginInstance => {
 		provide: {
 			'pug/pugDocument': getPugDocument,
 			'pug/languageService': () => pugLs,
+			'pug/updateCustomData': htmlService.provide['html/updateCustomData'],
 		} satisfies Provide,
-
-		getPugLs: () => pugLs,
-		getPugDocument,
 
 		provideCompletionItems(document, position, _) {
 			return worker(document, (pugDocument) => {
