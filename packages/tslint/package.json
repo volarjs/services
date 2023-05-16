@@ -16,12 +16,6 @@
 		"tslint": "latest"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "*",
 		"tslint": "*"
-	},
-	"peerDependenciesMeta": {
-		"@volar/language-service": {
-			"optional": true
-		}
 	}
 }

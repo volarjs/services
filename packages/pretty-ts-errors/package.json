@@ -14,13 +14,5 @@
 	},
 	"dependencies": {
 		"pretty-ts-errors-lsp": "^0.0.3"
-	},
-	"peerDependencies": {
-		"@volar/language-service": "*"
-	},
-	"peerDependenciesMeta": {
-		"@volar/language-service": {
-			"optional": true
-		}
 	}
 }

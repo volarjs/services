@@ -1,4 +1,4 @@
-import { ServiceContext, Service, InjectionKey, defineProvide } from '@volar/language-service';
+import type { Service, ServiceContext } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -7,13 +7,10 @@ import * as path from 'path';
 const parserLs = html.getLanguageService();
 const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 
-export const injectionKeys: {
-	htmlDocument: InjectionKey<[TextDocument], html.HTMLDocument>;
-	languageService: InjectionKey<[], html.LanguageService>;
-} = {
-	htmlDocument: 'html/htmlDocument',
-	languageService: 'html/languageService',
-};
+export interface Provide {
+	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
+	'html/languageService': () => html.LanguageService;
+}
 
 export function getHtmlDocument(document: TextDocument) {
 
@@ -61,13 +58,13 @@ export default (options: {
 	return {
 
 		provide: {
-			...defineProvide(injectionKeys.htmlDocument, document => {
+			'html/htmlDocument': (document) => {
 				if (document.languageId === (options.validLang ?? 'html')) {
 					return getHtmlDocument(document);
 				}
-			}),
-			...defineProvide(injectionKeys.languageService, () => htmlLs),
-		},
+			},
+			'html/languageService': () => htmlLs,
+		} satisfies Provide,
 
 		triggerCharacters,
 

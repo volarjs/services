@@ -16,13 +16,5 @@
 		"vscode-json-languageservice": "^5.2.0",
 		"vscode-languageserver-protocol": "^3.17.3",
 		"vscode-languageserver-textdocument": "^1.0.8"
-	},
-	"peerDependencies": {
-		"@volar/language-service": "*"
-	},
-	"peerDependenciesMeta": {
-		"@volar/language-service": {
-			"optional": true
-		}
 	}
 }

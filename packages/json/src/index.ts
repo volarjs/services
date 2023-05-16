@@ -1,15 +1,12 @@
-import { InjectionKey, Service, defineProvide } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-export const injectionKeys: {
-	jsonDocument: InjectionKey<[TextDocument], json.JSONDocument>;
-	languageService: InjectionKey<[], json.LanguageService>;
-} = {
-	jsonDocument: 'json/jsonDocument',
-	languageService: 'json/languageService',
-};
+export interface Provide {
+	'json/jsonDocument': (document: TextDocument) => json.JSONDocument | undefined;
+	'json/languageService': () => json.LanguageService;
+}
 
 export default (settings?: json.LanguageSettings): Service => (context): ReturnType<Service> => {
 
@@ -29,9 +26,9 @@ export default (settings?: json.LanguageSettings): Service => (context): ReturnT
 	return {
 
 		provide: {
-			...defineProvide(injectionKeys.jsonDocument, getJsonDocument),
-			...defineProvide(injectionKeys.languageService, () => jsonLs),
-		},
+			'json/jsonDocument': getJsonDocument,
+			'json/languageService': () => jsonLs,
+		} satisfies Provide,
 
 		triggerCharacters,
 

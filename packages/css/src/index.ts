@@ -1,16 +1,13 @@
-import { InjectionKey, Service, defineProvide } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import * as vscode from 'vscode-languageserver-protocol';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
-export const injectionKeys: {
-	stylesheet: InjectionKey<[TextDocument], css.Stylesheet>;
-	languageService: InjectionKey<[languageId: string], css.LanguageService>;
-} = {
-	stylesheet: 'css/stylesheet',
-	languageService: 'css/languageService',
-};
+export interface Provide {
+	'css/stylesheet': (document: TextDocument) => css.Stylesheet | undefined;
+	'css/languageService': (languageId: string) => css.LanguageService | undefined;
+}
 
 export default (): Service => (context): ReturnType<Service> => {
 
@@ -40,9 +37,9 @@ export default (): Service => (context): ReturnType<Service> => {
 	return {
 
 		provide: {
-			...defineProvide(injectionKeys.stylesheet, getStylesheet),
-			...defineProvide(injectionKeys.languageService, getCssLs),
-		},
+			'css/stylesheet': getStylesheet,
+			'css/languageService': getCssLs,
+		} satisfies Provide,
 
 		triggerCharacters,
 

@@ -1,4 +1,4 @@
-import { ServiceContext } from "@volar/language-service";
+import type { ServiceContext } from '@volar/language-service';
 
 export type SharedContext = ServiceContext & {
 	typescript: NonNullable<ServiceContext['typescript']>;

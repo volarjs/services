@@ -1,4 +1,4 @@
-import { InjectionKey, Service, defineProvide } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as vscode from 'vscode-languageserver-protocol';
@@ -34,18 +34,12 @@ import * as workspaceSymbols from './services/workspaceSymbol';
 import * as tsconfig from './services/tsconfig';
 import { SharedContext } from './types';
 
-export const injectionKeys: {
-	typescript: InjectionKey<[], typeof import('typescript/lib/tsserverlibrary')>;
-	sourceFile: InjectionKey<[TextDocument], ts.SourceFile>;
-	languageService: InjectionKey<[TextDocument], ts.LanguageService>;
-	languageServiceHost: InjectionKey<[TextDocument], ts.LanguageServiceHost>;
-	textDocument: InjectionKey<[uri: string], TextDocument>;
-} = {
-	typescript: 'typescript/typescript',
-	sourceFile: 'typescript/sourceFile',
-	languageService: 'typescript/languageService',
-	languageServiceHost: 'typescript/languageServiceHost',
-	textDocument: 'typescript/textDocument',
+export interface Provide {
+	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
+	'typescript/sourceFile': (_: TextDocument) => ts.SourceFile | undefined;
+	'typescript/languageService': (_: TextDocument) => ts.LanguageService | undefined;
+	'typescript/languageServiceHost': (_: TextDocument) => ts.LanguageServiceHost | undefined;
+	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 };
 
 export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
@@ -144,8 +138,8 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 	return {
 
 		provide: {
-			...defineProvide(injectionKeys.typescript, () => ts),
-			...defineProvide(injectionKeys.sourceFile, document => {
+			'typescript/typescript': () => ts,
+			'typescript/sourceFile': document => {
 				if (isTsDocument(document)) {
 					const sourceFile = getSemanticServiceSourceFile(document.uri);
 					if (sourceFile) {
@@ -154,25 +148,25 @@ export default (): Service => (contextOrNull, modules): ReturnType<Service> => {
 					prepareSyntacticService(document);
 					return syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 				}
-			}),
-			...defineProvide(injectionKeys.languageService, document => {
+			},
+			'typescript/languageService': document => {
 				const sourceFile = getSemanticServiceSourceFile(document.uri);
 				if (sourceFile) {
 					return semanticCtx.typescript.languageService;
 				}
 				prepareSyntacticService(document);
 				return syntacticCtx.typescript.languageService;
-			}),
-			...defineProvide(injectionKeys.languageServiceHost, document => {
+			},
+			'typescript/languageServiceHost': document => {
 				const sourceFile = getSemanticServiceSourceFile(document.uri);
 				if (sourceFile) {
 					return semanticCtx.typescript.languageServiceHost;
 				}
 				prepareSyntacticService(document);
 				return syntacticCtx.typescript.languageServiceHost;
-			}),
-			...defineProvide(injectionKeys.textDocument, semanticCtx.getTextDocument),
-		},
+			},
+			'typescript/textDocument': semanticCtx.getTextDocument,
+		} satisfies Provide,
 
 		...triggerCharacters,
 

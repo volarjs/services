@@ -1,4 +1,4 @@
-import * as Proto from 'typescript/lib/tsserverlibrary';
+import type * as Proto from 'typescript/lib/tsserverlibrary';
 export = Proto.server.protocol;
 
 declare enum ServerType {

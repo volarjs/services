@@ -1,6 +1,6 @@
 import * as jsonc from 'jsonc-parser';
 import { minimatch } from 'minimatch';
-import * as vscode from '@volar/language-service';
+import * as vscode from 'vscode-languageserver-protocol';
 import { URI, Utils } from 'vscode-uri';
 import { SharedContext } from '../types';
 

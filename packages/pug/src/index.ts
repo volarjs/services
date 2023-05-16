@@ -1,17 +1,14 @@
-import useHtmlPlugin from 'volar-service-html';
-import { InjectionKey, Service, ServiceContext, defineProvide } from '@volar/language-service';
+import createHtmlService from 'volar-service-html';
+import type { Service } from '@volar/language-service';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 
-export const injectionKeys: {
-	pugDocument: InjectionKey<[TextDocument], pug.PugDocument>;
-	languageService: InjectionKey<[], pug.LanguageService>;
-} = {
-	pugDocument: 'pug/pugDocument',
-	languageService: 'pug/languageService',
-};
+export interface Provide {
+	'pug/pugDocument': (document: TextDocument) => pug.PugDocument | undefined;
+	'pug/languageService': () => pug.LanguageService;
+}
 
 export interface PluginInstance extends ReturnType<Service> {
 	getHtmlLs: () => html.LanguageService;
@@ -20,24 +17,24 @@ export interface PluginInstance extends ReturnType<Service> {
 	getPugDocument: (document: TextDocument) => pug.PugDocument | undefined;
 }
 
-export default () => (context: ServiceContext | undefined): PluginInstance => {
+export default (): Service => (context): PluginInstance => {
 
 	if (!context) {
 		return {} as any;
 	}
 
 	const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
-	const htmlPlugin = useHtmlPlugin()(context);
-	const pugLs = pug.getLanguageService(htmlPlugin.getHtmlLs());
+	const htmlService = createHtmlService()(context);
+	const pugLs = pug.getLanguageService(htmlService.getHtmlLs());
 
 	return {
+		...htmlService,
 
 		provide: {
-			...defineProvide(injectionKeys.pugDocument, getPugDocument),
-			...defineProvide(injectionKeys.languageService, () => pugLs),
-		},
+			'pug/pugDocument': getPugDocument,
+			'pug/languageService': () => pugLs,
+		} satisfies Provide,
 
-		...htmlPlugin,
 		getPugLs: () => pugLs,
 		getPugDocument,
 
@@ -93,7 +90,7 @@ export default () => (context: ServiceContext | undefined): PluginInstance => {
 		provideDocumentSymbols(document, token) {
 			return worker(document, async (pugDoc) => {
 
-				const htmlResult = await htmlPlugin.provideDocumentSymbols?.(pugDoc.map.virtualFileDocument, token) ?? [];
+				const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.virtualFileDocument, token) ?? [];
 				const pugResult = htmlResult.map(htmlSymbol => transformer.asDocumentSymbol(
 					htmlSymbol,
 					range => pugDoc.map.toSourceRange(range),
