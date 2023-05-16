@@ -56,7 +56,42 @@ export function resolveRefactorCodeAction(
 	if (!editInfo) {
 		return;
 	}
-	codeAction.edit = fileTextChangesToWorkspaceEdit(editInfo.edits, ctx);
+	const fullText = document.getText();
+	const inferredWhitespaces = document.getText().match(/^[ \t]+/m)?.[0] ?? '\t';
+	const patchedEdits = editInfo.edits.map(edit => {
+		if (edit.fileName !== data.fileName) return edit;
+		return {
+			...edit,
+			textChanges: edit.textChanges.map((change) => {
+				let { newText, span } = change;
+				const changePos = document.positionAt(span.start);
+				const startLineOffset = document.offsetAt({
+					line: changePos.line,
+					character: 0,
+				});
+				if (!/^\s/.test(fullText.slice(startLineOffset)) && newText.split('\n')[0].startsWith('\t')) {
+					newText = newText.split('\n').map(line => line.replace(/^\t/, '')).join('\n');
+				}
+				// patch renameLocation for extract symbol actions (first line only)
+				if (
+					editInfo.renameLocation &&
+					ctx.typescript.module.textSpanContainsPosition({
+						start: change.span.start,
+						length: newText.length,
+					}, editInfo.renameLocation)
+				) {
+					const leadingWhitespaceLenDiff = inferredWhitespaces.length - 1;
+					editInfo.renameLocation += (newText.split('\n')[0].match(/\t/g)?.length ?? 0) * leadingWhitespaceLenDiff;
+				}
+				return {
+					newText: newText.replaceAll('\t', inferredWhitespaces),
+					span
+				};
+			})
+		};
+	});
+
+	codeAction.edit = fileTextChangesToWorkspaceEdit(patchedEdits, ctx);
 	if (editInfo.renameLocation !== undefined && editInfo.renameFilename !== undefined) {
 		codeAction.command = ctx.commands.rename.create(
 			document.uri,

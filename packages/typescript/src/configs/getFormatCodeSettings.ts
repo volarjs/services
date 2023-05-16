@@ -14,8 +14,10 @@ export async function getFormatCodeSettings(
 
 	config = config ?? {};
 
-	return {
-		convertTabsToSpaces: options?.insertSpaces,
+	const defaultFormatOptions = ctx.typescript.module.getDefaultFormatCodeSettings();
+
+	return Object.assign({}, defaultFormatOptions, filterUndefined({
+		convertTabsToSpaces: options?.insertSpaces ?? false,
 		tabSize: options?.tabSize,
 		indentSize: options?.tabSize,
 		indentStyle: 2 /** ts.IndentStyle.Smart */,
@@ -37,5 +39,11 @@ export async function getFormatCodeSettings(
 		placeOpenBraceOnNewLineForFunctions: config.placeOpenBraceOnNewLineForFunctions ?? false,
 		placeOpenBraceOnNewLineForControlBlocks: config.placeOpenBraceOnNewLineForControlBlocks ?? false,
 		semicolons: config.semicolons ?? 'ignore',
-	};
+	}));
+}
+
+function filterUndefined<T extends Record<string, any>>(obj: T) {
+	return Object.fromEntries(
+		Object.entries(obj).filter(([k, v]) => v !== undefined)
+	) as T;
 }
