@@ -36,9 +36,9 @@ import { SharedContext } from './types';
 
 export interface Provide {
 	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
-	'typescript/sourceFile': (_: TextDocument) => ts.SourceFile | undefined;
-	'typescript/languageService': (_: TextDocument) => ts.LanguageService | undefined;
-	'typescript/languageServiceHost': (_: TextDocument) => ts.LanguageServiceHost | undefined;
+	'typescript/sourceFile': (document: TextDocument) => ts.SourceFile | undefined;
+	'typescript/languageService': (document?: TextDocument) => ts.LanguageService | undefined;
+	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost | undefined;
 	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 };
 
@@ -150,16 +150,14 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 				}
 			},
 			'typescript/languageService': document => {
-				const sourceFile = getSemanticServiceSourceFile(document.uri);
-				if (sourceFile) {
+				if (!document || getSemanticServiceSourceFile(document.uri)) {
 					return semanticCtx.typescript.languageService;
 				}
 				prepareSyntacticService(document);
 				return syntacticCtx.typescript.languageService;
 			},
 			'typescript/languageServiceHost': document => {
-				const sourceFile = getSemanticServiceSourceFile(document.uri);
-				if (sourceFile) {
+				if (!document || getSemanticServiceSourceFile(document.uri)) {
 					return semanticCtx.typescript.languageServiceHost;
 				}
 				prepareSyntacticService(document);
