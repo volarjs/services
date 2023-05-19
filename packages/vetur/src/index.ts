@@ -1,4 +1,4 @@
-import { Service, SemanticToken } from '@volar/language-service';
+import type { Service, SemanticToken } from '@volar/language-service';
 import * as vls from 'vls';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
