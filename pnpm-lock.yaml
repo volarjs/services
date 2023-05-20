@@ -97,6 +97,12 @@ importers:
 
   packages/pug:
     dependencies:
+      '@volar/language-service':
+        specifier: '*'
+        version: 1.6.7(vscode-languageserver-protocol@3.17.3)
+      '@volar/source-map':
+        specifier: '*'
+        version: 1.6.7
       muggle-string:
         specifier: ^0.3.1
         version: 0.3.1
@@ -967,7 +973,6 @@ packages:
     resolution: {integrity: sha512-c6EvIDVkE2XwW6cvsjw0cfuynKihqtIHuDE4ToZW0vYKpnM3KpQuXe4NLOhwof6fSOKQF8ocNOb1LmLlWv2hSw==}
     dependencies:
       '@volar/source-map': 1.6.7
-    dev: true
 
   /@volar/language-service@1.6.7(vscode-languageserver-protocol@3.17.3):
     resolution: {integrity: sha512-CVNIkEFSFYsqilPYC0UjcWiYfQQPCoSJZB3JFgh8W894gxJpvgz6ZXB75RJO5SXvzUajvwnf23Tq04gFwtkWfA==}
@@ -983,13 +988,11 @@ packages:
       vscode-languageserver-protocol: 3.17.3
       vscode-languageserver-textdocument: 1.0.8
       vscode-uri: 3.0.7
-    dev: true
 
   /@volar/source-map@1.6.7:
     resolution: {integrity: sha512-TOvaS7dr4kVxKg2wAKOqo8Y0/ZKVzirmumsMeU83t8xAPc24x58cjE9xAlju5e/MWXH4ETTeJqftf8EbwGi1iw==}
     dependencies:
       muggle-string: 0.3.1
-    dev: true
 
   /@vscode/emmet-helper@2.8.6:
     resolution: {integrity: sha512-IIB8jbiKy37zN8bAIHx59YmnIelY78CGHtThnibD/d3tQOKRY83bYVi9blwmZVUZh6l9nfkYH3tvReaiNxY9EQ==}
@@ -4514,7 +4517,6 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: true
 
   /set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
@@ -5080,7 +5082,6 @@ packages:
     resolution: {integrity: sha512-FD5uYQSNkVTX4b3lvtifP+SR3bARWGmKe/uyp5BfuW2ZUCYG7vHKPddrteLU06Uh68woRaYIX+Sbs2nnySpGLw==}
     dependencies:
       semver: 7.5.1
-    dev: true
 
   /typescript@4.9.5:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
