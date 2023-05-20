@@ -1,5 +1,5 @@
 import { SharedContext } from '../types';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
 
@@ -22,13 +22,13 @@ export function register(ctx: SharedContext) {
 		) ?? [];
 
 		return inlayHints.map(inlayHint => {
-			const result = vscode.InlayHint.create(
-				document.positionAt(inlayHint.position),
-				inlayHint.text,
-				inlayHint.kind === ts.InlayHintKind.Type ? vscode.InlayHintKind.Type
-					: inlayHint.kind === ts.InlayHintKind.Parameter ? vscode.InlayHintKind.Parameter
+			const result: vscode.InlayHint = {
+				position: document.positionAt(inlayHint.position),
+				label: inlayHint.text,
+				kind: inlayHint.kind === ts.InlayHintKind.Type ? 1 satisfies typeof vscode.InlayHintKind.Type
+					: inlayHint.kind === ts.InlayHintKind.Parameter ? 2 satisfies typeof vscode.InlayHintKind.Parameter
 						: undefined,
-			);
+			};
 			result.paddingLeft = inlayHint.whitespaceBefore;
 			result.paddingRight = inlayHint.whitespaceAfter;
 			return result;

@@ -1,5 +1,5 @@
-import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type * as vscode from '@volar/language-service';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 

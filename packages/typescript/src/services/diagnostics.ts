@@ -1,4 +1,4 @@
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { SharedContext } from '../types';
@@ -70,11 +70,11 @@ export function register(ctx: SharedContext) {
 			}
 			if (diag.reportsUnnecessary) {
 				if (diagnostic.tags === undefined) diagnostic.tags = [];
-				diagnostic.tags.push(vscode.DiagnosticTag.Unnecessary);
+				diagnostic.tags.push(1 satisfies typeof vscode.DiagnosticTag.Unnecessary);
 			}
 			if (diag.reportsDeprecated) {
 				if (diagnostic.tags === undefined) diagnostic.tags = [];
-				diagnostic.tags.push(vscode.DiagnosticTag.Deprecated);
+				diagnostic.tags.push(2 satisfies typeof vscode.DiagnosticTag.Deprecated);
 			}
 
 			return diagnostic;
@@ -105,12 +105,12 @@ export function register(ctx: SharedContext) {
 		}
 		function translateErrorType(input: ts.DiagnosticCategory): vscode.DiagnosticSeverity {
 			switch (input) {
-				case ts.DiagnosticCategory.Warning: return vscode.DiagnosticSeverity.Warning;
-				case ts.DiagnosticCategory.Error: return vscode.DiagnosticSeverity.Error;
-				case ts.DiagnosticCategory.Suggestion: return vscode.DiagnosticSeverity.Hint;
-				case ts.DiagnosticCategory.Message: return vscode.DiagnosticSeverity.Information;
+				case ts.DiagnosticCategory.Warning: return 2 satisfies typeof vscode.DiagnosticSeverity.Warning;
+				case ts.DiagnosticCategory.Error: return 1 satisfies typeof vscode.DiagnosticSeverity.Error;
+				case ts.DiagnosticCategory.Suggestion: return 4 satisfies typeof vscode.DiagnosticSeverity.Hint;
+				case ts.DiagnosticCategory.Message: return 3 satisfies typeof vscode.DiagnosticSeverity.Information;
 			}
-			return vscode.DiagnosticSeverity.Error;
+			return 1 satisfies typeof vscode.DiagnosticSeverity.Error;
 		}
 	};
 }

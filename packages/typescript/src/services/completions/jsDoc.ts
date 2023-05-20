@@ -1,5 +1,5 @@
 import { SharedContext } from '../../types';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
 import { getLineText } from './resolve';
@@ -44,19 +44,19 @@ export function register(ctx: SharedContext) {
 
 function createCompletionItem(document: TextDocument, position: vscode.Position, insertText: string) {
 
-	const item = vscode.CompletionItem.create('/** */');
-	item.kind = vscode.CompletionItemKind.Text;
+	const item: vscode.CompletionItem = { label: '/** */' };
+	item.kind = 1 satisfies typeof vscode.CompletionItemKind.Text;
 	item.detail = localize('typescript.jsDocCompletionItem.documentation', 'JSDoc comment');
 	item.sortText = '\0';
-	item.insertTextFormat = vscode.InsertTextFormat.Snippet;
+	item.insertTextFormat = 2 satisfies typeof vscode.InsertTextFormat.Snippet;
 
 	const line = getLineText(document, position.line);
 	const prefix = line.slice(0, position.character).match(/\/\**\s*$/);
 	const suffix = line.slice(position.character).match(/^\s*\**\//);
-	const start = vscode.Position.create(position.line, position.character + (prefix ? -prefix[0].length : 0));
-	const end = vscode.Position.create(position.line, position.character + (suffix ? suffix[0].length : 0));
-	const range = vscode.Range.create(start, end);
-	item.textEdit = vscode.TextEdit.replace(range, insertText);
+	const start: vscode.Position = { line: position.line, character: position.character + (prefix ? -prefix[0].length : 0) };
+	const end: vscode.Position = { line: position.line, character: position.character + (suffix ? suffix[0].length : 0) };
+	const range: vscode.Range = { start, end };
+	item.textEdit = { range, newText: insertText };
 
 	return item;
 }

@@ -1,5 +1,5 @@
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import * as vscode from 'vscode-languageserver-protocol';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type * as vscode from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import { parseKindModifier } from '../utils/modifiers';
@@ -85,7 +85,7 @@ export function register(ctx: SharedContext) {
 
 		const kindModifiers = item.kindModifiers ? parseKindModifier(item.kindModifiers) : undefined;
 		if (kindModifiers?.has(PConst.KindModifiers.deprecated)) {
-			result.tags = [vscode.SymbolTag.Deprecated];
+			result.tags = [1 satisfies typeof vscode.SymbolTag.Deprecated];
 		}
 		return result;
 	}

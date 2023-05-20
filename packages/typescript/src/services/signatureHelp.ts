@@ -1,6 +1,6 @@
 import { SharedContext } from '../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
@@ -11,18 +11,18 @@ export function register(ctx: SharedContext) {
 		if (!document) return;
 
 		const options: ts.SignatureHelpItemsOptions = {};
-		if (context?.triggerKind === vscode.SignatureHelpTriggerKind.Invoked) {
+		if (context?.triggerKind === 1 satisfies typeof vscode.SignatureHelpTriggerKind.Invoked) {
 			options.triggerReason = {
 				kind: 'invoked'
 			};
 		}
-		else if (context?.triggerKind === vscode.SignatureHelpTriggerKind.TriggerCharacter) {
+		else if (context?.triggerKind === 2 satisfies typeof vscode.SignatureHelpTriggerKind.TriggerCharacter) {
 			options.triggerReason = {
 				kind: 'characterTyped',
 				triggerCharacter: context.triggerCharacter as ts.SignatureHelpTriggerCharacter,
 			};
 		}
-		else if (context?.triggerKind === vscode.SignatureHelpTriggerKind.ContentChange) {
+		else if (context?.triggerKind === 3 satisfies typeof vscode.SignatureHelpTriggerKind.ContentChange) {
 			options.triggerReason = {
 				kind: 'retrigger',
 				triggerCharacter: context.triggerCharacter as ts.SignatureHelpRetriggerCharacter,

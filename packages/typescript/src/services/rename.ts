@@ -1,6 +1,5 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type * as vscode from '@volar/language-service';
 import { posix as path } from 'path';
 import { renameInfoOptions } from './prepareRename';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
@@ -56,10 +55,11 @@ export function register(ctx: SharedContext) {
 			edits.documentChanges = [];
 		}
 
-		edits.documentChanges.push(vscode.RenameFile.create(
-			ctx.env.fileNameToUri(fileToRename),
-			ctx.env.fileNameToUri(newFilePath),
-		));
+		edits.documentChanges.push({
+			kind: 'rename',
+			oldUri: ctx.env.fileNameToUri(fileToRename),
+			newUri: ctx.env.fileNameToUri(newFilePath),
+		});
 
 		return edits;
 	}
@@ -81,27 +81,26 @@ export function fileTextChangesToWorkspaceEdit(
 		let doc = ctx.getTextDocument(uri);
 
 		if (change.isNewFile) {
-			workspaceEdit.documentChanges.push(vscode.CreateFile.create(uri));
-			doc = TextDocument.create(uri, 'typescript', 0, '');
+			workspaceEdit.documentChanges.push({ kind: 'create', uri });
 		}
 
-		if (!doc)
+		if (!doc && !change.isNewFile)
 			continue;
 
-		const docEdit = vscode.TextDocumentEdit.create(
-			{
+		const docEdit: vscode.TextDocumentEdit = {
+			textDocument: {
 				uri,
 				version: null, // fix https://github.com/johnsoncodehk/volar/issues/2025
 			},
-			[],
-		);
+			edits: [],
+		};
 
 		for (const textChange of change.textChanges) {
 			docEdit.edits.push({
 				newText: textChange.newText,
 				range: {
-					start: doc.positionAt(textChange.span.start),
-					end: doc.positionAt(textChange.span.start + textChange.span.length),
+					start: doc?.positionAt(textChange.span.start) ?? { line: 0, character: 0 },
+					end: doc?.positionAt(textChange.span.start + textChange.span.length) ?? { line: 0, character: 0 },
 				},
 			});
 		}

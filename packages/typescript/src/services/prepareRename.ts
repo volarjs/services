@@ -1,12 +1,12 @@
 import { SharedContext } from '../types';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { safeCall } from '../shared';
 
 /* typescript-language-features is hardcode true */
 export const renameInfoOptions = { allowRenameOfImportPath: true };
 
 export function register(ctx: SharedContext) {
-	return (uri: string, position: vscode.Position): vscode.Range | undefined | vscode.ResponseError<void> => {
+	return (uri: string, position: vscode.Position): vscode.Range | { message: string } | undefined => {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
@@ -16,7 +16,7 @@ export function register(ctx: SharedContext) {
 		if (!renameInfo) return;
 
 		if (!renameInfo.canRename) {
-			return new vscode.ResponseError(0, renameInfo.localizedErrorMessage);
+			return { message: renameInfo.localizedErrorMessage };
 		}
 
 		return {

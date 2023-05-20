@@ -1,7 +1,6 @@
-import type { Service } from '@volar/language-service';
+import type { Service, DocumentSymbol, SymbolKind } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
-import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
 
 const parserLs = html.getLanguageService();
@@ -123,7 +122,7 @@ export default (options: {
 		provideDocumentSymbols(document) {
 			return worker(document, (htmlDocument) => {
 				// TODO: wait for https://github.com/microsoft/vscode-html-languageservice/pull/152
-				const symbols: vscode.DocumentSymbol[] = [];
+				const symbols: DocumentSymbol[] = [];
 				htmlDocument.roots.forEach(node => {
 					provideFileSymbolsInternal(document, node, symbols);
 				});
@@ -157,11 +156,14 @@ export default (options: {
 					const content = document.getText();
 					if (endPos.character === 0 && endPos.line > 0 && endOffset !== content.length) {
 						// if selection ends after a new line, exclude that new line
-						const prevLineStart = document.offsetAt(vscode.Position.create(endPos.line - 1, 0));
+						const prevLineStart = document.offsetAt({ line: endPos.line - 1, character: 0 });
 						while (isEOL(content, endOffset - 1) && endOffset > prevLineStart) {
 							endOffset--;
 						}
-						formatRange = vscode.Range.create(formatRange.start, document.positionAt(endOffset));
+						formatRange = {
+							start: formatRange.start,
+							end: document.positionAt(endOffset),
+						};
 					}
 				}
 
@@ -328,17 +330,19 @@ function isNewlineCharacter(charCode: number) {
 	return charCode === CR || charCode === NL;
 }
 
-function provideFileSymbolsInternal(document: TextDocument, node: html.Node, symbols: vscode.DocumentSymbol[]): void {
+function provideFileSymbolsInternal(document: TextDocument, node: html.Node, symbols: DocumentSymbol[]): void {
 
 	const name = nodeToName(node);
-	const range = vscode.Range.create(document.positionAt(node.start), document.positionAt(node.end));
-	const symbol = vscode.DocumentSymbol.create(
+	const range = {
+		start: document.positionAt(node.start),
+		end: document.positionAt(node.end),
+	};
+	const symbol: DocumentSymbol = {
 		name,
-		undefined,
-		vscode.SymbolKind.Field,
+		kind: 8 satisfies typeof SymbolKind.Field,
 		range,
-		range,
-	);
+		selectionRange: range,
+	};
 
 	symbols.push(symbol);
 

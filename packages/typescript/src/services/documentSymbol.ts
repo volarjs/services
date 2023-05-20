@@ -1,29 +1,29 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { parseKindModifier } from '../utils/modifiers';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
 const getSymbolKind = (kind: string): vscode.SymbolKind => {
 	switch (kind) {
-		case PConst.Kind.module: return vscode.SymbolKind.Module;
-		case PConst.Kind.class: return vscode.SymbolKind.Class;
-		case PConst.Kind.enum: return vscode.SymbolKind.Enum;
-		case PConst.Kind.interface: return vscode.SymbolKind.Interface;
-		case PConst.Kind.method: return vscode.SymbolKind.Method;
-		case PConst.Kind.memberVariable: return vscode.SymbolKind.Property;
-		case PConst.Kind.memberGetAccessor: return vscode.SymbolKind.Property;
-		case PConst.Kind.memberSetAccessor: return vscode.SymbolKind.Property;
-		case PConst.Kind.variable: return vscode.SymbolKind.Variable;
-		case PConst.Kind.const: return vscode.SymbolKind.Variable;
-		case PConst.Kind.localVariable: return vscode.SymbolKind.Variable;
-		case PConst.Kind.function: return vscode.SymbolKind.Function;
-		case PConst.Kind.localFunction: return vscode.SymbolKind.Function;
-		case PConst.Kind.constructSignature: return vscode.SymbolKind.Constructor;
-		case PConst.Kind.constructorImplementation: return vscode.SymbolKind.Constructor;
+		case PConst.Kind.module: return 2 satisfies typeof vscode.SymbolKind.Module;
+		case PConst.Kind.class: return 5 satisfies typeof vscode.SymbolKind.Class;
+		case PConst.Kind.enum: return 10 satisfies typeof vscode.SymbolKind.Enum;
+		case PConst.Kind.interface: return 11 satisfies typeof vscode.SymbolKind.Interface;
+		case PConst.Kind.method: return 6 satisfies typeof vscode.SymbolKind.Method;
+		case PConst.Kind.memberVariable: return 7 satisfies typeof vscode.SymbolKind.Property;
+		case PConst.Kind.memberGetAccessor: return 7 satisfies typeof vscode.SymbolKind.Property;
+		case PConst.Kind.memberSetAccessor: return 7 satisfies typeof vscode.SymbolKind.Property;
+		case PConst.Kind.variable: return 13 satisfies typeof vscode.SymbolKind.Variable;
+		case PConst.Kind.const: return 13 satisfies typeof vscode.SymbolKind.Variable;
+		case PConst.Kind.localVariable: return 13 satisfies typeof vscode.SymbolKind.Variable;
+		case PConst.Kind.function: return 12 satisfies typeof vscode.SymbolKind.Function;
+		case PConst.Kind.localFunction: return 12 satisfies typeof vscode.SymbolKind.Function;
+		case PConst.Kind.constructSignature: return 9 satisfies typeof vscode.SymbolKind.Constructor;
+		case PConst.Kind.constructorImplementation: return 9 satisfies typeof vscode.SymbolKind.Constructor;
 	}
-	return vscode.SymbolKind.Variable;
+	return 13 satisfies typeof vscode.SymbolKind.Variable;
 };
 
 export function register(ctx: SharedContext) {
@@ -62,25 +62,24 @@ export function register(ctx: SharedContext) {
 							start: Math.min(span.start, nameSpan.start),
 							end: Math.max(span.start + span.length, nameSpan.start + nameSpan.length),
 						};
-						const symbol = vscode.DocumentSymbol.create(
-							item.text,
-							undefined,
-							getSymbolKind(item.kind),
-							vscode.Range.create(
-								document.positionAt(fullRange.start),
-								document.positionAt(fullRange.end),
-							),
-							vscode.Range.create(
-								document.positionAt(nameSpan.start),
-								document.positionAt(nameSpan.start + nameSpan.length),
-							),
-							childItems.map(convertNavTree).flat(),
-						);
+						const symbol: vscode.DocumentSymbol = {
+							name: item.text,
+							kind: getSymbolKind(item.kind),
+							range: {
+								start: document.positionAt(fullRange.start),
+								end: document.positionAt(fullRange.end),
+							},
+							selectionRange: {
+								start: document.positionAt(nameSpan.start),
+								end: document.positionAt(nameSpan.start + nameSpan.length),
+							},
+							children: childItems.map(convertNavTree).flat(),
+						};
 						const kindModifiers = parseKindModifier(item.kindModifiers);
 						if (kindModifiers.has(PConst.KindModifiers.deprecated)) {
 							symbol.deprecated = true;
 							symbol.tags ??= [];
-							symbol.tags.push(vscode.SymbolTag.Deprecated);
+							symbol.tags.push(1 satisfies typeof vscode.SymbolTag.Deprecated);
 						}
 						return symbol;
 					});

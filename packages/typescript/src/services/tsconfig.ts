@@ -1,6 +1,6 @@
 import * as jsonc from 'jsonc-parser';
 import { minimatch } from 'minimatch';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { URI, Utils } from 'vscode-uri';
 import { SharedContext } from '../types';
 
@@ -78,11 +78,10 @@ export function register(ctx: SharedContext) {
 			extendsValue: extendsValue
 		};
 
-		const link = vscode.DocumentLink.create(
-			getRange(document, extendsNode),
-			undefined,
-			args
-		);
+		const link: vscode.DocumentLink = {
+			range: getRange(document, extendsNode),
+			data: args,
+		};
 		// link.tooltip = vscode.l10n.t("Follow link");
 		link.tooltip = "Follow link";
 		return link;
@@ -103,12 +102,13 @@ export function register(ctx: SharedContext) {
 					return undefined;
 				}
 
-				return vscode.DocumentLink.create(
-					getRange(document, pathNode),
-					pathNode.value.endsWith('.json')
+				const link: vscode.DocumentLink = {
+					range: getRange(document, pathNode),
+					target: pathNode.value.endsWith('.json')
 						? getFileTarget(document, pathNode)
 						: getFolderTarget(document, pathNode)
-				);
+				};
+				return link;
 			});
 	}
 
@@ -117,7 +117,7 @@ export function register(ctx: SharedContext) {
 		node: jsonc.Node | undefined
 	): vscode.DocumentLink | undefined {
 		return isPathValue(node)
-			? vscode.DocumentLink.create(getRange(document, node), getFileTarget(document, node))
+			? { range: getRange(document, node), target: getFileTarget(document, node) }
 			: undefined;
 	}
 
@@ -140,7 +140,7 @@ export function register(ctx: SharedContext) {
 		const offset = node.offset;
 		const start = document.positionAt(offset + 1);
 		const end = document.positionAt(offset + (node.length - 1));
-		return vscode.Range.create(start, end);
+		return { start, end };
 	}
 
 	async function resolveNodeModulesPath(baseDirUri: URI, pathCandidates: string[]): Promise<URI | undefined> {

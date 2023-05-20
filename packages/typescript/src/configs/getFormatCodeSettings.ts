@@ -1,13 +1,13 @@
 import { SharedContext } from '../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
+import type { FormattingOptions } from '@volar/language-service';
 import { getConfigTitle } from '../shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export async function getFormatCodeSettings(
 	ctx: SharedContext,
 	document: TextDocument,
-	options?: vscode.FormattingOptions,
+	options?: FormattingOptions,
 ): Promise<ts.FormatCodeSettings> {
 
 	let config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document) + '.format');

@@ -1,7 +1,6 @@
-import type { Service } from '@volar/language-service';
+import type { Service, Diagnostic } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
-import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export interface Provide {
 	'json/jsonDocument': (document: TextDocument) => json.JSONDocument | undefined;
@@ -58,7 +57,7 @@ export default (settings?: json.LanguageSettings): Service<Provide> => (context)
 					jsonDocument,
 					documentLanguageSettings,
 					undefined, // TODO
-				) as vscode.Diagnostic[];
+				) as Diagnostic[];
 			});
 		},
 

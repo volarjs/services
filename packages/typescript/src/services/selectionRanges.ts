@@ -1,6 +1,6 @@
 import { SharedContext } from '../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { safeCall } from '../shared';
 
@@ -27,10 +27,10 @@ export function register(ctx: SharedContext) {
 
 function transformSelectionRange(range: ts.SelectionRange, document: TextDocument): vscode.SelectionRange {
 	return {
-		range: vscode.Range.create(
-			document.positionAt(range.textSpan.start),
-			document.positionAt(range.textSpan.start + range.textSpan.length),
-		),
+		range: {
+			start: document.positionAt(range.textSpan.start),
+			end: document.positionAt(range.textSpan.start + range.textSpan.length),
+		},
 		parent: range.parent ? transformSelectionRange(range.parent, document) : undefined,
 	};
 }

@@ -13,14 +13,13 @@
 		"directory": "packages/typescript"
 	},
 	"devDependencies": {
-		"@types/semver": "^7.3.13"
+		"@types/semver": "^7.3.13",
+		"vscode-languageserver-textdocument": "^1.0.8"
 	},
 	"dependencies": {
 		"jsonc-parser": "^3.2.0",
 		"minimatch": "^9.0.0",
 		"semver": "^7.3.8",
-		"vscode-languageserver-protocol": "^3.17.3",
-		"vscode-languageserver-textdocument": "^1.0.8",
 		"vscode-nls": "^5.2.0",
 		"vscode-uri": "^3.0.7"
 	}

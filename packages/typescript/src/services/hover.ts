@@ -1,4 +1,4 @@
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import * as previewer from '../utils/previewer';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
@@ -27,16 +27,16 @@ export function register(ctx: SharedContext) {
 		}
 
 		const markdown: vscode.MarkupContent = {
-			kind: vscode.MarkupKind.Markdown,
+			kind: 'markdown' satisfies typeof vscode.MarkupKind.Markdown,
 			value: parts.join('\n\n'),
 		};
 
 		return {
 			contents: markdown,
-			range: vscode.Range.create(
-				document.positionAt(info.textSpan.start),
-				document.positionAt(info.textSpan.start + info.textSpan.length),
-			),
+			range: {
+				start: document.positionAt(info.textSpan.start),
+				end: document.positionAt(info.textSpan.start + info.textSpan.length),
+			},
 		};
 
 		function toResource(path: string) {

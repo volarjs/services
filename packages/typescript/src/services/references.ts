@@ -1,4 +1,4 @@
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { entriesToLocations } from '../utils/transforms';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';

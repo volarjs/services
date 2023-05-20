@@ -1,7 +1,6 @@
-import type { Service } from '@volar/language-service';
+import type { CompletionList, Service, CompletionTriggerKind } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 
@@ -197,12 +196,12 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 		async provideCompletionItems(document, position, context) {
 			if (isTsDocument(document)) {
 
-				let result: vscode.CompletionList = {
+				let result: CompletionList = {
 					isIncomplete: false,
 					items: [],
 				};
 
-				if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && basicTriggerCharacters.includes(context.triggerCharacter))) {
+				if (!context || context.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && basicTriggerCharacters.includes(context.triggerCharacter))) {
 
 					const completeOptions: ts.GetCompletionsAtPositionOptions = {
 						triggerCharacter: context?.triggerCharacter as ts.CompletionsTriggerCharacter,
@@ -214,7 +213,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 						result = basicResult;
 					}
 				}
-				if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === jsDocTriggerCharacter) {
+				if (!context || context.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === jsDocTriggerCharacter) {
 
 					const jsdocResult = await doJsDocComplete(document.uri, position);
 
@@ -222,7 +221,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 						result.items.push(jsdocResult);
 					}
 				}
-				if (!context || context.triggerKind !== vscode.CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === directiveCommentTriggerCharacter) {
+				if (!context || context.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === directiveCommentTriggerCharacter) {
 
 					const directiveCommentResult = await doDirectiveCommentComplete(document.uri, position);
 

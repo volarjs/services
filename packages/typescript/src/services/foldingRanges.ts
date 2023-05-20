@@ -1,6 +1,6 @@
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
@@ -23,13 +23,13 @@ export function register(ctx: SharedContext) {
 			const start = document.positionAt(outliningSpan.textSpan.start);
 			const end = adjustFoldingEnd(start, document.positionAt(outliningSpan.textSpan.start + outliningSpan.textSpan.length), document);
 
-			const foldingRange = vscode.FoldingRange.create(
-				start.line,
-				end.line,
-				start.character,
-				end.character,
-				transformFoldingRangeKind(outliningSpan.kind),
-			);
+			const foldingRange: vscode.FoldingRange = {
+				startLine: start.line,
+				endLine: end.line,
+				startCharacter: start.character,
+				endCharacter: end.character,
+				kind: transformFoldingRangeKind(outliningSpan.kind),
+			};
 			foldingRanges.push(foldingRange);
 		}
 
@@ -38,9 +38,9 @@ export function register(ctx: SharedContext) {
 
 	function transformFoldingRangeKind(tsKind: ts.OutliningSpanKind) {
 		switch (tsKind) {
-			case ts.OutliningSpanKind.Comment: return vscode.FoldingRangeKind.Comment;
-			case ts.OutliningSpanKind.Imports: return vscode.FoldingRangeKind.Imports;
-			case ts.OutliningSpanKind.Region: return vscode.FoldingRangeKind.Region;
+			case ts.OutliningSpanKind.Comment: return 'comment' satisfies typeof vscode.FoldingRangeKind.Comment;
+			case ts.OutliningSpanKind.Imports: return 'imports' satisfies typeof vscode.FoldingRangeKind.Imports;
+			case ts.OutliningSpanKind.Region: return 'region' satisfies typeof vscode.FoldingRangeKind.Region;
 		}
 	}
 }

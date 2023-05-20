@@ -1,4 +1,4 @@
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import * as nls from 'vscode-nls';
 import { SharedContext } from '../../types';
 
@@ -49,11 +49,20 @@ export function register(ctx: SharedContext) {
 
 			return directives.map(directive => {
 
-				const item = vscode.CompletionItem.create(directive.value);
-				item.insertTextFormat = vscode.InsertTextFormat.Snippet;
+				const item: vscode.CompletionItem = { label: directive.value };
+				item.insertTextFormat = 2 satisfies typeof vscode.InsertTextFormat.Snippet;
 				item.detail = directive.description;
-				const range = vscode.Range.create(position.line, Math.max(0, position.character - (match[1] ? match[1].length : 0)), position.line, position.character);
-				item.textEdit = vscode.TextEdit.replace(range, directive.value);
+				const range: vscode.Range = {
+					start: {
+						line: position.line,
+						character: Math.max(0, position.character - (match[1] ? match[1].length : 0)),
+					},
+					end: position,
+				};
+				item.textEdit = {
+					range,
+					newText: directive.value,
+				};
 
 				return item;
 			});

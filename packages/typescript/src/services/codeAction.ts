@@ -1,5 +1,5 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import { fileTextChangesToWorkspaceEdit } from './rename';
 import * as fixNames from '../utils/fixNames';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
@@ -57,7 +57,7 @@ export function register(ctx: SharedContext) {
 		const end = document.offsetAt(range.end);
 		let result: vscode.CodeAction[] = [];
 
-		const onlyQuickFix = matchOnlyKind(`${vscode.CodeActionKind.QuickFix}.ts`);
+		const onlyQuickFix = matchOnlyKind(`${'quickfix' satisfies typeof vscode.CodeActionKind.QuickFix}.ts`);
 		if (!context.only || onlyQuickFix) {
 			for (const error of context.diagnostics) {
 				const codeFixes = safeCall(() => ctx.typescript.languageService.getCodeFixesAtPosition(
@@ -69,14 +69,14 @@ export function register(ctx: SharedContext) {
 					preferences,
 				)) ?? [];
 				for (const codeFix of codeFixes) {
-					result = result.concat(transformCodeFix(codeFix, [error], onlyQuickFix ?? vscode.CodeActionKind.Empty));
+					result = result.concat(transformCodeFix(codeFix, [error], onlyQuickFix ?? '' satisfies typeof vscode.CodeActionKind.Empty));
 				}
 			}
 		}
 
 		if (context.only) {
 			for (const only of context.only) {
-				if (only.split('.')[0] === vscode.CodeActionKind.Refactor) {
+				if (only.split('.')[0] === 'refactor' satisfies typeof vscode.CodeActionKind.Refactor) {
 					const refactors = safeCall(() => ctx.typescript.languageService.getApplicableRefactors(
 						fileName,
 						{ pos: start, end: end },
@@ -103,9 +103,12 @@ export function register(ctx: SharedContext) {
 			}
 		}
 
-		const onlySourceOrganizeImports = matchOnlyKind(`${vscode.CodeActionKind.SourceOrganizeImports}.ts`);
+		const onlySourceOrganizeImports = matchOnlyKind(`${'source.organizeImports' satisfies typeof vscode.CodeActionKind.SourceOrganizeImports}.ts`);
 		if (onlySourceOrganizeImports) {
-			const action = vscode.CodeAction.create('Organize Imports', onlySourceOrganizeImports);
+			const action: vscode.CodeAction = {
+				title: 'Organize Imports',
+				kind: onlySourceOrganizeImports,
+			};
 			const data: OrganizeImportsData = {
 				type: 'organizeImports',
 				uri,
@@ -120,9 +123,12 @@ export function register(ctx: SharedContext) {
 			result.push(action);
 		}
 
-		const onlySourceFixAll = matchOnlyKind(`${vscode.CodeActionKind.SourceFixAll}.ts`);
+		const onlySourceFixAll = matchOnlyKind(`${'source.fixAll' satisfies typeof vscode.CodeActionKind.SourceFixAll}.ts`);
 		if (onlySourceFixAll) {
-			const action = vscode.CodeAction.create('Fix All', onlySourceFixAll);
+			const action: vscode.CodeAction = {
+				title: 'Fix All',
+				kind: onlySourceFixAll,
+			};
 			const data: FixAllData = {
 				uri,
 				type: 'fixAll',
@@ -142,9 +148,12 @@ export function register(ctx: SharedContext) {
 			result.push(action);
 		}
 
-		const onlyRemoveUnused = matchOnlyKind(`${vscode.CodeActionKind.Source}.removeUnused.ts`);
+		const onlyRemoveUnused = matchOnlyKind(`${'source' satisfies typeof vscode.CodeActionKind.Source}.removeUnused.ts`);
 		if (onlyRemoveUnused) {
-			const action = vscode.CodeAction.create('Remove all unused code', onlyRemoveUnused);
+			const action: vscode.CodeAction = {
+				title: 'Remove all unused code',
+				kind: onlyRemoveUnused,
+			};
 			const data: FixAllData = {
 				uri,
 				type: 'fixAll',
@@ -168,9 +177,12 @@ export function register(ctx: SharedContext) {
 			result.push(action);
 		}
 
-		const onlyAddMissingImports = matchOnlyKind(`${vscode.CodeActionKind.Source}.addMissingImports.ts`);
+		const onlyAddMissingImports = matchOnlyKind(`${'source' satisfies typeof vscode.CodeActionKind.Source}.addMissingImports.ts`);
 		if (onlyAddMissingImports) {
-			const action = vscode.CodeAction.create('Add all missing imports', onlyAddMissingImports);
+			const action: vscode.CodeAction = {
+				title: 'Add all missing imports',
+				kind: onlyAddMissingImports,
+			};
 			const data: FixAllData = {
 				uri,
 				type: 'fixAll',
@@ -225,18 +237,18 @@ export function register(ctx: SharedContext) {
 		function transformCodeFix(codeFix: ts.CodeFixAction, diagnostics: vscode.Diagnostic[], kind: vscode.CodeActionKind) {
 			const edit = fileTextChangesToWorkspaceEdit(codeFix.changes, ctx);
 			const codeActions: vscode.CodeAction[] = [];
-			const fix = vscode.CodeAction.create(
-				codeFix.description,
-				edit,
+			const fix: vscode.CodeAction = {
+				title: codeFix.description,
 				kind,
-			);
+				edit,
+			};
 			fix.diagnostics = diagnostics;
 			codeActions.push(fix);
 			if (codeFix.fixAllDescription && codeFix.fixId) {
-				const fixAll = vscode.CodeAction.create(
-					codeFix.fixAllDescription,
+				const fixAll: vscode.CodeAction = {
+					title: codeFix.fixAllDescription,
 					kind,
-				);
+				};
 				const data: FixAllData = {
 					uri,
 					type: 'fixAll',
@@ -257,10 +269,10 @@ export function register(ctx: SharedContext) {
 		function transformRefactor(refactor: ts.ApplicableRefactorInfo) {
 			const codeActions: vscode.CodeAction[] = [];
 			for (const action of refactor.actions) {
-				const codeAction = vscode.CodeAction.create(
-					action.description,
-					action.kind,
-				);
+				const codeAction: vscode.CodeAction = {
+					title: action.description,
+					kind: action.kind,
+				};
 				if (action.notApplicableReason) {
 					codeAction.disabled = { reason: action.notApplicableReason };
 				}

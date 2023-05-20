@@ -1,7 +1,7 @@
 import { SharedContext } from '../../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type * as vscode from '@volar/language-service';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import { getConfigTitle } from '../../shared';
@@ -67,7 +67,7 @@ export function register(ctx: SharedContext) {
 					});
 					const locs = entriesToLocations(entries, ctx);
 					locs.forEach((loc, index) => {
-						item.additionalTextEdits?.push(vscode.TextEdit.replace(loc.range, changes.textChanges[index].newText));
+						item.additionalTextEdits?.push({ range: loc.range, newText: changes.textChanges[index].newText });
 					});
 				}
 			}
@@ -91,7 +91,7 @@ export function register(ctx: SharedContext) {
 		if (document) {
 
 			const useCodeSnippetsOnMethodSuggest = await ctx.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.completeFunctionCalls') ?? false;
-			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === vscode.CompletionItemKind.Function || item.kind === vscode.CompletionItemKind.Method);
+			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === 3 satisfies typeof vscode.CompletionItemKind.Function || item.kind === 2 satisfies typeof vscode.CompletionItemKind.Method);
 
 			if (useCodeSnippet) {
 				const shouldCompleteFunction = isValidFunctionCompletionContext(ctx.typescript.languageService, fileName, offset, document);
@@ -109,7 +109,7 @@ export function register(ctx: SharedContext) {
 					if (item.insertText) {
 						item.insertText = snippet;
 					}
-					item.insertTextFormat = vscode.InsertTextFormat.Snippet;
+					item.insertTextFormat = 2 satisfies typeof vscode.InsertTextFormat.Snippet;
 					if (parameterCount > 0) {
 						//Fix for https://github.com/microsoft/vscode/issues/104059
 						//Don't show parameter hints if "editor.parameterHints.enabled": false

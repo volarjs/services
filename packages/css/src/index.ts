@@ -1,8 +1,7 @@
-import type { Service } from '@volar/language-service';
-import * as css from 'vscode-css-languageservice';
-import * as vscode from 'vscode-languageserver-protocol';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { CodeAction, Diagnostic, LocationLink, Service } from '@volar/language-service';
 import * as path from 'path';
+import * as css from 'vscode-css-languageservice';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export interface Provide {
 	'css/stylesheet': (document: TextDocument) => css.Stylesheet | undefined;
@@ -69,7 +68,7 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 
 		provideCodeActions(document, range, context) {
 			return worker(document, (stylesheet, cssLs) => {
-				return cssLs.doCodeActions2(document, range, context, stylesheet) as vscode.CodeAction[];
+				return cssLs.doCodeActions2(document, range, context, stylesheet) as CodeAction[];
 			});
 		},
 
@@ -79,7 +78,11 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 				const location = cssLs.findDefinition(document, position, stylesheet);
 
 				if (location) {
-					return [vscode.LocationLink.create(location.uri, location.range, location.range)];
+					return [{
+						targetUri: location.uri,
+						targetRange: location.range,
+						targetSelectionRange: location.range,
+					} satisfies LocationLink];
 				}
 			});
 		},
@@ -89,7 +92,7 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 
 				const settings = await context.env.getConfiguration?.<css.LanguageSettings>(document.languageId);
 
-				return cssLs.doValidation(document, stylesheet, settings) as vscode.Diagnostic[];
+				return cssLs.doValidation(document, stylesheet, settings) as Diagnostic[];
 			});
 		},
 

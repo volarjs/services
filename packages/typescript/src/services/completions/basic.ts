@@ -1,7 +1,7 @@
 import { SharedContext } from '../../types';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import * as vscode from 'vscode-languageserver-protocol';
+import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import * as PConst from '../../protocol.const';
@@ -43,10 +43,10 @@ export function register(ctx: SharedContext) {
 		if (completionContext === undefined)
 			return;
 
-		const wordRange = completionContext.optionalReplacementSpan ? vscode.Range.create(
-			document.positionAt(completionContext.optionalReplacementSpan.start),
-			document.positionAt(completionContext.optionalReplacementSpan.start + completionContext.optionalReplacementSpan.length),
-		) : undefined;
+		const wordRange: vscode.Range | undefined = completionContext.optionalReplacementSpan ? {
+			start: document.positionAt(completionContext.optionalReplacementSpan.start),
+			end: document.positionAt(completionContext.optionalReplacementSpan.start + completionContext.optionalReplacementSpan.length),
+		} : undefined;
 
 		let line = document.getText({
 			start: { line: position.line, character: 0 },
@@ -68,7 +68,7 @@ export function register(ctx: SharedContext) {
 
 		function toVScodeItem(tsEntry: ts.CompletionEntry, document: TextDocument) {
 
-			const item = vscode.CompletionItem.create(tsEntry.name);
+			const item: vscode.CompletionItem = { label: tsEntry.name };
 
 			item.kind = convertKind(tsEntry.kind);
 
@@ -101,7 +101,7 @@ export function register(ctx: SharedContext) {
 				enableCallCompletions: true, // TODO: suggest.completeFunctionCalls
 			});
 			item.insertText = tsEntry.insertText;
-			item.insertTextFormat = isSnippet ? vscode.InsertTextFormat.Snippet : vscode.InsertTextFormat.PlainText;
+			item.insertTextFormat = isSnippet ? 2 satisfies typeof vscode.InsertTextFormat.Snippet : 1 satisfies typeof vscode.InsertTextFormat.PlainText;
 			item.filterText = getFilterText(tsEntry, wordRange, line, tsEntry.insertText);
 
 			if (completionContext?.isMemberCompletion && dotAccessorContext && !isSnippet) {
@@ -124,17 +124,24 @@ export function register(ctx: SharedContext) {
 
 			if (!range && wordRange) {
 				range = {
-					inserting: vscode.Range.create(wordRange.start, position),
+					inserting: { start: wordRange.start, end: position },
 					replacing: wordRange,
 				};
 			}
 
 			if (range) {
-				if (vscode.Range.is(range)) {
-					item.textEdit = vscode.TextEdit.replace(range, item.insertText || item.label);
+				if ('start' in range) {
+					item.textEdit = {
+						range,
+						newText: item.insertText || item.label,
+					};
 				}
 				else {
-					item.textEdit = vscode.InsertReplaceEdit.create(item.insertText || item.label, range.inserting, range.replacing);
+					item.textEdit = {
+						insert: range.inserting,
+						replace: range.replacing,
+						newText: item.insertText || item.label,
+					};
 				}
 			}
 
@@ -169,7 +176,10 @@ export function register(ctx: SharedContext) {
 				if (isMemberCompletion) {
 					const dotMatch = line.slice(0, position.character).match(/\??\.\s*$/) || undefined;
 					if (dotMatch) {
-						const range = vscode.Range.create({ line: position.line, character: position.character - dotMatch[0].length }, position);
+						const range = {
+							start: { line: position.line, character: position.character - dotMatch[0].length },
+							end: position,
+						};
 						const text = document.getText(range);
 						dotAccessorContext = { range, text };
 					}
@@ -185,18 +195,22 @@ export function register(ctx: SharedContext) {
 				return;
 			}
 
-			let replaceRange = vscode.Range.create(
-				document.positionAt(tsEntry.replacementSpan.start),
-				document.positionAt(tsEntry.replacementSpan.start + tsEntry.replacementSpan.length),
-			);
+			let replaceRange: vscode.Range = {
+				start: document.positionAt(tsEntry.replacementSpan.start),
+				end: document.positionAt(tsEntry.replacementSpan.start + tsEntry.replacementSpan.length),
+			};
 			// Make sure we only replace a single line at most
 			if (replaceRange.start.line !== replaceRange.end.line) {
-				replaceRange = vscode.Range.create(
-					replaceRange.start.line,
-					replaceRange.start.character,
-					replaceRange.start.line,
-					document.positionAt(document.offsetAt({ line: replaceRange.start.line + 1, character: 0 }) - 1).character,
-				);
+				replaceRange = {
+					start: {
+						line: replaceRange.start.line,
+						character: replaceRange.start.character,
+					},
+					end: {
+						line: replaceRange.start.line,
+						character: document.positionAt(document.offsetAt({ line: replaceRange.start.line + 1, character: 0 }) - 1).character,
+					},
+				};
 			}
 
 			// If TS returns an explicit replacement range, we should use it for both types of completion
@@ -245,7 +259,7 @@ export function register(ctx: SharedContext) {
 			switch (kind) {
 				case PConst.Kind.primitiveType:
 				case PConst.Kind.keyword:
-					return vscode.CompletionItemKind.Keyword;
+					return 14 satisfies typeof vscode.CompletionItemKind.Keyword;
 
 				case PConst.Kind.const:
 				case PConst.Kind.let:
@@ -253,54 +267,54 @@ export function register(ctx: SharedContext) {
 				case PConst.Kind.localVariable:
 				case PConst.Kind.alias:
 				case PConst.Kind.parameter:
-					return vscode.CompletionItemKind.Variable;
+					return 6 satisfies typeof vscode.CompletionItemKind.Variable;
 
 				case PConst.Kind.memberVariable:
 				case PConst.Kind.memberGetAccessor:
 				case PConst.Kind.memberSetAccessor:
-					return vscode.CompletionItemKind.Field;
+					return 5 satisfies typeof vscode.CompletionItemKind.Field;
 
 				case PConst.Kind.function:
 				case PConst.Kind.localFunction:
-					return vscode.CompletionItemKind.Function;
+					return 3 satisfies typeof vscode.CompletionItemKind.Function;
 
 				case PConst.Kind.method:
 				case PConst.Kind.constructSignature:
 				case PConst.Kind.callSignature:
 				case PConst.Kind.indexSignature:
-					return vscode.CompletionItemKind.Method;
+					return 2 satisfies typeof vscode.CompletionItemKind.Method;
 
 				case PConst.Kind.enum:
-					return vscode.CompletionItemKind.Enum;
+					return 13 satisfies typeof vscode.CompletionItemKind.Enum;
 
 				case PConst.Kind.enumMember:
-					return vscode.CompletionItemKind.EnumMember;
+					return 20 satisfies typeof vscode.CompletionItemKind.EnumMember;
 
 				case PConst.Kind.module:
 				case PConst.Kind.externalModuleName:
-					return vscode.CompletionItemKind.Module;
+					return 9 satisfies typeof vscode.CompletionItemKind.Module;
 
 				case PConst.Kind.class:
 				case PConst.Kind.type:
-					return vscode.CompletionItemKind.Class;
+					return 7 satisfies typeof vscode.CompletionItemKind.Class;
 
 				case PConst.Kind.interface:
-					return vscode.CompletionItemKind.Interface;
+					return 8 satisfies typeof vscode.CompletionItemKind.Interface;
 
 				case PConst.Kind.warning:
-					return vscode.CompletionItemKind.Text;
+					return 1 satisfies typeof vscode.CompletionItemKind.Text;
 
 				case PConst.Kind.script:
-					return vscode.CompletionItemKind.File;
+					return 17 satisfies typeof vscode.CompletionItemKind.File;
 
 				case PConst.Kind.directory:
-					return vscode.CompletionItemKind.Folder;
+					return 19 satisfies typeof vscode.CompletionItemKind.Folder;
 
 				case PConst.Kind.string:
-					return vscode.CompletionItemKind.Constant;
+					return 21 satisfies typeof vscode.CompletionItemKind.Constant;
 
 				default:
-					return vscode.CompletionItemKind.Property;
+					return 10 satisfies typeof vscode.CompletionItemKind.Property;
 			}
 		}
 
@@ -334,9 +348,10 @@ export function register(ctx: SharedContext) {
 				// Only enable dot completions when the previous character is not a dot preceded by whitespace.
 				// Prevents incorrectly completing while typing spread operators.
 				if (position.character > 1) {
-					const preText = document.getText(vscode.Range.create(
-						position.line, 0,
-						position.line, position.character));
+					const preText = document.getText({
+						start: { line: position.line, character: 0 },
+						end: position,
+					});
 					return preText.match(/(\s|^)\.$/ig) === null;
 				}
 			}
@@ -360,11 +375,11 @@ export function handleKindModifiers(item: vscode.CompletionItem, tsEntry: ts.Com
 			item.label += '?';
 		}
 		if (kindModifiers.has(PConst.KindModifiers.deprecated)) {
-			item.tags = [vscode.CompletionItemTag.Deprecated];
+			item.tags = [1 satisfies typeof vscode.CompletionItemTag.Deprecated];
 		}
 
 		if (kindModifiers.has(PConst.KindModifiers.color)) {
-			item.kind = vscode.CompletionItemKind.Color;
+			item.kind = 16 satisfies typeof vscode.CompletionItemKind.Color;
 		}
 
 		if (tsEntry.kind === PConst.Kind.script) {
