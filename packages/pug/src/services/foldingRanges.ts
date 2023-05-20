@@ -1,7 +1,7 @@
 import type * as html from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
 import type { Node } from '../baseParse';
-import * as vscode from 'vscode-languageserver-types';
+import type { FoldingRangeKind } from '@volar/language-service';
 
 export function register() {
 	return (pugDoc: PugDocument) => {
@@ -26,13 +26,11 @@ export function register() {
 			else if (node.type === 'Tag' || node.type === 'BlockComment') {
 				const nodeLine = node.line - 1; // one base to zero base
 				if (nodeLine !== endLine) {
-					result.push(vscode.FoldingRange.create(
-						nodeLine,
+					result.push({
+						startLine: nodeLine,
 						endLine,
-						undefined,
-						undefined,
-						node.type === 'BlockComment' ? vscode.FoldingRangeKind.Comment : undefined,
-					));
+						kind: node.type === 'BlockComment' ? 'comment' satisfies typeof FoldingRangeKind.Comment : undefined,
+					});
 				}
 				visitNode(node.block, endLine);
 			}
