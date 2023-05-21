@@ -19,9 +19,18 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 	let inited = false;
 
 	const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
-	const cssLs = css.getCSSLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
-	const scssLs = css.getSCSSLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
-	const lessLs = css.getLESSLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
+	const cssLs = css.getCSSLanguageService({
+		fileSystemProvider: context.env.fileSystemProvider,
+		clientCapabilities: context.env.clientCapabilities,
+	});
+	const scssLs = css.getSCSSLanguageService({
+		fileSystemProvider: context.env.fileSystemProvider,
+		clientCapabilities: context.env.clientCapabilities,
+	});
+	const lessLs = css.getLESSLanguageService({
+		fileSystemProvider: context.env.fileSystemProvider,
+		clientCapabilities: context.env.clientCapabilities,
+	});
 	const postcssLs: css.LanguageService = {
 		...scssLs,
 		doValidation: (document, stylesheet, documentSettings) => {

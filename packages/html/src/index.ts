@@ -44,7 +44,10 @@ export default (options: {
 	let customData: html.IHTMLDataProvider[] = [];
 	let extraData: html.IHTMLDataProvider[] = [];
 
-	const htmlLs = html.getLanguageService({ fileSystemProvider: context.env.fileSystemProvider });
+	const htmlLs = html.getLanguageService({
+		fileSystemProvider: context.env.fileSystemProvider,
+		clientCapabilities: context.env.clientCapabilities,
+	});
 
 	context.env.onDidChangeConfiguration?.(() => {
 		shouldUpdateCustomData = true;
