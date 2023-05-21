@@ -128,6 +128,22 @@ importers:
         specifier: ^0.7.5
         version: 0.7.6
 
+  packages/tsconfig:
+    dependencies:
+      jsonc-parser:
+        specifier: ^3.2.0
+        version: 3.2.0
+      minimatch:
+        specifier: ^9.0.0
+        version: 9.0.0
+      vscode-uri:
+        specifier: ^3.0.7
+        version: 3.0.7
+    devDependencies:
+      vscode-languageserver-textdocument:
+        specifier: ^1.0.8
+        version: 1.0.8
+
   packages/tslint:
     devDependencies:
       tslint:
@@ -136,12 +152,6 @@ importers:
 
   packages/typescript:
     dependencies:
-      jsonc-parser:
-        specifier: ^3.2.0
-        version: 3.2.0
-      minimatch:
-        specifier: ^9.0.0
-        version: 9.0.0
       semver:
         specifier: ^7.3.8
         version: 7.5.1

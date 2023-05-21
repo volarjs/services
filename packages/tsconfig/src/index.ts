@@ -1,8 +1,8 @@
+import type { DocumentLink, Service } from '@volar/language-service';
 import * as jsonc from 'jsonc-parser';
 import { minimatch } from 'minimatch';
-import type * as vscode from '@volar/language-service';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
-import { SharedContext } from '../types';
 
 interface OpenExtendsLinkCommandArgs {
 	resourceUri: string;
@@ -15,17 +15,44 @@ function mapChildren<R>(node: jsonc.Node | undefined, f: (x: jsonc.Node) => R): 
 		: [];
 }
 
-export function register(ctx: SharedContext) {
+export default (): Service => (contextOrNull): ReturnType<Service> => {
 
 	const patterns = [
 		'**/[jt]sconfig.json',
 		'**/[jt]sconfig.*.json',
 	];
 	const languages = ['json', 'jsonc'];
+	const ctx = contextOrNull!;
 
 	return {
-		provideDocumentLinks,
-		async resolve(link: vscode.DocumentLink, _token: vscode.CancellationToken) {
+
+		/**
+		 * Reference https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/src/languageFeatures/tsconfig.ts
+		 */
+
+		provideDocumentLinks(document) {
+
+			const match = languages.includes(document.languageId) && patterns.some(pattern => minimatch(document.uri, pattern));
+			if (!match) {
+				return [];
+			}
+
+			const root = jsonc.parseTree(document.getText());
+			if (!root) {
+				return [];
+			}
+
+			const links = [
+				getExtendsLink(document, root),
+				...getFilesLinks(document, root),
+				...getReferencesLinks(document, root)
+			];
+
+			return links.filter(link => !!link) as DocumentLink[];
+		},
+
+		async resolveDocumentLink(link) {
+			
 			const data: OpenExtendsLinkCommandArgs = link.data;
 			if (data) {
 				const tsconfigPath = await getTsconfigPath(Utils.dirname(URI.parse(data.resourceUri)), data.extendsValue);
@@ -38,31 +65,7 @@ export function register(ctx: SharedContext) {
 		},
 	};
 
-
-	function provideDocumentLinks(
-		document: vscode.TextDocument,
-		_token: vscode.CancellationToken
-	): vscode.DocumentLink[] {
-
-		const match = languages.includes(document.languageId) && patterns.some(pattern => minimatch(document.uri, pattern));
-		if (!match) {
-			return [];
-		}
-
-		const root = jsonc.parseTree(document.getText());
-		if (!root) {
-			return [];
-		}
-
-		const links = [
-			getExtendsLink(document, root),
-			...getFilesLinks(document, root),
-			...getReferencesLinks(document, root)
-		];
-		return links.filter(link => !!link) as vscode.DocumentLink[];
-	}
-
-	function getExtendsLink(document: vscode.TextDocument, root: jsonc.Node): vscode.DocumentLink | undefined {
+	function getExtendsLink(document: TextDocument, root: jsonc.Node): DocumentLink | undefined {
 		const extendsNode = jsonc.findNodeAtLocation(root, ['extends']);
 		if (!isPathValue(extendsNode)) {
 			return undefined;
@@ -78,7 +81,7 @@ export function register(ctx: SharedContext) {
 			extendsValue: extendsValue
 		};
 
-		const link: vscode.DocumentLink = {
+		const link: DocumentLink = {
 			range: getRange(document, extendsNode),
 			data: args,
 		};
@@ -87,13 +90,13 @@ export function register(ctx: SharedContext) {
 		return link;
 	}
 
-	function getFilesLinks(document: vscode.TextDocument, root: jsonc.Node) {
+	function getFilesLinks(document: TextDocument, root: jsonc.Node) {
 		return mapChildren(
 			jsonc.findNodeAtLocation(root, ['files']),
 			child => pathNodeToLink(document, child));
 	}
 
-	function getReferencesLinks(document: vscode.TextDocument, root: jsonc.Node) {
+	function getReferencesLinks(document: TextDocument, root: jsonc.Node) {
 		return mapChildren(
 			jsonc.findNodeAtLocation(root, ['references']),
 			child => {
@@ -102,7 +105,7 @@ export function register(ctx: SharedContext) {
 					return undefined;
 				}
 
-				const link: vscode.DocumentLink = {
+				const link: DocumentLink = {
 					range: getRange(document, pathNode),
 					target: pathNode.value.endsWith('.json')
 						? getFileTarget(document, pathNode)
@@ -113,9 +116,9 @@ export function register(ctx: SharedContext) {
 	}
 
 	function pathNodeToLink(
-		document: vscode.TextDocument,
+		document: TextDocument,
 		node: jsonc.Node | undefined
-	): vscode.DocumentLink | undefined {
+	): DocumentLink | undefined {
 		return isPathValue(node)
 			? { range: getRange(document, node), target: getFileTarget(document, node) }
 			: undefined;
@@ -128,15 +131,15 @@ export function register(ctx: SharedContext) {
 			&& !(extendsNode.value as string).includes('*'); // don't treat globs as links.
 	}
 
-	function getFileTarget(document: vscode.TextDocument, node: jsonc.Node): string {
+	function getFileTarget(document: TextDocument, node: jsonc.Node): string {
 		return Utils.joinPath(Utils.dirname(URI.parse(document.uri)), node.value).toString();
 	}
 
-	function getFolderTarget(document: vscode.TextDocument, node: jsonc.Node): string {
+	function getFolderTarget(document: TextDocument, node: jsonc.Node): string {
 		return Utils.joinPath(Utils.dirname(URI.parse(document.uri)), node.value, 'tsconfig.json').toString();
 	}
 
-	function getRange(document: vscode.TextDocument, node: jsonc.Node) {
+	function getRange(document: TextDocument, node: jsonc.Node) {
 		const offset = node.offset;
 		const start = document.positionAt(offset + 1);
 		const end = document.positionAt(offset + (node.length - 1));
@@ -181,7 +184,7 @@ export function register(ctx: SharedContext) {
 		}
 	}
 
-	// Reference: https://github.com/microsoft/TypeScript/blob/febfd442cdba343771f478cf433b0892f213ad2f/src/compiler/commandLineParser.ts#L3005
+	// Reference https://github.com/microsoft/TypeScript/blob/febfd442cdba343771f478cf433b0892f213ad2f/src/compiler/commandLineParser.ts#L3005
 	/**
 	* @returns Returns undefined in case of lack of result while trying to resolve from node_modules
 	*/
@@ -219,4 +222,4 @@ export function register(ctx: SharedContext) {
 			return false;
 		}
 	}
-}
+};

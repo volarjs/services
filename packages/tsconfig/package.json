@@ -1,5 +1,5 @@
 {
-	"name": "volar-service-typescript",
+	"name": "volar-service-tsconfig",
 	"version": "0.0.4",
 	"main": "out/index.js",
 	"license": "MIT",
@@ -10,15 +10,14 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/volarjs/services.git",
-		"directory": "packages/typescript"
+		"directory": "packages/tsconfig"
 	},
 	"devDependencies": {
-		"@types/semver": "^7.3.13",
 		"vscode-languageserver-textdocument": "^1.0.8"
 	},
 	"dependencies": {
-		"semver": "^7.3.8",
-		"vscode-nls": "^5.2.0",
+		"jsonc-parser": "^3.2.0",
+		"minimatch": "^9.0.0",
 		"vscode-uri": "^3.0.7"
 	}
 }

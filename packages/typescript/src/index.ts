@@ -30,7 +30,6 @@ import * as semanticTokens from './services/semanticTokens';
 import * as signatureHelp from './services/signatureHelp';
 import * as typeDefinitions from './services/typeDefinition';
 import * as workspaceSymbols from './services/workspaceSymbol';
-import * as tsconfig from './services/tsconfig';
 import { SharedContext } from './types';
 
 export interface Provide {
@@ -103,7 +102,6 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 	const doValidation = diagnostics.register(semanticCtx);
 	const getDocumentSemanticTokens = semanticTokens.register(semanticCtx);
 	const callHierarchy = _callHierarchy.register(semanticCtx);
-	const tsconfigRequests = tsconfig.register(semanticCtx);
 
 	let syntacticHostCtx = {
 		document: undefined as TextDocument | undefined,
@@ -435,18 +433,6 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 					return lines;
 				}
 			}
-		},
-
-		/**
-		 * for tsconfig: https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/src/languageFeatures/tsconfig.ts
-		 */
-
-		provideDocumentLinks(document, token) {
-			return tsconfigRequests.provideDocumentLinks(document, token);
-		},
-
-		resolveDocumentLink(link, token) {
-			return tsconfigRequests.resolve(link, token);
 		},
 	};
 

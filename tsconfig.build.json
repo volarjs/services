@@ -36,6 +36,9 @@
 			"path": "./packages/sass-formatter/tsconfig.build.json"
 		},
 		{
+			"path": "./packages/tsconfig/tsconfig.build.json"
+		},
+		{
 			"path": "./packages/tslint/tsconfig.build.json"
 		},
 		{
