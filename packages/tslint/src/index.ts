@@ -1,18 +1,17 @@
-import type { Service, Diagnostic, CodeAction } from '@volar/language-service';
+import type { Service, Diagnostic, CodeAction, ServiceContext } from '@volar/language-service';
 import type { IRule, RuleFailure } from 'tslint';
+import type { Provide } from '../../typescript';
 
 export default (rules: IRule[]): Service => {
 
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 
-	return (ctx): ReturnType<Service> => ({
+	return (context: ServiceContext<Provide> | undefined): ReturnType<Service> => ({
 
-		provideSemanticDiagnostics(document) {
+		provideSemanticDiagnostics(document, token) {
 
-			if (!ctx?.typescript) return;
-
-			const fileName = ctx.env.uriToFileName(document.uri);
-			const sourceFile = ctx.typescript.languageService.getProgram()?.getSourceFile(fileName);
+			const languageService = context!.inject('typescript/languageService');
+			const sourceFile = languageService.getProgram()?.getSourceFile(context!.env.uriToFileName(document.uri));
 			if (!sourceFile) {
 				return;
 			}
@@ -20,7 +19,7 @@ export default (rules: IRule[]): Service => {
 			let failures: RuleFailure[] = [];
 
 			for (const rule of rules) {
-				if (ctx.typescript.languageServiceHost.getCancellationToken?.().isCancellationRequested()) {
+				if (token.isCancellationRequested) {
 					return;
 				}
 				const ruleSeverity = rule.getOptions().ruleSeverity;

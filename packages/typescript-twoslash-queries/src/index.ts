@@ -1,11 +1,13 @@
-import type { Service, InlayHint } from '@volar/language-service';
+import type { Service, InlayHint, ServiceContext } from '@volar/language-service';
+import type { Provide } from '../../typescript';
 
-export default (): Service => (context, modules): ReturnType<Service> => ({
+export default (): Service => (context: ServiceContext<Provide> | undefined): ReturnType<Service> => ({
 
 	provideInlayHints(document, range) {
-		if (modules?.typescript && context?.typescript && isTsDocument(document.languageId)) {
+		if (isTsDocument(document.languageId)) {
 
-			const ts = modules.typescript;
+			const ts = context!.inject('typescript/typescript');
+			const languageService = context!.inject('typescript/languageService');
 			const inlayHints: InlayHint[] = [];
 
 			for (const pointer of document.getText(range).matchAll(/^\s*\/\/\s*\^\?/gm)) {
@@ -16,7 +18,7 @@ export default (): Service => (context, modules): ReturnType<Service> => ({
 					character: pointerPosition.character,
 				});
 
-				const quickInfo = context.typescript.languageService.getQuickInfoAtPosition(context.env.uriToFileName(document.uri), hoverOffset);
+				const quickInfo = languageService.getQuickInfoAtPosition(context!.env.uriToFileName(document.uri), hoverOffset);
 				if (quickInfo) {
 					inlayHints.push({
 						position: { line: pointerPosition.line, character: pointerPosition.character + 2 },

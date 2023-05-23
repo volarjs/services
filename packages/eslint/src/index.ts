@@ -1,22 +1,22 @@
-import type { Service, Diagnostic, CodeAction } from '@volar/language-service';
+import type { Service, Diagnostic, CodeAction, ServiceContext } from '@volar/language-service';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
+import type { Provide } from '../../typescript';
 
 export default (resolveConfig?: (program: ts.Program) => Linter.Config): Service => {
 
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
 
-	return (ctx): ReturnType<Service> => ({
+	return (context: ServiceContext<Provide> | undefined): ReturnType<Service> => ({
 
 		async provideSemanticDiagnostics(document) {
 
-			if (!ctx?.typescript) return;
-
-			const eslint = getEslint(ctx.typescript.languageService.getProgram()!);
+			const languageService = context!.inject('typescript/languageService');
+			const eslint = getEslint(languageService.getProgram()!);
 			const lintResult = await eslint.lintText(
 				document.getText(),
-				{ filePath: ctx.env.uriToFileName(document.uri) },
+				{ filePath: context!.env.uriToFileName(document.uri) },
 			);
 			uriToLintResult.set(document.uri, lintResult);
 			const diagnostics: Diagnostic[] = [];
