@@ -1,5 +1,5 @@
 import type { Service } from '@volar/language-service';
-import { format, resolveConfigFile, resolveConfig, type Options, type ResolveConfigOptions, getFileInfo } from 'prettier';
+import { format, getFileInfo, resolveConfig, resolveConfigFile, type Options, type ResolveConfigOptions } from 'prettier';
 
 export default (
 	options: {
@@ -48,7 +48,6 @@ export default (
 	}
 
 	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
-	const filePrettierOptions = getPrettierConfig(options.resolveConfigOptions);
 
 	return {
 		async provideDocumentFormattingEdits(document, _, formatOptions) {
@@ -56,6 +55,7 @@ export default (
 				return;
 			}
 
+			const filePrettierOptions = getPrettierConfig(options.resolveConfigOptions);
 			const fileInfo = await getFileInfo(context.env.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
 
 			if (fileInfo.ignored) {
