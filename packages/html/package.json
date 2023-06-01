@@ -13,7 +13,8 @@
 		"directory": "packages/html"
 	},
 	"dependencies": {
-		"vscode-html-languageservice": "^5.0.4"
+		"vscode-html-languageservice": "^5.0.4",
+		"vscode-uri": "^3.0.7"
 	},
 	"devDependencies": {
 		"vscode-languageserver-textdocument": "^1.0.8"

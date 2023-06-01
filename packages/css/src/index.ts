@@ -1,7 +1,8 @@
 import type { CodeAction, Diagnostic, LocationLink, Service } from '@volar/language-service';
-import * as path from 'path';
+import { posix as path } from 'path';
 import * as css from 'vscode-css-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI, Utils } from 'vscode-uri';
 
 export interface Provide {
 	'css/stylesheet': (document: TextDocument) => css.Stylesheet | undefined;
@@ -19,16 +20,39 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 	let inited = false;
 
 	const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
+	const fileSystemProvider: css.FileSystemProvider = {
+		stat: async uri => await context.env.fs.stat(uri) ?? {
+			type: css.FileType.Unknown,
+			ctime: 0,
+			mtime: 0,
+			size: 0,
+		},
+		readDirectory: async (uri) => context.env.fs.readDirectory(uri),
+	};
+	const documentContext: css.DocumentContext = {
+		resolveReference(ref, base) {
+			if (ref.match(/^\w[\w\d+.-]*:/)) {
+				// starts with a schema
+				return ref;
+			}
+			if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+				return base + ref;
+			}
+			const baseUri = URI.parse(base);
+			const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+			return Utils.resolvePath(baseUriDir, ref).toString(true);
+		},
+	};
 	const cssLs = css.getCSSLanguageService({
-		fileSystemProvider: context.env.fileSystemProvider,
+		fileSystemProvider,
 		clientCapabilities: context.env.clientCapabilities,
 	});
 	const scssLs = css.getSCSSLanguageService({
-		fileSystemProvider: context.env.fileSystemProvider,
+		fileSystemProvider,
 		clientCapabilities: context.env.clientCapabilities,
 	});
 	const lessLs = css.getLESSLanguageService({
-		fileSystemProvider: context.env.fileSystemProvider,
+		fileSystemProvider,
 		clientCapabilities: context.env.clientCapabilities,
 	});
 	const postcssLs: css.LanguageService = {
@@ -55,9 +79,7 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 			return worker(document, async (stylesheet, cssLs) => {
 
 				const settings = await context.env.getConfiguration?.<css.LanguageSettings>(document.languageId);
-				const cssResult = context.env.documentContext
-					? await cssLs.doComplete2(document, position, stylesheet, context.env.documentContext, settings?.completion)
-					: await cssLs.doComplete(document, position, stylesheet, settings?.completion);
+				const cssResult = await cssLs.doComplete2(document, position, stylesheet, documentContext, settings?.completion);
 
 				return cssResult;
 			});
@@ -128,11 +150,7 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 
 		async provideDocumentLinks(document) {
 			return await worker(document, (stylesheet, cssLs) => {
-
-				if (!context.env.documentContext)
-					return;
-
-				return cssLs.findDocumentLinks2(document, stylesheet, context.env.documentContext);
+				return cssLs.findDocumentLinks2(document, stylesheet, documentContext);
 			});
 		},
 

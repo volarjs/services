@@ -2,7 +2,7 @@ import type { CompletionList, Service, CompletionTriggerKind, FileChangeType } f
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import * as _callHierarchy from './features/callHierarchy';
 import * as codeActions from './features/codeAction';
@@ -31,19 +31,21 @@ import * as signatureHelp from './features/signatureHelp';
 import * as typeDefinitions from './features/typeDefinition';
 import * as workspaceSymbols from './features/workspaceSymbol';
 import { SharedContext } from './types';
-import { createLanguageServiceHost } from '@volar/typescript';
+import { createLanguageServiceHost, createSys } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
+import type { IDtsHost } from '@volar/web-fs';
 
 export interface Provide {
 	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
 	'typescript/sourceFile': (document: TextDocument) => ts.SourceFile | undefined;
+	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 	'typescript/languageService': (document?: TextDocument) => ts.LanguageService;
 	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost;
 };
 
 let documentRegistry: ts.DocumentRegistry;
 
-export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
+export default (options?: { dtsHost: IDtsHost; }): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
 
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
@@ -70,51 +72,46 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 	}
 
 	const ts = modules.typescript;
-	const languageServiceHost = createLanguageServiceHost(context, ts);
-	let languageService: ts.LanguageService;
+	const sys = createSys(context, ts, context.env); // TODO: use sync()
+	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
+	const created = tsFaster.createLanguageService(
+		ts,
+		sys,
+		languageServiceHost,
+		proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry ??= ts.createDocumentRegistry()),
+	);
+	const languageService = created.languageService;
 
-	if (context.env.sys) {
-		const created = tsFaster.createLanguageService(
-			ts,
-			context.env.sys,
-			languageServiceHost,
-			proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry ??= ts.createDocumentRegistry()),
-		);
-		languageService = created.languageService;
+	if (created.setPreferences && context.env.getConfiguration) {
 
-		if (created.setPreferences && context.env.getConfiguration) {
+		updatePreferences();
+		context.env.onDidChangeConfiguration?.(updatePreferences);
 
-			updatePreferences();
-			context.env.onDidChangeConfiguration?.(updatePreferences);
-
-			async function updatePreferences() {
-				const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
-				if (preferences) {
-					created.setPreferences?.(preferences);
-				}
+		async function updatePreferences() {
+			const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
+			if (preferences) {
+				created.setPreferences?.(preferences);
 			}
 		}
-
-		if (created.projectUpdated) {
-			let scriptFileNames = new Set(context.host.getScriptFileNames());
-			context.env.onDidChangeWatchedFiles?.((params) => {
-				if (params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed)) {
-					scriptFileNames = new Set(context.host.getScriptFileNames());
-				}
-
-				for (const change of params.changes) {
-					if (scriptFileNames.has(context.env.uriToFileName(change.uri))) {
-						created.projectUpdated?.(context.env.uriToFileName(context.env.rootUri.fsPath));
-					}
-				}
-			});
-		}
 	}
-	else {
-		languageService = ts.createLanguageService(languageServiceHost, documentRegistry ??= ts.createDocumentRegistry());
+
+	if (created.projectUpdated) {
+		let scriptFileNames = new Set(context.host.getScriptFileNames());
+		context.env.onDidChangeWatchedFiles?.((params) => {
+			if (params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed)) {
+				scriptFileNames = new Set(context.host.getScriptFileNames());
+			}
+
+			for (const change of params.changes) {
+				if (scriptFileNames.has(context.env.uriToFileName(change.uri))) {
+					created.projectUpdated?.(context.env.uriToFileName(context.env.rootUri.fsPath));
+				}
+			}
+		});
 	}
 
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
+	const documents = new WeakMap<ts.IScriptSnapshot, TextDocument>();
 	const semanticCtx: SharedContext = {
 		...context,
 		typescript: {
@@ -122,6 +119,21 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 			languageService,
 		},
 		ts,
+		getTextDocument(uri: string) {
+			const document = context.getTextDocument(uri);
+			if (document) {
+				return document;
+			}
+			const snapshot = languageServiceHost.getScriptSnapshot(context.env.uriToFileName(uri));
+			if (snapshot) {
+				let document = documents.get(snapshot);
+				if (!document) {
+					document = TextDocument.create(uri, '', 0, snapshot.getText(0, snapshot.getLength()));
+					documents.set(snapshot, document);
+				}
+				return document;
+			}
+		},
 	};
 	const findDefinition = definitions.register(semanticCtx);
 	const findTypeDefinition = typeDefinitions.register(semanticCtx);
@@ -148,18 +160,19 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 	const callHierarchy = _callHierarchy.register(semanticCtx);
 
 	let syntacticHostCtx = {
+		projectVersion: 0,
 		document: undefined as TextDocument | undefined,
 		fileName: '',
 		fileVersion: 0,
 		snapshot: ts.ScriptSnapshot.fromString(''),
 	};
 	const syntacticServiceHost: ts.LanguageServiceHost = {
-		getProjectVersion: () => syntacticHostCtx.fileName + '::' + syntacticHostCtx.fileVersion,
+		getProjectVersion: () => syntacticHostCtx.projectVersion.toString(),
 		getScriptFileNames: () => [syntacticHostCtx.fileName],
 		getScriptVersion: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.fileVersion.toString() : '',
 		getScriptSnapshot: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.snapshot : undefined,
 		getCompilationSettings: () => languageServiceHost.getCompilationSettings() ?? {},
-		getCurrentDirectory: () => '',
+		getCurrentDirectory: () => '/',
 		getDefaultLibFileName: () => '',
 		readFile: () => undefined,
 		fileExists: fileName => fileName === syntacticHostCtx.fileName,
@@ -180,6 +193,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 
 		dispose() {
 			languageService.dispose();
+			sys.dispose();
 		},
 
 		provide: {
@@ -194,6 +208,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 					return syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 				}
 			},
+			'typescript/textDocument': semanticCtx.getTextDocument,
 			'typescript/languageService': document => {
 				if (!document || getSemanticServiceSourceFile(document.uri)) {
 					return semanticCtx.typescript.languageService;
@@ -433,7 +448,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 
 				prepareSyntacticService(document);
 
-				return doFormatting.onRange(document.uri, range, options_2);
+				return await doFormatting.onRange(document, range, options_2);
 			}
 		},
 
@@ -447,7 +462,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 
 				prepareSyntacticService(document);
 
-				return doFormatting.onType(document.uri, options_2, position, key);
+				return doFormatting.onType(document, options_2, position, key);
 			}
 		},
 
@@ -496,24 +511,8 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 		}
 		syntacticHostCtx.fileName = context.env.uriToFileName(document.uri);
 		syntacticHostCtx.fileVersion = document.version;
-		if (context.documents.isVirtualFileUri(document.uri)) {
-			const snapshot = context.documents.getVirtualFileByUri(document.uri)[0]?.snapshot;
-			if (snapshot) {
-				syntacticHostCtx.snapshot = snapshot;
-			}
-			else {
-				throw new Error('No snapshot found for ' + document.uri);
-			}
-		}
-		else {
-			const snapshot = context.host.getScriptSnapshot(syntacticHostCtx.fileName);
-			if (snapshot) {
-				syntacticHostCtx.snapshot = snapshot;
-			}
-			else {
-				throw new Error('No snapshot found for ' + document.uri);
-			}
-		}
+		syntacticHostCtx.snapshot = ts.ScriptSnapshot.fromString(document.getText());
+		syntacticHostCtx.projectVersion++;
 	}
 };
 
