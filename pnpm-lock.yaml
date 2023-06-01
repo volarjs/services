@@ -12,13 +12,13 @@ importers:
         version: 2.4.0
       '@types/node':
         specifier: latest
-        version: 20.2.1
+        version: 20.2.5
       '@volar/language-service':
-        specifier: 1.6.8
-        version: 1.6.8
+        specifier: 1.6.9
+        version: 1.6.9
       '@volar/source-map':
-        specifier: 1.6.8
-        version: 1.6.8
+        specifier: 1.6.9
+        version: 1.6.9
       typescript:
         specifier: latest
         version: 5.0.4
@@ -31,6 +31,9 @@ importers:
       vscode-css-languageservice:
         specifier: ^6.2.3
         version: 6.2.5
+      vscode-uri:
+        specifier: ^3.0.7
+        version: 3.0.7
     devDependencies:
       vscode-languageserver-textdocument:
         specifier: ^1.0.8
@@ -49,7 +52,7 @@ importers:
     devDependencies:
       '@types/eslint':
         specifier: latest
-        version: 8.37.0
+        version: 8.40.0
 
   packages/html:
     dependencies:
@@ -155,6 +158,9 @@ importers:
       semver:
         specifier: ^7.3.8
         version: 7.5.1
+      typescript-auto-import-cache:
+        specifier: ^0.3.0
+        version: 0.3.0
       vscode-nls:
         specifier: ^5.2.0
         version: 5.2.0
@@ -165,6 +171,12 @@ importers:
       '@types/semver':
         specifier: ^7.3.13
         version: 7.5.0
+      '@volar/typescript':
+        specifier: 1.6.9
+        version: 1.6.9
+      '@volar/web-fs':
+        specifier: 1.6.9
+        version: 1.6.9
       vscode-languageserver-textdocument:
         specifier: ^1.0.8
         version: 1.0.8
@@ -937,8 +949,8 @@ packages:
       minimatch: 9.0.0
     dev: true
 
-  /@types/eslint@8.37.0:
-    resolution: {integrity: sha512-Piet7dG2JBuDIfohBngQ3rCt7MgO9xCO4xIMKxBThCq5PNRB91IjlJ10eJVwfoNtvTErmxLzwBZ7rHZtbOMmFQ==}
+  /@types/eslint@8.40.0:
+    resolution: {integrity: sha512-nbq2mvc/tBrK9zQQuItvjJl++GTN5j06DaPtp3hZCpngmG6Q3xoyEmd0TwZI0gAy/G1X0zhGBbr2imsGFdFV0g==}
     dependencies:
       '@types/estree': 1.0.1
       '@types/json-schema': 7.0.11
@@ -955,15 +967,15 @@ packages:
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 20.2.1
+      '@types/node': 20.2.5
     dev: false
 
   /@types/minimist@1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
 
-  /@types/node@20.2.1:
-    resolution: {integrity: sha512-DqJociPbZP1lbZ5SQPk4oag6W7AyaGMO6gSfRwq3PWl4PXTwJpRQJhDq4W0kzrg3w6tJ1SwlvGZ5uKFHY13LIg==}
+  /@types/node@20.2.5:
+    resolution: {integrity: sha512-JJulVEQXmiY9Px5axXHeYGLSjhkZEnD+MDPDGbCbIAbMslkKwmygtZFy1X6s/075Yo94sf8GuSlFfPzysQrWZQ==}
 
   /@types/normalize-package-data@2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -976,7 +988,7 @@ packages:
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 20.2.1
+      '@types/node': 20.2.5
     dev: false
 
   /@types/semver@7.5.0:
@@ -997,7 +1009,7 @@ packages:
   /@types/vfile@3.0.2:
     resolution: {integrity: sha512-b3nLFGaGkJ9rzOcuXRfHkZMdjsawuDD0ENL9fzTophtBg8FJHSGbH7daXkEpcwy3v7Xol3pAvsmlYyFhR4pqJw==}
     dependencies:
-      '@types/node': 20.2.1
+      '@types/node': 20.2.5
       '@types/unist': 2.0.6
       '@types/vfile-message': 2.0.0
     dev: false
@@ -1006,6 +1018,13 @@ packages:
     resolution: {integrity: sha512-3C2Wi7Xe7Hx+g0x8bXTwLBZK22LY4rwMm7vvi1kcpni+rjw1pWxqdz00tpkVqKsKBkZel/IncWYVWYhQrusRtg==}
     dependencies:
       '@volar/source-map': 1.6.8
+    dev: false
+
+  /@volar/language-core@1.6.9:
+    resolution: {integrity: sha512-7v8zsq3VMUBF5fI6FfjZ9pEkOuTiWD+AjxHVI3UXXXPoDeV9RcK3oPUfyQCV4Aj9Dqx4DPPI9Pcphyo6gZ8SAw==}
+    dependencies:
+      '@volar/source-map': 1.6.9
+    dev: true
 
   /@volar/language-service@1.6.8:
     resolution: {integrity: sha512-MXCAjYruFyXT0ubvQ2UuLuGK1EbXpWgI5g+E0eDTC/ZfXKNclvFkn/Jnz73X/dL5z3xjAFa8iBTpMSQwZIdVLA==}
@@ -1015,11 +1034,39 @@ packages:
       typescript-auto-import-cache: 0.2.1
       vscode-languageserver-textdocument: 1.0.8
       vscode-uri: 3.0.7
+    dev: false
+
+  /@volar/language-service@1.6.9:
+    resolution: {integrity: sha512-DBdpypXVuRcW3td0l4nezuNqc0RR9NLScjTQ/xtE1vou5gaMyRETphbVaTgo2OnivK474tkCQ8YJTkSaMUizNA==}
+    dependencies:
+      '@volar/language-core': 1.6.9
+      '@volar/source-map': 1.6.9
+      typescript-auto-import-cache: 0.3.0
+      vscode-languageserver-textdocument: 1.0.8
+      vscode-uri: 3.0.7
+    dev: true
 
   /@volar/source-map@1.6.8:
     resolution: {integrity: sha512-RwVbHNjUN20TSxeOp/2n4NQ4jiMiCbfLG9zgej4zYH1E/aIg/VkHUQpLprZ8BHUDxd9yP2swX1BFxNenHs5LZw==}
     dependencies:
       muggle-string: 0.3.1
+    dev: false
+
+  /@volar/source-map@1.6.9:
+    resolution: {integrity: sha512-D+IgnJGxO2Q1tL5qh3vU7iaLHtfGXptpdUDLMwmx292Fz0aVIXlC85mHHawGjBWeg/JhRGtEl4BvfTdn+4Ng/w==}
+    dependencies:
+      muggle-string: 0.3.1
+    dev: true
+
+  /@volar/typescript@1.6.9:
+    resolution: {integrity: sha512-L3WivzKVK5h/esfYdvnMXiE0wcH+wNalgFrpknuYgGraXNw+wGDaizEdVzKxyQYjez4bz/Z+X19YT2vTUGNV7Q==}
+    dependencies:
+      '@volar/language-core': 1.6.9
+    dev: true
+
+  /@volar/web-fs@1.6.9:
+    resolution: {integrity: sha512-uvDt8yq2VxkaNWulqsu/SEB2jba7v7kuAk9OqJMSiDEel5Cl1ZVOtQqIzG14yjOqasYjiFkUX0Xl9e+ftrCcFQ==}
+    dev: true
 
   /@vscode/emmet-helper@2.8.8:
     resolution: {integrity: sha512-QuD4CmNeXSFxuP8VZwI6qL+8vmmd7JcSdwsEIdsrzb4YumWs/+4rXRX9MM+NsFfUO69g6ezngCD7XRd6jY9TQw==}
@@ -5061,6 +5108,12 @@ packages:
 
   /typescript-auto-import-cache@0.2.1:
     resolution: {integrity: sha512-FD5uYQSNkVTX4b3lvtifP+SR3bARWGmKe/uyp5BfuW2ZUCYG7vHKPddrteLU06Uh68woRaYIX+Sbs2nnySpGLw==}
+    dependencies:
+      semver: 7.5.1
+    dev: false
+
+  /typescript-auto-import-cache@0.3.0:
+    resolution: {integrity: sha512-Rq6/q4O9iyqUdjvOoyas7x/Qf9nWUMeqpP3YeTaLA+uECgfy5wOhfOS+SW/+fZ/uI/ZcKaf+2/ZhFzXh8xfofQ==}
     dependencies:
       semver: 7.5.1
 
