@@ -47,13 +47,13 @@ export default (options: {
 	let extraData: html.IHTMLDataProvider[] = [];
 
 	const fileSystemProvider: html.FileSystemProvider = {
-		stat: async uri => await context.env.fs.stat(uri) ?? {
+		stat: async uri => await context.env.fs?.stat(uri) ?? {
 			type: html.FileType.Unknown,
 			ctime: 0,
 			mtime: 0,
 			size: 0,
 		},
-		readDirectory: async (uri) => context.env.fs.readDirectory(uri),
+		readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
 	};
 	const documentContext: html.DocumentContext = {
 		resolveReference(ref, base) {

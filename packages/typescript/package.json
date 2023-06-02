@@ -14,8 +14,7 @@
 	},
 	"devDependencies": {
 		"@types/semver": "^7.3.13",
-		"@volar/typescript": "1.6.9",
-		"@volar/web-fs": "1.6.9"
+		"@volar/typescript": "1.6.9"
 	},
 	"dependencies": {
 		"semver": "^7.3.8",
@@ -25,7 +24,6 @@
 		"vscode-uri": "^3.0.7"
 	},
 	"peerDependencies": {
-		"@volar/typescript": "*",
-		"@volar/web-fs": "*"
+		"@volar/typescript": "*"
 	}
 }

@@ -21,13 +21,13 @@ export default (): Service<Provide> => (context): ReturnType<Service<Provide>> =
 
 	const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
 	const fileSystemProvider: css.FileSystemProvider = {
-		stat: async uri => await context.env.fs.stat(uri) ?? {
+		stat: async uri => await context.env.fs?.stat(uri) ?? {
 			type: css.FileType.Unknown,
 			ctime: 0,
 			mtime: 0,
 			size: 0,
 		},
-		readDirectory: async (uri) => context.env.fs.readDirectory(uri),
+		readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
 	};
 	const documentContext: css.DocumentContext = {
 		resolveReference(ref, base) {

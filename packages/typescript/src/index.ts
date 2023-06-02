@@ -31,9 +31,10 @@ import * as signatureHelp from './features/signatureHelp';
 import * as typeDefinitions from './features/typeDefinition';
 import * as workspaceSymbols from './features/workspaceSymbol';
 import { SharedContext } from './types';
-import { createLanguageServiceHost, createSys } from '@volar/typescript';
+import { createLanguageServiceHost, createSys, IDtsHost } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
-import type { IDtsHost } from '@volar/web-fs';
+
+export * from '@volar/typescript';
 
 export interface Provide {
 	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
@@ -45,7 +46,7 @@ export interface Provide {
 
 let documentRegistry: ts.DocumentRegistry;
 
-export default (options?: { dtsHost: IDtsHost; }): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
+export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
 
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
@@ -72,7 +73,7 @@ export default (options?: { dtsHost: IDtsHost; }): Service<Provide> => (contextO
 	}
 
 	const ts = modules.typescript;
-	const sys = createSys(context, ts, context.env); // TODO: use sync()
+	const sys = createSys(context, ts, context.env, options?.dtsHost);
 	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
 	const created = tsFaster.createLanguageService(
 		ts,

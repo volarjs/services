@@ -153,7 +153,7 @@ export default (): Service => (contextOrNull): ReturnType<Service> => {
 		const moduleBasePath = baseCandidate.split('/').slice(0, sepIndex).join('/');
 		while (true) {
 			const moduleAbsoluteUrl = Utils.joinPath(currentUri, 'node_modules', moduleBasePath);
-			const moduleStat = await ctx.env.fs.stat(moduleAbsoluteUrl.toString());
+			const moduleStat = await ctx.env.fs?.stat(moduleAbsoluteUrl.toString());
 
 			if (moduleStat && moduleStat.type === 2 satisfies FileType.Directory) {
 				for (const uriCandidate of pathCandidates
@@ -209,7 +209,7 @@ export default (): Service => (contextOrNull): ReturnType<Service> => {
 	}
 
 	async function exists(resource: URI): Promise<boolean> {
-		const stat = await ctx.env.fs.stat(resource.toString());
+		const stat = await ctx.env.fs?.stat(resource.toString());
 		// stat.type is an enum flag
 		return stat?.type === 1 satisfies FileType.File;
 	}

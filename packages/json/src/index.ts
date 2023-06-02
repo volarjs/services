@@ -32,7 +32,7 @@ export default (settings?: json.LanguageSettings): Service<Provide> => (context)
 		},
 	};
 	const jsonLs = json.getLanguageService({
-		schemaRequestService: async (uri) => await context.env.fs.readFile(uri) ?? '',
+		schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
 		workspaceContext,
 		clientCapabilities: context.env.clientCapabilities,
 	});
