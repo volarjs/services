@@ -183,9 +183,6 @@ importers:
       '@volar/typescript':
         specifier: 1.6.9
         version: 1.6.9
-      '@volar/web-fs':
-        specifier: 1.6.9
-        version: 1.6.9
 
   packages/typescript-twoslash-queries: {}
 
@@ -1042,11 +1039,7 @@ packages:
   /@volar/typescript@1.6.9:
     resolution: {integrity: sha512-L3WivzKVK5h/esfYdvnMXiE0wcH+wNalgFrpknuYgGraXNw+wGDaizEdVzKxyQYjez4bz/Z+X19YT2vTUGNV7Q==}
     dependencies:
-      '@volar/language-core': 1.6.9
-    dev: true
-
-  /@volar/web-fs@1.6.9:
-    resolution: {integrity: sha512-uvDt8yq2VxkaNWulqsu/SEB2jba7v7kuAk9OqJMSiDEel5Cl1ZVOtQqIzG14yjOqasYjiFkUX0Xl9e+ftrCcFQ==}
+      '@volar/language-core': file:../framework/packages/language-core
     dev: true
 
   /@vscode/emmet-helper@2.8.8:
@@ -5695,3 +5688,11 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: false
+
+  file:../framework/packages/language-core:
+    resolution: {directory: ../framework/packages/language-core, type: directory}
+    name: '@volar/language-core'
+    version: 1.6.9
+    dependencies:
+      '@volar/source-map': 1.6.9
+    dev: true
