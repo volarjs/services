@@ -1,6 +1,7 @@
 import type { Service, Diagnostic } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI, Utils } from 'vscode-uri';
 
 export interface Provide {
 	'json/jsonDocument': (document: TextDocument) => json.JSONDocument | undefined;
@@ -16,7 +17,25 @@ export default (settings?: json.LanguageSettings): Service<Provide> => (context)
 		return { triggerCharacters } as any;
 	}
 	const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
-	const jsonLs = json.getLanguageService({ schemaRequestService: context.env.schemaRequestService });
+	const workspaceContext: json.WorkspaceContextService = {
+		resolveRelativePath: (ref: string, base: string) => {
+			if (ref.match(/^\w[\w\d+.-]*:/)) {
+				// starts with a schema
+				return ref;
+			}
+			if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+				return base + ref;
+			}
+			const baseUri = URI.parse(base);
+			const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+			return Utils.resolvePath(baseUriDir, ref).toString(true);
+		},
+	};
+	const jsonLs = json.getLanguageService({
+		schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
+		workspaceContext,
+		clientCapabilities: context.env.clientCapabilities,
+	});
 
 	if (settings) {
 		jsonLs.configure(settings);

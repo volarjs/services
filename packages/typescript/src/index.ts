@@ -1,8 +1,8 @@
-import type { CompletionList, Service, CompletionTriggerKind, FileChangeType } from '@volar/language-service';
+import type { CompletionList, Service, CompletionTriggerKind, FileChangeType, CancellationToken } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import * as _callHierarchy from './features/callHierarchy';
 import * as codeActions from './features/codeAction';
@@ -31,19 +31,22 @@ import * as signatureHelp from './features/signatureHelp';
 import * as typeDefinitions from './features/typeDefinition';
 import * as workspaceSymbols from './features/workspaceSymbol';
 import { SharedContext } from './types';
-import { createLanguageServiceHost } from '@volar/typescript';
+import { createLanguageServiceHost, createSys, IDtsHost } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
+
+export * from '@volar/typescript';
 
 export interface Provide {
 	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
 	'typescript/sourceFile': (document: TextDocument) => ts.SourceFile | undefined;
+	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 	'typescript/languageService': (document?: TextDocument) => ts.LanguageService;
 	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost;
 };
 
 let documentRegistry: ts.DocumentRegistry;
 
-export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
+export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
 
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
@@ -70,51 +73,46 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 	}
 
 	const ts = modules.typescript;
-	const languageServiceHost = createLanguageServiceHost(context, ts);
-	let languageService: ts.LanguageService;
+	const sys = createSys(context, ts, context.env, options?.dtsHost);
+	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
+	const created = tsFaster.createLanguageService(
+		ts,
+		sys,
+		languageServiceHost,
+		proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry ??= ts.createDocumentRegistry()),
+	);
+	const { languageService } = created;
 
-	if (context.env.sys) {
-		const created = tsFaster.createLanguageService(
-			ts,
-			context.env.sys,
-			languageServiceHost,
-			proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry ??= ts.createDocumentRegistry()),
-		);
-		languageService = created.languageService;
+	if (created.setPreferences && context.env.getConfiguration) {
 
-		if (created.setPreferences && context.env.getConfiguration) {
+		updatePreferences();
+		context.env.onDidChangeConfiguration?.(updatePreferences);
 
-			updatePreferences();
-			context.env.onDidChangeConfiguration?.(updatePreferences);
-
-			async function updatePreferences() {
-				const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
-				if (preferences) {
-					created.setPreferences?.(preferences);
-				}
+		async function updatePreferences() {
+			const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
+			if (preferences) {
+				created.setPreferences?.(preferences);
 			}
 		}
-
-		if (created.projectUpdated) {
-			let scriptFileNames = new Set(context.host.getScriptFileNames());
-			context.env.onDidChangeWatchedFiles?.((params) => {
-				if (params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed)) {
-					scriptFileNames = new Set(context.host.getScriptFileNames());
-				}
-
-				for (const change of params.changes) {
-					if (scriptFileNames.has(context.env.uriToFileName(change.uri))) {
-						created.projectUpdated?.(context.env.uriToFileName(context.env.rootUri.fsPath));
-					}
-				}
-			});
-		}
 	}
-	else {
-		languageService = ts.createLanguageService(languageServiceHost, documentRegistry ??= ts.createDocumentRegistry());
+
+	if (created.projectUpdated) {
+		let scriptFileNames = new Set(context.host.getScriptFileNames());
+		context.env.onDidChangeWatchedFiles?.((params) => {
+			if (params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed)) {
+				scriptFileNames = new Set(context.host.getScriptFileNames());
+			}
+
+			for (const change of params.changes) {
+				if (scriptFileNames.has(context.env.uriToFileName(change.uri))) {
+					created.projectUpdated?.(context.env.uriToFileName(context.env.rootUri.fsPath));
+				}
+			}
+		});
 	}
 
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
+	const documents = new WeakMap<ts.IScriptSnapshot, TextDocument>();
 	const semanticCtx: SharedContext = {
 		...context,
 		typescript: {
@@ -122,6 +120,21 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 			languageService,
 		},
 		ts,
+		getTextDocument(uri: string) {
+			const document = context.getTextDocument(uri);
+			if (document) {
+				return document;
+			}
+			const snapshot = languageServiceHost.getScriptSnapshot(context.env.uriToFileName(uri));
+			if (snapshot) {
+				let document = documents.get(snapshot);
+				if (!document) {
+					document = TextDocument.create(uri, '', 0, snapshot.getText(0, snapshot.getLength()));
+					documents.set(snapshot, document);
+				}
+				return document;
+			}
+		},
 	};
 	const findDefinition = definitions.register(semanticCtx);
 	const findTypeDefinition = typeDefinitions.register(semanticCtx);
@@ -148,18 +161,19 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 	const callHierarchy = _callHierarchy.register(semanticCtx);
 
 	let syntacticHostCtx = {
+		projectVersion: 0,
 		document: undefined as TextDocument | undefined,
 		fileName: '',
 		fileVersion: 0,
 		snapshot: ts.ScriptSnapshot.fromString(''),
 	};
 	const syntacticServiceHost: ts.LanguageServiceHost = {
-		getProjectVersion: () => syntacticHostCtx.fileName + '::' + syntacticHostCtx.fileVersion,
+		getProjectVersion: () => syntacticHostCtx.projectVersion.toString(),
 		getScriptFileNames: () => [syntacticHostCtx.fileName],
 		getScriptVersion: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.fileVersion.toString() : '',
 		getScriptSnapshot: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.snapshot : undefined,
 		getCompilationSettings: () => languageServiceHost.getCompilationSettings() ?? {},
-		getCurrentDirectory: () => '',
+		getCurrentDirectory: () => '/',
 		getDefaultLibFileName: () => '',
 		readFile: () => undefined,
 		fileExists: fileName => fileName === syntacticHostCtx.fileName,
@@ -180,6 +194,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 
 		dispose() {
 			languageService.dispose();
+			sys.dispose();
 		},
 
 		provide: {
@@ -194,6 +209,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 					return syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(syntacticHostCtx.fileName);
 				}
 			},
+			'typescript/textDocument': semanticCtx.getTextDocument,
 			'typescript/languageService': document => {
 				if (!document || getSemanticServiceSourceFile(document.uri)) {
 					return semanticCtx.typescript.languageService;
@@ -238,8 +254,12 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 			}
 		},
 
-		async provideCompletionItems(document, position, context) {
-			if (isTsDocument(document)) {
+		provideCompletionItems(document, position, context, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, async () => {
 
 				let result: CompletionList = {
 					isIncomplete: false,
@@ -276,212 +296,313 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 				}
 
 				return result;
-			}
+			});
 		},
 
-		resolveCompletionItem(item) {
-			return doCompletionResolve(item);
+		resolveCompletionItem(item, token) {
+			return worker(token, () => {
+				return doCompletionResolve(item);
+			});
 		},
 
-		provideRenameRange(document, position) {
-			if (isTsDocument(document)) {
+		provideRenameRange(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return doPrepareRename(document.uri, position);
-			}
+			});
 		},
 
-		provideRenameEdits(document, position, newName) {
-			if (isTsDocument(document) || isJsonDocument(document)) {
+		provideRenameEdits(document, position, newName, token) {
+
+			if (!isTsDocument(document) && !isJsonDocument(document))
+				return;
+
+			return worker(token, () => {
 				return doRename(document.uri, position, newName);
-			}
+			});
 		},
 
-		provideCodeActions(document, range, context) {
-			if (isTsDocument(document)) {
+		provideCodeActions(document, range, context, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return getCodeActions(document.uri, range, context);
-			}
+			});
 		},
 
-		resolveCodeAction(codeAction) {
-			return doCodeActionResolve(codeAction);
+		resolveCodeAction(codeAction, token) {
+			return worker(token, () => {
+				return doCodeActionResolve(codeAction);
+			});
 		},
 
-		provideInlayHints(document, range) {
-			if (isTsDocument(document)) {
+		provideInlayHints(document, range, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return getInlayHints(document.uri, range);
-			}
+			});
 		},
 
-		provideCallHierarchyItems(document, position) {
-			if (isTsDocument(document)) {
+		provideCallHierarchyItems(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return callHierarchy.doPrepare(document.uri, position);
-			}
+			});
 		},
 
-		provideCallHierarchyIncomingCalls(item) {
-			return callHierarchy.getIncomingCalls(item);
+		provideCallHierarchyIncomingCalls(item, token) {
+			return worker(token, () => {
+				return callHierarchy.getIncomingCalls(item);
+			});
 		},
 
-		provideCallHierarchyOutgoingCalls(item) {
-			return callHierarchy.getOutgoingCalls(item);
+		provideCallHierarchyOutgoingCalls(item, token) {
+			return worker(token, () => {
+				return callHierarchy.getOutgoingCalls(item);
+			});
 		},
 
-		provideDefinition(document, position) {
-			if (isTsDocument(document)) {
+		provideDefinition(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return findDefinition(document.uri, position);
-			}
+			});
 		},
 
-		provideTypeDefinition(document, position) {
-			if (isTsDocument(document)) {
+		provideTypeDefinition(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return findTypeDefinition(document.uri, position);
-			}
+			});
 		},
 
-		provideDiagnostics(document) {
-			if (isTsDocument(document)) {
+		provideDiagnostics(document, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return doValidation(document.uri, { syntactic: true, suggestion: true });
-			}
+			});
 		},
 
-		provideSemanticDiagnostics(document) {
-			if (isTsDocument(document)) {
+		provideSemanticDiagnostics(document, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return doValidation(document.uri, { semantic: true, declaration: true });
-			}
+			});
 		},
 
-		provideHover(document, position) {
-			if (isTsDocument(document)) {
+		provideHover(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return doHover(document.uri, position);
-			}
+			});
 		},
 
-		provideImplementation(document, position) {
-			if (isTsDocument(document)) {
+		provideImplementation(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return findImplementations(document.uri, position);
-			}
+			});
 		},
 
-		provideReferences(document, position) {
-			if (isTsDocument(document) || isJsonDocument(document)) {
+		provideReferences(document, position, token) {
+
+			if (!isTsDocument(document) && !isJsonDocument(document))
+				return;
+
+			return worker(token, () => {
 				return findReferences(document.uri, position);
-			}
+			});
 		},
 
-		provideFileReferences(document) {
-			if (isTsDocument(document) || isJsonDocument(document)) {
+		provideFileReferences(document, token) {
+
+			if (!isTsDocument(document) && !isJsonDocument(document))
+				return;
+
+			return worker(token, () => {
 				return findFileReferences(document.uri);
-			}
+			});
 		},
 
-		provideDocumentHighlights(document, position) {
-			if (isTsDocument(document)) {
+		provideDocumentHighlights(document, position, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return findDocumentHighlights(document.uri, position);
-			}
+			});
 		},
 
 		provideDocumentSymbols(document) {
-			if (isTsDocument(document)) {
 
-				prepareSyntacticService(document);
+			if (!isTsDocument(document))
+				return;
 
-				return findDocumentSymbols(document.uri);
-			}
+			prepareSyntacticService(document);
+
+			return findDocumentSymbols(document.uri);
 		},
 
-		provideDocumentSemanticTokens(document, range, legend) {
-			if (isTsDocument(document)) {
+		provideDocumentSemanticTokens(document, range, legend, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return getDocumentSemanticTokens(document.uri, range, legend);
-			}
+			});
 		},
 
-		provideWorkspaceSymbols(query) {
-			return findWorkspaceSymbols(query);
+		provideWorkspaceSymbols(query, token) {
+			return worker(token, () => {
+				return findWorkspaceSymbols(query);
+			});
 		},
 
-		provideFileRenameEdits(oldUri, newUri) {
-			return getEditsForFileRename(oldUri, newUri);
+		provideFileRenameEdits(oldUri, newUri, token) {
+			return worker(token, () => {
+				return getEditsForFileRename(oldUri, newUri);
+			});
 		},
 
 		provideFoldingRanges(document) {
-			if (isTsDocument(document)) {
 
-				prepareSyntacticService(document);
+			if (!isTsDocument(document))
+				return;
 
-				return getFoldingRanges(document.uri);
-			}
+
+			prepareSyntacticService(document);
+
+			return getFoldingRanges(document.uri);
 		},
 
-		provideSelectionRanges(document, positions) {
-			if (isTsDocument(document)) {
+		provideSelectionRanges(document, positions, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return getSelectionRanges(document.uri, positions);
-			}
+			});
 		},
 
-		provideSignatureHelp(document, position, context) {
-			if (isTsDocument(document)) {
+		provideSignatureHelp(document, position, context, token) {
+
+			if (!isTsDocument(document))
+				return;
+
+			return worker(token, () => {
 				return getSignatureHelp(document.uri, position, context);
-			}
+			});
 		},
 
 		async provideDocumentFormattingEdits(document, range, options_2) {
-			if (isTsDocument(document)) {
 
-				const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
-				if (enable === false) {
-					return;
-				}
+			if (!isTsDocument(document))
+				return;
 
-				prepareSyntacticService(document);
-
-				return doFormatting.onRange(document.uri, range, options_2);
+			const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
+			if (enable === false) {
+				return;
 			}
+
+			prepareSyntacticService(document);
+
+			return await doFormatting.onRange(document, range, options_2);
 		},
 
 		async provideOnTypeFormattingEdits(document, position, key, options_2) {
-			if (isTsDocument(document)) {
 
-				const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
-				if (enable === false) {
-					return;
-				}
+			if (!isTsDocument(document))
+				return;
 
-				prepareSyntacticService(document);
-
-				return doFormatting.onType(document.uri, options_2, position, key);
+			const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
+			if (enable === false) {
+				return;
 			}
+
+			prepareSyntacticService(document);
+
+			return doFormatting.onType(document, options_2, position, key);
 		},
 
 		provideFormattingIndentSensitiveLines(document) {
-			if (isTsDocument(document)) {
 
-				prepareSyntacticService(document);
+			if (!isTsDocument(document))
+				return;
 
-				const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
+			prepareSyntacticService(document);
 
-				if (sourceFile) {
+			const sourceFile = syntacticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
 
-					const lines: number[] = [];
+			if (sourceFile) {
 
-					sourceFile.forEachChild(function walk(node) {
-						if (
-							node.kind === ts.SyntaxKind.FirstTemplateToken
-							|| node.kind === ts.SyntaxKind.LastTemplateToken
-							|| node.kind === ts.SyntaxKind.TemplateHead
-						) {
-							const startLine = document.positionAt(node.getStart(sourceFile)).line;
-							const endLine = document.positionAt(node.getEnd()).line;
-							for (let i = startLine + 1; i <= endLine; i++) {
-								lines.push(i);
-							}
+				const lines: number[] = [];
+
+				sourceFile.forEachChild(function walk(node) {
+					if (
+						node.kind === ts.SyntaxKind.FirstTemplateToken
+						|| node.kind === ts.SyntaxKind.LastTemplateToken
+						|| node.kind === ts.SyntaxKind.TemplateHead
+					) {
+						const startLine = document.positionAt(node.getStart(sourceFile)).line;
+						const endLine = document.positionAt(node.getEnd()).line;
+						for (let i = startLine + 1; i <= endLine; i++) {
+							lines.push(i);
 						}
-						node.forEachChild(walk);
-					});
+					}
+					node.forEachChild(walk);
+				});
 
-					return lines;
-				}
+				return lines;
 			}
 		},
 	};
+
+	async function worker<T>(token: CancellationToken, callback: () => T): Promise<Awaited<T>> {
+
+		let oldSysVersion = sys.version;
+		let result = await callback();
+		let newSysVersion = await sys.sync();
+
+		while (newSysVersion !== oldSysVersion && !token.isCancellationRequested) {
+			oldSysVersion = newSysVersion;
+			result = await callback();
+			newSysVersion = await sys.sync();
+		}
+
+		return result;
+	}
 
 	function getSemanticServiceSourceFile(uri: string) {
 		const sourceFile = semanticCtx.typescript.languageService.getProgram()?.getSourceFile(context.env.uriToFileName(uri));
@@ -496,24 +617,8 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 		}
 		syntacticHostCtx.fileName = context.env.uriToFileName(document.uri);
 		syntacticHostCtx.fileVersion = document.version;
-		if (context.documents.isVirtualFileUri(document.uri)) {
-			const snapshot = context.documents.getVirtualFileByUri(document.uri)[0]?.snapshot;
-			if (snapshot) {
-				syntacticHostCtx.snapshot = snapshot;
-			}
-			else {
-				throw new Error('No snapshot found for ' + document.uri);
-			}
-		}
-		else {
-			const snapshot = context.host.getScriptSnapshot(syntacticHostCtx.fileName);
-			if (snapshot) {
-				syntacticHostCtx.snapshot = snapshot;
-			}
-			else {
-				throw new Error('No snapshot found for ' + document.uri);
-			}
-		}
+		syntacticHostCtx.snapshot = ts.ScriptSnapshot.fromString(document.getText());
+		syntacticHostCtx.projectVersion++;
 	}
 };
 

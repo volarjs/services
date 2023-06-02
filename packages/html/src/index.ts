@@ -2,6 +2,7 @@ import type { Service, DocumentSymbol, SymbolKind } from '@volar/language-servic
 import * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
+import { URI, Utils } from 'vscode-uri';
 
 const parserLs = html.getLanguageService();
 const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
@@ -9,6 +10,7 @@ const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 export interface Provide {
 	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
 	'html/languageService': () => html.LanguageService;
+	'html/documentContext': () => html.DocumentContext;
 	'html/updateCustomData': (extraData: html.IHTMLDataProvider[]) => void;
 }
 
@@ -44,8 +46,31 @@ export default (options: {
 	let customData: html.IHTMLDataProvider[] = [];
 	let extraData: html.IHTMLDataProvider[] = [];
 
+	const fileSystemProvider: html.FileSystemProvider = {
+		stat: async uri => await context.env.fs?.stat(uri) ?? {
+			type: html.FileType.Unknown,
+			ctime: 0,
+			mtime: 0,
+			size: 0,
+		},
+		readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
+	};
+	const documentContext: html.DocumentContext = {
+		resolveReference(ref, base) {
+			if (ref.match(/^\w[\w\d+.-]*:/)) {
+				// starts with a schema
+				return ref;
+			}
+			if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+				return base + ref;
+			}
+			const baseUri = URI.parse(base);
+			const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+			return Utils.resolvePath(baseUriDir, ref).toString(true);
+		},
+	};
 	const htmlLs = html.getLanguageService({
-		fileSystemProvider: context.env.fileSystemProvider,
+		fileSystemProvider,
 		clientCapabilities: context.env.clientCapabilities,
 	});
 
@@ -62,6 +87,7 @@ export default (options: {
 				}
 			},
 			'html/languageService': () => htmlLs,
+			'html/documentContext': () => documentContext,
 			'html/updateCustomData': updateExtraCustomData,
 		},
 
@@ -72,12 +98,7 @@ export default (options: {
 
 				const configs = await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion');
 
-				if (context.env.documentContext) {
-					return htmlLs.doComplete2(document, position, htmlDocument, context.env.documentContext, configs);
-				}
-				else {
-					return htmlLs.doComplete(document, position, htmlDocument, configs);
-				}
+				return htmlLs.doComplete2(document, position, htmlDocument, documentContext, configs);
 			});
 		},
 
@@ -114,11 +135,7 @@ export default (options: {
 
 		provideDocumentLinks(document) {
 			return worker(document, () => {
-
-				if (!context.env.documentContext)
-					return;
-
-				return htmlLs.findDocumentLinks(document, context.env.documentContext);
+				return htmlLs.findDocumentLinks(document, documentContext);
 			});
 		},
 

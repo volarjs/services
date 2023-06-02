@@ -33,7 +33,7 @@ export default (): Service<Provide> => (context, modules): ReturnType<Service<Pr
 
 		provideCompletionItems(document, position, _) {
 			return worker(document, (pugDocument) => {
-				return pugLs.doComplete(pugDocument, position, context.env.documentContext, /** TODO: CompletionConfiguration */);
+				return pugLs.doComplete(pugDocument, position, htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */);
 			});
 		},
 
@@ -74,9 +74,7 @@ export default (): Service<Provide> => (context, modules): ReturnType<Service<Pr
 
 		provideDocumentLinks(document) {
 			return worker(document, (pugDocument) => {
-				if (context.env.documentContext) {
-					return pugLs.findDocumentLinks(pugDocument, context.env.documentContext);
-				}
+				return pugLs.findDocumentLinks(pugDocument, htmlService.provide['html/documentContext']());
 			});
 		},
 

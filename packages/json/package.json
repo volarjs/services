@@ -13,7 +13,8 @@
 		"directory": "packages/json"
 	},
 	"dependencies": {
-		"vscode-json-languageservice": "^5.2.0"
+		"vscode-json-languageservice": "^5.2.0",
+		"vscode-uri": "^3.0.7"
 	},
 	"devDependencies": {
 		"vscode-languageserver-textdocument": "^1.0.8"

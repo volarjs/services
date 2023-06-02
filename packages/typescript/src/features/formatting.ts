@@ -2,13 +2,11 @@ import type * as vscode from '@volar/language-service';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { safeCall } from '../shared';
 import { SharedContext } from '../types';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 export function register(ctx: SharedContext) {
 	return {
-		onRange: async (uri: string, range: vscode.Range | undefined, options: vscode.FormattingOptions): Promise<vscode.TextEdit[]> => {
-
-			const document = ctx.getTextDocument(uri);
-			if (!document) return [];
+		onRange: async (document: TextDocument, range: vscode.Range | undefined, options: vscode.FormattingOptions): Promise<vscode.TextEdit[]> => {
 
 			const fileName = ctx.env.uriToFileName(document.uri);
 			const tsOptions = await getFormatCodeSettings(ctx, document, options);
@@ -35,10 +33,7 @@ export function register(ctx: SharedContext) {
 
 			return result;
 		},
-		onType: async (uri: string, options: vscode.FormattingOptions, position: vscode.Position, key: string): Promise<vscode.TextEdit[]> => {
-
-			const document = ctx.getTextDocument(uri);
-			if (!document) return [];
+		onType: async (document: TextDocument, options: vscode.FormattingOptions, position: vscode.Position, key: string): Promise<vscode.TextEdit[]> => {
 
 			const fileName = ctx.env.uriToFileName(document.uri);
 			const tsOptions = await getFormatCodeSettings(ctx, document, options);

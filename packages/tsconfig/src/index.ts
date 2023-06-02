@@ -1,4 +1,4 @@
-import type { DocumentLink, Service } from '@volar/language-service';
+import type { DocumentLink, FileType, Service } from '@volar/language-service';
 import * as jsonc from 'jsonc-parser';
 import { minimatch } from 'minimatch';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -52,7 +52,7 @@ export default (): Service => (contextOrNull): ReturnType<Service> => {
 		},
 
 		async resolveDocumentLink(link) {
-			
+
 			const data: OpenExtendsLinkCommandArgs = link.data;
 			if (data) {
 				const tsconfigPath = await getTsconfigPath(Utils.dirname(URI.parse(data.resourceUri)), data.extendsValue);
@@ -153,14 +153,9 @@ export default (): Service => (contextOrNull): ReturnType<Service> => {
 		const moduleBasePath = baseCandidate.split('/').slice(0, sepIndex).join('/');
 		while (true) {
 			const moduleAbsoluteUrl = Utils.joinPath(currentUri, 'node_modules', moduleBasePath);
-			let moduleStat: Awaited<ReturnType<NonNullable<typeof ctx.env.fileSystemProvider>['stat']>> | undefined;
-			try {
-				moduleStat = await ctx.env.fileSystemProvider?.stat(moduleAbsoluteUrl.toString());
-			} catch (err) {
-				// noop
-			}
+			const moduleStat = await ctx.env.fs?.stat(moduleAbsoluteUrl.toString());
 
-			if (moduleStat && moduleStat.type === 2 /* Directory */) {
+			if (moduleStat && moduleStat.type === 2 satisfies FileType.Directory) {
 				for (const uriCandidate of pathCandidates
 					.map((relativePath) => relativePath.split('/').slice(sepIndex).join('/'))
 					// skip empty paths within module
@@ -214,12 +209,8 @@ export default (): Service => (contextOrNull): ReturnType<Service> => {
 	}
 
 	async function exists(resource: URI): Promise<boolean> {
-		try {
-			const stat = await ctx.env.fileSystemProvider?.stat(resource.toString());
-			// stat.type is an enum flag
-			return !!(stat?.type === 1);
-		} catch {
-			return false;
-		}
+		const stat = await ctx.env.fs?.stat(resource.toString());
+		// stat.type is an enum flag
+		return stat?.type === 1 satisfies FileType.File;
 	}
 };
