@@ -14,7 +14,7 @@
 	},
 	"devDependencies": {
 		"@types/semver": "^7.3.13",
-		"@volar/typescript": "1.6.9"
+		"@volar/typescript": "1.7.0"
 	},
 	"dependencies": {
 		"semver": "^7.3.8",

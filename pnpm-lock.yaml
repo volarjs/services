@@ -14,11 +14,11 @@ importers:
         specifier: latest
         version: 20.2.5
       '@volar/language-service':
-        specifier: 1.6.9
-        version: 1.6.9
+        specifier: 1.7.0
+        version: 1.7.0
       '@volar/source-map':
-        specifier: 1.6.9
-        version: 1.6.9
+        specifier: 1.7.0
+        version: 1.7.0
       typescript:
         specifier: latest
         version: 5.1.3
@@ -102,10 +102,10 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: '*'
-        version: 1.6.9
+        version: 1.7.0
       '@volar/source-map':
         specifier: '*'
-        version: 1.6.9
+        version: 1.7.0
       muggle-string:
         specifier: ^0.3.1
         version: 0.3.1
@@ -181,8 +181,8 @@ importers:
         specifier: ^7.3.13
         version: 7.5.0
       '@volar/typescript':
-        specifier: 1.6.9
-        version: 1.6.9
+        specifier: 1.7.0
+        version: 1.7.0
 
   packages/typescript-twoslash-queries: {}
 
@@ -1017,29 +1017,28 @@ packages:
       '@types/vfile-message': 2.0.0
     dev: false
 
-  /@volar/language-core@1.6.9:
-    resolution: {integrity: sha512-7v8zsq3VMUBF5fI6FfjZ9pEkOuTiWD+AjxHVI3UXXXPoDeV9RcK3oPUfyQCV4Aj9Dqx4DPPI9Pcphyo6gZ8SAw==}
+  /@volar/language-core@1.7.0:
+    resolution: {integrity: sha512-ZjuD1bSyPUcWwiCS3wq/BRslMbJ5kU4z4KC3n8epeEFNBo+o2INdASW0wJwG96HSHEbAfO74XFIJ3hQdDGcSAg==}
     dependencies:
-      '@volar/source-map': 1.6.9
+      '@volar/source-map': 1.7.0
 
-  /@volar/language-service@1.6.9:
-    resolution: {integrity: sha512-DBdpypXVuRcW3td0l4nezuNqc0RR9NLScjTQ/xtE1vou5gaMyRETphbVaTgo2OnivK474tkCQ8YJTkSaMUizNA==}
+  /@volar/language-service@1.7.0:
+    resolution: {integrity: sha512-KIHLxj8tS+zUIYU9BQT38p64Yd8yFq/pGdJ2sqvQoX0PMh+ao4MCI99AZOtp4MS5rLzH4acZHTcV+NTLob32mw==}
     dependencies:
-      '@volar/language-core': 1.6.9
-      '@volar/source-map': 1.6.9
-      typescript-auto-import-cache: 0.3.0
+      '@volar/language-core': 1.7.0
+      '@volar/source-map': 1.7.0
       vscode-languageserver-textdocument: 1.0.8
       vscode-uri: 3.0.7
 
-  /@volar/source-map@1.6.9:
-    resolution: {integrity: sha512-D+IgnJGxO2Q1tL5qh3vU7iaLHtfGXptpdUDLMwmx292Fz0aVIXlC85mHHawGjBWeg/JhRGtEl4BvfTdn+4Ng/w==}
+  /@volar/source-map@1.7.0:
+    resolution: {integrity: sha512-GIBfwyz5svFoTm/HVco2xbUis3Y3nk4AJIBCGMnF7yHxAfcDEf1tccXK9YfgwK+JGj9ovC6FEIYIVSwoi5/1MQ==}
     dependencies:
       muggle-string: 0.3.1
 
-  /@volar/typescript@1.6.9:
-    resolution: {integrity: sha512-L3WivzKVK5h/esfYdvnMXiE0wcH+wNalgFrpknuYgGraXNw+wGDaizEdVzKxyQYjez4bz/Z+X19YT2vTUGNV7Q==}
+  /@volar/typescript@1.7.0:
+    resolution: {integrity: sha512-yDFBoptoa12GKsvJmNWaNYJcdECwpSKw0e7pp4CUHRX8hSzu49JZQgEmsymHR7dIkLvV9RfwlHux9/4MXnGJBA==}
     dependencies:
-      '@volar/language-core': file:../framework/packages/language-core
+      '@volar/language-core': 1.7.0
     dev: true
 
   /@vscode/emmet-helper@2.8.8:
@@ -5088,6 +5087,7 @@ packages:
     resolution: {integrity: sha512-Rq6/q4O9iyqUdjvOoyas7x/Qf9nWUMeqpP3YeTaLA+uECgfy5wOhfOS+SW/+fZ/uI/ZcKaf+2/ZhFzXh8xfofQ==}
     dependencies:
       semver: 7.5.1
+    dev: false
 
   /typescript@4.9.5:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
@@ -5688,11 +5688,3 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: false
-
-  file:../framework/packages/language-core:
-    resolution: {directory: ../framework/packages/language-core, type: directory}
-    name: '@volar/language-core'
-    version: 1.6.9
-    dependencies:
-      '@volar/source-map': 1.6.9
-    dev: true
