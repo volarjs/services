@@ -38,13 +38,14 @@ export * from '@volar/typescript';
 
 export interface Provide {
 	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
+	'typescript/sys': () => ts.System;
 	'typescript/sourceFile': (document: TextDocument) => ts.SourceFile | undefined;
 	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 	'typescript/languageService': (document?: TextDocument) => ts.LanguageService;
 	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost;
 };
 
-let documentRegistry: ts.DocumentRegistry;
+const documentRegistries: [boolean, string, ts.DocumentRegistry][] = [];
 
 export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
 
@@ -74,12 +75,19 @@ export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (context
 
 	const ts = modules.typescript;
 	const sys = createSys(context, ts, context.env, options?.dtsHost);
+
+	let documentRegistry = documentRegistries.find(item => item[0] === sys.useCaseSensitiveFileNames && item[1] === sys.getCurrentDirectory())?.[2];
+	if (!documentRegistry) {
+		documentRegistry = ts.createDocumentRegistry(sys.useCaseSensitiveFileNames, sys.getCurrentDirectory());
+		documentRegistries.push([sys.useCaseSensitiveFileNames, sys.getCurrentDirectory(), documentRegistry]);
+	}
+
 	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
 	const created = tsFaster.createLanguageService(
 		ts,
 		sys,
 		languageServiceHost,
-		proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry ??= ts.createDocumentRegistry()),
+		proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry),
 	);
 	const { languageService } = created;
 
@@ -199,6 +207,7 @@ export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (context
 
 		provide: {
 			'typescript/typescript': () => ts,
+			'typescript/sys': () => sys,
 			'typescript/sourceFile': document => {
 				if (isTsDocument(document)) {
 					const sourceFile = getSemanticServiceSourceFile(document.uri);
