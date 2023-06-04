@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-emmet",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -14,7 +14,7 @@
 	},
 	"dependencies": {
 		"@vscode/emmet-helper": "^2.8.6",
-		"volar-service-html": "0.0.4"
+		"volar-service-html": "0.0.5"
 	},
 	"browser": {
 		"./out/index.js": "./out/empty.js"
