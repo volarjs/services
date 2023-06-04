@@ -31,7 +31,7 @@ import * as signatureHelp from './features/signatureHelp';
 import * as typeDefinitions from './features/typeDefinition';
 import * as workspaceSymbols from './features/workspaceSymbol';
 import { SharedContext } from './types';
-import { createLanguageServiceHost, createSys, IDtsHost } from '@volar/typescript';
+import { createLanguageServiceHost, createSys, IDtsHost, getDocumentRegistry } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
 
 export * from '@volar/typescript';
@@ -44,8 +44,6 @@ export interface Provide {
 	'typescript/languageService': (document?: TextDocument) => ts.LanguageService;
 	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost;
 };
-
-const documentRegistries: [boolean, string, ts.DocumentRegistry][] = [];
 
 export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
 
@@ -75,19 +73,12 @@ export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (context
 
 	const ts = modules.typescript;
 	const sys = createSys(context, ts, context.env, options?.dtsHost);
-
-	let documentRegistry = documentRegistries.find(item => item[0] === sys.useCaseSensitiveFileNames && item[1] === sys.getCurrentDirectory())?.[2];
-	if (!documentRegistry) {
-		documentRegistry = ts.createDocumentRegistry(sys.useCaseSensitiveFileNames, sys.getCurrentDirectory());
-		documentRegistries.push([sys.useCaseSensitiveFileNames, sys.getCurrentDirectory(), documentRegistry]);
-	}
-
 	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
 	const created = tsFaster.createLanguageService(
 		ts,
 		sys,
 		languageServiceHost,
-		proxiedHost => ts.createLanguageService(proxiedHost, documentRegistry),
+		proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, context.host.getCurrentDirectory())),
 	);
 	const { languageService } = created;
 
