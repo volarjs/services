@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
 
 importers:
 
@@ -6,19 +10,19 @@ importers:
     devDependencies:
       '@lerna-lite/cli':
         specifier: latest
-        version: 2.4.0(@lerna-lite/publish@2.4.0)(@lerna-lite/version@2.4.0)
+        version: 2.4.1(@lerna-lite/publish@2.4.1)(@lerna-lite/version@2.4.1)
       '@lerna-lite/publish':
         specifier: latest
-        version: 2.4.0
+        version: 2.4.1
       '@types/node':
         specifier: latest
         version: 20.2.5
       '@volar/language-service':
-        specifier: 1.7.1
-        version: 1.7.1
+        specifier: 1.7.3
+        version: 1.7.3
       '@volar/source-map':
-        specifier: 1.7.1
-        version: 1.7.1
+        specifier: 1.7.3
+        version: 1.7.3
       typescript:
         specifier: ~5.0.4
         version: 5.0.4
@@ -102,10 +106,10 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: '*'
-        version: 1.7.1
+        version: 1.7.3
       '@volar/source-map':
         specifier: '*'
-        version: 1.7.1
+        version: 1.7.3
       muggle-string:
         specifier: ^0.3.1
         version: 0.3.1
@@ -181,8 +185,8 @@ importers:
         specifier: ^7.3.13
         version: 7.5.0
       '@volar/typescript':
-        specifier: 1.7.1
-        version: 1.7.1
+        specifier: 1.7.3
+        version: 1.7.3
 
   packages/typescript-twoslash-queries: {}
 
@@ -317,8 +321,8 @@ packages:
     resolution: {integrity: sha512-qqNS/YD0Nck5wtQLCPHAfGVgWbbGafxSPjNh0ekYPFSNNqnDH2kamnduzYly8IiADmeVx/MfAE1njMEjVeHTMA==}
     dev: false
 
-  /@lerna-lite/cli@2.4.0(@lerna-lite/publish@2.4.0)(@lerna-lite/version@2.4.0):
-    resolution: {integrity: sha512-8nwYFszzYOTBDQJz3kgrfwLSb6WwE6MHY7K8HhhwCs0S8uhIH2j6xHwPW2VKJbEPlUJcWOfCUH2G8TBKoxDTPg==}
+  /@lerna-lite/cli@2.4.1(@lerna-lite/publish@2.4.1)(@lerna-lite/version@2.4.1):
+    resolution: {integrity: sha512-i/Hd3tWYcK4bD9ZGz5ZdNUbxJG9KRbK7kXO14qRteKRA0NXBmSz/pbldhg59jj/YpA0bA3z8TloTsDPmD+nHJw==}
     engines: {node: '>=16.15.0', npm: '>=8.5.0'}
     hasBin: true
     peerDependencies:
@@ -342,10 +346,10 @@ packages:
       '@lerna-lite/watch':
         optional: true
     dependencies:
-      '@lerna-lite/core': 2.4.0
-      '@lerna-lite/init': 2.4.0
-      '@lerna-lite/publish': 2.4.0
-      '@lerna-lite/version': 2.4.0(@lerna-lite/publish@2.4.0)
+      '@lerna-lite/core': 2.4.1
+      '@lerna-lite/init': 2.4.1
+      '@lerna-lite/publish': 2.4.1
+      '@lerna-lite/version': 2.4.1(@lerna-lite/publish@2.4.1)
       dedent: 0.7.0
       dotenv: 16.1.4
       import-local: 3.1.0
@@ -357,15 +361,15 @@ packages:
       - supports-color
     dev: true
 
-  /@lerna-lite/core@2.4.0:
-    resolution: {integrity: sha512-yQOHfn2pquWFa048mjgSksxIrKwziTlkOkPPZphPxoVRKnRWPddZgfEvwPbCFBJzhQtgJnMTymRgOL9EqnB5vA==}
+  /@lerna-lite/core@2.4.1:
+    resolution: {integrity: sha512-tf+xP2pi3K3Cb3c0U7oz9jyARhyw2KuczAcyg6niKv7Rhz+bZiT29vxXSjg82Y3eLso0NcqQK8qwqLTQItVZsQ==}
     engines: {node: '>=16.15.0', npm: '>=8.5.0'}
     dependencies:
       '@npmcli/run-script': 6.0.2
       chalk: 5.2.0
       clone-deep: 4.0.1
       config-chain: 1.1.13
-      cosmiconfig: 8.1.3
+      cosmiconfig: 8.2.0
       dedent: 0.7.0
       execa: 7.1.1
       fs-extra: 11.1.1
@@ -392,11 +396,11 @@ packages:
       - supports-color
     dev: true
 
-  /@lerna-lite/init@2.4.0:
-    resolution: {integrity: sha512-ZtZ7HF1p7hQ4JqsHVTBmjk5puv2HPaVvrsrm2E+gzqvlK4YNwwNQ9ed9YtdUIaL7jUWCu/Gdlwt9qu7CChpWoA==}
+  /@lerna-lite/init@2.4.1:
+    resolution: {integrity: sha512-xR/TAEx6vEqLFlBP/5mqNCvYGmXEaqDAPTej0qiAtE3K5dSBV0F6KZeyGkbY47x7RC68KQDRbWRHhE5PFYNwzw==}
     engines: {node: '>=16.15.0', npm: '>=8.5.0'}
     dependencies:
-      '@lerna-lite/core': 2.4.0
+      '@lerna-lite/core': 2.4.1
       fs-extra: 11.1.1
       p-map: 6.0.0
       write-json-file: 5.0.0
@@ -405,19 +409,19 @@ packages:
       - supports-color
     dev: true
 
-  /@lerna-lite/publish@2.4.0:
-    resolution: {integrity: sha512-Z2qbUdbLPIcsgd8OUL1FOFz9pZS+jtuFYI835g/rusZz/fseuD1vkTJWZz1R6YLMsGXJc71s8QX1DbyzxnwS9g==}
+  /@lerna-lite/publish@2.4.1:
+    resolution: {integrity: sha512-uAMjdiilnLvgQqhaFP/N4PCnvSZlC64UGXzCtRrMkY5GaBV9hOCYkoXbbpEyHJs0I7urQhb6hIHtj5V5XyrtYw==}
     engines: {node: '>=16.15.0', npm: '>=8.5.0'}
     dependencies:
-      '@lerna-lite/cli': 2.4.0(@lerna-lite/publish@2.4.0)(@lerna-lite/version@2.4.0)
-      '@lerna-lite/core': 2.4.0
-      '@lerna-lite/version': 2.4.0(@lerna-lite/publish@2.4.0)
+      '@lerna-lite/cli': 2.4.1(@lerna-lite/publish@2.4.1)(@lerna-lite/version@2.4.1)
+      '@lerna-lite/core': 2.4.1
+      '@lerna-lite/version': 2.4.1(@lerna-lite/publish@2.4.1)
       '@npmcli/arborist': 6.2.9
       byte-size: 8.1.1
       chalk: 5.2.0
       columnify: 1.6.0
       fs-extra: 11.1.1
-      glob: 10.2.6
+      glob: 10.2.7
       has-unicode: 2.0.1
       libnpmaccess: 7.0.2
       libnpmpublish: 7.3.0
@@ -445,12 +449,12 @@ packages:
       - supports-color
     dev: true
 
-  /@lerna-lite/version@2.4.0(@lerna-lite/publish@2.4.0):
-    resolution: {integrity: sha512-EjaUp2Oh/JJqcSl+hWhv15xeiZGy3/cwIUwH5ugLlqi1/WOVkTlh8j7G7ZfUmVfTjPzqWpBaQZTw4laStpghtw==}
+  /@lerna-lite/version@2.4.1(@lerna-lite/publish@2.4.1):
+    resolution: {integrity: sha512-Dvejq/worjWjGG6YzAXglcZFFqMW3RRSE3DrWCMKfMnN4e7HQQul+R6T5p1OIzDjEdEZ428EDsYPuByqYvJi2A==}
     engines: {node: '>=16.15.0', npm: '>=8.5.0'}
     dependencies:
-      '@lerna-lite/cli': 2.4.0(@lerna-lite/publish@2.4.0)(@lerna-lite/version@2.4.0)
-      '@lerna-lite/core': 2.4.0
+      '@lerna-lite/cli': 2.4.1(@lerna-lite/publish@2.4.1)(@lerna-lite/version@2.4.1)
+      '@lerna-lite/core': 2.4.1
       '@octokit/plugin-enterprise-rest': 6.0.1
       '@octokit/rest': 19.0.11
       chalk: 5.2.0
@@ -461,7 +465,7 @@ packages:
       conventional-recommended-bump: 6.1.0
       dedent: 0.7.0
       fs-extra: 11.1.1
-      get-stream: 6.0.1
+      get-stream: 7.0.0
       git-url-parse: 13.1.0
       graceful-fs: 4.2.11
       is-stream: 3.0.0
@@ -522,7 +526,7 @@ packages:
       '@npmcli/metavuln-calculator': 5.0.1
       '@npmcli/name-from-folder': 2.0.0
       '@npmcli/node-gyp': 3.0.0
-      '@npmcli/package-json': 3.1.0
+      '@npmcli/package-json': 3.1.1
       '@npmcli/query': 3.0.0
       '@npmcli/run-script': 6.0.2
       bin-links: 4.0.1
@@ -568,8 +572,8 @@ packages:
       semver: 7.5.1
     dev: true
 
-  /@npmcli/git@4.0.4:
-    resolution: {integrity: sha512-5yZghx+u5M47LghaybLCkdSyFzV/w4OuH12d96HO389Ik9CDsLaDZJVynSGGVJOLn6gy/k7Dz5XYcplM3uxXRg==}
+  /@npmcli/git@4.1.0:
+    resolution: {integrity: sha512-9hwoB3gStVfa0N31ymBmrX+GuDGdVA/QWShZVqE0HK2Af+7QGGrCTbZia/SW0ImUTjTne7SP91qxDmtXvDHRPQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
       '@npmcli/promise-spawn': 6.0.2
@@ -598,7 +602,7 @@ packages:
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
       '@npmcli/name-from-folder': 2.0.0
-      glob: 10.2.6
+      glob: 10.2.7
       minimatch: 9.0.1
       read-package-json-fast: 3.0.2
     dev: true
@@ -635,14 +639,18 @@ packages:
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dev: true
 
-  /@npmcli/package-json@3.1.0:
-    resolution: {integrity: sha512-qNPy6Yf9ruFST99xcrl5EWAvrb7qFrwgVbwdzcTJlIgxbArKOq5e/bgZ6rTL1X9hDgAdPbvL8RWx/OTLSB0ToA==}
+  /@npmcli/package-json@3.1.1:
+    resolution: {integrity: sha512-+UW0UWOYFKCkvszLoTwrYGrjNrT8tI5Ckeb/h+Z1y1fsNJEctl7HmerA5j2FgmoqFaLI2gsA1X9KgMFqx/bRmA==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
-      glob: 10.2.6
+      '@npmcli/git': 4.1.0
+      glob: 10.2.7
       json-parse-even-better-errors: 3.0.0
       normalize-package-data: 5.0.0
       npm-normalize-package-bin: 3.0.1
+      proc-log: 3.0.0
+    transitivePeerDependencies:
+      - bluebird
     dev: true
 
   /@npmcli/promise-spawn@6.0.2:
@@ -673,18 +681,16 @@ packages:
       - supports-color
     dev: true
 
-  /@octokit/auth-token@3.0.3:
-    resolution: {integrity: sha512-/aFM2M4HVDBT/jjDBa84sJniv1t9Gm/rLkalaz9htOm+L+8JMj1k9w0CkUdcxNyNxZPlTxKPVko+m1VlM58ZVA==}
+  /@octokit/auth-token@3.0.4:
+    resolution: {integrity: sha512-TWFX7cZF2LXoCvdmJWY7XVPi74aSY0+FfBZNSXEXFkMpjcqsQwDSYVv5FhRFaI0V1ECnwbz4j59T/G+rXNWaIQ==}
     engines: {node: '>= 14'}
-    dependencies:
-      '@octokit/types': 9.2.3
     dev: true
 
   /@octokit/core@4.2.1:
     resolution: {integrity: sha512-tEDxFx8E38zF3gT7sSMDrT1tGumDgsw5yPG6BBh/X+5ClIQfMH/Yqocxz1PnHx6CHyF6pxmovUTOfZAUvQ0Lvw==}
     engines: {node: '>= 14'}
     dependencies:
-      '@octokit/auth-token': 3.0.3
+      '@octokit/auth-token': 3.0.4
       '@octokit/graphql': 5.0.6
       '@octokit/request': 6.2.5
       '@octokit/request-error': 3.0.3
@@ -742,15 +748,14 @@ packages:
       '@octokit/core': 4.2.1
     dev: true
 
-  /@octokit/plugin-rest-endpoint-methods@7.1.2(@octokit/core@4.2.1):
-    resolution: {integrity: sha512-R0oJ7j6f/AdqPLtB9qRXLO+wjI9pctUn8Ka8UGfGaFCcCv3Otx14CshQ89K4E88pmyYZS8p0rNTiprML/81jig==}
+  /@octokit/plugin-rest-endpoint-methods@7.1.3(@octokit/core@4.2.1):
+    resolution: {integrity: sha512-0aoPd4f1k/KXPTGSX0NbxcBrShBHArgcW3pujEvLa6wUfcfA1BehxQ2Ifwa6CbJ4SfzaO79FvGgaUipoxDsgjA==}
     engines: {node: '>= 14'}
     peerDependencies:
       '@octokit/core': '>=3'
     dependencies:
       '@octokit/core': 4.2.1
       '@octokit/types': 9.2.3
-      deprecation: 2.3.1
     dev: true
 
   /@octokit/request-error@3.0.3:
@@ -783,7 +788,7 @@ packages:
       '@octokit/core': 4.2.1
       '@octokit/plugin-paginate-rest': 6.1.2(@octokit/core@4.2.1)
       '@octokit/plugin-request-log': 1.0.4(@octokit/core@4.2.1)
-      '@octokit/plugin-rest-endpoint-methods': 7.1.2(@octokit/core@4.2.1)
+      '@octokit/plugin-rest-endpoint-methods': 7.1.3(@octokit/core@4.2.1)
     transitivePeerDependencies:
       - encoding
     dev: true
@@ -808,6 +813,17 @@ packages:
   /@sigstore/protobuf-specs@0.1.0:
     resolution: {integrity: sha512-a31EnjuIDSX8IXBUib3cYLDRlPMU36AWX4xS8ysLaNu4ZzUesDiPt83pgrW2X1YLMe5L2HbDyaKK5BrL4cNKaQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dev: true
+
+  /@sigstore/tuf@1.0.0:
+    resolution: {integrity: sha512-bLzi9GeZgMCvjJeLUIfs8LJYCxrPRA8IXQkzUtaFKKVPTz0mucRyqFcV2U20yg9K+kYAD0YSitzGfRZCFLjdHQ==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dependencies:
+      '@sigstore/protobuf-specs': 0.1.0
+      make-fetch-happen: 11.1.1
+      tuf-js: 1.1.6
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@sindresorhus/is@0.14.0:
@@ -1006,7 +1022,7 @@ packages:
     resolution: {integrity: sha512-GpTIuDpb9u4zIO165fUy9+fXcULdD8HFRNli04GehoMVbeNq7D6OBnqSmg3lxZnC+UvgUhEWKxdKiwYUkGltIw==}
     deprecated: This is a stub types definition. vfile-message provides its own type definitions, so you do not need this installed.
     dependencies:
-      vfile-message: 3.1.4
+      vfile-message: 4.0.1
     dev: false
 
   /@types/vfile@3.0.2:
@@ -1017,29 +1033,29 @@ packages:
       '@types/vfile-message': 2.0.0
     dev: false
 
-  /@volar/language-core@1.7.1:
-    resolution: {integrity: sha512-xE3PRW6JZ/+JxCiHvZk2avq+Qfq47e9xd29F+3XFfq0L+HAI5uyz9qiNOH7/IxiTcagCVbDEuJQCFeh7Fdndfg==}
+  /@volar/language-core@1.7.3:
+    resolution: {integrity: sha512-KE1gKN2KpduIy5rx5o4XLwCRAt/Q88q06tHKSdDGcW9bB0YWH8oQ+EJru9i5AAxK5AFE0RwtOOo2v4XYnnKpAA==}
     dependencies:
-      '@volar/source-map': 1.7.1
+      '@volar/source-map': 1.7.3
 
-  /@volar/language-service@1.7.1:
-    resolution: {integrity: sha512-JnGW0mSvHOt+LwbzwtBfhoGgcFw+5Gji93ZGihmnG946HzcrOKePRilpSdhKcnZ/i1HOS/OnjeIFp44NmrJ/qA==}
+  /@volar/language-service@1.7.3:
+    resolution: {integrity: sha512-678yLRaF0XNc7VYwH1hcsCI74gcsb1O37Lgeq+S+xGY2e/4rfZjEa/kL1p67oIKcNwV0OUf0l32TVxs47TC5dg==}
     dependencies:
-      '@volar/language-core': 1.7.1
-      '@volar/source-map': 1.7.1
+      '@volar/language-core': 1.7.3
+      '@volar/source-map': 1.7.3
       vscode-languageserver-protocol: 3.17.3
       vscode-languageserver-textdocument: 1.0.8
       vscode-uri: 3.0.7
 
-  /@volar/source-map@1.7.1:
-    resolution: {integrity: sha512-DRIG6N7rZCZnLobpJcqpiUS4V50J7wIBa4Mj2HErAu8HA/+qglAPxCNyS0sgSt8gNOixebcSIwK4Nfge1KXKTQ==}
+  /@volar/source-map@1.7.3:
+    resolution: {integrity: sha512-92pJLV//4FjUHeFqUOpmnYO4VVqE4nyppnJx6GKiULCfyRY5s3hROKH3cadoE1jdUOmrTMbbeHULmZDawVxzHQ==}
     dependencies:
       muggle-string: 0.3.1
 
-  /@volar/typescript@1.7.1:
-    resolution: {integrity: sha512-yuasRxO5b7KSGGHRBPZ9BydO2DrgktJkBWnp21iJqeLyyfm+wzgjuP0qpR1qKLhUZ5EM2z86I0g8R2nFgMJEWw==}
+  /@volar/typescript@1.7.3:
+    resolution: {integrity: sha512-mMeBfYBw2mnSQ8QXXI5fgDHgYSn3dLI8B7+3s9IteELSKRfrvRde4hRkWWR6VLuRZRG1A6SXweAyVpwfMPROQA==}
     dependencies:
-      '@volar/language-core': 1.7.1
+      '@volar/language-core': 1.7.3
     dev: true
 
   /@vscode/emmet-helper@2.8.8:
@@ -1372,7 +1388,7 @@ packages:
     dependencies:
       '@npmcli/fs': 3.1.0
       fs-minipass: 3.0.2
-      glob: 10.2.6
+      glob: 10.2.7
       lru-cache: 7.18.3
       minipass: 5.0.0
       minipass-collect: 1.0.2
@@ -1746,8 +1762,8 @@ packages:
   /core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
-  /cosmiconfig@8.1.3:
-    resolution: {integrity: sha512-/UkO2JKI18b5jVMJUp0lvKFMpa/Gye+ZgZjKD+DGEN9y7NRcf/nK1A0sp67ONmKtnDCNMS44E6jrk0Yc3bDuUw==}
+  /cosmiconfig@8.2.0:
+    resolution: {integrity: sha512-3rTMnFJA1tCOPwRxtgF4wd7Ab2qvDbL8jX+3smjIbS4HlZBagTlpERbdN7iAbWlrfxE3M8c27kTwTawQ7st+OQ==}
     engines: {node: '>=14'}
     dependencies:
       import-fresh: 3.3.0
@@ -2399,6 +2415,11 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /get-stream@7.0.0:
+    resolution: {integrity: sha512-ql6FW5b8tgMYvI4UaoxG3EQN3VyZ6VeQpxNBGg5BZ4xD4u+HJeprzhMMA4OCBEGQgSR+m87pstWMpiVW64W8Fw==}
+    engines: {node: '>=16'}
+    dev: true
+
   /git-raw-commits@2.0.11:
     resolution: {integrity: sha512-VnctFhw+xfj8Va1xtfEqCUD2XDrbAPSJx+hSrE5K7fGdjZruW7XV+QOrN7LF/RJyvspRiD2I0asWsxFp0ya26A==}
     engines: {node: '>=10'}
@@ -2460,8 +2481,8 @@ packages:
     dependencies:
       is-glob: 4.0.3
 
-  /glob@10.2.6:
-    resolution: {integrity: sha512-U/rnDpXJGF414QQQZv5uVsabTVxMSwzS5CH0p3DRCIV6ownl4f7PzGnkGmvlum2wB+9RlJWJZ6ACU1INnBqiPA==}
+  /glob@10.2.7:
+    resolution: {integrity: sha512-jTKehsravOJo8IJxUGfZILnkvVJM/MOfHRs8QcXolVef2zNI9Tqyy5+SeuOAZd3upViEZQLyFpQhYiHLrMUNmA==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
     dependencies:
@@ -3157,7 +3178,7 @@ packages:
       npm-registry-fetch: 14.0.5
       proc-log: 3.0.0
       semver: 7.5.1
-      sigstore: 1.5.2
+      sigstore: 1.6.0
       ssri: 10.0.4
     transitivePeerDependencies:
       - supports-color
@@ -3973,7 +3994,7 @@ packages:
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     hasBin: true
     dependencies:
-      '@npmcli/git': 4.0.4
+      '@npmcli/git': 4.1.0
       '@npmcli/installed-package-contents': 2.0.2
       '@npmcli/promise-spawn': 6.0.2
       '@npmcli/run-script': 6.0.2
@@ -3988,7 +4009,7 @@ packages:
       promise-retry: 2.0.1
       read-package-json: 6.0.4
       read-package-json-fast: 3.0.2
-      sigstore: 1.5.2
+      sigstore: 1.6.0
       ssri: 10.0.4
       tar: 6.1.15
     transitivePeerDependencies:
@@ -4289,7 +4310,7 @@ packages:
     resolution: {integrity: sha512-AEtWXYfopBj2z5N5PbkAOeNHRPUg5q+Nen7QLxV8M2zJq1ym6/lCz3fYNTCXe19puu2d06jfHhrP7v/S2PtMMw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     dependencies:
-      glob: 10.2.6
+      glob: 10.2.7
       json-parse-even-better-errors: 3.0.0
       normalize-package-data: 5.0.0
       npm-normalize-package-bin: 3.0.1
@@ -4568,12 +4589,13 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
-  /sigstore@1.5.2:
-    resolution: {integrity: sha512-X95v6xAAooVpn7PaB94TDmFeSO5SBfCtB1R23fvzr36WTfjtkiiyOeei979nbTjc8nzh6FSLeltQZuODsm1EjQ==}
+  /sigstore@1.6.0:
+    resolution: {integrity: sha512-QODKff/qW/TXOZI6V/Clqu74xnInAS6it05mufj4/fSewexLtfEntgLZZcBtUK44CDQyUE5TUXYy1ARYzlfG9g==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
     hasBin: true
     dependencies:
       '@sigstore/protobuf-specs': 0.1.0
+      '@sigstore/tuf': 1.0.0
       make-fetch-happen: 11.1.1
       tuf-js: 1.1.6
     transitivePeerDependencies:
@@ -5320,8 +5342,8 @@ packages:
       unist-util-stringify-position: 2.0.3
     dev: false
 
-  /vfile-message@3.1.4:
-    resolution: {integrity: sha512-fa0Z6P8HUrQN4BZaX05SIVXic+7kE3b05PWAtPuYP9QLHsLKYR7/AlLW3NtOrpXRLeawpDLMsVkmk5DG0NXgWw==}
+  /vfile-message@4.0.1:
+    resolution: {integrity: sha512-Z1WqUoIK6T6LLoyO64ncUapmjlA84JqKRQFjcG0kZnnyysfq2rMyg5NvKhkQ16GH9FRCRT+Rk4G0aMxgKYS16g==}
     dependencies:
       '@types/unist': 2.0.6
       unist-util-stringify-position: 3.0.3

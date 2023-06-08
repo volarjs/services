@@ -22,6 +22,12 @@
 		"@types/prettier": "^2.7.2"
 	},
 	"peerDependencies": {
+		"@volar/language-service": "*",
 		"prettier": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }

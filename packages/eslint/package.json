@@ -16,6 +16,12 @@
 		"@types/eslint": "latest"
 	},
 	"peerDependencies": {
+		"@volar/language-service": "*",
 		"eslint": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }

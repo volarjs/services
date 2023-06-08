@@ -14,5 +14,13 @@
 	},
 	"devDependencies": {
 		"tslint": "latest"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "*"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
 	}
 }
