@@ -72,7 +72,7 @@ export default (options?: { dtsHost?: IDtsHost; }): Service<Provide> => (context
 	}
 
 	const ts = modules.typescript;
-	const sys = createSys(context, ts, context.env, options?.dtsHost);
+	const sys = createSys(ts, context.env, options?.dtsHost);
 	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
 	const created = tsFaster.createLanguageService(
 		ts,
