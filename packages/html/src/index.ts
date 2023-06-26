@@ -6,6 +6,7 @@ import { URI, Utils } from 'vscode-uri';
 
 const parserLs = html.getLanguageService();
 const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
+const fakeHtmlDocuments = new WeakMap<html.TextDocument, html.TextDocument>();
 
 export interface Provide {
 	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
@@ -283,7 +284,11 @@ export default (options: {
 
 					if (enabled) {
 
-						const text = htmlLs.doTagComplete(document, position, htmlDocument);
+						if (!fakeHtmlDocuments.has(document)) {
+							fakeHtmlDocuments.set(document, html.TextDocument.create(document.uri, 'html', document.version, document.getText()));
+						}
+						const fakeHtmlDocument = fakeHtmlDocuments.get(document)!;
+						const text = htmlLs.doTagComplete(fakeHtmlDocument, position, htmlDocument);
 
 						if (text) {
 							return text;
