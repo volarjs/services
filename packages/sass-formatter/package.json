@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-sass-formatter",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [

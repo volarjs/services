@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-emmet",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -14,7 +14,7 @@
 	},
 	"dependencies": {
 		"@vscode/emmet-helper": "^2.8.6",
-		"volar-service-html": "0.0.8"
+		"volar-service-html": "0.0.9"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "*"
