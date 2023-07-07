@@ -1,5 +1,5 @@
 import createHtmlService from 'volar-service-html';
-import type { Service } from '@volar/language-service';
+import type { Service, Diagnostic, DiagnosticSeverity } from '@volar/language-service';
 import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -38,12 +38,13 @@ export default (): Service<Provide> => (context, modules): ReturnType<Service<Pr
 		},
 
 		provideDiagnostics(document) {
-			return worker(document, (pugDocument) => {
+			return worker(document, (pugDocument): Diagnostic[] => {
 
 				if (pugDocument.error) {
 
 					return [{
 						source: 'pug',
+						severity: 1 satisfies typeof DiagnosticSeverity.Error,
 						code: pugDocument.error.code,
 						message: pugDocument.error.msg,
 						range: {
