@@ -1,5 +1,6 @@
 import type { Service } from '@volar/language-service';
-import { format, getFileInfo, resolveConfig, resolveConfigFile, type Options, type ResolveConfigOptions } from 'prettier';
+import * as originalPrettier from 'prettier';
+import { type Options, type ResolveConfigOptions } from 'prettier';
 
 export default (
 	options: {
@@ -23,21 +24,30 @@ export default (
 		 *
 		 * @see https://github.com/volarjs/services/issues/5
 		 */
-		ignoreIdeOptions?: boolean,
+		ignoreIdeOptions?: boolean;
+		/**
+		 * Determine if IDE options should be used as a fallback if there's no Prettier specific settings in the workspace
+		 */
+		useIdeOptionsFallback?: boolean;
 		/**
 		 * Additional options to pass to Prettier
 		 * This is useful, for instance, to add specific plugins you need.
 		 */
-		additionalOptions?: (resolvedConfig: Options) => Options;
+		additionalOptions?: (resolvedConfig: Options) => Options | Promise<Options>;
 		/**
 		 * Options to use when resolving the Prettier config
 		 */
 		resolveConfigOptions?: ResolveConfigOptions;
+		/**
+		 * Prettier instance to use. If undefined, Prettier will be imported through a normal `import('prettier')`.
+		 * This property is useful whenever you want to load a specific instance of Prettier (for instance, loading the Prettier version installed in the user's project)
+		 */
+		prettier?: typeof import('prettier') | undefined;
 	} = {},
-	getPrettierConfig = (config?: ResolveConfigOptions) => {
-		const configFile = resolveConfigFile.sync();
+	getPrettierConfig = async (prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
+		const configFile = await prettier.resolveConfigFile();
 		if (configFile) {
-			return resolveConfig.sync(configFile, config) ?? {};
+			return await prettier.resolveConfig(configFile, config) ?? {};
 		}
 		return {};
 	},
@@ -47,6 +57,12 @@ export default (
 		return {};
 	}
 
+	let prettier: typeof import('prettier');
+	try {
+		prettier = options.prettier ? options.prettier : originalPrettier;
+	} catch (e) {
+		throw new Error("Could not load Prettier: " + e)
+	}
 	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 
 	return {
@@ -55,8 +71,8 @@ export default (
 				return;
 			}
 
-			const filePrettierOptions = getPrettierConfig(options.resolveConfigOptions);
-			const fileInfo = await getFileInfo(context.env.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
+			const filePrettierOptions = await getPrettierConfig(prettier, options.resolveConfigOptions);
+			const fileInfo = await prettier.getFileInfo(context.env.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
 
 			if (fileInfo.ignored) {
 				return;
@@ -64,7 +80,7 @@ export default (
 
 			const editorPrettierOptions = await context.env.getConfiguration?.('prettier', document.uri);
 			const ideFormattingOptions =
-				formatOptions !== undefined && !options.ignoreIdeOptions // We need to check for options existing here because some editors might not have it
+				formatOptions !== undefined && options.useIdeOptionsFallback // We need to check for options existing here because some editors might not have it
 					? {
 						tabWidth: formatOptions.tabSize,
 						useTabs: !formatOptions.insertSpaces,
@@ -88,7 +104,7 @@ export default (
 			const prettierOptions = returnObjectIfHasKeys(filePrettierOptions) || returnObjectIfHasKeys(editorPrettierOptions) || ideFormattingOptions;
 
 			const currentPrettierConfig: Options = {
-				...options.additionalOptions ? options.additionalOptions(prettierOptions) : prettierOptions,
+				...options.additionalOptions ? await options.additionalOptions(prettierOptions) : prettierOptions,
 				filepath: context.env.uriToFileName(document.uri),
 			};
 
@@ -98,7 +114,7 @@ export default (
 			}
 
 			return [{
-				newText: format(oldText, currentPrettierConfig),
+				newText: await prettier.format(oldText, currentPrettierConfig),
 				range: {
 					start: document.positionAt(0),
 					end: document.positionAt(fullText.length),
