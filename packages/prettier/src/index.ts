@@ -1,5 +1,4 @@
 import type { Service } from '@volar/language-service';
-import * as originalPrettier from 'prettier';
 import { type Options, type ResolveConfigOptions } from 'prettier';
 
 export default (
@@ -59,9 +58,9 @@ export default (
 
 	let prettier: typeof import('prettier');
 	try {
-		prettier = options.prettier ? options.prettier : originalPrettier;
+		prettier = options.prettier ?? require('prettier');
 	} catch (e) {
-		throw new Error("Could not load Prettier: " + e)
+		throw new Error("Could not load Prettier: " + e);
 	}
 	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 
