@@ -219,7 +219,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 				prepareSyntacticService(document);
 				return syntacticCtx.typescript.languageService;
 			},
-			'typescript/syntacticLanguageService': document => {
+			'typescript/syntacticLanguageService': () => {
 				return syntacticCtx.typescript.languageService;
 			},
 			'typescript/languageServiceHost': document => {
@@ -229,7 +229,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 				prepareSyntacticService(document);
 				return syntacticCtx.typescript.languageServiceHost;
 			},
-			'typescript/syntacticLanguageServiceHost': document => {
+			'typescript/syntacticLanguageServiceHost': () => {
 				return syntacticCtx.typescript.languageServiceHost;
 			},
 		},
