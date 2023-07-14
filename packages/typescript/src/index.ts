@@ -43,7 +43,7 @@ export interface Provide {
 	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 	'typescript/languageService': (document?: TextDocument) => ts.LanguageService;
 	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost;
-	'typescript/syntacticLanguageService': () => ts.LanguageSeaddrvice;
+	'typescript/syntacticLanguageService': () => ts.LanguageService;
 	'typescript/syntacticLanguageServiceHost': () => ts.LanguageServiceHost;
 };
 
