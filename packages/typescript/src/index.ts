@@ -43,6 +43,8 @@ export interface Provide {
 	'typescript/textDocument': (uri: string) => TextDocument | undefined;
 	'typescript/languageService': (document?: TextDocument) => ts.LanguageService;
 	'typescript/languageServiceHost': (document?: TextDocument) => ts.LanguageServiceHost;
+	'typescript/syntacticLanguageService': () => ts.LanguageSeaddrvice;
+	'typescript/syntacticLanguageServiceHost': () => ts.LanguageServiceHost;
 };
 
 export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Service<Provide>> => {
@@ -217,11 +219,17 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 				prepareSyntacticService(document);
 				return syntacticCtx.typescript.languageService;
 			},
+			'typescript/syntacticLanguageService': document => {
+				return syntacticCtx.typescript.languageService;
+			},
 			'typescript/languageServiceHost': document => {
 				if (!document || getSemanticServiceSourceFile(document.uri)) {
 					return semanticCtx.typescript.languageServiceHost;
 				}
 				prepareSyntacticService(document);
+				return syntacticCtx.typescript.languageServiceHost;
+			},
+			'typescript/syntacticLanguageServiceHost': document => {
 				return syntacticCtx.typescript.languageServiceHost;
 			},
 		},
