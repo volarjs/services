@@ -16,7 +16,7 @@
 		"tslint": "latest"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "*"
+		"@volar/language-service": "~1.9.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

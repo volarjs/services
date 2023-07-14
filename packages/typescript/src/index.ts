@@ -78,7 +78,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 		ts,
 		sys,
 		languageServiceHost,
-		proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, context.host.getCurrentDirectory())),
+		proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, context.host.workspacePath)),
 	);
 	const { languageService } = created;
 

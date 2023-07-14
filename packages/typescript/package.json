@@ -24,8 +24,8 @@
 		"vscode-uri": "^3.0.7"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "*",
-		"@volar/typescript": "*"
+		"@volar/language-service": "~1.9.0",
+		"@volar/typescript": "~1.9.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

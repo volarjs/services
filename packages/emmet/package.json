@@ -17,7 +17,7 @@
 		"volar-service-html": "0.0.9"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "*"
+		"@volar/language-service": "~1.9.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
