@@ -23,7 +23,7 @@ With this plugin you can use this Vetur base features in Volar:
 
 ```js
 module.exports = {
-	plugins: [
+	services: [
 		require('volar-service-vetur').default(),
 	],
 };

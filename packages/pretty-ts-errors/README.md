@@ -19,7 +19,7 @@ Volar plugin for [pretty-ts-errors](https://github.com/yoavbls/pretty-ts-errors)
 
 ```js
 module.exports = {
-	plugins: [
+	services: [
 		require('volar-service-pretty-ts-errors').default(
 			type => require('prettier').format(type, {
 				parser: 'typescript',

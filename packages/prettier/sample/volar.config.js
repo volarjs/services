@@ -1,5 +1,5 @@
 module.exports = {
-	plugins: [
+	services: [
 		require('..')({
 			html: {
 				// breakContentsFromTags: true,

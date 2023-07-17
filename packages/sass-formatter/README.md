@@ -20,7 +20,7 @@ Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 const sassFormatter = require('volar-service-sass-formatter').default;
 
 module.exports = {
-	plugins: [
+	services: [
 		sassFormatter({}),
 	],
 };

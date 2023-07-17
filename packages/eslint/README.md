@@ -27,9 +27,7 @@ Example: https://github.com/DrJume/vue-volar-eslint
 const baseConfig = require('./.eslintrc.cjs'); // load your project eslint config
 
 module.exports = {
-
-	plugins: [
-
+	services: [
 		require('volar-service-eslint').default(program => ({
 			...baseConfig,
 			ignorePatterns: ['**/*.vue.*'], // ignore virtual files: *.vue.ts, *.vue.html, *.vue.css

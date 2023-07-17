@@ -20,7 +20,7 @@ Volar plugin for [TSLint](https://palantir.github.io/tslint/).
 ```js
 module.exports = {
 
-	plugins: [
+	services: [
 
 		require('volar-service-tslint').default([
 
