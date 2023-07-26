@@ -75,7 +75,7 @@ export default (): Service<Provide> => (contextOrNull, modules): ReturnType<Serv
 
 	const ts = modules.typescript;
 	const sys = createSys(ts, context.env);
-	const languageServiceHost = createLanguageServiceHost(context, ts, sys);
+	const languageServiceHost = createLanguageServiceHost(context, ts, sys, context.env);
 	const created = tsFaster.createLanguageService(
 		ts,
 		sys,
