@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-prettier",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
