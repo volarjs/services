@@ -1,6 +1,6 @@
 import type { Service, Diagnostic, CodeAction, ServiceContext } from '@volar/language-service';
 import type { IRule, RuleFailure } from 'tslint';
-import type { Provide } from '../../typescript';
+import type { Provide } from 'volar-service-typescript';
 
 export default (rules: IRule[]): Service => {
 

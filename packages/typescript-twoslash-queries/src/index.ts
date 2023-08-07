@@ -1,5 +1,5 @@
 import type { Service, InlayHint, ServiceContext } from '@volar/language-service';
-import type { Provide } from '../../typescript';
+import type { Provide } from 'volar-service-typescript';
 
 export default (): Service => (context: ServiceContext<Provide> | undefined): ReturnType<Service> => ({
 
