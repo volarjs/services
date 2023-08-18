@@ -1,10 +1,7 @@
 import { type Service } from '@volar/language-service'
 import { type TextDocument } from 'vscode-languageserver-textdocument'
-import {
-  getLanguageService,
-  type LanguageSettings,
-  type LanguageService
-} from 'yaml-language-server'
+import { type LanguageSettings, type LanguageService } from 'yaml-language-server'
+import { getLanguageService } from 'yaml-language-server/lib/umd/languageservice/yamlLanguageService.js'
 
 export interface Provide {
   'yaml/languageService': () => LanguageService;
