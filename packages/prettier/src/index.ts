@@ -43,12 +43,8 @@ export default (
 		 */
 		prettier?: typeof import('prettier') | undefined;
 	} = {},
-	getPrettierConfig = async (prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
-		const configFile = await prettier.resolveConfigFile();
-		if (configFile) {
-			return await prettier.resolveConfig(configFile, config) ?? {};
-		}
-		return {};
+	getPrettierConfig = async (filePath: string, prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
+		return await prettier.resolveConfig(filePath, config) ?? {};
 	},
 ): Service => (context): ReturnType<Service> => {
 
@@ -70,12 +66,18 @@ export default (
 				return;
 			}
 
-			const filePrettierOptions = await getPrettierConfig(prettier, options.resolveConfigOptions);
-			const fileInfo = await prettier.getFileInfo(context.env.uriToFileName(document.uri), { ignorePath: '.prettierignore' });
+			const filePath = context.env.uriToFileName(document.uri);
+			const fileInfo = await prettier.getFileInfo(filePath, { ignorePath: '.prettierignore', resolveConfig: false });
 
 			if (fileInfo.ignored) {
 				return;
 			}
+
+			const filePrettierOptions = await getPrettierConfig(
+				filePath,
+				prettier,
+				options.resolveConfigOptions
+			);
 
 			const editorPrettierOptions = await context.env.getConfiguration?.('prettier', document.uri);
 			const ideFormattingOptions =
@@ -86,16 +88,6 @@ export default (
 					}
 					: {};
 
-			const fullText = document.getText();
-			let oldText = fullText;
-
-			const isHTML = document.languageId === 'html';
-			if (isHTML && options.html?.breakContentsFromTags) {
-				oldText = oldText
-					.replace(/(<[a-z][^>]*>)([^ \n])/gi, '$1 $2')
-					.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, '$1 $2');
-			}
-
 			// Return a config with the following cascade:
 			// - Prettier config file should always win if it exists, if it doesn't:
 			// - Prettier config from the VS Code extension is used, if it doesn't exist:
@@ -103,13 +95,25 @@ export default (
 			const prettierOptions = returnObjectIfHasKeys(filePrettierOptions) || returnObjectIfHasKeys(editorPrettierOptions) || ideFormattingOptions;
 
 			const currentPrettierConfig: Options = {
-				...options.additionalOptions ? await options.additionalOptions(prettierOptions) : prettierOptions,
-				filepath: context.env.uriToFileName(document.uri),
+				...(options.additionalOptions
+					? await options.additionalOptions(prettierOptions)
+					: prettierOptions),
+				filepath: filePath,
 			};
 
 			if (!options.ignoreIdeOptions) {
 				currentPrettierConfig.useTabs = !formatOptions.insertSpaces;
 				currentPrettierConfig.tabWidth = formatOptions.tabSize;
+			}
+
+			const fullText = document.getText();
+			let oldText = fullText;
+
+			const isHTML = document.languageId === "html";
+			if (isHTML && options.html?.breakContentsFromTags) {
+				oldText = oldText
+					.replace(/(<[a-z][^>]*>)([^ \n])/gi, "$1 $2")
+					.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, "$1 $2");
 			}
 
 			return [{
