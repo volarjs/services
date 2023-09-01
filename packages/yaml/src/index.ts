@@ -20,6 +20,14 @@ export function createYamlService(
 	settings: LanguageSettings
 ): Service<Provide | undefined> {
 	return (context) => {
+
+		if (!context) {
+			// support for register
+			return {
+				triggerCharacters: [' ', ':']
+			};
+		}
+
 		const ls = getLanguageService({
 			async schemaRequestService(uri) {
 				if (uri.startsWith('file:') && context?.env.fs) {
