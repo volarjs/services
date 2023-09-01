@@ -129,23 +129,6 @@ export function createYamlService(
 				}
 			},
 
-			provideOnTypeFormattingEdits(document, position, ch, options) {
-				if (isYaml(document)) {
-					return ls.doDocumentOnTypeFormatting(document, {
-						ch,
-						options,
-						position,
-						textDocument: document
-					});
-				}
-			},
-
-			provideDocumentFormattingEdits(document) {
-				if (isYaml(document)) {
-					return ls.doFormat(document, {});
-				}
-			},
-
 			provideSelectionRanges(document, positions) {
 				if (isYaml(document)) {
 					return ls.getSelectionRanges(document, positions);
