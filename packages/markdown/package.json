@@ -14,7 +14,7 @@
 	},
 	"dependencies": {
 		"markdown-it": "^13.0.1",
-		"vscode-languageserver-protocol": "^3.17.3",
+		"vscode-jsonrpc": "^8.1.0",
 		"vscode-markdown-languageservice": "0.4.0-alpha.5",
 		"vscode-uri": "^3.0.7"
 	},

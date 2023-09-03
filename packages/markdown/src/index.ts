@@ -1,8 +1,9 @@
-import type { FileType, Service } from '@volar/language-service';
+import type { FileType, Service, FileChangeType } from '@volar/language-service';
 import MarkdownIt from 'markdown-it';
-import { Emitter, FileChangeType } from 'vscode-languageserver-protocol';
+import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { createLanguageService, DiagnosticLevel, githubSlugifier, LogLevel, type ILogger, type IMdLanguageService, type IMdParser, type IWorkspace } from 'vscode-markdown-languageservice';
+import type { ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
+import { createLanguageService, DiagnosticLevel, githubSlugifier, LogLevel } from 'vscode-markdown-languageservice';
 import { URI } from 'vscode-uri';
 
 export interface Provide {
@@ -59,7 +60,7 @@ export function create(): Service<Provide | undefined> {
 		const fileWatcher = onDidChangeWatchedFiles((event) => {
 			for (const change of event.changes) {
 				switch (change.type) {
-					case FileChangeType.Changed: {
+					case 2 satisfies typeof FileChangeType.Changed: {
 						const document = context.getTextDocument(change.uri);
 						if (document) {
 							onDidChangeMarkdownDocument.fire(document);
@@ -67,7 +68,7 @@ export function create(): Service<Provide | undefined> {
 						break;
 					}
 
-					case FileChangeType.Created: {
+					case 1 satisfies typeof FileChangeType.Created: {
 						const document = context.getTextDocument(change.uri);
 						if (document) {
 							onDidCreateMarkdownDocument.fire(document);
@@ -75,7 +76,7 @@ export function create(): Service<Provide | undefined> {
 						break;
 					}
 
-					case FileChangeType.Deleted: {
+					case 3 satisfies typeof FileChangeType.Deleted: {
 						onDidDeleteMarkdownDocument.fire(URI.parse(change.uri));
 						break;
 					}
