@@ -95,7 +95,7 @@ export function create(): Service<Provide | undefined> {
 
 			hasMarkdownDocument(resource) {
 				const document = context.getTextDocument(String(resource));
-				return Boolean(document && isMarkdown(document));
+				return Boolean(document && prepare(document));
 			},
 
 			onDidChangeMarkdownDocument: onDidChangeMarkdownDocument.event,
@@ -153,7 +153,7 @@ export function create(): Service<Provide | undefined> {
 				});
 				for (const embedded of embeddeds) {
 					const document = context.getTextDocument(embedded.fileName);
-					if (document && isMarkdown(document)) {
+					if (document && prepare(document)) {
 						newVersions.set(String(document.uri), document);
 					}
 				}
@@ -176,6 +176,13 @@ export function create(): Service<Provide | undefined> {
 				}
 			}
 		};
+		const prepare = (document: TextDocument) => {
+			if (!isMarkdown(document)) {
+				return false;
+			}
+			sync();
+			return true;
+		}
 
 		return {
 			dispose() {
@@ -190,14 +197,14 @@ export function create(): Service<Provide | undefined> {
 				'markdown/languageService': () => ls
 			},
 
-			async provideCodeActions(document, range, context, token) {
-				if (isMarkdown(document)) {
+			provideCodeActions(document, range, context, token) {
+				if (prepare(document)) {
 					return ls.getCodeActions(document, range, context, token);
 				}
 			},
 
 			async provideCompletionItems(document, position, context, token) {
-				if (isMarkdown(document)) {
+				if (prepare(document)) {
 					const items = await ls.getCompletionItems(
 						document,
 						position,
@@ -211,10 +218,8 @@ export function create(): Service<Provide | undefined> {
 				}
 			},
 
-			async provideDiagnostics(document, token) {
-				if (isMarkdown(document)) {
-					sync();
-
+			provideDiagnostics(document, token) {
+				if (prepare(document)) {
 					return ls.computeDiagnostics(
 						document,
 						{
@@ -231,20 +236,20 @@ export function create(): Service<Provide | undefined> {
 				}
 			},
 
-			async provideDocumentHighlights(document, position, token) {
-				if (isMarkdown(document)) {
+			provideDocumentHighlights(document, position, token) {
+				if (prepare(document)) {
 					return ls.getDocumentHighlights(document, position, token);
 				}
 			},
 
-			async provideDocumentLinks(document, token) {
-				if (isMarkdown(document)) {
+			provideDocumentLinks(document, token) {
+				if (prepare(document)) {
 					return ls.getDocumentLinks(document, token);
 				}
 			},
 
-			async provideDocumentSymbols(document, token) {
-				if (isMarkdown(document)) {
+			provideDocumentSymbols(document, token) {
+				if (prepare(document)) {
 					return ls.getDocumentSymbols(
 						document,
 						{ includeLinkDefinitions: true },
@@ -253,20 +258,20 @@ export function create(): Service<Provide | undefined> {
 				}
 			},
 
-			async provideFileReferences(document, token) {
-				if (isMarkdown(document)) {
+			provideFileReferences(document, token) {
+				if (prepare(document)) {
 					return ls.getFileReferences(URI.parse(document.uri), token);
 				}
 			},
 
-			async provideFoldingRanges(document, token) {
-				if (isMarkdown(document)) {
+			provideFoldingRanges(document, token) {
+				if (prepare(document)) {
 					return ls.getFoldingRanges(document, token);
 				}
 			},
 
-			async provideReferences(document, position, token) {
-				if (isMarkdown(document)) {
+			provideReferences(document, position, token) {
+				if (prepare(document)) {
 					return ls.getReferences(
 						document,
 						position,
@@ -276,28 +281,25 @@ export function create(): Service<Provide | undefined> {
 				}
 			},
 
-			async provideRenameEdits(document, position, newName, token) {
-				if (isMarkdown(document)) {
-					console.log(document);
-					const result = ls.getRenameEdit(document, position, newName, token);
-					console.log(result);
-					return result;
+			provideRenameEdits(document, position, newName, token) {
+				if (prepare(document)) {
+					return ls.getRenameEdit(document, position, newName, token);
 				}
 			},
 
-			async provideRenameRange(document, position, token) {
-				if (isMarkdown(document)) {
+			provideRenameRange(document, position, token) {
+				if (prepare(document)) {
 					return ls.prepareRename(document, position, token);
 				}
 			},
 
-			async provideSelectionRanges(document, positions, token) {
-				if (isMarkdown(document)) {
+			provideSelectionRanges(document, positions, token) {
+				if (prepare(document)) {
 					return ls.getSelectionRanges(document, positions, token);
 				}
 			},
 
-			async provideWorkspaceSymbols(query, token) {
+			provideWorkspaceSymbols(query, token) {
 				return ls.getWorkspaceSymbols(query, token);
 			},
 
