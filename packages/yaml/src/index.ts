@@ -16,9 +16,9 @@ function noop(): undefined { }
 /**
  * Create a Volar language service for YAML documents.
  */
-export function createYamlService(
+export default (
 	settings: LanguageSettings
-): Service<Provide | undefined> {
+): Service<Provide | undefined> => {
 	return (context) => {
 
 		if (!context) {
