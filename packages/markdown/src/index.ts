@@ -300,6 +300,7 @@ export function create(): Service<Provide> {
 			},
 
 			provideWorkspaceSymbols(query, token) {
+				sync();
 				return ls.getWorkspaceSymbols(query, token);
 			},
 
