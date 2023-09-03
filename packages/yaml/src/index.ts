@@ -24,24 +24,7 @@ export default (settings: LanguageSettings): Service<Provide> => {
 		}
 
 		const ls = getLanguageService({
-			async schemaRequestService(uri) {
-				if (uri.startsWith('file:') && context?.env.fs) {
-					const result = await context?.env.fs.readFile(uri);
-					if (result) {
-						return result;
-					}
-
-					throw new Error(`No such file: ${uri}`);
-				}
-
-				// @ts-expect-error This exists as an experimental API in Node 16.
-				const response = await fetch(uri);
-				if (response.ok) {
-					return response.text();
-				}
-
-				throw new Error(await response.text());
-			},
+			schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
 			telemetry: {
 				send: noop,
 				sendError: noop,
@@ -53,7 +36,7 @@ export default (settings: LanguageSettings): Service<Provide> => {
 				resolveRelativePath(relativePath, resource) {
 					return String(new URL(relativePath, resource));
 				}
-			}
+			},
 		});
 
 		ls.configure({
@@ -140,7 +123,7 @@ export default (settings: LanguageSettings): Service<Provide> => {
 
 			resolveCodeLens(codeLens) {
 				return ls.resolveCodeLens(codeLens);
-			}
+			},
 		};
 	};
 }
