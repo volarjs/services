@@ -1,0 +1,33 @@
+{
+	"name": "volar-service-markdown",
+	"version": "0.0.13",
+	"main": "out/index.js",
+	"license": "MIT",
+	"files": [
+		"out/**/*.js",
+		"out/**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/services.git",
+		"directory": "packages/markdown"
+	},
+	"dependencies": {
+		"markdown-it": "^13.0.1",
+		"vscode-languageserver-protocol": "^3.17.3",
+		"vscode-markdown-languageservice": "0.4.0-alpha.5",
+		"vscode-uri": "^3.0.7"
+	},
+	"devDependencies": {
+		"@types/markdown-it": "^13.0.1",
+		"vscode-languageserver-textdocument": "^1.0.8"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "~1.10.0"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	}
+}
