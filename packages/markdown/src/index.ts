@@ -40,7 +40,9 @@ export function create(): Service<Provide> {
 		const logger: ILogger = {
 			level: LogLevel.Off,
 
-			log() { }
+			log(_logLevel, message) {
+				context.env.console?.log(message);
+			}
 		};
 
 		const parser: IMdParser = {
