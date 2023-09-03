@@ -1,8 +1,8 @@
-import { FileType, forEachEmbeddedFile, type Service } from '@volar/language-service';
-import MarkdownIt = require('markdown-it');
+import type { FileType, Service } from '@volar/language-service';
+import MarkdownIt from 'markdown-it';
 import { Emitter, FileChangeType } from 'vscode-languageserver-protocol';
-import { type TextDocument } from 'vscode-languageserver-textdocument';
-import { createLanguageService, githubSlugifier, DiagnosticLevel, type ILogger, type IMdLanguageService, type IMdParser, type IWorkspace, LogLevel } from 'vscode-markdown-languageservice';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { createLanguageService, DiagnosticLevel, githubSlugifier, LogLevel, type ILogger, type IMdLanguageService, type IMdParser, type IWorkspace } from 'vscode-markdown-languageservice';
 import { URI } from 'vscode-uri';
 
 export interface Provide {
@@ -111,14 +111,14 @@ export function create(): Service<Provide | undefined> {
 				const directory = await fs.readDirectory(String(resource));
 				return directory.map(([fileName, fileType]) => [
 					fileName,
-					{ isDirectory: fileType === FileType.Directory }
+					{ isDirectory: fileType === 2 satisfies FileType.Directory }
 				]);
 			},
 
 			async stat(resource) {
 				const stat = await fs.stat(String(resource));
 				if (stat) {
-					return { isDirectory: stat.type === FileType.Directory };
+					return { isDirectory: stat.type === 2 satisfies FileType.Directory };
 				}
 			},
 
@@ -145,12 +145,17 @@ export function create(): Service<Provide | undefined> {
 			const newVersions = new Map<string, TextDocument>();
 
 			for (const { root } of context.virtualFiles.allSources()) {
-				forEachEmbeddedFile(root, (embedded) => {
+				const embeddeds = [root];
+				root.embeddedFiles.forEach(function walk(embedded) {
+					embeddeds.push(embedded);
+					embedded.embeddedFiles.forEach(walk);
+				});
+				for (const embedded of embeddeds) {
 					const document = context.getTextDocument(embedded.fileName);
 					if (document && isMarkdown(document)) {
 						newVersions.set(String(document.uri), document);
 					}
-				});
+				}
 			}
 
 			for (const [uri, document] of newVersions) {
