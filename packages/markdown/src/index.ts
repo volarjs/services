@@ -86,7 +86,8 @@ export function create(): Service<Provide> {
 
 		const workspace: IWorkspace = {
 			async getAllMarkdownDocuments() {
-				return [];
+				sync();
+				return syncedVersions.values();
 			},
 
 			getContainingDocument() {
@@ -182,7 +183,7 @@ export function create(): Service<Provide> {
 			}
 			sync();
 			return true;
-		}
+		};
 
 		return {
 			dispose() {
