@@ -3,7 +3,7 @@ import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { Provide } from 'volar-service-typescript';
 
-export default (resolveConfig?: (program: ts.Program) => Linter.Config): Service => {
+export function create(resolveConfig?: (program: ts.Program) => Linter.Config): Service {
 
 	const instances = new WeakMap<ts.Program, ESLint>();
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
@@ -114,3 +114,5 @@ export default (resolveConfig?: (program: ts.Program) => Linter.Config): Service
 		)).get(program)!;
 	}
 };
+
+export default create;

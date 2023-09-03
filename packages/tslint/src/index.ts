@@ -2,7 +2,7 @@ import type { Service, Diagnostic, CodeAction, ServiceContext } from '@volar/lan
 import type { IRule, RuleFailure } from 'tslint';
 import type { Provide } from 'volar-service-typescript';
 
-export default (rules: IRule[]): Service => {
+export function create(rules: IRule[]): Service {
 
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 
@@ -96,3 +96,5 @@ export default (rules: IRule[]): Service => {
 		},
 	});
 };
+
+export default create;

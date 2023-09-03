@@ -1,7 +1,7 @@
 import type { Service } from '@volar/language-service';
 import { type Options, type ResolveConfigOptions } from 'prettier';
 
-export default (
+export function create(
 	options: {
 		/**
 		 * Languages to be formatted by prettier.
@@ -46,86 +46,90 @@ export default (
 	getPrettierConfig = async (filePath: string, prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
 		return await prettier.resolveConfig(filePath, config) ?? {};
 	},
-): Service => (context): ReturnType<Service> => {
+): Service {
+	return (context): ReturnType<Service> => {
 
-	if (!context) {
-		return {};
-	}
+		if (!context) {
+			return {};
+		}
 
-	let prettier: typeof import('prettier');
-	try {
-		prettier = options.prettier ?? require('prettier');
-	} catch (e) {
-		throw new Error("Could not load Prettier: " + e);
-	}
-	const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
+		let prettier: typeof import('prettier');
+		try {
+			prettier = options.prettier ?? require('prettier');
+		} catch (e) {
+			throw new Error("Could not load Prettier: " + e);
+		}
+		const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 
-	return {
-		async provideDocumentFormattingEdits(document, _, formatOptions) {
-			if (!languages.includes(document.languageId)) {
-				return;
-			}
+		return {
+			async provideDocumentFormattingEdits(document, _, formatOptions) {
+				if (!languages.includes(document.languageId)) {
+					return;
+				}
 
-			const filePath = context.env.uriToFileName(document.uri);
-			const fileInfo = await prettier.getFileInfo(filePath, { ignorePath: '.prettierignore', resolveConfig: false });
+				const filePath = context.env.uriToFileName(document.uri);
+				const fileInfo = await prettier.getFileInfo(filePath, { ignorePath: '.prettierignore', resolveConfig: false });
 
-			if (fileInfo.ignored) {
-				return;
-			}
+				if (fileInfo.ignored) {
+					return;
+				}
 
-			const filePrettierOptions = await getPrettierConfig(
-				filePath,
-				prettier,
-				options.resolveConfigOptions
-			);
+				const filePrettierOptions = await getPrettierConfig(
+					filePath,
+					prettier,
+					options.resolveConfigOptions
+				);
 
-			const editorPrettierOptions = await context.env.getConfiguration?.('prettier', document.uri);
-			const ideFormattingOptions =
-				formatOptions !== undefined && options.useIdeOptionsFallback // We need to check for options existing here because some editors might not have it
-					? {
-						tabWidth: formatOptions.tabSize,
-						useTabs: !formatOptions.insertSpaces,
-					}
-					: {};
+				const editorPrettierOptions = await context.env.getConfiguration?.('prettier', document.uri);
+				const ideFormattingOptions =
+					formatOptions !== undefined && options.useIdeOptionsFallback // We need to check for options existing here because some editors might not have it
+						? {
+							tabWidth: formatOptions.tabSize,
+							useTabs: !formatOptions.insertSpaces,
+						}
+						: {};
 
-			// Return a config with the following cascade:
-			// - Prettier config file should always win if it exists, if it doesn't:
-			// - Prettier config from the VS Code extension is used, if it doesn't exist:
-			// - Use the editor's basic configuration settings
-			const prettierOptions = returnObjectIfHasKeys(filePrettierOptions) || returnObjectIfHasKeys(editorPrettierOptions) || ideFormattingOptions;
+				// Return a config with the following cascade:
+				// - Prettier config file should always win if it exists, if it doesn't:
+				// - Prettier config from the VS Code extension is used, if it doesn't exist:
+				// - Use the editor's basic configuration settings
+				const prettierOptions = returnObjectIfHasKeys(filePrettierOptions) || returnObjectIfHasKeys(editorPrettierOptions) || ideFormattingOptions;
 
-			const currentPrettierConfig: Options = {
-				...(options.additionalOptions
-					? await options.additionalOptions(prettierOptions)
-					: prettierOptions),
-				filepath: filePath,
-			};
+				const currentPrettierConfig: Options = {
+					...(options.additionalOptions
+						? await options.additionalOptions(prettierOptions)
+						: prettierOptions),
+					filepath: filePath,
+				};
 
-			if (!options.ignoreIdeOptions) {
-				currentPrettierConfig.useTabs = !formatOptions.insertSpaces;
-				currentPrettierConfig.tabWidth = formatOptions.tabSize;
-			}
+				if (!options.ignoreIdeOptions) {
+					currentPrettierConfig.useTabs = !formatOptions.insertSpaces;
+					currentPrettierConfig.tabWidth = formatOptions.tabSize;
+				}
 
-			const fullText = document.getText();
-			let oldText = fullText;
+				const fullText = document.getText();
+				let oldText = fullText;
 
-			const isHTML = document.languageId === "html";
-			if (isHTML && options.html?.breakContentsFromTags) {
-				oldText = oldText
-					.replace(/(<[a-z][^>]*>)([^ \n])/gi, "$1 $2")
-					.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, "$1 $2");
-			}
+				const isHTML = document.languageId === "html";
+				if (isHTML && options.html?.breakContentsFromTags) {
+					oldText = oldText
+						.replace(/(<[a-z][^>]*>)([^ \n])/gi, "$1 $2")
+						.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, "$1 $2");
+				}
 
-			return [{
-				newText: await prettier.format(oldText, currentPrettierConfig),
-				range: {
-					start: document.positionAt(0),
-					end: document.positionAt(fullText.length),
-				},
-			}];
-		},
+				return [{
+					newText: await prettier.format(oldText, currentPrettierConfig),
+					range: {
+						start: document.positionAt(0),
+						end: document.positionAt(fullText.length),
+					},
+				}];
+			},
+		};
 	};
-};
+}
+
+export default create;
 
 function returnObjectIfHasKeys<T>(obj: T | undefined): T | undefined {
 	if (Object.keys(obj || {}).length > 0) {

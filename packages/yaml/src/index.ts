@@ -13,14 +13,16 @@ function isYaml(document: TextDocument): boolean {
 
 function noop(): undefined { }
 
+const triggerCharacters = [' ', ':'];
+
 /**
  * Create a Volar language service for YAML documents.
  */
-export default (settings: LanguageSettings): Service<Provide> => {
+export function create(settings: LanguageSettings): Service<Provide> {
 	return (context): ReturnType<Service<Provide>> => {
 
 		if (!context) {
-			return { triggerCharacters: [' ', ':'] } as any;
+			return { triggerCharacters } as any;
 		}
 
 		const ls = getLanguageService({
@@ -55,7 +57,7 @@ export default (settings: LanguageSettings): Service<Provide> => {
 				'yaml/languageService': () => ls
 			},
 
-			triggerCharacters: [' ', ':'],
+			triggerCharacters,
 
 			provideCodeActions(document, range, context) {
 				if (isYaml(document)) {
@@ -127,3 +129,5 @@ export default (settings: LanguageSettings): Service<Provide> => {
 		};
 	};
 }
+
+export default create;
