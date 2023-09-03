@@ -22,12 +22,10 @@ function assert(condition: unknown, message: string): asserts condition {
 	}
 }
 
-export function create(): Service<Provide | undefined> {
+export function create(): Service<Provide> {
 	return (context) => {
 		if (!context) {
-			return {
-				provide: undefined
-			};
+			return {} as any;
 		}
 
 		let lastProjectVersion = context.host.getProjectVersion();
