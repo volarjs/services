@@ -50,5 +50,8 @@
 		{
 			"path": "./packages/vetur/tsconfig.build.json"
 		},
+		{
+			"path": "./packages/yaml/tsconfig.build.json"
+		},
 	]
 }
