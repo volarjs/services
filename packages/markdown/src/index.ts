@@ -151,7 +151,7 @@ export function create(): Service<Provide> {
 				});
 				for (const embedded of embeddeds) {
 					const document = context.getTextDocument(embedded.fileName);
-					if (document && prepare(document)) {
+					if (document && isMarkdown(document)) {
 						newVersions.set(String(document.uri), document);
 					}
 				}
