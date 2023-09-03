@@ -2,11 +2,11 @@ import type { Service } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
 import { getHtmlDocument } from 'volar-service-html';
 
+// https://docs.emmet.io/abbreviations/syntax/
+const triggerCharacters = '>+^*()#.[]$@-{}'.split('');
+
 export function create(): Service {
 	return (context): ReturnType<Service> => {
-
-		// https://docs.emmet.io/abbreviations/syntax/
-		const triggerCharacters = '>+^*()#.[]$@-{}'.split('');
 
 		if (!context) {
 			return { triggerCharacters };

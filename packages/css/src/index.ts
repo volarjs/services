@@ -9,11 +9,12 @@ export interface Provide {
 	'css/languageService': (languageId: string) => css.LanguageService | undefined;
 }
 
+// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
+const triggerCharacters = ['/', '-', ':'];
+
 export function create(): Service<Provide> {
 	return (context): ReturnType<Service<Provide>> => {
 
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
-		const triggerCharacters = ['/', '-', ':'];
 		if (!context) {
 			return { triggerCharacters } as any;
 		}
