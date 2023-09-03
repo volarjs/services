@@ -93,7 +93,7 @@ export function create(): Service<Provide> {
 
 			hasMarkdownDocument(resource) {
 				const document = context.getTextDocument(String(resource));
-				return Boolean(document && prepare(document));
+				return Boolean(document && isMarkdown(document));
 			},
 
 			onDidChangeMarkdownDocument: onDidChangeMarkdownDocument.event,
