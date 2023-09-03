@@ -16,16 +16,11 @@ function noop(): undefined { }
 /**
  * Create a Volar language service for YAML documents.
  */
-export default (
-	settings: LanguageSettings
-): Service<Provide | undefined> => {
-	return (context) => {
+export default (settings: LanguageSettings): Service<Provide> => {
+	return (context): ReturnType<Service<Provide>> => {
 
 		if (!context) {
-			// support for register
-			return {
-				triggerCharacters: [' ', ':']
-			};
+			return { triggerCharacters: [' ', ':'] } as any;
 		}
 
 		const ls = getLanguageService({
