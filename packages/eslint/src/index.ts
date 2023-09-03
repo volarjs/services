@@ -1,7 +1,7 @@
 import type { Service, Diagnostic, CodeAction, ServiceContext } from '@volar/language-service';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import type { Provide } from '../../typescript';
+import type { Provide } from 'volar-service-typescript';
 
 export default (resolveConfig?: (program: ts.Program) => Linter.Config): Service => {
 
