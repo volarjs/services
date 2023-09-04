@@ -20,9 +20,6 @@ importers:
       '@volar/language-service':
         specifier: latest
         version: 1.10.1
-      '@volar/source-map':
-        specifier: latest
-        version: 1.10.1
       typescript:
         specifier: latest
         version: 5.2.2

@@ -11,7 +11,6 @@
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/publish": "latest",
 		"@types/node": "latest",
-		"@volar/source-map": "latest",
 		"@volar/language-service": "latest",
 		"typescript": "latest",
 		"vscode-languageserver-protocol": "^3.17.3"
