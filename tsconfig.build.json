@@ -1,6 +1,6 @@
 {
 	"extends": "./tsconfig.json",
-	"include": [],
+	"include": [ ],
 	"references": [
 		{
 			"path": "./packages/css/tsconfig.build.json"
@@ -16,6 +16,9 @@
 		},
 		{
 			"path": "./packages/json/tsconfig.build.json"
+		},
+		{
+			"path": "./packages/markdown/tsconfig.build.json"
 		},
 		{
 			"path": "./packages/prettier/tsconfig.build.json"
