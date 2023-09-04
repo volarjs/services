@@ -1,10 +1,10 @@
-import type { FileType, Service, FileChangeType } from '@volar/language-service';
-import MarkdownIt from 'markdown-it';
+import type { FileChangeType, FileType, Service } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
-import { createLanguageService, DiagnosticLevel, githubSlugifier, LogLevel } from 'vscode-markdown-languageservice';
+import { DiagnosticLevel, LogLevel, createLanguageService, githubSlugifier } from 'vscode-markdown-languageservice';
 import { URI } from 'vscode-uri';
+import MarkdownIt = require('markdown-it');
 
 export interface Provide {
 	'markdown/languageService': () => IMdLanguageService;
