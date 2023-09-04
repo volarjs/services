@@ -89,18 +89,15 @@ importers:
       markdown-it:
         specifier: ^13.0.1
         version: 13.0.1
-      vscode-languageserver-protocol:
-        specifier: ^3.17.3
-        version: 3.17.3
+      vscode-jsonrpc:
+        specifier: ^8.1.0
+        version: 8.1.0
       vscode-markdown-languageservice:
-        specifier: 0.4.0-alpha.5
+        specifier: ~0.4.0-alpha.5
         version: 0.4.0-alpha.5
       vscode-uri:
         specifier: ^3.0.7
         version: 3.0.7
-      yaml-language-server:
-        specifier: 1.14.0
-        version: 1.14.0
     devDependencies:
       '@types/markdown-it':
         specifier: ^13.0.1
