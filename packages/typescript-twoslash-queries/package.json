@@ -12,6 +12,9 @@
 		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/typescript-twoslash-queries"
 	},
+	"devDependencies": {
+		"volar-service-typescript": "0.0.13"
+	},
 	"peerDependencies": {
 		"@volar/language-service": "~1.10.0"
 	},

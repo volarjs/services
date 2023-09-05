@@ -13,7 +13,8 @@
 		"directory": "packages/eslint"
 	},
 	"devDependencies": {
-		"@types/eslint": "latest"
+		"@types/eslint": "latest",
+		"volar-service-typescript": "0.0.13"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "~1.10.0",

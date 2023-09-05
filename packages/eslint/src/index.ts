@@ -59,7 +59,7 @@ export function create(resolveConfig?: (program: ts.Program) => Linter.Config): 
 			return diagnostics;
 		},
 
-		provideCodeActions(document, range, codeActionContext) {
+		provideCodeActions(document, _range, codeActionContext) {
 
 			const result: CodeAction[] = [];
 

@@ -56,7 +56,7 @@ export function create(rules: IRule[]): Service {
 			return diagnostics;
 		},
 
-		provideCodeActions(document, range, codeActionContext) {
+		provideCodeActions(document, _range, codeActionContext) {
 
 			const result: CodeAction[] = [];
 

@@ -1,28 +1,27 @@
 {
+	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
-		"target": "ES2021",
-		"lib": [
-			"ES2021",
-		],
-		"module": "Node16",
-		"sourceMap": true,
-		"composite": true,
-		"declaration": true,
-		"strict": true,
-		"alwaysStrict": false,
-		"resolveJsonModule": true,
-		"skipLibCheck": true,
-		"noUnusedLocals": true,
-		"baseUrl": "./",
 		"noEmit": true,
-		"paths": {
-			"volar-service-*": [
-				"packages/*/src"
-			],
-		}
 	},
-	"include": [
-		"packages/*/src",
-		"packages/*/rules.d.ts",
+	"include": [ ],
+	"references": [
+		{ "path": "./packages/css/tsconfig.json" },
+		{ "path": "./packages/emmet/tsconfig.json" },
+		{ "path": "./packages/eslint/tsconfig.json" },
+		{ "path": "./packages/html/tsconfig.json" },
+		{ "path": "./packages/json/tsconfig.json" },
+		{ "path": "./packages/markdown/tsconfig.json" },
+		{ "path": "./packages/prettier/tsconfig.json" },
+		{ "path": "./packages/pretty-ts-errors/tsconfig.json" },
+		{ "path": "./packages/prettyhtml/tsconfig.json" },
+		{ "path": "./packages/pug/tsconfig.json" },
+		{ "path": "./packages/pug-beautify/tsconfig.json" },
+		{ "path": "./packages/sass-formatter/tsconfig.json" },
+		{ "path": "./packages/tsconfig/tsconfig.json" },
+		{ "path": "./packages/tslint/tsconfig.json" },
+		{ "path": "./packages/typescript/tsconfig.json" },
+		{ "path": "./packages/typescript-twoslash-queries/tsconfig.json" },
+		{ "path": "./packages/vetur/tsconfig.json" },
+		{ "path": "./packages/yaml/tsconfig.json" },
 	],
 }

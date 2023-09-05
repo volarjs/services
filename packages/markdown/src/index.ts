@@ -204,7 +204,7 @@ export function create(): Service<Provide> {
 				}
 			},
 
-			async provideCompletionItems(document, position, context, token) {
+			async provideCompletionItems(document, position, _context, token) {
 				if (prepare(document)) {
 					const items = await ls.getCompletionItems(
 						document,

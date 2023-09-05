@@ -1,16 +1,11 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"noEmit": false,
 		"outDir": "out",
 		"rootDir": "src",
 	},
-	"include": [
-		"src",
-	],
+	"include": [ "src" ],
 	"references": [
-		{
-			"path": "../html/tsconfig.build.json"
-		},
+		{ "path": "../typescript/tsconfig.json" },
 	],
 }

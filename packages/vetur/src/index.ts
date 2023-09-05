@@ -65,7 +65,7 @@ export function create(): Service {
 			},
 
 			provideDocumentSemanticTokens(document, range) {
-				return htmlWorker(document, htmlDocument => {
+				return htmlWorker(document, () => {
 
 					const packageJsonPath = getPackageJsonPath(document);
 					if (!packageJsonPath)

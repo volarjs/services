@@ -13,7 +13,8 @@
 		"directory": "packages/tslint"
 	},
 	"devDependencies": {
-		"tslint": "latest"
+		"tslint": "latest",
+		"volar-service-typescript": "0.0.13"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "~1.10.0"
