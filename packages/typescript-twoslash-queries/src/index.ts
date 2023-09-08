@@ -33,7 +33,7 @@ export function create(): Service {
 					return inlayHints;
 				}
 			},
-		}
+		};
 	};
 }
 

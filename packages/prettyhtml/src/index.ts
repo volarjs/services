@@ -37,7 +37,7 @@ export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): 
 					},
 				}];
 			},
-		}
+		};
 	};
 }
 
