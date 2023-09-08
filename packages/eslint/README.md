@@ -8,18 +8,13 @@ Please note that you should disable ESLint VSCode Extension when use this plugin
 
 Example: https://github.com/DrJume/vue-volar-eslint
 
-## Usage
+## Installation
 
-`package.json`
-
-```json
-{
-	"devDependencies": {
-		"volar-service-eslint": "latest",
-		"eslint": "latest"
-	}
-}
+```sh
+npm install volar-service-eslint
 ```
+
+## Usage
 
 `volar.config.js`
 
@@ -28,7 +23,7 @@ const baseConfig = require('./.eslintrc.cjs'); // load your project eslint confi
 
 module.exports = {
 	services: [
-		require('volar-service-eslint').default(program => ({
+		require('volar-service-eslint').create(program => ({
 			...baseConfig,
 			ignorePatterns: ['**/*.vue.*'], // ignore virtual files: *.vue.ts, *.vue.html, *.vue.css
 			parserOptions: {
@@ -39,3 +34,7 @@ module.exports = {
 	],
 };
 ```
+
+## License
+
+[MIT](LICENSE) © [Johnson Chu](https://github.com/johnsoncodehk)

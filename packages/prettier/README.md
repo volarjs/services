@@ -2,24 +2,20 @@
 
 Volar plugin for [prettier](https://prettier.io/).
 
-## Usage
+## Installation
 
-`package.json`
-
-```json
-{
-  "devDependencies": {
-    "volar-service-prettier": "latest"
-  }
-}
+```sh
+npm install volar-service-prettier
 ```
+
+## Usage
 
 `volar.config.js`
 
 ```js
 module.exports = {
 	services: [
-		require('volar-service-prettier').default(
+		require('volar-service-prettier').create(
 			{
 				languages: ['html', 'css', 'scss', 'typescript', 'javascript'],
 				html: {
@@ -35,3 +31,7 @@ module.exports = {
 	],
 };
 ```
+
+## License
+
+[MIT](LICENSE) © [Pacharapol Withayasakpunt](https://www.polv.cc)

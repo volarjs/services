@@ -2,24 +2,24 @@
 
 Volar plugin for [PrettyHtml](https://prettyhtml.netlify.app/).
 
-## Usage
+## Installation
 
-`package.json`
-
-```json
-{
-  "devDependencies": {
-    "volar-service-prettyhtml": "latest"
-  }
-}
+```sh
+npm install volar-service-prettyhtml
 ```
+
+## Usage
 
 `volar.config.js`
 
 ```js
 module.exports = {
 	services: [
-		require('volar-service-prettyhtml').default({ printWidth: 100 }),
+		require('volar-service-prettyhtml').create({ printWidth: 100 }),
 	],
 };
 ```
+
+## License
+
+[MIT](LICENSE) © [Johnson Chu](https://github.com/johnsoncodehk)
