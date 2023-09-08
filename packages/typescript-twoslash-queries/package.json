@@ -3,13 +3,9 @@
 	"version": "0.0.13",
 	"description": "Integrate TypeScript Twoslash into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/typescript-twoslash-queries",
-	"funding": "https://github.com/volarjs/volar.js?sponsor=1",
 	"bugs": "https://github.com/volarjs/services/issues",
 	"sideEffects": false,
 	"keywords": [
-		"language-service",
-		"typescript-twoslash-queries",
-		"volar",
 		"volar-service"
 	],
 	"main": "out/index.js",

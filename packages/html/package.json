@@ -3,13 +3,9 @@
 	"version": "0.0.13",
 	"description": "Integrate vscode-languageservice-html into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/html",
-	"funding": "https://github.com/volarjs/volar.js?sponsor=1",
 	"bugs": "https://github.com/volarjs/services/issues",
 	"sideEffects": false,
 	"keywords": [
-		"html",
-		"language-service",
-		"volar",
 		"volar-service"
 	],
 	"main": "out/index.js",

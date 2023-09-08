@@ -3,13 +3,9 @@
 	"version": "0.0.13",
 	"description": "Integrate TSLint into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/tslint",
-	"funding": "https://github.com/volarjs/volar.js?sponsor=1",
 	"bugs": "https://github.com/volarjs/services/issues",
 	"sideEffects": false,
 	"keywords": [
-		"language-service",
-		"tslint",
-		"volar",
 		"volar-service"
 	],
 	"main": "out/index.js",

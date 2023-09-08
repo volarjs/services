@@ -1,15 +1,11 @@
 {
 	"name": "volar-service-emmet",
 	"version": "0.0.13",
-	"description": "Integrate emmet into Volar",
+	"description": "Integrate @vscode/emmet-helper into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/emmet",
-	"funding": "https://github.com/volarjs/volar.js?sponsor=1",
 	"bugs": "https://github.com/volarjs/services/issues",
 	"sideEffects": false,
 	"keywords": [
-		"emmet",
-		"language-service",
-		"volar",
 		"volar-service"
 	],
 	"main": "out/index.js",

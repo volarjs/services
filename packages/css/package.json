@@ -3,13 +3,9 @@
 	"version": "0.0.13",
 	"description": "Integrate vscode-css-languageservice into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/css",
-	"funding": "https://github.com/volarjs/volar.js?sponsor=1",
 	"bugs": "https://github.com/volarjs/services/issues",
 	"sideEffects": false,
 	"keywords": [
-		"css",
-		"language-service",
-		"volar",
 		"volar-service"
 	],
 	"main": "out/index.js",
