@@ -74,7 +74,7 @@ export function boundSpanToLocationLinks(
 		const targetRange: vscode.Range = entry.contextSpan ? {
 			start: doc.positionAt(entry.contextSpan.start),
 			end: doc.positionAt(entry.contextSpan.start + entry.contextSpan.length),
-		 } : targetSelectionRange;
+		} : targetSelectionRange;
 		const location: vscode.LocationLink = {
 			targetUri: entryUri,
 			targetRange,

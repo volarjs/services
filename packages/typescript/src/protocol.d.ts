@@ -15,4 +15,3 @@ declare module 'typescript/lib/tsserverlibrary' {
 		target: Proto.server.protocol.FileSpan;
 	}
 }
-

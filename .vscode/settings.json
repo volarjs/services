@@ -2,6 +2,8 @@
 	"typescript.format.semicolons": "insert",
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true,
 	"json.format.keepLines": true,
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"[typescript]": {

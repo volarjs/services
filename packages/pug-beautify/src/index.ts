@@ -30,7 +30,7 @@ export function create(): Service {
 					newText: prefixes + newText.trim() + suffixes,
 				}];
 			},
-		}
+		};
 	};
 }
 

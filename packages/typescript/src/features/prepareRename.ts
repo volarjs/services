@@ -6,7 +6,7 @@ import { safeCall } from '../shared';
 export const renameInfoOptions = { allowRenameOfImportPath: true };
 
 export function register(ctx: SharedContext) {
-	return (uri: string, position: vscode.Position): vscode.Range | { message: string } | undefined => {
+	return (uri: string, position: vscode.Position): vscode.Range | { message: string; } | undefined => {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
