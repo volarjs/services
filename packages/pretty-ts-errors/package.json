@@ -1,6 +1,17 @@
 {
 	"name": "volar-service-pretty-ts-errors",
 	"version": "0.0.13",
+	"description": "Integrate pretty-ts-errors-lsp into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/pretty-ts-errors",
+	"funding": "https://github.com/volarjs/volar.js?sponsor=1",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"language-service",
+		"pretty-ts-errors",
+		"volar",
+		"volar-service"
+	],
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -11,6 +22,11 @@
 		"type": "git",
 		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/pretty-ts-errors"
+	},
+	"author": {
+		"name": "Johnson Chu",
+		"email": "johnsoncodehk@gmail.com",
+		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
 		"pretty-ts-errors-lsp": "^0.0.3"
