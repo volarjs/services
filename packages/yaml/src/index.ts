@@ -18,7 +18,7 @@ const triggerCharacters = [' ', ':'];
 /**
  * Create a Volar language service for YAML documents.
  */
-export function create(settings: LanguageSettings): Service<Provide> {
+export function create(settings?: LanguageSettings): Service<Provide> {
 	return (context): ReturnType<Service<Provide>> => {
 
 		if (!context) {
