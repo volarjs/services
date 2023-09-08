@@ -1,6 +1,13 @@
 {
 	"name": "volar-service-pug-beautify",
 	"version": "0.0.13",
+	"description": "Integrate pug-beautify into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/pug-beautify",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"volar-service"
+	],
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -11,6 +18,11 @@
 		"type": "git",
 		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/pug-beautify"
+	},
+	"author": {
+		"name": "Johnson Chu",
+		"email": "johnsoncodehk@gmail.com",
+		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
 		"@johnsoncodehk/pug-beautify": "^0.2.2"

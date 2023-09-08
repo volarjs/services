@@ -1,6 +1,13 @@
 {
 	"name": "volar-service-tsconfig",
 	"version": "0.0.13",
+	"description": "Integrate tsconfig into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/tsconfig",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"volar-service"
+	],
 	"main": "out/index.js",
 	"license": "MIT",
 	"files": [
@@ -11,6 +18,11 @@
 		"type": "git",
 		"url": "https://github.com/volarjs/services.git",
 		"directory": "packages/tsconfig"
+	},
+	"author": {
+		"name": "Johnson Chu",
+		"email": "johnsoncodehk@gmail.com",
+		"url": "https://github.com/johnsoncodehk"
 	},
 	"devDependencies": {
 		"vscode-languageserver-textdocument": "^1.0.8"

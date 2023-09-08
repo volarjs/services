@@ -1,6 +1,13 @@
 {
 	"name": "volar-service-prettier",
 	"version": "0.0.13",
+	"description": "Integrate Prettier into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/prettier",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"volar-service"
+	],
 	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
