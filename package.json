@@ -3,14 +3,11 @@
 	"packageManager": "pnpm@8.7.4",
 	"scripts": {
 		"build": "tsc -b",
-		"watch": "tsc -b -w",
-		"prerelease": "npm run build",
-		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock --no-push --dist-tag volar-2.0",
-		"release:next": "npm run release -- --dist-tag next"
+		"watch": "tsc -b -w"
 	},
 	"devDependencies": {
-		"@lerna-lite/cli": "latest",
-		"@lerna-lite/publish": "latest",
+		"@changesets/changelog-github": "^0.5.0",
+		"@changesets/cli": "^2.27.1",
 		"@volar/language-service": "next",
 		"typescript": "latest",
 		"vscode-languageserver-protocol": "^3.17.5"
