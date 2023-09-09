@@ -2,26 +2,24 @@
 
 Volar plugin for [Sass Formatter](https://sass-formatter.syler.de/).
 
-## Usage
+## Installation
 
-`package.json`
-
-```json
-{
-  "devDependencies": {
-    "volar-service-sass-formatter": "latest"
-  }
-}
+```sh
+npm install volar-service-sass-formatter
 ```
+
+## Usage
 
 `volar.config.js`
 
 ```js
-const sassFormatter = require('volar-service-sass-formatter').default;
-
 module.exports = {
 	services: [
-		sassFormatter({}),
+		require('volar-service-sass-formatter').create(),
 	],
 };
 ```
+
+## License
+
+[MIT](LICENSE) © [Johnson Chu](https://github.com/johnsoncodehk)

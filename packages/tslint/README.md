@@ -2,18 +2,13 @@
 
 Volar plugin for [TSLint](https://palantir.github.io/tslint/).
 
-## Usage
+## Installation
 
-`package.json`
-
-```json
-{
-	"devDependencies": {
-		"volar-service-tslint": "latest",
-		"tslint": "latest"
-	}
-}
+```sh
+npm install tslint volar-service-tslint
 ```
+
+## Usage
 
 `volar.config.js`
 
@@ -22,7 +17,7 @@ module.exports = {
 
 	services: [
 
-		require('volar-service-tslint').default([
+		require('volar-service-tslint').create([
 
 			new (require('tslint/lib/rules/banTsIgnoreRule').Rule)({
 				ruleName: 'ban-ts-ignore',
@@ -39,3 +34,7 @@ module.exports = {
 	],
 };
 ```
+
+## License
+
+[MIT](LICENSE) © [Johnson Chu](https://github.com/johnsoncodehk)

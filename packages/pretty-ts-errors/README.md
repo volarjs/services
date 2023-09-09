@@ -2,25 +2,20 @@
 
 Volar plugin for [pretty-ts-errors](https://github.com/yoavbls/pretty-ts-errors).
 
-## Usage
+## Installation
 
-`package.json`
-
-```json
-{
-  "devDependencies": {
-    "volar-service-pretty-ts-errors": "latest",
-    "prettier": "latest"
-  }
-}
+```sh
+npm install prettier volar-service-pretty-ts-errors
 ```
+
+## Usage
 
 `volar.config.js`
 
 ```js
 module.exports = {
 	services: [
-		require('volar-service-pretty-ts-errors').default(
+		require('volar-service-pretty-ts-errors').create(
 			type => require('prettier').format(type, {
 				parser: 'typescript',
 				printWidth: 60,
@@ -31,3 +26,7 @@ module.exports = {
 	],
 };
 ```
+
+## License
+
+[MIT](LICENSE) © [Johnson Chu](https://github.com/johnsoncodehk)
