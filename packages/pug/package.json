@@ -31,8 +31,8 @@
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
 		"volar-service-html": "0.0.13",
-		"vscode-html-languageservice": "^5.0.4",
-		"vscode-languageserver-textdocument": "^1.0.8"
+		"vscode-html-languageservice": "^5.1.0",
+		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"browser": {
 		"./out/index.js": "./out/empty.js"
