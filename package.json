@@ -5,7 +5,7 @@
 		"build": "tsc -b",
 		"watch": "tsc -b -w",
 		"prerelease": "npm run build",
-		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
+		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock --no-push",
 		"release:next": "npm run release -- --dist-tag next"
 	},
 	"devDependencies": {
