@@ -33,10 +33,14 @@ export function getHtmlDocument(document: TextDocument) {
 // https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 const triggerCharacters = ['.', ':', '<', '"', '=', '/'];
 
-export function create(options: {
-	validLang?: string;
-	disableCustomData?: boolean;
+export function create({
+	languageId = 'html',
+	useDefaultDataProvider = true,
+	useCustomDataProviders = true,
+}: {
+	languageId?: string;
 	useDefaultDataProvider?: boolean;
+	useCustomDataProviders?: boolean;
 } = {}): Service<Provide> {
 	return (context): ReturnType<Service<Provide>> => {
 
@@ -47,7 +51,6 @@ export function create(options: {
 		let shouldUpdateCustomData = true;
 		let customData: html.IHTMLDataProvider[] = [];
 		let extraData: html.IHTMLDataProvider[] = [];
-		const { useDefaultDataProvider = true } = options;
 
 		const fileSystemProvider: html.FileSystemProvider = {
 			stat: async uri => await context.env.fs?.stat(uri) ?? {
@@ -85,7 +88,7 @@ export function create(options: {
 
 			provide: {
 				'html/htmlDocument': (document) => {
-					if (document.languageId === (options.validLang ?? 'html')) {
+					if (document.languageId === languageId) {
 						return getHtmlDocument(document);
 					}
 				},
@@ -298,7 +301,7 @@ export function create(options: {
 		};
 
 		async function initCustomData() {
-			if (shouldUpdateCustomData && !options.disableCustomData) {
+			if (shouldUpdateCustomData && useCustomDataProviders) {
 				shouldUpdateCustomData = false;
 				customData = await getCustomData();
 				htmlLs.setDataProviders(useDefaultDataProvider, [...customData, ...extraData]);
@@ -330,7 +333,7 @@ export function create(options: {
 
 		async function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
-			if (document.languageId !== (options.validLang ?? 'html'))
+			if (document.languageId !== languageId)
 				return;
 
 			const htmlDocument = getHtmlDocument(document);
