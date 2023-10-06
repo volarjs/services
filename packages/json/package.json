@@ -25,11 +25,11 @@
 		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
-		"vscode-json-languageservice": "^5.2.0",
-		"vscode-uri": "^3.0.7"
+		"vscode-json-languageservice": "^5.3.6",
+		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {
-		"vscode-languageserver-textdocument": "^1.0.8"
+		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "~1.10.0"

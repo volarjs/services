@@ -28,7 +28,7 @@
 		"yaml-language-server": "1.14.0"
 	},
 	"devDependencies": {
-		"vscode-languageserver-textdocument": "^1.0.8"
+		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "~1.10.0"

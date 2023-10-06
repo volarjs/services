@@ -25,7 +25,7 @@
 		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
-		"@vscode/emmet-helper": "^2.8.6",
+		"@vscode/emmet-helper": "^2.9.2",
 		"volar-service-html": "0.0.13"
 	},
 	"peerDependencies": {
