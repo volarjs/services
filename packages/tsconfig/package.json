@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-tsconfig",
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"description": "Integrate tsconfig into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/tsconfig",
 	"bugs": "https://github.com/volarjs/services/issues",
