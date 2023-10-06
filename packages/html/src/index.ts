@@ -1,4 +1,4 @@
-import type { Service, DocumentSymbol, SymbolKind } from '@volar/language-service';
+import type { Service } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as path from 'path';
@@ -147,12 +147,7 @@ export function create({
 
 			provideDocumentSymbols(document) {
 				return worker(document, (htmlDocument) => {
-					// TODO: wait for https://github.com/microsoft/vscode-html-languageservice/pull/152
-					const symbols: DocumentSymbol[] = [];
-					htmlDocument.roots.forEach(node => {
-						provideFileSymbolsInternal(document, node, symbols);
-					});
-					return symbols;
+					return htmlLs.findDocumentSymbols2(document, htmlDocument);
 				});
 			},
 
@@ -357,45 +352,4 @@ const CR = '\r'.charCodeAt(0);
 const NL = '\n'.charCodeAt(0);
 function isNewlineCharacter(charCode: number) {
 	return charCode === CR || charCode === NL;
-}
-
-function provideFileSymbolsInternal(document: TextDocument, node: html.Node, symbols: DocumentSymbol[]): void {
-
-	const name = nodeToName(node);
-	const range = {
-		start: document.positionAt(node.start),
-		end: document.positionAt(node.end),
-	};
-	const symbol: DocumentSymbol = {
-		name,
-		kind: 8 satisfies typeof SymbolKind.Field,
-		range,
-		selectionRange: range,
-	};
-
-	symbols.push(symbol);
-
-	node.children.forEach(child => {
-		symbol.children ??= [];
-		provideFileSymbolsInternal(document, child, symbol.children);
-	});
-}
-
-function nodeToName(node: html.Node): string {
-	let name = node.tag;
-
-	if (node.attributes) {
-		const id = node.attributes['id'];
-		const classes = node.attributes['class'];
-
-		if (id) {
-			name += `#${id.replace(/[\"\']/g, '')}`;
-		}
-
-		if (classes) {
-			name += classes.replace(/[\"\']/g, '').split(/\s+/).map(className => `.${className}`).join('');
-		}
-	}
-
-	return name || '?';
 }
