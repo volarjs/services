@@ -36,6 +36,7 @@ const triggerCharacters = ['.', ':', '<', '"', '=', '/'];
 export function create(options: {
 	validLang?: string;
 	disableCustomData?: boolean;
+	useDefaultDataProvider?: boolean;
 } = {}): Service<Provide> {
 	return (context): ReturnType<Service<Provide>> => {
 
@@ -46,6 +47,7 @@ export function create(options: {
 		let shouldUpdateCustomData = true;
 		let customData: html.IHTMLDataProvider[] = [];
 		let extraData: html.IHTMLDataProvider[] = [];
+		const { useDefaultDataProvider = true } = options;
 
 		const fileSystemProvider: html.FileSystemProvider = {
 			stat: async uri => await context.env.fs?.stat(uri) ?? {
@@ -299,13 +301,13 @@ export function create(options: {
 			if (shouldUpdateCustomData && !options.disableCustomData) {
 				shouldUpdateCustomData = false;
 				customData = await getCustomData();
-				htmlLs.setDataProviders(true, [...customData, ...extraData]);
+				htmlLs.setDataProviders(useDefaultDataProvider, [...customData, ...extraData]);
 			}
 		}
 
 		function updateExtraCustomData(data: html.IHTMLDataProvider[]) {
 			extraData = data;
-			htmlLs.setDataProviders(true, [...customData, ...extraData]);
+			htmlLs.setDataProviders(useDefaultDataProvider, [...customData, ...extraData]);
 		}
 
 		async function getCustomData() {
