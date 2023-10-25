@@ -128,10 +128,10 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: ~1.10.0
-        version: 1.10.4
+        version: 1.10.5
       '@volar/source-map':
         specifier: ~1.10.0
-        version: 1.10.4
+        version: 1.10.5
       muggle-string:
         specifier: ^0.3.1
         version: 0.3.1
@@ -1127,27 +1127,10 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: false
 
-  /@volar/language-core@1.10.4:
-    resolution: {integrity: sha512-Na69qA6uwVIdA0rHuOc2W3pHtVQQO8hCNim7FOaKNpRJh0oAFnu5r9i7Oopo5C4cnELZkPNjTrbmpcCTiW+CMQ==}
-    dependencies:
-      '@volar/source-map': 1.10.4
-    dev: false
-
   /@volar/language-core@1.10.5:
     resolution: {integrity: sha512-xD71j4Ee0Ycq8WsiAE6H/aCThGdTobiZZeD+jFD+bvmbopa1Az296pqJysr3Ck8c7n5+GGF+xlKCS3WxRFYgSQ==}
     dependencies:
       '@volar/source-map': 1.10.5
-    dev: true
-
-  /@volar/language-service@1.10.4:
-    resolution: {integrity: sha512-SGDsmGojVJi7RiHM9WON4O2Ed7PbjU+3gzEn0lODxK5qa+PDGzzSaFWIQeCp8Av+ef5uhZ4gJcTUR3AmD/29HQ==}
-    dependencies:
-      '@volar/language-core': 1.10.4
-      '@volar/source-map': 1.10.4
-      vscode-languageserver-protocol: 3.17.5
-      vscode-languageserver-textdocument: 1.0.11
-      vscode-uri: 3.0.8
-    dev: false
 
   /@volar/language-service@1.10.5:
     resolution: {integrity: sha512-HORaZ3x8hDGKO0KoezJ8CNjAdpXngocJAXOym3vJN0yPu5M+VjShG+M4lt+JP/zts0Ef02G7KY3gGbLltfhUYA==}
@@ -1157,19 +1140,11 @@ packages:
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.8
-    dev: true
-
-  /@volar/source-map@1.10.4:
-    resolution: {integrity: sha512-RxZdUEL+pV8p+SMqnhVjzy5zpb1QRZTlcwSk4bdcBO7yOu4rtEWqDGahVCEj4CcXour+0yJUMrMczfSCpP9Uxg==}
-    dependencies:
-      muggle-string: 0.3.1
-    dev: false
 
   /@volar/source-map@1.10.5:
     resolution: {integrity: sha512-s4kgo66SA1kMzYvF9HFE6Vc1rxtXLUmcLrT2WKnchPDvLne+97Kw+xoR2NxJFmsvHoL18vmu/YGXYcN+Q5re1g==}
     dependencies:
       muggle-string: 0.3.1
-    dev: true
 
   /@volar/typescript@1.10.5:
     resolution: {integrity: sha512-kfDehpeLJku9i1BgsFOYIczPmFFH4herl+GZrLGdvX5urTqeCKsKYlF36iNmFaADzjMb9WlENcUZzPjK8MxNrQ==}
@@ -4629,7 +4604,7 @@ packages:
       '@types/normalize-package-data': 2.4.3
       normalize-package-data: 6.0.0
       parse-json: 7.1.0
-      type-fest: 4.5.0
+      type-fest: 4.6.0
     dev: true
 
   /readable-stream@2.3.8:
@@ -5411,8 +5386,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /type-fest@4.5.0:
-    resolution: {integrity: sha512-diLQivFzddJl4ylL3jxSkEc39Tpw7o1QeEHIPxVwryDK2lpB7Nqhzhuo6v5/Ls08Z0yPSAhsyAWlv1/H0ciNmw==}
+  /type-fest@4.6.0:
+    resolution: {integrity: sha512-rLjWJzQFOq4xw7MgJrCZ6T1jIOvvYElXT12r+y0CC6u67hegDHaxcPqb2fZHOGlqxugGQPNB1EnTezjBetkwkw==}
     engines: {node: '>=16'}
     dev: true
 
