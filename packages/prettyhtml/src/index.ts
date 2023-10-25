@@ -1,5 +1,5 @@
 import type { Service } from '@volar/language-service';
-import prettyhtml from '@starptech/prettyhtml';
+import * as prettyhtml from '@starptech/prettyhtml';
 
 export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): Service {
 	return (): ReturnType<Service> => {
