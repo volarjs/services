@@ -16,10 +16,10 @@ importers:
         version: 2.6.0(typescript@5.2.2)
       '@types/node':
         specifier: latest
-        version: 20.8.8
+        version: 20.8.9
       '@volar/language-service':
         specifier: latest
-        version: 1.10.5
+        version: 1.10.6
       typescript:
         specifier: latest
         version: 5.2.2
@@ -128,10 +128,10 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: ~1.10.0
-        version: 1.10.5
+        version: 1.10.6
       '@volar/source-map':
         specifier: ~1.10.0
-        version: 1.10.5
+        version: 1.10.6
       muggle-string:
         specifier: ^0.3.1
         version: 0.3.1
@@ -211,7 +211,7 @@ importers:
         version: 7.5.4
       '@volar/typescript':
         specifier: latest
-        version: 1.10.5
+        version: 1.10.6
 
   packages/typescript-twoslash-queries:
     devDependencies:
@@ -290,8 +290,8 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: false
 
-  /@eslint-community/regexpp@4.9.1:
-    resolution: {integrity: sha512-Y27x+MBLjXa+0JWDhykM3+JE+il3kHKAEqabfEWq3SDhZjLYb6/BHL/JKFnH3fe207JaXkyDo685Oc2Glt6ifA==}
+  /@eslint-community/regexpp@4.10.0:
+    resolution: {integrity: sha512-Cu96Sd2By9mCNTx2iyKOmq10v22jUVQv0lQnlGNy16oE9589yE+QADPbrMGCkA51cKZSg3Pu/aTJVTGfL/qjUA==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: false
 
@@ -1059,7 +1059,7 @@ packages:
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 20.8.8
+      '@types/node': 20.8.9
     dev: false
 
   /@types/linkify-it@3.0.4:
@@ -1081,10 +1081,10 @@ packages:
     resolution: {integrity: sha512-Kfe/D3hxHTusnPNRbycJE1N77WHDsdS4AjUYIzlDzhDrS47NrwuL3YW4VITxwR7KCVpzwgy4Rbj829KSSQmwXQ==}
     dev: true
 
-  /@types/node@20.8.8:
-    resolution: {integrity: sha512-YRsdVxq6OaLfmR9Hy816IMp33xOBjfyOgUd77ehqg96CFywxAPbDbXvAsuN2KVg2HOT8Eh6uAfU+l4WffwPVrQ==}
+  /@types/node@20.8.9:
+    resolution: {integrity: sha512-UzykFsT3FhHb1h7yD4CA4YhBHq545JC0YnEz41xkipN88eKQtL6rSgocL5tbAP6Ola9Izm/Aw4Ora8He4x0BHg==}
     dependencies:
-      undici-types: 5.25.3
+      undici-types: 5.26.5
 
   /@types/normalize-package-data@2.4.3:
     resolution: {integrity: sha512-ehPtgRgaULsFG8x0NeYJvmyH1hmlfsNLujHe9dQEia/7MAJYdzMSi19JtchUHjmBA6XC/75dK55mzZH+RyieSg==}
@@ -1093,7 +1093,7 @@ packages:
   /@types/responselike@1.0.2:
     resolution: {integrity: sha512-/4YQT5Kp6HxUDb4yhRkm0bJ7TbjvTddqX7PZ5hz6qV3pxSo72f/6YPRo+Mu2DU307tm9IioO69l7uAwn5XNcFA==}
     dependencies:
-      '@types/node': 20.8.8
+      '@types/node': 20.8.9
     dev: false
 
   /@types/semver@7.5.4:
@@ -1118,7 +1118,7 @@ packages:
   /@types/vfile@3.0.2:
     resolution: {integrity: sha512-b3nLFGaGkJ9rzOcuXRfHkZMdjsawuDD0ENL9fzTophtBg8FJHSGbH7daXkEpcwy3v7Xol3pAvsmlYyFhR4pqJw==}
     dependencies:
-      '@types/node': 20.8.8
+      '@types/node': 20.8.9
       '@types/unist': 2.0.9
       '@types/vfile-message': 2.0.0
     dev: false
@@ -1127,29 +1127,29 @@ packages:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: false
 
-  /@volar/language-core@1.10.5:
-    resolution: {integrity: sha512-xD71j4Ee0Ycq8WsiAE6H/aCThGdTobiZZeD+jFD+bvmbopa1Az296pqJysr3Ck8c7n5+GGF+xlKCS3WxRFYgSQ==}
+  /@volar/language-core@1.10.6:
+    resolution: {integrity: sha512-yDXNZSkaq0I90qHb1Zxf2wcDoooyTnkB8iqhEvWxEbXjzih7W4qHygG688dgm4MdX1t/r+JzYY1wGJFClEfC9w==}
     dependencies:
-      '@volar/source-map': 1.10.5
+      '@volar/source-map': 1.10.6
 
-  /@volar/language-service@1.10.5:
-    resolution: {integrity: sha512-HORaZ3x8hDGKO0KoezJ8CNjAdpXngocJAXOym3vJN0yPu5M+VjShG+M4lt+JP/zts0Ef02G7KY3gGbLltfhUYA==}
+  /@volar/language-service@1.10.6:
+    resolution: {integrity: sha512-aVkMfH4B7SBVT1bsM/0E9JZIFVJsCOljg/7vBJCOnSiV4R+Mn6tRvTPuinQs9S8t7ri1I9kLPQ8CVa6xin8mMw==}
     dependencies:
-      '@volar/language-core': 1.10.5
-      '@volar/source-map': 1.10.5
+      '@volar/language-core': 1.10.6
+      '@volar/source-map': 1.10.6
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.8
 
-  /@volar/source-map@1.10.5:
-    resolution: {integrity: sha512-s4kgo66SA1kMzYvF9HFE6Vc1rxtXLUmcLrT2WKnchPDvLne+97Kw+xoR2NxJFmsvHoL18vmu/YGXYcN+Q5re1g==}
+  /@volar/source-map@1.10.6:
+    resolution: {integrity: sha512-PzMw/MWLcsIt1ruw6173MnFYGNXTCUmiK8qaBto0XMLfuTkt0MQ7w4cn0qx9gQwxwW/yrLaKczBw6E5d8lq7/g==}
     dependencies:
       muggle-string: 0.3.1
 
-  /@volar/typescript@1.10.5:
-    resolution: {integrity: sha512-kfDehpeLJku9i1BgsFOYIczPmFFH4herl+GZrLGdvX5urTqeCKsKYlF36iNmFaADzjMb9WlENcUZzPjK8MxNrQ==}
+  /@volar/typescript@1.10.6:
+    resolution: {integrity: sha512-22hjyhdSl6uU/4zJI4ceDCSUrkIAvp0Zm1mV0phFVqeAIpQmIweWKmk7nRTXfnNqu6u05phR+NMzOnKkNC5yDQ==}
     dependencies:
-      '@volar/language-core': 1.10.5
+      '@volar/language-core': 1.10.6
     dev: true
 
   /@vscode/emmet-helper@2.9.2:
@@ -1194,12 +1194,12 @@ packages:
       event-target-shim: 5.0.1
     dev: true
 
-  /acorn-jsx@5.3.2(acorn@8.10.0):
+  /acorn-jsx@5.3.2(acorn@8.11.2):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.2
     dev: false
 
   /acorn@7.4.1:
@@ -1208,8 +1208,8 @@ packages:
     hasBin: true
     dev: false
 
-  /acorn@8.10.0:
-    resolution: {integrity: sha512-F0SAmZ8iUtS//m8DmCTA0jlh6TDKkHQyK6xc6V4KDTyZKA9dnvX9/3sRTVQrWm79glUAZbnmmNcdYwUIHWVybw==}
+  /acorn@8.11.2:
+    resolution: {integrity: sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==}
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: false
@@ -2224,7 +2224,7 @@ packages:
     hasBin: true
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.52.0)
-      '@eslint-community/regexpp': 4.9.1
+      '@eslint-community/regexpp': 4.10.0
       '@eslint/eslintrc': 2.1.2
       '@eslint/js': 8.52.0
       '@humanwhocodes/config-array': 0.11.13
@@ -2269,8 +2269,8 @@ packages:
     resolution: {integrity: sha512-oruZaFkjorTpF32kDSI5/75ViwGeZginGGy2NoOSg3Q9bnwlnmDm4HLnkl0RE3n+njDXR037aY1+x58Z/zFdwQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.10.0
-      acorn-jsx: 5.3.2(acorn@8.10.0)
+      acorn: 8.11.2
+      acorn-jsx: 5.3.2(acorn@8.11.2)
       eslint-visitor-keys: 3.4.3
     dev: false
 
@@ -5430,8 +5430,8 @@ packages:
     dev: true
     optional: true
 
-  /undici-types@5.25.3:
-    resolution: {integrity: sha512-Ga1jfYwRn7+cP9v8auvEXN1rX3sWqlayd4HP7OKk4mZWylEmu3KzXDUGrQUN6Ol7qo1gPvB2e5gX6udnyEPgdA==}
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
   /unified-engine@6.0.1:
     resolution: {integrity: sha512-iDJYH82TgcezQA4IZzhCNJQx7vBsGk4h9s4Q7Fscrb3qcPsxBqVrVNYez2W3sBVTxuU1bFAhyRpA6ba/R4j93A==}

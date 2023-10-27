@@ -76,7 +76,7 @@ export function create(): Service<Provide> {
 
 		const ts = modules.typescript;
 		const sys = createSys(ts, context.env);
-		const languageServiceHost = createLanguageServiceHost(context, ts, sys, context.env);
+		const languageServiceHost = createLanguageServiceHost(context, ts, sys);
 		const created = tsFaster.createLanguageService(
 			ts,
 			sys,
