@@ -1,6 +1,6 @@
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getConfigTitle } from '../shared';
-import { posix as path } from 'path';
+import * as path from 'path-browserify';
 import { URI } from 'vscode-uri';
 import { SharedContext } from '../types';
 import type { TextDocument } from 'vscode-languageserver-textdocument';

@@ -1,5 +1,4 @@
 import type { CodeAction, Diagnostic, LocationLink, Service } from '@volar/language-service';
-import { posix as path } from 'path';
 import * as css from 'vscode-css-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -227,6 +226,8 @@ export function create(): Service<Provide> {
 
 			for (const customDataPath of customData) {
 				try {
+					const pathModuleName = 'path'; // avoid bundle
+					const { posix: path } = require(pathModuleName) as typeof import('path');
 					const jsonPath = path.resolve(customDataPath);
 					newData.push(css.newCSSDataProvider(require(jsonPath)));
 				}

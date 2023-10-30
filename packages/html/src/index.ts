@@ -1,7 +1,6 @@
 import type { Service } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import * as path from 'path';
 import { URI, Utils } from 'vscode-uri';
 
 const parserLs = html.getLanguageService();
@@ -315,6 +314,8 @@ export function create({
 
 			for (const customDataPath of customData) {
 				try {
+					const pathModuleName = 'path'; // avoid bundle
+					const { posix: path } = require(pathModuleName) as typeof import('path');
 					const jsonPath = path.resolve(customDataPath);
 					newData.push(html.newHTMLDataProvider(customDataPath, require(jsonPath)));
 				}

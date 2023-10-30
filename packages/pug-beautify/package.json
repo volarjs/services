@@ -34,5 +34,8 @@
 		"@volar/language-service": {
 			"optional": true
 		}
+	},
+	"devDependencies": {
+		"@types/node": "latest"
 	}
 }

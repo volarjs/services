@@ -29,6 +29,7 @@
 		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {
+		"@types/node": "latest",
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
