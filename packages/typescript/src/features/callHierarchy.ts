@@ -4,7 +4,7 @@ import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 import { parseKindModifier } from '../utils/modifiers';
 import * as typeConverters from '../utils/typeConverters';
-import { posix as path } from 'path';
+import * as path from 'path-browserify';
 import { SharedContext } from '../types';
 import { safeCall } from '../shared';
 
