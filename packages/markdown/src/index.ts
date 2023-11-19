@@ -28,8 +28,8 @@ export function create(): Service<Provide> {
 			return {} as any;
 		}
 
-		let lastProjectVersion = context.host.getProjectVersion();
-		assert(context.env, 'context.env must be defined');
+		let lastProjectVersion: string | undefined;
+
 		const { fs, onDidChangeWatchedFiles } = context.env;
 		assert(fs, 'context.env.fs must be defined');
 		assert(
@@ -61,7 +61,7 @@ export function create(): Service<Provide> {
 			for (const change of event.changes) {
 				switch (change.type) {
 					case 2 satisfies typeof FileChangeType.Changed: {
-						const document = context.getTextDocument(change.uri);
+						const document = getTextDocument(change.uri, false);
 						if (document) {
 							onDidChangeMarkdownDocument.fire(document);
 						}
@@ -69,7 +69,7 @@ export function create(): Service<Provide> {
 					}
 
 					case 1 satisfies typeof FileChangeType.Created: {
-						const document = context.getTextDocument(change.uri);
+						const document = getTextDocument(change.uri, false);
 						if (document) {
 							onDidCreateMarkdownDocument.fire(document);
 						}
@@ -95,7 +95,7 @@ export function create(): Service<Provide> {
 			},
 
 			hasMarkdownDocument(resource) {
-				const document = context.getTextDocument(String(resource));
+				const document = getTextDocument(resource.toString(), true);
 				return Boolean(document && isMarkdown(document));
 			},
 
@@ -106,7 +106,7 @@ export function create(): Service<Provide> {
 			onDidDeleteMarkdownDocument: onDidDeleteMarkdownDocument.event,
 
 			async openMarkdownDocument(resource) {
-				return context.getTextDocument(String(resource));
+				return getTextDocument(resource.toString(), true);
 			},
 
 			async readDirectory(resource) {
@@ -136,26 +136,34 @@ export function create(): Service<Provide> {
 		const syncedVersions = new Map<string, TextDocument>();
 
 		const sync = () => {
-			const newProjectVersion = context.host.getProjectVersion();
-			const shouldUpdate = newProjectVersion !== lastProjectVersion;
+			const newProjectVersion = context.project.typescript?.projectHost.getProjectVersion?.();
+			const shouldUpdate = newProjectVersion === undefined || newProjectVersion !== lastProjectVersion;
 			if (!shouldUpdate) {
 				return;
 			}
-
 			lastProjectVersion = newProjectVersion;
+
 			const oldVersions = new Set(syncedVersions.keys());
 			const newVersions = new Map<string, TextDocument>();
 
-			for (const { root } of context.virtualFiles.allSources()) {
-				const embeddeds = [root];
-				root.embeddedFiles.forEach(function walk(embedded) {
-					embeddeds.push(embedded);
-					embedded.embeddedFiles.forEach(walk);
-				});
-				for (const embedded of embeddeds) {
-					const document = context.getTextDocument(embedded.fileName);
+			for (const sourceFile of context.project.fileProvider.getAllSourceFiles()) {
+				if (sourceFile.root) {
+					const virtualFiles = [sourceFile.root];
+					sourceFile.root.embeddedFiles.forEach(function walk(embedded) {
+						virtualFiles.push(embedded);
+						embedded.embeddedFiles.forEach(walk);
+					});
+					for (const embedded of virtualFiles) {
+						if (embedded.languageId === 'markdown') {
+							const document = context.documents.get(embedded.id, embedded.languageId, embedded.snapshot);
+							newVersions.set(document.uri, document);
+						}
+					}
+				}
+				else {
+					const document = context.documents.get(sourceFile.id, sourceFile.languageId, sourceFile.snapshot);
 					if (document && isMarkdown(document)) {
-						newVersions.set(String(document.uri), document);
+						newVersions.set(document.uri, document);
 					}
 				}
 			}
@@ -311,6 +319,14 @@ export function create(): Service<Provide> {
 				return result || link;
 			}
 		};
+
+		function getTextDocument(uri: string, includeVirtualFile: boolean) {
+			const file = (includeVirtualFile ? context!.project.fileProvider.getVirtualFile(uri)[0] : undefined)
+				?? context!.project.fileProvider.getSourceFile(uri);
+			if (file) {
+				return context!.documents.get(uri, file.languageId, file.snapshot);
+			}
+		}
 	};
 }
 
