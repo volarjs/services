@@ -1,6 +1,5 @@
 import { create as createHtmlService } from 'volar-service-html';
-import type { Service, Diagnostic, DiagnosticSeverity } from '@volar/language-service';
-import { transformer } from '@volar/language-service';
+import { type Service, type Diagnostic, type DiagnosticSeverity, transformDocumentSymbol } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
@@ -84,7 +83,7 @@ export function create(): Service<Provide> {
 				return worker(document, async (pugDoc) => {
 
 					const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.virtualFileDocument, token) ?? [];
-					const pugResult = htmlResult.map(htmlSymbol => transformer.asDocumentSymbol(
+					const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
 						htmlSymbol,
 						range => pugDoc.map.toSourceRange(range),
 					)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
