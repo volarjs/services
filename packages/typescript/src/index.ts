@@ -1,4 +1,4 @@
-import type { CompletionList, Service, CompletionTriggerKind, FileChangeType, CancellationToken } from '@volar/language-service';
+import type { CompletionList, Service, CompletionTriggerKind, CancellationToken, FileChangeType } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './shared';
@@ -31,7 +31,7 @@ import * as signatureHelp from './features/signatureHelp';
 import * as typeDefinitions from './features/typeDefinition';
 import * as workspaceSymbols from './features/workspaceSymbol';
 import { SharedContext } from './types';
-import { createLanguageServiceHost, createSys, getDocumentRegistry } from '@volar/typescript';
+import { getDocumentRegistry } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
 
 export * from '@volar/typescript';
@@ -91,11 +91,14 @@ export function create(): Service<Provide> {
 				languageService: ts.createLanguageService(syntacticServiceHost, undefined, 2 satisfies ts.LanguageServiceMode.Syntactic),
 			},
 			ts,
-			getTextDocument(uri: string) {
-				const file = context.project.fileProvider.getVirtualFile(uri)[0]
-					?? context.project.fileProvider.getSourceFile(uri);
-				if (file) {
-					return context.documents.get(uri, file.languageId, file.snapshot);
+			getTextDocument(uri) {
+				const virtualFile = context.project.fileProvider.getVirtualFile(uri)[0];
+				if (virtualFile) {
+					return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
+				}
+				const sourceFile = context.project.fileProvider.getSourceFile(uri);
+				if (sourceFile && !sourceFile?.virtualFile) {
+					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}
 				const snapshot = syntacticServiceHost.getScriptSnapshot(context.env.uriToFileName(uri));
 				if (snapshot) {
@@ -238,23 +241,12 @@ export function create(): Service<Provide> {
 			return syntacticService;
 		}
 
-		const projectHost = context.project.typescript.projectHost;
-		const sys = createSys(ts, context.env, projectHost.getCurrentDirectory());
-		const languageServiceHost = createLanguageServiceHost(
-			projectHost,
-			context.project.fileProvider,
-			{
-				fileNameToId: context.env.fileNameToUri,
-				idToFileName: context.env.uriToFileName,
-			},
-			ts,
-			sys
-		);
+		const { sys, languageServiceHost, synchronizeFileSystem } = context.project.typescript;
 		const created = tsFaster.createLanguageService(
 			ts,
 			sys,
 			languageServiceHost,
-			proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, projectHost.getCurrentDirectory())),
+			proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory())),
 		);
 		const { languageService } = created;
 
@@ -272,18 +264,42 @@ export function create(): Service<Provide> {
 		}
 
 		if (created.projectUpdated) {
-			let scriptFileNames = new Set(projectHost.getScriptFileNames());
-			context.env.onDidChangeWatchedFiles?.((params) => {
-				if (params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed)) {
-					scriptFileNames = new Set(projectHost.getScriptFileNames());
-				}
 
+			const sourceScriptUris = new Set<string>();
+			const normalizeUri = sys.useCaseSensitiveFileNames
+				? (id: string) => id
+				: (id: string) => id.toLowerCase();
+
+			updateSourceScriptUris();
+
+			context.env.onDidChangeWatchedFiles?.((params) => {
+				const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
+				if (someFileCreateOrDeiete) {
+					updateSourceScriptUris();
+				}
 				for (const change of params.changes) {
-					if (scriptFileNames.has(context.env.uriToFileName(change.uri))) {
-						created.projectUpdated?.(projectHost.getCurrentDirectory());
+					if (sourceScriptUris.has(normalizeUri(change.uri))) {
+						created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 					}
 				}
 			});
+
+			function updateSourceScriptUris() {
+				sourceScriptUris.clear();
+				for (const fileName of languageServiceHost.getScriptFileNames()) {
+					const uri = context.env.fileNameToUri(fileName);
+					const virtualFile = context.project.fileProvider.getVirtualFile(uri);
+					if (virtualFile) {
+						sourceScriptUris.add(normalizeUri(uri));
+						continue;
+					}
+					const sourceFile = context.project.fileProvider.getSourceFile(uri);
+					if (!sourceFile?.virtualFile) {
+						sourceScriptUris.add(normalizeUri(uri));
+						continue;
+					}
+				}
+			}
 		}
 
 		const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
@@ -294,11 +310,14 @@ export function create(): Service<Provide> {
 				languageServiceHost,
 				languageService,
 			},
-			getTextDocument(uri: string) {
-				const file = context.project.fileProvider.getVirtualFile(uri)[0]
-					?? context.project.fileProvider.getSourceFile(uri);
-				if (file) {
-					return context.documents.get(uri, file.languageId, file.snapshot);
+			getTextDocument(uri) {
+				const virtualFile = context.project.fileProvider.getVirtualFile(uri)[0];
+				if (virtualFile) {
+					return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
+				}
+				const sourceFile = context.project.fileProvider.getSourceFile(uri);
+				if (sourceFile && !sourceFile?.virtualFile) {
+					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}
 			},
 		};
@@ -338,7 +357,6 @@ export function create(): Service<Provide> {
 
 			dispose() {
 				languageService.dispose();
-				sys.dispose();
 			},
 
 			triggerCharacters: [
@@ -601,14 +619,14 @@ export function create(): Service<Provide> {
 
 		async function worker<T>(token: CancellationToken, callback: () => T): Promise<Awaited<T>> {
 
-			let oldSysVersion = sys.version;
+			let oldSysVersion = await synchronizeFileSystem?.();
 			let result = await callback();
-			let newSysVersion = await sys.sync();
+			let newSysVersion = await synchronizeFileSystem?.();
 
 			while (newSysVersion !== oldSysVersion && !token.isCancellationRequested) {
 				oldSysVersion = newSysVersion;
 				result = await callback();
-				newSysVersion = await sys.sync();
+				newSysVersion = await synchronizeFileSystem?.();
 			}
 
 			return result;
