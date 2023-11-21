@@ -97,7 +97,7 @@ export function create(): Service<Provide> {
 					return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
 				}
 				const sourceFile = context.project.fileProvider.getSourceFile(uri);
-				if (sourceFile && !sourceFile?.virtualFile) {
+				if (sourceFile && !sourceFile.virtualFile) {
 					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}
 				const snapshot = syntacticServiceHost.getScriptSnapshot(context.env.uriToFileName(uri));
@@ -294,7 +294,7 @@ export function create(): Service<Provide> {
 						continue;
 					}
 					const sourceFile = context.project.fileProvider.getSourceFile(uri);
-					if (!sourceFile?.virtualFile) {
+					if (sourceFile && !sourceFile.virtualFile) {
 						sourceScriptUris.add(normalizeUri(uri));
 						continue;
 					}
@@ -316,7 +316,7 @@ export function create(): Service<Provide> {
 					return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
 				}
 				const sourceFile = context.project.fileProvider.getSourceFile(uri);
-				if (sourceFile && !sourceFile?.virtualFile) {
+				if (sourceFile && !sourceFile.virtualFile) {
 					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}
 			},
