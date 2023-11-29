@@ -1,5 +1,4 @@
-import { Segment, toString } from 'muggle-string';
-import { buildMappings } from '@volar/source-map';
+import { Segment, buildMappings, toString } from '@volar/language-service';
 import * as pugLex from 'pug-lexer';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 

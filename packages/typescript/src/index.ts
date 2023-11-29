@@ -152,7 +152,6 @@ export function create(): Service<Provide> {
 				if (!isTsDocument(document))
 					return;
 
-
 				prepareSyntacticService(document);
 
 				return getFoldingRanges(document.uri);
