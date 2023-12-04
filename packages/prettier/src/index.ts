@@ -1,5 +1,5 @@
-import type { ServicePlugin } from '@volar/language-service';
-import { type Options, type ResolveConfigOptions } from 'prettier';
+import type { Service, ServicePlugin } from '@volar/language-service';
+import type { Options, ResolveConfigOptions } from 'prettier';
 
 export function create(
 	options: {
@@ -48,7 +48,7 @@ export function create(
 	},
 ): ServicePlugin {
 	return {
-		create(context) {
+		create(context): Service {
 
 			let prettier: typeof import('prettier');
 			try {

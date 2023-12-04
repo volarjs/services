@@ -1,9 +1,9 @@
-import type { ServicePlugin, InlayHint, ServiceContext } from '@volar/language-service';
+import type { InlayHint, Service, ServiceContext, ServicePlugin } from '@volar/language-service';
 import type { Provide } from 'volar-service-typescript';
 
 export function create(): ServicePlugin {
 	return {
-		create(context: ServiceContext<Provide>) {
+		create(context: ServiceContext<Provide>): Service {
 			return {
 				provideInlayHints(document, range) {
 					if (isTsDocument(document.languageId)) {

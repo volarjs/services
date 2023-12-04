@@ -1,4 +1,4 @@
-import type { ServicePlugin, Diagnostic } from '@volar/language-service';
+import type { ServicePlugin, Diagnostic, Service } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -12,7 +12,7 @@ export function create(settings?: json.LanguageSettings): ServicePlugin<Provide>
 	return {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
 		triggerCharacters: ['"', ':'],
-		create(context) {
+		create(context): Service<Provide> {
 
 			const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 			const workspaceContext: json.WorkspaceContextService = {

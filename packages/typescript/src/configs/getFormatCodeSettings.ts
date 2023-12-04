@@ -1,8 +1,8 @@
-import { SharedContext } from '../types';
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { FormattingOptions } from '@volar/language-service';
-import { getConfigTitle } from '../shared';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { getConfigTitle } from '../shared';
+import type { SharedContext } from '../types';
 
 export async function getFormatCodeSettings(
 	ctx: SharedContext,

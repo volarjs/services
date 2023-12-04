@@ -1,7 +1,7 @@
-import { SharedContext } from '../types';
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from '@volar/language-service';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { SharedContext } from '../types';
 
 export function entriesToLocations(
 	entries: { fileName: string, textSpan: ts.TextSpan; }[],

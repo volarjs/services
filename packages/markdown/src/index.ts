@@ -1,4 +1,4 @@
-import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin } from '@volar/language-service';
+import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin, Service } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
@@ -24,7 +24,7 @@ function assert(condition: unknown, message: string): asserts condition {
 
 export function create(): ServicePlugin<Provide> {
 	return {
-		create(context) {
+		create(context): Service<Provide> {
 
 			let lastProjectVersion: string | undefined;
 

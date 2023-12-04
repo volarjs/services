@@ -1,8 +1,8 @@
 import type * as vscode from '@volar/language-service';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { safeCall } from '../shared';
-import { SharedContext } from '../types';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { SharedContext } from '../types';
 
 export function register(ctx: SharedContext) {
 	return {

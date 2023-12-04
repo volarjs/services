@@ -1,9 +1,9 @@
 import type * as vscode from 'vscode-languageserver-protocol';
-import { fileTextChangesToWorkspaceEdit } from './rename';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
+import { fileTextChangesToWorkspaceEdit } from './rename';
 
 export function register(ctx: SharedContext) {
 	return async (oldUri: string, newUri: string): Promise<vscode.WorkspaceEdit | undefined> => {

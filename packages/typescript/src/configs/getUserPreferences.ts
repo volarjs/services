@@ -1,8 +1,8 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
-import { getConfigTitle } from '../shared';
 import * as path from 'path-browserify';
-import { SharedContext } from '../types';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { getConfigTitle } from '../shared';
+import type { SharedContext } from '../types';
 
 export async function getUserPreferences(
 	ctx: SharedContext,

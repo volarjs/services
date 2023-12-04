@@ -1,4 +1,4 @@
-import type { DocumentLink, FileType, ServicePlugin } from '@volar/language-service';
+import type { DocumentLink, FileType, Service, ServicePlugin } from '@volar/language-service';
 import * as jsonc from 'jsonc-parser';
 import { minimatch } from 'minimatch';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -17,7 +17,7 @@ function mapChildren<R>(node: jsonc.Node | undefined, f: (x: jsonc.Node) => R): 
 
 export function create(): ServicePlugin {
 	return {
-		create(context) {
+		create(context): Service {
 
 			const patterns = [
 				'**/[jt]sconfig.json',

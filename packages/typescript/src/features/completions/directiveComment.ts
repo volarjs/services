@@ -1,6 +1,6 @@
 import type * as vscode from '@volar/language-service';
 import * as nls from 'vscode-nls';
-import { SharedContext } from '../../types';
+import type { SharedContext } from '../../types';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 

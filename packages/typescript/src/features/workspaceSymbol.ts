@@ -1,9 +1,9 @@
+import type * as vscode from '@volar/language-service';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
-import type * as vscode from '@volar/language-service';
-import { parseKindModifier } from '../utils/modifiers';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
+import { parseKindModifier } from '../utils/modifiers';
 
 function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 	switch (item.kind) {

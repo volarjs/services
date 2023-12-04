@@ -32,7 +32,7 @@ import * as semanticTokens from './features/semanticTokens';
 import * as signatureHelp from './features/signatureHelp';
 import * as typeDefinitions from './features/typeDefinition';
 import * as workspaceSymbols from './features/workspaceSymbol';
-import { SharedContext } from './types';
+import type { SharedContext } from './types';
 
 export * from '@volar/typescript';
 
@@ -59,7 +59,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 		signatureHelpRetriggerCharacters: [')'],
 		// https://github.com/microsoft/vscode/blob/ce119308e8fd4cd3f992d42b297588e7abe33a0c/extensions/typescript-language-features/src/languageFeatures/formatting.ts#L99
 		autoFormatTriggerCharacters: [';', '}', '\n'],
-		create(context) {
+		create(context): Service<Provide> {
 
 			const syntacticServiceHost: ts.LanguageServiceHost = {
 				getProjectVersion: () => syntacticHostCtx.projectVersion.toString(),
@@ -343,12 +343,6 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 				dispose() {
 					languageService.dispose();
 				},
-
-				triggerCharacters: [
-					...basicTriggerCharacters,
-					jsDocTriggerCharacter,
-					directiveCommentTriggerCharacter,
-				],
 
 				provideCompletionItems(document, position, context, token) {
 

@@ -1,7 +1,7 @@
-import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type ServicePlugin } from '@volar/language-service';
+import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type ServicePlugin, Service } from '@volar/language-service';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as pug from './languageService';
 
 export interface Provide {
@@ -14,7 +14,7 @@ export function create(): ServicePlugin<Provide> {
 	const _htmlService = createHtmlService();
 	return {
 		..._htmlService,
-		create(context) {
+		create(context): Service<Provide> {
 
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();

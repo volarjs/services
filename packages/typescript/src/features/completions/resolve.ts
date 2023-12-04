@@ -1,10 +1,10 @@
-import { SharedContext } from '../../types';
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from '@volar/language-service';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import { getConfigTitle } from '../../shared';
+import type { SharedContext } from '../../types';
 import * as previewer from '../../utils/previewer';
 import { snippetForFunctionCall } from '../../utils/snippetForFunctionCall';
 import { entriesToLocations } from '../../utils/transforms';

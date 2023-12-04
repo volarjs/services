@@ -1,4 +1,4 @@
-import type { ServicePlugin } from '@volar/language-service';
+import type { Service, ServicePlugin } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -41,7 +41,7 @@ export function create({
 	return {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
-		create(context) {
+		create(context): Service<Provide> {
 			let shouldUpdateCustomData = true;
 			let customData: html.IHTMLDataProvider[] = [];
 			let extraData: html.IHTMLDataProvider[] = [];
