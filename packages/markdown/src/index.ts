@@ -1,4 +1,4 @@
-import type { FileChangeType, FileType, Service } from '@volar/language-service';
+import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
@@ -22,11 +22,9 @@ function assert(condition: unknown, message: string): asserts condition {
 	}
 }
 
-export function create(): Service<Provide> {
-	return (context) => {
-		if (!context) {
-			return {} as any;
-		}
+export function create(): ServicePlugin<Provide> {
+return {
+	create(context) {
 
 		let lastProjectVersion: string | undefined;
 
@@ -110,7 +108,7 @@ export function create(): Service<Provide> {
 			},
 
 			async readDirectory(resource) {
-				const directory = await fs.readDirectory(String(resource));
+				const directory = await fs.readDirectory(resource.toString());
 				return directory.map(([fileName, fileType]) => [
 					fileName,
 					{ isDirectory: fileType === 2 satisfies FileType.Directory }
@@ -118,7 +116,7 @@ export function create(): Service<Provide> {
 			},
 
 			async stat(resource) {
-				const stat = await fs.stat(String(resource));
+				const stat = await fs.stat(resource.toString());
 				if (stat) {
 					return { isDirectory: stat.type === 2 satisfies FileType.Directory };
 				}
@@ -136,7 +134,12 @@ export function create(): Service<Provide> {
 		const syncedVersions = new Map<string, TextDocument>();
 
 		const sync = () => {
-			const newProjectVersion = context.project.typescript?.projectHost.getProjectVersion?.();
+
+			const languageServiceHost = context.language.typescript?.languageServiceHost;
+			if (!languageServiceHost)
+				return;
+
+			const newProjectVersion = languageServiceHost.getProjectVersion?.();
 			const shouldUpdate = newProjectVersion === undefined || newProjectVersion !== lastProjectVersion;
 			if (!shouldUpdate) {
 				return;
@@ -146,29 +149,25 @@ export function create(): Service<Provide> {
 			const oldVersions = new Set(syncedVersions.keys());
 			const newVersions = new Map<string, TextDocument>();
 
-			for (const sourceFile of context.project.fileProvider.getAllSourceFiles()) {
-				if (sourceFile.root) {
-					const virtualFiles = [sourceFile.root];
-					sourceFile.root.embeddedFiles.forEach(function walk(embedded) {
-						virtualFiles.push(embedded);
-						embedded.embeddedFiles.forEach(walk);
-					});
-					for (const embedded of virtualFiles) {
-						if (embedded.languageId === 'markdown') {
-							const document = context.documents.get(embedded.id, embedded.languageId, embedded.snapshot);
+			for (const fileName of languageServiceHost.getScriptFileNames()) {
+				const [_, sourceFile] = context.language.files.getVirtualFile(fileName);
+				if (sourceFile?.virtualFile) {
+					for (const virtualFile of Array.from(forEachEmbeddedFile(sourceFile.virtualFile[0]))) {
+						if (virtualFile.languageId === 'markdown') {
+							const document = context.documents.get(virtualFile.id, virtualFile.languageId, virtualFile.snapshot);
 							newVersions.set(document.uri, document);
 						}
 					}
 				}
-				else {
-					const document = context.documents.get(sourceFile.id, sourceFile.languageId, sourceFile.snapshot);
+				else if (sourceFile) {
+					const document = context.documents.get(fileName, sourceFile.languageId, sourceFile.snapshot);
 					if (document && isMarkdown(document)) {
 						newVersions.set(document.uri, document);
 					}
 				}
 			}
 
-			for (const [uri, document] of newVersions) {
+			for (const [uri, document] of Array.from(newVersions)) {
 				const old = syncedVersions.get(uri);
 				syncedVersions.set(uri, document);
 				if (old) {
@@ -178,7 +177,7 @@ export function create(): Service<Provide> {
 				}
 			}
 
-			for (const uri of oldVersions) {
+			for (const uri of Array.from(oldVersions)) {
 				if (!newVersions.has(uri)) {
 					syncedVersions.delete(uri);
 					onDidDeleteMarkdownDocument.fire(URI.parse(uri));
@@ -321,13 +320,17 @@ export function create(): Service<Provide> {
 		};
 
 		function getTextDocument(uri: string, includeVirtualFile: boolean) {
-			const file = (includeVirtualFile ? context!.project.fileProvider.getVirtualFile(uri)[0] : undefined)
-				?? context!.project.fileProvider.getSourceFile(uri);
-			if (file) {
-				return context!.documents.get(uri, file.languageId, file.snapshot);
+			if (includeVirtualFile) {
+				const virtualFile = context.language.files.getVirtualFile(uri)[0];
+				if (virtualFile) {
+					return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
+				}
+			}
+			const sourceFile = context.language.files.getSourceFile(uri);
+			if (sourceFile && !sourceFile.virtualFile) {
+				return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 			}
 		}
-	};
+	},
+};
 }
-
-export default create;
