@@ -154,5 +154,3 @@ export function create(): ServicePlugin<Provide> {
 		},
 	};
 }
-
-export default create;

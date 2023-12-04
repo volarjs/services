@@ -217,5 +217,3 @@ export function create(): ServicePlugin {
 		},
 	};
 }
-
-export default create;

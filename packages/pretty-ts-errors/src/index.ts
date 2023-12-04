@@ -15,5 +15,3 @@ export function create(format: (text: string) => string): ServicePlugin {
 		},
 	};
 }
-
-export default create;

@@ -630,8 +630,6 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 	};
 }
 
-export default create;
-
 function getBasicTriggerCharacters(tsVersion: string) {
 
 	const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];

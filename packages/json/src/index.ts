@@ -164,5 +164,3 @@ export function create(settings?: json.LanguageSettings): ServicePlugin<Provide>
 		},
 	};
 }
-
-export default create;

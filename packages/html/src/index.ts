@@ -337,8 +337,6 @@ export function create({
 	};
 }
 
-export default create;
-
 function isEOL(content: string, offset: number) {
 	return isNewlineCharacter(content.charCodeAt(offset));
 }

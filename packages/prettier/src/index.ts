@@ -127,8 +127,6 @@ export function create(
 	};
 }
 
-export default create;
-
 function returnObjectIfHasKeys<T>(obj: T | undefined): T | undefined {
 	if (Object.keys(obj || {}).length > 0) {
 		return obj;

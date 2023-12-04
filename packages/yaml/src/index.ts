@@ -127,5 +127,3 @@ export function create(settings?: LanguageSettings): ServicePlugin<Provide> {
 		},
 	};
 }
-
-export default create;

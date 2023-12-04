@@ -39,8 +39,6 @@ export function create(): ServicePlugin {
 	};
 }
 
-export default create;
-
 function isTsDocument(languageId: string) {
 	return languageId === 'javascript' ||
 		languageId === 'typescript' ||

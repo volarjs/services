@@ -42,5 +42,3 @@ export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): 
 		},
 	};
 }
-
-export default create;

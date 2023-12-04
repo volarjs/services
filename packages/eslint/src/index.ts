@@ -117,5 +117,3 @@ export function create(resolveConfig?: (program: ts.Program) => Linter.Config): 
 		)).get(program)!;
 	}
 };
-
-export default create;

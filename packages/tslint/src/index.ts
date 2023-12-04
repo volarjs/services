@@ -99,5 +99,3 @@ export function create(rules: IRule[]): ServicePlugin {
 		},
 	};
 };
-
-export default create;

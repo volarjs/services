@@ -28,5 +28,3 @@ export function create(configs: Parameters<typeof SassFormatter.Format>[1]): Ser
 		},
 	};
 }
-
-export default create;
