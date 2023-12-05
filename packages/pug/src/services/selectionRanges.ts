@@ -6,7 +6,7 @@ export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, posArr: html.Position[]) => {
 
 		const htmlPosArr = posArr
-			.map(position => pugDoc.map.toGeneratedPosition(position))
+			.map(position => pugDoc.map.getGeneratedPosition(position))
 			.filter((v): v is NonNullable<typeof v> => !!v);
 
 		const htmlResult = htmlLs.getSelectionRanges(
@@ -14,6 +14,6 @@ export function register(htmlLs: html.LanguageService) {
 			htmlPosArr,
 		);
 
-		return transformLocations(htmlResult, htmlRange => pugDoc.map.toSourceRange(htmlRange));
+		return transformLocations(htmlResult, htmlRange => pugDoc.map.getSourceRange(htmlRange));
 	};
 }

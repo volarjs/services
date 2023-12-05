@@ -83,7 +83,7 @@ export function create(): ServicePlugin {
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.virtualFileDocument, token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
 							htmlSymbol,
-							range => pugDoc.map.toSourceRange(range),
+							range => pugDoc.map.getSourceRange(range),
 						)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
 
 						return pugResult;

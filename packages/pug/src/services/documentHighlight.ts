@@ -5,7 +5,7 @@ import { transformLocations } from '@volar/language-service';
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position) => {
 
-		const htmlPos = pugDoc.map.toGeneratedPosition(pos);
+		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
 		if (!htmlPos)
 			return;
 
@@ -17,7 +17,7 @@ export function register(htmlLs: html.LanguageService) {
 
 		return transformLocations(
 			htmlResult,
-			htmlRange => pugDoc.map.toSourceRange(htmlRange),
+			htmlRange => pugDoc.map.getSourceRange(htmlRange),
 		);
 	};
 }

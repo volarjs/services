@@ -5,7 +5,7 @@ import { transformHover } from '@volar/language-service';
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position, options?: html.HoverSettings | undefined) => {
 
-		const htmlPos = pugDoc.map.toGeneratedPosition(pos);
+		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
 		if (!htmlPos)
 			return;
 
@@ -17,6 +17,6 @@ export function register(htmlLs: html.LanguageService) {
 		);
 		if (!htmlResult) return;
 
-		return transformHover(htmlResult, htmlRange => pugDoc.map.toSourceRange(htmlRange));
+		return transformHover(htmlResult, htmlRange => pugDoc.map.getSourceRange(htmlRange));
 	};
 }

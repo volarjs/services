@@ -12,7 +12,7 @@ export function register(htmlLs: html.LanguageService) {
 
 		return transformLocations(
 			htmlResult,
-			htmlRange => pugDoc.map.toSourceRange(htmlRange),
+			htmlRange => pugDoc.map.getSourceRange(htmlRange),
 		);
 	};
 }
