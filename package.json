@@ -5,13 +5,13 @@
 		"build": "tsc -b",
 		"watch": "tsc -b -w",
 		"prerelease": "npm run build",
-		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock --no-push --tag volar-2.0",
+		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock --no-push --dist-tag volar-2.0",
 		"release:next": "npm run release -- --dist-tag next"
 	},
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/publish": "latest",
-		"@volar/language-service": "~1.11.0",
+		"@volar/language-service": "2.0.0-alpha.0",
 		"typescript": "latest",
 		"vscode-languageserver-protocol": "^3.17.5"
 	}

@@ -29,7 +29,7 @@
 		"volar-service-html": "0.0.17"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~1.11.0"
+		"@volar/language-service": "2.0.0-alpha.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
