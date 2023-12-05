@@ -251,12 +251,14 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertionEdit(document, position, insertContext) {
+				async provideAutoInsertionEdit(document, position, lastChange) {
 					return worker(document, async (htmlDocument) => {
 
-						const lastCharacter = insertContext.lastChange.text[insertContext.lastChange.text.length - 1];
+						const lastCharacter = lastChange.text[lastChange.text.length - 1];
+						const rangeLengthIsZero = lastChange.range.start.line && lastChange.range.end.line
+							&& lastChange.range.start.character && lastChange.range.end.character;
 
-						if (insertContext.lastChange.rangeLength === 0 && lastCharacter === '=') {
+						if (rangeLengthIsZero && lastCharacter === '=') {
 
 							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
 
@@ -270,7 +272,7 @@ export function create({
 							}
 						}
 
-						if (insertContext.lastChange.rangeLength === 0 && (lastCharacter === '>' || lastCharacter === '/')) {
+						if (rangeLengthIsZero && (lastCharacter === '>' || lastCharacter === '/')) {
 
 							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoClosingTags')) ?? true;
 

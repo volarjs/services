@@ -114,10 +114,10 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					'typescript/syntacticLanguageServiceHost': () => syntacticCtx.typescript.languageServiceHost,
 				},
 
-				provideAutoInsertionEdit(document, position, ctx) {
+				provideAutoInsertionEdit(document, position, lastChange) {
 					if (
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
-						&& ctx.lastChange.text.endsWith('>')
+						&& lastChange.text.endsWith('>')
 					) {
 						const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
 						const config = context.env.getConfiguration?.<boolean>(configName) ?? true;
@@ -335,7 +335,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 				...syntacticService,
 
 				provide: {
-					...syntacticService.provide,
+					...syntacticService.provide!,
 					'typescript/languageService': () => languageService,
 					'typescript/languageServiceHost': () => languageServiceHost,
 				},
