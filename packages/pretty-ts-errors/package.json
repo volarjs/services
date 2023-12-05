@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-pretty-ts-errors",
-	"version": "0.0.17",
+	"version": "0.0.18",
 	"description": "Integrate pretty-ts-errors-lsp into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/pretty-ts-errors",
 	"bugs": "https://github.com/volarjs/services/issues",
