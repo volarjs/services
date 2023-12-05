@@ -1,4 +1,4 @@
-import type { Service, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import type { Options, ResolveConfigOptions } from 'prettier';
 
 export function create(
@@ -48,7 +48,7 @@ export function create(
 	},
 ): ServicePlugin {
 	return {
-		create(context): Service {
+		create(context): ServicePluginInstance {
 
 			let prettier: typeof import('prettier');
 			try {

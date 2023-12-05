@@ -1,8 +1,8 @@
-import type { Service, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 
 export function create(): ServicePlugin {
 	return {
-		create(): Service {
+		create(): ServicePluginInstance {
 			return {
 				provideDocumentFormattingEdits(document, range, options) {
 

@@ -1,9 +1,9 @@
-import type { Service, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import { SassFormatter } from 'sass-formatter';
 
 export function create(configs: Parameters<typeof SassFormatter.Format>[1]): ServicePlugin {
 	return {
-		create(): Service {
+		create(): ServicePluginInstance {
 			return {
 				provideDocumentFormattingEdits(document, range, options) {
 

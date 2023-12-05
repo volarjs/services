@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Service, ServiceContext, ServicePlugin } from '@volar/language-service';
+import type { CodeAction, Diagnostic, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import type { IRule, RuleFailure } from 'tslint';
 import type { Provide } from 'volar-service-typescript';
 
@@ -7,11 +7,11 @@ export function create(rules: IRule[]): ServicePlugin {
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 
 	return {
-		create(context: ServiceContext<Provide>): Service {
+		create(context): ServicePluginInstance {
 			return {
 				provideSemanticDiagnostics(document, token) {
 
-					const languageService = context.inject('typescript/languageService');
+					const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
 					const sourceFile = languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
 					if (!sourceFile) {
 						return;

@@ -1,4 +1,4 @@
-import type { SemanticToken, Service, ServicePlugin } from '@volar/language-service';
+import type { SemanticToken, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vls from 'vls';
@@ -10,7 +10,7 @@ export function create(): ServicePlugin {
 	return {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
-		create(context): Service {
+		create(context): ServicePluginInstance {
 
 			const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 			const uriToPackageJsonPath = new Map<string, string | undefined>();

@@ -1,9 +1,9 @@
-import type { Service, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as prettyhtml from '@starptech/prettyhtml';
 
 export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): ServicePlugin {
 	return {
-		create(): Service {
+		create(): ServicePluginInstance {
 			return {
 				provideDocumentFormattingEdits(document, range, options) {
 

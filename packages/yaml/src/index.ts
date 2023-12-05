@@ -1,4 +1,4 @@
-import type { Service, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { LanguageService, LanguageSettings } from 'yaml-language-server';
 import { getLanguageService } from 'yaml-language-server';
@@ -16,10 +16,10 @@ function noop(): undefined { }
 /**
  * Create a Volar language service for YAML documents.
  */
-export function create(settings?: LanguageSettings): ServicePlugin<Provide> {
+export function create(settings?: LanguageSettings): ServicePlugin {
 	return {
 		triggerCharacters: [' ', ':'],
-		create(context): Service<Provide> {
+		create(context): ServicePluginInstance<Provide> {
 
 			const ls = getLanguageService({
 				schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',

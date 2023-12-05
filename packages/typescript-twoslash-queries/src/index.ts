@@ -1,15 +1,15 @@
-import type { InlayHint, Service, ServiceContext, ServicePlugin } from '@volar/language-service';
+import type { InlayHint, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import type { Provide } from 'volar-service-typescript';
 
 export function create(): ServicePlugin {
 	return {
-		create(context: ServiceContext<Provide>): Service {
+		create(context): ServicePluginInstance {
 			return {
 				provideInlayHints(document, range) {
 					if (isTsDocument(document.languageId)) {
 
-						const ts = context.inject('typescript/typescript');
-						const languageService = context.inject('typescript/languageService');
+						const ts = context.inject<Provide, 'typescript/typescript'>('typescript/typescript');
+						const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
 						const inlayHints: InlayHint[] = [];
 
 						for (const pointer of document.getText(range).matchAll(/^\s*\/\/\s*\^\?/gm)) {

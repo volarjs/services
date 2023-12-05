@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Service, ServiceContext, ServicePlugin } from '@volar/language-service';
+import type { CodeAction, Diagnostic, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import { ESLint, Linter } from 'eslint';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { Provide } from 'volar-service-typescript';
@@ -9,11 +9,11 @@ export function create(resolveConfig?: (program: ts.Program) => Linter.Config): 
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
 
 	return {
-		create(context: ServiceContext<Provide>): Service {
+		create(context): ServicePluginInstance {
 			return {
 				async provideSemanticDiagnostics(document) {
 
-					const languageService = context.inject('typescript/languageService');
+					const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
 					const eslint = getEslint(languageService.getProgram()!);
 					const lintResult = await eslint.lintText(
 						document.getText(),

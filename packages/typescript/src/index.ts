@@ -1,4 +1,4 @@
-import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, Service, ServicePlugin } from '@volar/language-service';
+import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -46,12 +46,13 @@ export interface Provide {
 };
 
 
-export function create(ts: typeof import('typescript/lib/tsserverlibrary')): ServicePlugin<Provide> {
+export function create(ts: typeof import('typescript/lib/tsserverlibrary')): ServicePlugin {
+	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
 	return {
 		triggerCharacters: [
-			...getBasicTriggerCharacters(ts.version),
+			...basicTriggerCharacters,
 			jsDocTriggerCharacter,
 			directiveCommentTriggerCharacter,
 		],
@@ -59,7 +60,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 		signatureHelpRetriggerCharacters: [')'],
 		// https://github.com/microsoft/vscode/blob/ce119308e8fd4cd3f992d42b297588e7abe33a0c/extensions/typescript-language-features/src/languageFeatures/formatting.ts#L99
 		autoFormatTriggerCharacters: [';', '}', '\n'],
-		create(context): Service<Provide> {
+		create(context): ServicePluginInstance<Provide> {
 
 			const syntacticServiceHost: ts.LanguageServiceHost = {
 				getProjectVersion: () => syntacticHostCtx.projectVersion.toString(),
@@ -102,7 +103,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 			const findDocumentSymbols = documentSymbol.register(syntacticCtx);
 			const doFormatting = formatting.register(syntacticCtx);
 			const getFoldingRanges = foldingRanges.register(syntacticCtx);
-			const syntacticService: Service<Provide> = {
+			const syntacticService: ServicePluginInstance<Provide> = {
 
 				provide: {
 					'typescript/typescript': () => ts,
@@ -287,7 +288,6 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 				}
 			}
 
-			const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 			const documents = new WeakMap<ts.IScriptSnapshot, TextDocument>();
 			const semanticCtx: SharedContext = {
 				...syntacticCtx,

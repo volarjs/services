@@ -1,4 +1,4 @@
-import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type ServicePlugin, Service } from '@volar/language-service';
+import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -10,11 +10,11 @@ export interface Provide {
 	'pug/updateCustomData': (extraData: html.IHTMLDataProvider[]) => void;
 }
 
-export function create(): ServicePlugin<Provide> {
+export function create(): ServicePlugin {
 	const _htmlService = createHtmlService();
 	return {
 		..._htmlService,
-		create(context): Service<Provide> {
+		create(context): ServicePluginInstance<Provide> {
 
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();

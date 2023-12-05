@@ -1,9 +1,9 @@
-import type { Service, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import { formatDiagnostic } from 'pretty-ts-errors-lsp';
 
 export function create(format: (text: string) => string): ServicePlugin {
 	return {
-		create(): Service {
+		create(): ServicePluginInstance {
 			return {
 				provideDiagnosticMarkupContent(diagnostic) {
 					return {

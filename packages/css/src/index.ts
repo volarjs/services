@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, LocationLink, Service, ServicePlugin } from '@volar/language-service';
+import type { CodeAction, Diagnostic, LocationLink, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -8,11 +8,11 @@ export interface Provide {
 	'css/languageService': (languageId: string) => css.LanguageService | undefined;
 }
 
-export function create(): ServicePlugin<Provide> {
+export function create(): ServicePlugin {
 	return {
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
 		triggerCharacters: ['/', '-', ':'],
-		create(context): Service<Provide> {
+		create(context): ServicePluginInstance<Provide> {
 
 			let inited = false;
 
