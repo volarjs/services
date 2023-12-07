@@ -154,7 +154,7 @@ export function create(): ServicePlugin {
 					if (sourceFile?.virtualFile) {
 						for (const virtualFile of Array.from(forEachEmbeddedFile(sourceFile.virtualFile[0]))) {
 							if (virtualFile.languageId === 'markdown') {
-								const document = context.documents.get(virtualFile.id, virtualFile.languageId, virtualFile.snapshot);
+								const document = context.documents.get(virtualFile.fileName, virtualFile.languageId, virtualFile.snapshot);
 								newVersions.set(document.uri, document);
 							}
 						}
@@ -321,12 +321,12 @@ export function create(): ServicePlugin {
 
 			function getTextDocument(uri: string, includeVirtualFile: boolean) {
 				if (includeVirtualFile) {
-					const virtualFile = context.language.files.getVirtualFile(uri)[0];
+					const virtualFile = context.language.files.getVirtualFile(context.env.uriToFileName(uri))[0];
 					if (virtualFile) {
 						return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
 					}
 				}
-				const sourceFile = context.language.files.getSourceFile(uri);
+				const sourceFile = context.language.files.getSourceFile(context.env.uriToFileName(uri));
 				if (sourceFile && !sourceFile.virtualFile) {
 					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}

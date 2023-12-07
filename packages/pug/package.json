@@ -25,7 +25,7 @@
 		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
-		"@volar/language-service": "2.0.0-alpha.0",
+		"@volar/language-service": "2.0.0-alpha.2",
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
 		"volar-service-html": "0.0.18",

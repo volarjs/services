@@ -81,15 +81,16 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 				},
 				ts,
 				getTextDocument(uri) {
-					const virtualFile = context.language.files.getVirtualFile(uri)[0];
+					const fileName = context.env.uriToFileName(uri);
+					const virtualFile = context.language.files.getVirtualFile(fileName)[0];
 					if (virtualFile) {
 						return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
 					}
-					const sourceFile = context.language.files.getSourceFile(uri);
+					const sourceFile = context.language.files.getSourceFile(fileName);
 					if (sourceFile && !sourceFile.virtualFile) {
 						return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 					}
-					const snapshot = syntacticServiceHost.getScriptSnapshot(context.env.uriToFileName(uri));
+					const snapshot = syntacticServiceHost.getScriptSnapshot(fileName);
 					if (snapshot) {
 						let document = documents.get(snapshot);
 						if (!document) {
@@ -251,37 +252,37 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 
 			if (created.projectUpdated) {
 
-				const sourceScriptUris = new Set<string>();
-				const normalizeUri = sys.useCaseSensitiveFileNames
+				const sourceScriptNames = new Set<string>();
+				const normalizeFileName = sys.useCaseSensitiveFileNames
 					? (id: string) => id
 					: (id: string) => id.toLowerCase();
 
-				updateSourceScriptUris();
+				updateSourceScriptFileNames();
 
 				context.env.onDidChangeWatchedFiles?.((params) => {
 					const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
 					if (someFileCreateOrDeiete) {
-						updateSourceScriptUris();
+						updateSourceScriptFileNames();
 					}
 					for (const change of params.changes) {
-						if (sourceScriptUris.has(normalizeUri(change.uri))) {
+						const fileName = context.env.uriToFileName(change.uri);
+						if (sourceScriptNames.has(normalizeFileName(fileName))) {
 							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 						}
 					}
 				});
 
-				function updateSourceScriptUris() {
-					sourceScriptUris.clear();
+				function updateSourceScriptFileNames() {
+					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const uri = context.env.fileNameToUri(fileName);
-						const virtualFile = context.language.files.getVirtualFile(uri);
+						const virtualFile = context.language.files.getVirtualFile(fileName);
 						if (virtualFile) {
-							sourceScriptUris.add(normalizeUri(uri));
+							sourceScriptNames.add(normalizeFileName(fileName));
 							continue;
 						}
-						const sourceFile = context.language.files.getSourceFile(uri);
+						const sourceFile = context.language.files.getSourceFile(fileName);
 						if (sourceFile && !sourceFile.virtualFile) {
-							sourceScriptUris.add(normalizeUri(uri));
+							sourceScriptNames.add(normalizeFileName(fileName));
 							continue;
 						}
 					}
@@ -296,11 +297,12 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					languageService,
 				},
 				getTextDocument(uri) {
-					const virtualFile = context.language.files.getVirtualFile(uri)[0];
+					const fileName = context.env.uriToFileName(uri);
+					const virtualFile = context.language.files.getVirtualFile(fileName)[0];
 					if (virtualFile) {
 						return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
 					}
-					const sourceFile = context.language.files.getSourceFile(uri);
+					const sourceFile = context.language.files.getSourceFile(fileName);
 					if (sourceFile && !sourceFile.virtualFile) {
 						return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 					}
