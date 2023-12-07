@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-vetur",
-	"version": "0.0.18",
+	"version": "0.0.19",
 	"description": "Integrate Vetur into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/vetur",
 	"bugs": "https://github.com/volarjs/services/issues",

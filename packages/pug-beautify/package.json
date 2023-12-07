@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-pug-beautify",
-	"version": "0.0.18",
+	"version": "0.0.19",
 	"description": "Integrate pug-beautify into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/pug-beautify",
 	"bugs": "https://github.com/volarjs/services/issues",

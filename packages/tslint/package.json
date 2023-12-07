@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-tslint",
-	"version": "0.0.18",
+	"version": "0.0.19",
 	"description": "Integrate TSLint into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/tslint",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"tslint": "latest",
-		"volar-service-typescript": "0.0.18"
+		"volar-service-typescript": "0.0.19"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "2.0.0-alpha.2"

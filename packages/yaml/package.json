@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-yaml",
-	"version": "0.0.18",
+	"version": "0.0.19",
 	"description": "Integrate yaml-language-server into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/yaml",
 	"bugs": "https://github.com/volarjs/services/issues",
