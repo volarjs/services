@@ -1,30 +1,30 @@
-import type { Service } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import { SassFormatter } from 'sass-formatter';
 
-export function create(configs: Parameters<typeof SassFormatter.Format>[1]): Service {
-	return (): ReturnType<Service> => {
-		return {
-			provideDocumentFormattingEdits(document, range, options) {
+export function create(configs: Parameters<typeof SassFormatter.Format>[1]): ServicePlugin {
+	return {
+		create(): ServicePluginInstance {
+			return {
+				provideDocumentFormattingEdits(document, range, options) {
 
-				if (document.languageId !== 'sass')
-					return;
+					if (document.languageId !== 'sass')
+						return;
 
-				const _options: typeof configs = {
-					...configs,
-					insertSpaces: options.insertSpaces,
-				};
+					const _options: typeof configs = {
+						...configs,
+						insertSpaces: options.insertSpaces,
+					};
 
-				// don't set when options.insertSpaces is false to avoid sass-formatter internal judge bug
-				if (options.insertSpaces)
-					_options.tabSize = options.tabSize;
+					// don't set when options.insertSpaces is false to avoid sass-formatter internal judge bug
+					if (options.insertSpaces)
+						_options.tabSize = options.tabSize;
 
-				return [{
-					newText: SassFormatter.Format(document.getText(), _options),
-					range: range,
-				}];
-			},
-		}
+					return [{
+						newText: SassFormatter.Format(document.getText(), _options),
+						range: range,
+					}];
+				},
+			};
+		},
 	};
 }
-
-export default create;

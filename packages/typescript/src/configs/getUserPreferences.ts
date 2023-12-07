@@ -1,9 +1,8 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
-import { getConfigTitle } from '../shared';
 import * as path from 'path-browserify';
-import { URI } from 'vscode-uri';
-import { SharedContext } from '../types';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { getConfigTitle } from '../shared';
+import type { SharedContext } from '../types';
 
 export async function getUserPreferences(
 	ctx: SharedContext,
@@ -28,7 +27,7 @@ export async function getUserPreferences(
 		includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ?? true,
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
-		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.env.rootUri),
+		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.typescript.languageServiceHost.getCurrentDirectory()),
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,
@@ -60,14 +59,14 @@ function getQuoteStylePreference(config: any) {
 	}
 }
 
-function getAutoImportFileExcludePatternsPreference(config: any, workspaceFolder: URI | undefined) {
-	return workspaceFolder && (config.autoImportFileExcludePatterns as string[] | undefined)?.map(p => {
+function getAutoImportFileExcludePatternsPreference(config: any, workspacePath: string | undefined) {
+	return workspacePath && (config.autoImportFileExcludePatterns as string[] | undefined)?.map(p => {
 		// Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
 		const slashNormalized = p.replace(/\\/g, '/');
 		const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
 		return path.isAbsolute(p) ? p :
 			p.startsWith('*') ? '/' + slashNormalized :
-				isRelative ? URI.parse(path.join(workspaceFolder.toString(), p)).fsPath :
+				isRelative ? path.join(workspacePath, p) :
 					'/**/' + slashNormalized;
 	});
 }

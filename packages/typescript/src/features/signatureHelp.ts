@@ -1,7 +1,7 @@
-import { SharedContext } from '../types';
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from '@volar/language-service';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
 
 export function register(ctx: SharedContext) {
 	const { ts } = ctx;

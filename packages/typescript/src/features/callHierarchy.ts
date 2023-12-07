@@ -1,12 +1,12 @@
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as vscode from '@volar/language-service';
+import * as path from 'path-browserify';
 import type * as ts from 'typescript/lib/tsserverlibrary';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as PConst from '../protocol.const';
+import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
 import { parseKindModifier } from '../utils/modifiers';
 import * as typeConverters from '../utils/typeConverters';
-import * as path from 'path-browserify';
-import { SharedContext } from '../types';
-import { safeCall } from '../shared';
 
 export function register(ctx: SharedContext) {
 	function doPrepare(uri: string, position: vscode.Position) {

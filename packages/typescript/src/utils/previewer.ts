@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { SharedContext } from '../types';
 import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as Proto from '../protocol';
+import type { SharedContext } from '../types';
 
 export interface IFilePathToResourceConverter {
 	/**

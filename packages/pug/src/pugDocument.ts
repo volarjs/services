@@ -1,8 +1,7 @@
-import { SourceMapWithDocuments } from '@volar/language-service';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import { SourceMap, SourceMapWithDocuments } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { baseParse } from './baseParse';
-import { SourceMap } from '@volar/source-map';
 
 export interface PugDocument extends ReturnType<ReturnType<typeof register>> { }
 

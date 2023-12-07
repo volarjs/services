@@ -1,11 +1,11 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from '@volar/language-service';
 import * as path from 'path-browserify';
-import { renameInfoOptions } from './prepareRename';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
+import { renameInfoOptions } from './prepareRename';
 
 export function register(ctx: SharedContext) {
 

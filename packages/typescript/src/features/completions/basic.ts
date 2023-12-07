@@ -1,12 +1,12 @@
-import { SharedContext } from '../../types';
+import type * as vscode from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import * as PConst from '../../protocol.const';
-import { parseKindModifier } from '../../utils/modifiers';
 import { safeCall } from '../../shared';
+import type { SharedContext } from '../../types';
+import { parseKindModifier } from '../../utils/modifiers';
 
 export interface Data {
 	uri: string,

@@ -1,12 +1,12 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from '@volar/language-service';
-import { fileTextChangesToWorkspaceEdit } from './rename';
-import * as fixNames from '../utils/fixNames';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
+import * as fixNames from '../utils/fixNames';
 import { resolveFixAllCodeAction, resolveOrganizeImportsCodeAction, resolveRefactorCodeAction } from './codeActionResolve';
+import { fileTextChangesToWorkspaceEdit } from './rename';
 
 export interface FixAllData {
 	type: 'fixAll',

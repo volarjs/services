@@ -1,6 +1,6 @@
-import { SharedContext } from '../types';
 import type * as vscode from '@volar/language-service';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
 
 /* typescript-language-features is hardcode true */
 export const renameInfoOptions = { allowRenameOfImportPath: true };

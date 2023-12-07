@@ -1,7 +1,7 @@
-import { transformer } from '@volar/language-service';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
+import { transformCompletionList } from '@volar/language-service';
 
 export function register(htmlLs: html.LanguageService) {
 
@@ -27,7 +27,7 @@ export function register(htmlLs: html.LanguageService) {
 			return htmlComplete;
 		}
 
-		const htmlPos = pugDoc.map.toGeneratedPosition(pos);
+		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
 		if (!htmlPos)
 			return;
 
@@ -44,6 +44,6 @@ export function register(htmlLs: html.LanguageService) {
 			options,
 		);
 
-		return transformer.asCompletionList(htmlComplete, htmlRange => pugDoc.map.toSourceRange(htmlRange), pugDoc.map.virtualFileDocument);
+		return transformCompletionList(htmlComplete, htmlRange => pugDoc.map.getSourceRange(htmlRange), pugDoc.map.virtualFileDocument);
 	};
 }

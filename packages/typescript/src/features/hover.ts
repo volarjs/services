@@ -1,7 +1,7 @@
 import type * as vscode from '@volar/language-service';
-import * as previewer from '../utils/previewer';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
+import * as previewer from '../utils/previewer';
 
 export function register(ctx: SharedContext) {
 	const { ts } = ctx;

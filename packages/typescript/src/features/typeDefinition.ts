@@ -1,7 +1,7 @@
 import type * as vscode from 'vscode-languageserver-protocol';
-import { entriesToLocationLinks } from '../utils/transforms';
-import { SharedContext } from '../types';
 import { safeCall } from '../shared';
+import type { SharedContext } from '../types';
+import { entriesToLocationLinks } from '../utils/transforms';
 
 export function register(ctx: SharedContext) {
 	return (uri: string, position: vscode.Position) => {

@@ -1,7 +1,7 @@
-import { SharedContext } from '../../types';
 import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
+import type { SharedContext } from '../../types';
 import { getLineText } from './resolve';
 
 const localize = nls.loadMessageBundle(); // TODO: not working

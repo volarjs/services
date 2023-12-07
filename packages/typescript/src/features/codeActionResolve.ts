@@ -1,11 +1,11 @@
-import type * as ts from 'typescript/lib/tsserverlibrary';
 import type * as vscode from '@volar/language-service';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
-import { SharedContext } from '../types';
-import { Data, FixAllData, RefactorData } from './codeAction';
+import type { SharedContext } from '../types';
+import type { Data, FixAllData, RefactorData } from './codeAction';
 import { fileTextChangesToWorkspaceEdit } from './rename';
 
 export function register(ctx: SharedContext) {
