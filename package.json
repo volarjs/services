@@ -11,7 +11,7 @@
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/publish": "latest",
-		"@volar/language-service": "2.0.0-alpha.2",
+		"@volar/language-service": "next",
 		"typescript": "latest",
 		"vscode-languageserver-protocol": "^3.17.5"
 	}

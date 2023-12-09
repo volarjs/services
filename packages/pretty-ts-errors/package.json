@@ -28,7 +28,7 @@
 		"pretty-ts-errors-lsp": "^0.0.3"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "2.0.0-alpha.2"
+		"@volar/language-service": "next"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
