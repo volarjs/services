@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-css",
-	"version": "0.0.19",
+	"version": "0.0.20",
 	"description": "Integrate vscode-css-languageservice into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/css",
 	"bugs": "https://github.com/volarjs/services/issues",
