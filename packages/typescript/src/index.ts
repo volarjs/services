@@ -525,13 +525,13 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					});
 				},
 
-				provideReferences(document, position, token) {
+				provideReferences(document, position, referenceContext, token) {
 
 					if (!isTsDocument(document) && !isJsonDocument(document))
 						return;
 
 					return worker(token, () => {
-						return findReferences(document.uri, position);
+						return findReferences(document.uri, position, referenceContext);
 					});
 				},
 

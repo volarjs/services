@@ -278,12 +278,12 @@ export function create(): ServicePlugin {
 					}
 				},
 
-				provideReferences(document, position, token) {
+				provideReferences(document, position, referenceContext, token) {
 					if (prepare(document)) {
 						return ls.getReferences(
 							document,
 							position,
-							{ includeDeclaration: true },
+							referenceContext,
 							token
 						);
 					}

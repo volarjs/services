@@ -7,19 +7,23 @@ export function entriesToLocations(
 	entries: { fileName: string, textSpan: ts.TextSpan; }[],
 	ctx: SharedContext,
 ) {
-	const locations: vscode.Location[] = [];
-	for (const entry of entries) {
-		const entryUri = ctx.env.fileNameToUri(entry.fileName);
-		const doc = ctx.getTextDocument(entryUri);
-		if (!doc) continue;
-		const range: vscode.Range = {
-			start: doc.positionAt(entry.textSpan.start),
-			end: doc.positionAt(entry.textSpan.start + entry.textSpan.length),
-		};
-		const location: vscode.Location = { uri: entryUri, range };
-		locations.push(location);
-	}
-	return locations;
+	return entries
+		.map(entry => entryToLocation(entry, ctx))
+		.filter((location): location is vscode.Location => !!location);
+}
+export function entryToLocation(
+	entry: { fileName: string, textSpan: ts.TextSpan; },
+	ctx: SharedContext,
+) {
+	const entryUri = ctx.env.fileNameToUri(entry.fileName);
+	const doc = ctx.getTextDocument(entryUri);
+	if (!doc) return;
+	const range: vscode.Range = {
+		start: doc.positionAt(entry.textSpan.start),
+		end: doc.positionAt(entry.textSpan.start + entry.textSpan.length),
+	};
+	const location: vscode.Location = { uri: entryUri, range };
+	return location;
 }
 export function entriesToLocationLinks<T extends ts.DocumentSpan>(
 	entries: T[],

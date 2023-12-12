@@ -1,18 +1,33 @@
 import type * as vscode from '@volar/language-service';
 import { safeCall } from '../shared';
 import type { SharedContext } from '../types';
-import { entriesToLocations } from '../utils/transforms';
+import { entryToLocation } from '../utils/transforms';
 
 export function register(ctx: SharedContext) {
-	return (uri: string, position: vscode.Position): vscode.Location[] => {
+	return (uri: string, position: vscode.Position, referenceContext: vscode.ReferenceContext): vscode.Location[] => {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
 		const fileName = ctx.env.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const entries = safeCall(() => ctx.typescript.languageService.getReferencesAtPosition(fileName, offset));
-		if (!entries) return [];
+		const references = safeCall(() => ctx.typescript.languageService.findReferences(fileName, offset));
+		if (!references) return [];
 
-		return entriesToLocations([...entries], ctx);
+		const result: vscode.Location[] = [];
+		for (const reference of references) {
+			if (referenceContext.includeDeclaration) {
+				const definition = entryToLocation(reference.definition, ctx);
+				if (definition) {
+					result.push(definition);
+				}
+			}
+			for (const referenceEntry of reference.references) {
+				const reference = entryToLocation(referenceEntry, ctx);
+				if (reference) {
+					result.push(reference);
+				}
+			}
+		}
+		return result;
 	};
 }
