@@ -37,6 +37,6 @@
 		}
 	},
 	"browser": {
-		"./out/index.js": "./out/empty.js"
+		"./index.js": "./empty.js"
 	}
 }

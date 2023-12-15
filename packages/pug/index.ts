@@ -2,7 +2,7 @@ import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import * as pug from './languageService';
+import * as pug from './lib/languageService';
 
 export interface Provide {
 	'pug/pugDocument': (document: TextDocument) => pug.PugDocument | undefined;

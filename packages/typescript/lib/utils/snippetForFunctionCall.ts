@@ -1,9 +1,9 @@
-import type * as Proto from '../protocol';
+import type * as ts from 'typescript/lib/tsserverlibrary';
 import * as PConst from '../protocol.const';
 
 export function snippetForFunctionCall(
 	item: { insertText?: string; label: string; },
-	displayParts: ReadonlyArray<Proto.SymbolDisplayPart>
+	displayParts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>
 ): { snippet: string; parameterCount: number; } {
 	if (item.insertText && typeof item.insertText !== 'string') {
 		return { snippet: item.insertText, parameterCount: 0 };
@@ -24,7 +24,7 @@ export function snippetForFunctionCall(
 
 	function appendJoinedPlaceholders(
 		snippet: string,
-		parts: ReadonlyArray<Proto.SymbolDisplayPart>,
+		parts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>,
 		joiner: string
 	) {
 		for (let i = 0; i < parts.length; ++i) {
@@ -39,14 +39,14 @@ export function snippetForFunctionCall(
 }
 
 interface ParamterListParts {
-	readonly parts: ReadonlyArray<Proto.SymbolDisplayPart>;
+	readonly parts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>;
 	readonly hasOptionalParameters: boolean;
 }
 
 function getParameterListParts(
-	displayParts: ReadonlyArray<Proto.SymbolDisplayPart>
+	displayParts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>
 ): ParamterListParts {
-	const parts: Proto.SymbolDisplayPart[] = [];
+	const parts: ts.server.protocol.SymbolDisplayPart[] = [];
 	let isInMethod = false;
 	let hasOptionalParameters = false;
 	let parenCount = 0;
