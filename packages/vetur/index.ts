@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as vls from 'vls';
 import type { TextDocument } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
-import { getGlobalSnippetDir } from './userSnippetDir';
+import { getGlobalSnippetDir } from './lib/userSnippetDir';
 
 export function create(): ServicePlugin {
 	return {

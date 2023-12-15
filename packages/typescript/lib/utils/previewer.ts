@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import type * as ts from 'typescript/lib/tsserverlibrary';
-import type * as Proto from '../protocol';
 import type { SharedContext } from '../types';
 
 export interface IFilePathToResourceConverter {
@@ -33,7 +32,7 @@ function processInlineTags(text: string): string {
 }
 
 function getTagBodyText(
-	tag: Proto.JSDocTagInfo,
+	tag: ts.server.protocol.JSDocTagInfo,
 	filePathConverter: IFilePathToResourceConverter,
 	ctx: SharedContext,
 ): string | undefined {
@@ -76,7 +75,7 @@ function getTagBodyText(
 }
 
 function getTagDocumentation(
-	tag: Proto.JSDocTagInfo,
+	tag: ts.server.protocol.JSDocTagInfo,
 	filePathConverter: IFilePathToResourceConverter,
 	ctx: SharedContext,
 ): string | undefined {
@@ -107,7 +106,7 @@ function getTagDocumentation(
 }
 
 export function plainWithLinks(
-	parts: readonly Proto.SymbolDisplayPart[] | string,
+	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string,
 	filePathConverter: IFilePathToResourceConverter,
 	ctx: SharedContext,
 ): string {
@@ -118,7 +117,7 @@ export function plainWithLinks(
  * Convert `@link` inline tags to markdown links
  */
 function convertLinkTags(
-	parts: readonly Proto.SymbolDisplayPart[] | string | undefined,
+	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	filePathConverter: IFilePathToResourceConverter,
 	ctx: SharedContext,
 ): string {
@@ -132,7 +131,7 @@ function convertLinkTags(
 
 	const out: string[] = [];
 
-	let currentLink: { name?: string, target?: Proto.FileSpan, text?: string; } | undefined;
+	let currentLink: { name?: string, target?: ts.server.protocol.FileSpan, text?: string; } | undefined;
 	for (const part of parts) {
 		switch (part.kind) {
 			case 'link':
@@ -184,7 +183,7 @@ function convertLinkTags(
 			case 'linkName':
 				if (currentLink) {
 					currentLink.name = part.text;
-					currentLink.target = (part as Proto.JSDocLinkDisplayPart).target;
+					currentLink.target = (part as ts.server.protocol.JSDocLinkDisplayPart).target;
 				}
 				break;
 
@@ -211,7 +210,7 @@ export function tagsMarkdownPreview(
 }
 
 export function markdownDocumentation(
-	documentation: Proto.SymbolDisplayPart[] | string | undefined,
+	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	filePathConverter: IFilePathToResourceConverter,
 	ctx: SharedContext,
@@ -221,7 +220,7 @@ export function markdownDocumentation(
 
 export function addMarkdownDocumentation(
 	out: string,
-	documentation: Proto.SymbolDisplayPart[] | string | undefined,
+	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	converter: IFilePathToResourceConverter,
 	ctx: SharedContext,
