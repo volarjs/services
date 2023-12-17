@@ -8,7 +8,6 @@
 	"keywords": [
 		"volar-service"
 	],
-	"main": "out/index.js",
 	"types": "out/index.d.ts",
 	"license": "MIT",
 	"files": [
