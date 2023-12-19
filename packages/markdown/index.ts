@@ -1,13 +1,22 @@
 import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
-import { DiagnosticLevel, LogLevel, createLanguageService, githubSlugifier } from 'vscode-markdown-languageservice';
+import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
+import { LogLevel, createLanguageService, githubSlugifier } from 'vscode-markdown-languageservice';
 import { URI } from 'vscode-uri';
 import MarkdownIt = require('markdown-it');
 
 export interface Provide {
 	'markdown/languageService': () => IMdLanguageService;
+}
+
+export interface CreateOptions {
+	/**
+	 * The section to use for configuring validation options.
+	 * 
+	 * @example 'markdown.validate'
+	 */
+	configurationSection: string;
 }
 
 const md = new MarkdownIt();
@@ -22,13 +31,13 @@ function assert(condition: unknown, message: string): asserts condition {
 	}
 }
 
-export function create(): ServicePlugin {
+export function create(options: CreateOptions): ServicePlugin {
 	return {
 		create(context): ServicePluginInstance<Provide> {
 
 			let lastProjectVersion: string | undefined;
 
-			const { fs, onDidChangeWatchedFiles } = context.env;
+			const { fs, getConfiguration, onDidChangeWatchedFiles } = context.env;
 			assert(fs, 'context.env.fs must be defined');
 			assert(
 				onDidChangeWatchedFiles,
@@ -226,21 +235,16 @@ export function create(): ServicePlugin {
 					}
 				},
 
-				provideDiagnostics(document, token) {
+				async provideDiagnostics(document, token) {
 					if (prepare(document)) {
-						return ls.computeDiagnostics(
-							document,
-							{
-								ignoreLinks: [],
-								validateDuplicateLinkDefinitions: DiagnosticLevel.warning,
-								validateFileLinks: DiagnosticLevel.warning,
-								validateFragmentLinks: DiagnosticLevel.warning,
-								validateMarkdownFileLinkFragments: DiagnosticLevel.warning,
-								validateReferences: DiagnosticLevel.warning,
-								validateUnusedLinkDefinitions: DiagnosticLevel.warning
-							},
-							token
-						);
+						const configuration = await getConfiguration?.(options.configurationSection, document.uri);
+						if (configuration) {
+							return ls.computeDiagnostics(
+								document,
+								configuration as DiagnosticOptions,
+								token
+							);
+						}
 					}
 				},
 
