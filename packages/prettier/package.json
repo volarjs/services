@@ -10,6 +10,9 @@
 	],
 	"types": "out/index.d.ts",
 	"license": "MIT",
+	"scripts": {
+		"prepack": "tsc -b"
+	},
 	"files": [
 		"**/*.js",
 		"**/*.d.ts"

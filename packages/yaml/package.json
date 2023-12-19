@@ -9,6 +9,9 @@
 		"volar-service"
 	],
 	"license": "MIT",
+	"scripts": {
+		"prepack": "tsc -b"
+	},
 	"files": [
 		"**/*.js",
 		"**/*.d.ts"
