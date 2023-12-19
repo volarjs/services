@@ -120,8 +120,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 						&& lastChange.text.endsWith('>')
 					) {
-						const configName = document.languageId === 'javascriptreact' ? 'javascript.autoClosingTags' : 'typescript.autoClosingTags';
-						const config = context.env.getConfiguration?.<boolean>(configName) ?? true;
+						const config = context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
 						if (config) {
 
 							prepareSyntacticService(document);
@@ -160,8 +159,8 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					if (!isTsDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
-					if (enable === false) {
+					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
+					if (!enable) {
 						return;
 					}
 
@@ -175,8 +174,8 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					if (!isTsDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable');
-					if (enable === false) {
+					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
+					if (!enable) {
 						return;
 					}
 
@@ -346,23 +345,28 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					languageService.dispose();
 				},
 
-				provideCompletionItems(document, position, context, token) {
+				async provideCompletionItems(document, position, completeContext, token) {
 
 					if (!isTsDocument(document))
 						return;
 
-					return worker(token, async () => {
+					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
+					if (!enable) {
+						return;
+					}
+
+					return await worker(token, async () => {
 
 						let result: CompletionList = {
 							isIncomplete: false,
 							items: [],
 						};
 
-						if (!context || context.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || (context.triggerCharacter && basicTriggerCharacters.includes(context.triggerCharacter))) {
+						if (!completeContext || completeContext.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || (completeContext.triggerCharacter && basicTriggerCharacters.includes(completeContext.triggerCharacter))) {
 
 							const completeOptions: ts.GetCompletionsAtPositionOptions = {
-								triggerCharacter: context.triggerCharacter as ts.CompletionsTriggerCharacter,
-								triggerKind: context.triggerKind,
+								triggerCharacter: completeContext.triggerCharacter as ts.CompletionsTriggerCharacter,
+								triggerKind: completeContext.triggerKind,
 							};
 							const basicResult = await doComplete(document.uri, position, completeOptions);
 
@@ -370,7 +374,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 								result = basicResult;
 							}
 						}
-						if (!context || context.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === jsDocTriggerCharacter) {
+						if (!completeContext || completeContext.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || completeContext.triggerCharacter === jsDocTriggerCharacter) {
 
 							const jsdocResult = await doJsDocComplete(document.uri, position);
 
@@ -378,7 +382,7 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 								result.items.push(jsdocResult);
 							}
 						}
-						if (!context || context.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || context.triggerCharacter === directiveCommentTriggerCharacter) {
+						if (!completeContext || completeContext.triggerKind !== 2 satisfies typeof CompletionTriggerKind.TriggerCharacter || completeContext.triggerCharacter === directiveCommentTriggerCharacter) {
 
 							const directiveCommentResult = await doDirectiveCommentComplete(document.uri, position);
 
@@ -485,12 +489,17 @@ export function create(ts: typeof import('typescript/lib/tsserverlibrary')): Ser
 					});
 				},
 
-				provideDiagnostics(document, token) {
+				async provideDiagnostics(document, token) {
 
 					if (!isTsDocument(document))
 						return;
 
-					return worker(token, () => {
+					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
+					if (!enable) {
+						return;
+					}
+
+					return await worker(token, () => {
 						return doValidation(document.uri, { syntactic: true, suggestion: true });
 					});
 				},
