@@ -9,6 +9,7 @@ export function create(resolveConfig?: (program: ts.Program) => Linter.Config): 
 	const uriToLintResult = new Map<string, ESLint.LintResult[]>();
 
 	return {
+		name: 'eslint',
 		create(context): ServicePluginInstance {
 			return {
 				async provideSemanticDiagnostics(document) {

@@ -10,6 +10,7 @@ export interface Provide {
 
 export function create(settings?: json.LanguageSettings): ServicePlugin {
 	return {
+		name: 'json',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
 		triggerCharacters: ['"', ':'],
 		create(context): ServicePluginInstance<Provide> {

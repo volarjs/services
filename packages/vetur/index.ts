@@ -8,6 +8,7 @@ import { getGlobalSnippetDir } from './lib/userSnippetDir';
 
 export function create(): ServicePlugin {
 	return {
+		name: 'vetur',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
 		create(context): ServicePluginInstance {

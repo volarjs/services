@@ -48,6 +48,7 @@ export function create(
 	},
 ): ServicePlugin {
 	return {
+		name: 'prettier',
 		create(context): ServicePluginInstance {
 
 			let prettier: typeof import('prettier');

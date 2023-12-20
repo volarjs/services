@@ -14,6 +14,7 @@ export function create(): ServicePlugin {
 	const _htmlService = createHtmlService();
 	return {
 		..._htmlService,
+		name: 'pug',
 		create(context): ServicePluginInstance<Provide> {
 
 			const htmlService = _htmlService.create(context);

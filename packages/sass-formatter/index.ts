@@ -3,6 +3,7 @@ import { SassFormatter } from 'sass-formatter';
 
 export function create(configs: Parameters<typeof SassFormatter.Format>[1]): ServicePlugin {
 	return {
+		name: 'sass-formatter',
 		create(): ServicePluginInstance {
 			return {
 				provideDocumentFormattingEdits(document, range, options) {

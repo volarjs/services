@@ -45,12 +45,12 @@ export interface Provide {
 	'typescript/syntacticLanguageServiceHost': () => ts.LanguageServiceHost;
 };
 
-
 export function create(ts: typeof import('typescript/lib/tsserverlibrary')): ServicePlugin {
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
 	return {
+		name: 'typescript',
 		triggerCharacters: [
 			...basicTriggerCharacters,
 			jsDocTriggerCharacter,

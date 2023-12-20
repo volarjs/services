@@ -3,6 +3,7 @@ import * as prettyhtml from '@starptech/prettyhtml';
 
 export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): ServicePlugin {
 	return {
+		name: 'prettyhtml',
 		create(): ServicePluginInstance {
 			return {
 				provideDocumentFormattingEdits(document, range, options) {

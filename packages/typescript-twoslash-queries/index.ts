@@ -3,6 +3,7 @@ import type { Provide } from 'volar-service-typescript';
 
 export function create(): ServicePlugin {
 	return {
+		name: 'typescript-twoslash-queries',
 		create(context): ServicePluginInstance {
 			return {
 				provideInlayHints(document, range) {

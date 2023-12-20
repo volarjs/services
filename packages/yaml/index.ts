@@ -18,6 +18,7 @@ function noop(): undefined { }
  */
 export function create(settings?: LanguageSettings): ServicePlugin {
 	return {
+		name: 'yaml',
 		triggerCharacters: [' ', ':'],
 		create(context): ServicePluginInstance<Provide> {
 

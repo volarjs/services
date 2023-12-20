@@ -2,6 +2,7 @@ import type { ServicePluginInstance, ServicePlugin } from '@volar/language-servi
 
 export function create(): ServicePlugin {
 	return {
+		name: 'pug-beautify',
 		create(): ServicePluginInstance {
 			return {
 				provideDocumentFormattingEdits(document, range, options) {

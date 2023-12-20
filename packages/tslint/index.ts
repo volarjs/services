@@ -7,6 +7,7 @@ export function create(rules: IRule[]): ServicePlugin {
 	const diagnosticToFailure = new Map<string, RuleFailure[]>();
 
 	return {
+		name: 'tslint',
 		create(context): ServicePluginInstance {
 			return {
 				provideSemanticDiagnostics(document, token) {

@@ -4,6 +4,7 @@ import { getHtmlDocument } from 'volar-service-html';
 
 export function create(): ServicePlugin {
 	return {
+		name: 'emmet',
 		// https://docs.emmet.io/abbreviations/syntax/
 		triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
 		create(context): ServicePluginInstance {

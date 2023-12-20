@@ -17,6 +17,7 @@ function mapChildren<R>(node: jsonc.Node | undefined, f: (x: jsonc.Node) => R): 
 
 export function create(): ServicePlugin {
 	return {
+		name: 'tsconfig',
 		create(context): ServicePluginInstance {
 
 			const patterns = [

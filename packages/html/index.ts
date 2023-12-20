@@ -39,6 +39,7 @@ export function create({
 	useCustomDataProviders?: boolean;
 } = {}): ServicePlugin {
 	return {
+		name: 'html',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
 		create(context): ServicePluginInstance<Provide> {
