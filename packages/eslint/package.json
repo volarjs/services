@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-eslint",
-	"version": "0.0.23",
+	"version": "0.0.24",
 	"description": "Integrate ESLint into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/eslint",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"@types/eslint": "latest",
-		"volar-service-typescript": "0.0.23"
+		"volar-service-typescript": "0.0.24"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "next",
