@@ -1,4 +1,4 @@
-import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin, ServiceEnvironment } from '@volar/language-service';
 import type { Options, ResolveConfigOptions } from 'prettier';
 
 export function create(
@@ -42,6 +42,7 @@ export function create(
 		 * This property is useful whenever you want to load a specific instance of Prettier (for instance, loading the Prettier version installed in the user's project)
 		 */
 		prettier?: typeof import('prettier') | undefined;
+		getPrettier?: (serviceEnv: ServiceEnvironment) => typeof import('prettier') | undefined,
 	} = {},
 	getPrettierConfig = async (filePath: string, prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
 		return await prettier.resolveConfig(filePath, config) ?? {};
@@ -53,7 +54,9 @@ export function create(
 
 			let prettier: typeof import('prettier');
 			try {
-				prettier = options.prettier ?? require('prettier');
+				prettier = options.prettier
+					?? options.getPrettier?.(context.env)
+					?? require('prettier');
 			} catch (e) {
 				throw new Error("Could not load Prettier: " + e);
 			}
