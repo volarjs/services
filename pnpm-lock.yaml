@@ -16,7 +16,7 @@ importers:
         version: 3.1.0(typescript@5.3.3)
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       typescript:
         specifier: latest
         version: 5.3.3
@@ -28,7 +28,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       vscode-css-languageservice:
         specifier: ^6.2.10
         version: 6.2.11
@@ -47,7 +47,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       '@vscode/emmet-helper':
         specifier: ^2.9.2
         version: 2.9.2
@@ -59,7 +59,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       eslint:
         specifier: '*'
         version: 8.56.0
@@ -75,7 +75,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       vscode-html-languageservice:
         specifier: ^5.1.0
         version: 5.1.1
@@ -94,7 +94,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       vscode-json-languageservice:
         specifier: ^5.3.7
         version: 5.3.7
@@ -110,7 +110,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       markdown-it:
         specifier: ^13.0.2
         version: 13.0.2
@@ -135,7 +135,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
     devDependencies:
       '@types/node':
         specifier: latest
@@ -148,7 +148,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       pretty-ts-errors-lsp:
         specifier: ^0.0.3
         version: 0.0.3
@@ -160,13 +160,13 @@ importers:
         version: 0.10.0
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
 
   packages/pug:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       pug-lexer:
         specifier: ^5.0.1
         version: 5.0.1
@@ -194,7 +194,7 @@ importers:
         version: 0.2.2
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
     devDependencies:
       '@types/node':
         specifier: latest
@@ -204,7 +204,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       sass-formatter:
         specifier: ^0.7.8
         version: 0.7.8
@@ -213,7 +213,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       jsonc-parser:
         specifier: ^3.2.0
         version: 3.2.0
@@ -232,7 +232,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
     devDependencies:
       tslint:
         specifier: latest
@@ -245,7 +245,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -279,7 +279,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
     devDependencies:
       volar-service-typescript:
         specifier: 0.0.25
@@ -289,7 +289,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       vls:
         specifier: ^0.8.5
         version: 0.8.5
@@ -305,7 +305,7 @@ importers:
     dependencies:
       '@volar/language-service':
         specifier: next
-        version: 2.0.0-alpha.9
+        version: 2.0.0-alpha.12
       yaml-language-server:
         specifier: 1.14.0
         version: 1.14.0
@@ -1186,15 +1186,15 @@ packages:
       '@volar/source-map': 1.11.1
     dev: true
 
-  /@volar/language-core@2.0.0-alpha.9:
-    resolution: {integrity: sha512-uKCtjLFZYSrZsraRVIzrcgnOhMWg8H3cKE9p0NsO9qxAI8ToUxCPqkEnt1Yv90GcsQXAUTqlLG29RQX+2eNNqA==}
+  /@volar/language-core@2.0.0-alpha.12:
+    resolution: {integrity: sha512-BJdwE3SICKfjJcfrVFVUH38padp+TBf6GrcmFIz94cyFswi3PCdiBOQWMXscrKTuc52tdRPu0jP+W2o+wSrhVw==}
     dependencies:
-      '@volar/source-map': 2.0.0-alpha.9
+      '@volar/source-map': 2.0.0-alpha.12
 
-  /@volar/language-service@2.0.0-alpha.9:
-    resolution: {integrity: sha512-YY31bCMUBK/vDbd64ivdiaq7igVoK8WzMr2E3hpCAW/jtowDZKweXgeeXXl8uy5CRQ0ZTsJ7mrHNcAcagRT4mA==}
+  /@volar/language-service@2.0.0-alpha.12:
+    resolution: {integrity: sha512-dvHXy57wipg5bmaJuBA6F7gUDMrsR27ezVQAGZ67mUKQXAPx/LWtygKftYPZVIzgeNGb75WvfcF0suI5TaOadw==}
     dependencies:
-      '@volar/language-core': 2.0.0-alpha.9
+      '@volar/language-core': 2.0.0-alpha.12
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.8
@@ -1205,8 +1205,8 @@ packages:
       muggle-string: 0.3.1
     dev: true
 
-  /@volar/source-map@2.0.0-alpha.9:
-    resolution: {integrity: sha512-L0RSRfvjbNBi5azvw8VPhswFhjvcGSYYz+S+If9r9baPhANxnx02uN2CNI54Ho2FCtMChpQ5JjtBOHtcLj1/Vw==}
+  /@volar/source-map@2.0.0-alpha.12:
+    resolution: {integrity: sha512-+I1jtm4xrGhYQW+c2DjBpBnV9zgQR5bVI49HmoIJaVfuz7RF9PCGaxq6a2tZ433nCmEX8tXRBBhWgh/4i2OZrw==}
     dependencies:
       muggle-string: 0.4.1
 
@@ -2314,7 +2314,7 @@ packages:
       human-signals: 5.0.0
       is-stream: 3.0.0
       merge-stream: 2.0.0
-      npm-run-path: 5.1.0
+      npm-run-path: 5.2.0
       onetime: 6.0.0
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
@@ -3830,8 +3830,8 @@ packages:
       path-key: 2.0.1
     dev: false
 
-  /npm-run-path@5.1.0:
-    resolution: {integrity: sha512-sJOdmRGrY2sjNTRMbSvluQqg+8X7ZK61yvzBEIDhz4f8z1TZFYABsqjjCBd/0PUNE9M6QDgHJXQkGUEm7Q+l9Q==}
+  /npm-run-path@5.2.0:
+    resolution: {integrity: sha512-W4/tgAXFqFA0iL7fk0+uQ3g7wkL8xJmx3XdK0VGb4cHW//eZTtKGvFBBoRKVTpY7n6ze4NL9ly7rgXcHufqXKg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       path-key: 4.0.0
