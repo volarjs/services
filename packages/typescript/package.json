@@ -25,13 +25,13 @@
 	},
 	"devDependencies": {
 		"@types/path-browserify": "latest",
-		"@types/semver": "^7.5.4",
+		"@types/semver": "latest",
 		"@volar/typescript": "latest"
 	},
 	"dependencies": {
 		"path-browserify": "^1.0.1",
 		"semver": "^7.5.4",
-		"typescript-auto-import-cache": "^0.3.0",
+		"typescript-auto-import-cache": "^0.3.1",
 		"vscode-languageserver-textdocument": "^1.0.11",
 		"vscode-nls": "^5.2.0",
 		"vscode-uri": "^3.0.8"

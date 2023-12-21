@@ -253,8 +253,8 @@ importers:
         specifier: ^7.5.4
         version: 7.5.4
       typescript-auto-import-cache:
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.3.1
+        version: 0.3.1
       vscode-languageserver-textdocument:
         specifier: ^1.0.11
         version: 1.0.11
@@ -269,7 +269,7 @@ importers:
         specifier: latest
         version: 1.0.2
       '@types/semver':
-        specifier: ^7.5.4
+        specifier: latest
         version: 7.5.6
       '@volar/typescript':
         specifier: latest
@@ -5140,8 +5140,8 @@ packages:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: false
 
-  /typescript-auto-import-cache@0.3.0:
-    resolution: {integrity: sha512-Rq6/q4O9iyqUdjvOoyas7x/Qf9nWUMeqpP3YeTaLA+uECgfy5wOhfOS+SW/+fZ/uI/ZcKaf+2/ZhFzXh8xfofQ==}
+  /typescript-auto-import-cache@0.3.1:
+    resolution: {integrity: sha512-ujC5E2gT3Sf3Dzfg5QYgb8NkZNxFQI12W6rk5U/TbkDFXyvIb9YENic+hsNoVDmKEmlRTUjRRD8RCjLMIx1rxg==}
     dependencies:
       semver: 7.5.4
     dev: false
