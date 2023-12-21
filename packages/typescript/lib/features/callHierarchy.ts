@@ -1,6 +1,6 @@
 import type * as vscode from '@volar/language-service';
 import * as path from 'path-browserify';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as PConst from '../protocol.const';
 import { safeCall } from '../shared';

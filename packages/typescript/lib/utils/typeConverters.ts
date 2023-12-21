@@ -9,7 +9,7 @@
 
 import type { SymbolKind as _SymbolKind } from '@volar/language-service';
 import * as PConst from '../protocol.const';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import type * as ts from 'typescript';
 
 export namespace SymbolKind {
 	export function fromProtocolScriptElementKind(kind: ts.ScriptElementKind) {

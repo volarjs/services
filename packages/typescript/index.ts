@@ -1,6 +1,6 @@
 import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as semver from 'semver';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import type * as ts from 'typescript';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './lib/shared';
 
@@ -37,7 +37,7 @@ import type { SharedContext } from './lib/types';
 export * from '@volar/typescript';
 
 export interface Provide {
-	'typescript/typescript': () => typeof import('typescript/lib/tsserverlibrary');
+	'typescript/typescript': () => typeof import('typescript');
 	'typescript/sys': () => ts.System;
 	'typescript/languageService': () => ts.LanguageService;
 	'typescript/languageServiceHost': () => ts.LanguageServiceHost;
@@ -45,7 +45,7 @@ export interface Provide {
 	'typescript/syntacticLanguageServiceHost': () => ts.LanguageServiceHost;
 };
 
-export function create(ts: typeof import('typescript/lib/tsserverlibrary')): ServicePlugin {
+export function create(ts: typeof import('typescript')): ServicePlugin {
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';

@@ -1,6 +1,6 @@
 import type * as vscode from '@volar/language-service';
 import * as semver from 'semver';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getUserPreferences } from '../../configs/getUserPreferences';
 import * as PConst from '../../protocol.const';

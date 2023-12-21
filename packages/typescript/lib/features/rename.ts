@@ -1,6 +1,6 @@
 import type * as vscode from '@volar/language-service';
 import * as path from 'path-browserify';
-import type * as ts from 'typescript/lib/tsserverlibrary';
+import type * as ts from 'typescript';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
