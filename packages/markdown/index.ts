@@ -34,6 +34,7 @@ function assert(condition: unknown, message: string): asserts condition {
 export function create(options: CreateOptions): ServicePlugin {
 	return {
 		name: 'markdown',
+		triggerCharacters: ['.', '/', '#'],
 		create(context): ServicePluginInstance<Provide> {
 
 			let lastProjectVersion: string | undefined;
