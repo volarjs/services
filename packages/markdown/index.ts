@@ -1,4 +1,4 @@
-import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin, ServicePluginInstance, LocationLink } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
@@ -234,6 +234,26 @@ export function create(options: CreateOptions): ServicePlugin {
 							isIncomplete: false,
 							items
 						};
+					}
+				},
+
+				async provideDefinition(document, position, token) {
+					if (prepare(document)) {
+						let locations = await ls.getDefinition(document, position, token);
+
+						if (!locations) {
+							return;
+						}
+
+						if (!Array.isArray(locations)) {
+							locations = [locations];
+						}
+
+						return locations.map<LocationLink>(location => ({
+							targetUri: location.uri,
+							targetRange: location.range,
+							targetSelectionRange: location.range,
+						}));
 					}
 				},
 
