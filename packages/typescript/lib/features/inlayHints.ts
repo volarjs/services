@@ -12,12 +12,12 @@ export function register(ctx: SharedContext) {
 		if (!document) return;
 
 		const preferences = await getUserPreferences(ctx, document);
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		const inlayHints = safeCall(() =>
-			'provideInlayHints' in ctx.typescript.languageService
-				? ctx.typescript.languageService.provideInlayHints(fileName, { start, length: end - start }, preferences)
+			'provideInlayHints' in ctx.languageService
+				? ctx.languageService.provideInlayHints(fileName, { start, length: end - start }, preferences)
 				: []
 		) ?? [];
 

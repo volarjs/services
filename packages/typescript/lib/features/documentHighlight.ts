@@ -10,9 +10,9 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const highlights = safeCall(() => ctx.typescript.languageService.getDocumentHighlights(fileName, offset, [fileName]));
+		const highlights = safeCall(() => ctx.languageService.getDocumentHighlights(fileName, offset, [fileName]));
 		if (!highlights) return [];
 
 		const results: vscode.DocumentHighlight[] = [];

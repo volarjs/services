@@ -13,9 +13,9 @@ export function register(ctx: SharedContext) {
 		const result: vscode.SelectionRange[] = [];
 
 		for (const position of positions) {
-			const fileName = ctx.env.uriToFileName(document.uri);
+			const fileName = ctx.uriToFileName(document.uri);
 			const offset = document.offsetAt(position);
-			const range = safeCall(() => ctx.typescript.languageService.getSmartSelectionRange(fileName, offset));
+			const range = safeCall(() => ctx.languageService.getSmartSelectionRange(fileName, offset));
 			if (!range) continue;
 
 			result.push(transformSelectionRange(range, document));

@@ -52,7 +52,7 @@ export function register(ctx: SharedContext) {
 			getUserPreferences(ctx, document),
 		]);
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		let result: vscode.CodeAction[] = [];
@@ -60,7 +60,7 @@ export function register(ctx: SharedContext) {
 		const onlyQuickFix = matchOnlyKind(`${'quickfix' satisfies typeof vscode.CodeActionKind.QuickFix}.ts`);
 		if (!context.only || onlyQuickFix) {
 			for (const error of context.diagnostics) {
-				const codeFixes = safeCall(() => ctx.typescript.languageService.getCodeFixesAtPosition(
+				const codeFixes = safeCall(() => ctx.languageService.getCodeFixesAtPosition(
 					fileName,
 					document.offsetAt(error.range.start),
 					document.offsetAt(error.range.end),
@@ -77,7 +77,7 @@ export function register(ctx: SharedContext) {
 		if (context.only) {
 			for (const only of context.only) {
 				if (only.split('.')[0] === 'refactor' satisfies typeof vscode.CodeActionKind.Refactor) {
-					const refactors = safeCall(() => ctx.typescript.languageService.getApplicableRefactors(
+					const refactors = safeCall(() => ctx.languageService.getApplicableRefactors(
 						fileName,
 						{ pos: start, end: end },
 						preferences,
@@ -91,7 +91,7 @@ export function register(ctx: SharedContext) {
 			}
 		}
 		else {
-			const refactors = safeCall(() => ctx.typescript.languageService.getApplicableRefactors(
+			const refactors = safeCall(() => ctx.languageService.getApplicableRefactors(
 				fileName,
 				{ pos: start, end: end },
 				preferences,

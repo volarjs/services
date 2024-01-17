@@ -32,8 +32,8 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.env.uriToFileName(document.uri);
-		const barItems = safeCall(() => ctx.typescript.languageService.getNavigationTree(fileName));
+		const fileName = ctx.uriToFileName(document.uri);
+		const barItems = safeCall(() => ctx.languageService.getNavigationTree(fileName));
 		if (!barItems) return [];
 
 		// The root represents the file. Ignore this when showing in the UI

@@ -1,8 +1,9 @@
 import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './lib/shared';
+import { URI } from 'vscode-uri';
 
 import { getDocumentRegistry } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
@@ -38,7 +39,6 @@ export * from '@volar/typescript';
 
 export interface Provide {
 	'typescript/typescript': () => typeof import('typescript');
-	'typescript/sys': () => ts.System;
 	'typescript/languageService': () => ts.LanguageService;
 	'typescript/languageServiceHost': () => ts.LanguageServiceHost;
 	'typescript/syntacticLanguageService': () => ts.LanguageService;
@@ -75,30 +75,26 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 			};
 			const syntacticCtx: SharedContext = {
 				...context,
-				typescript: {
-					languageServiceHost: syntacticServiceHost,
-					languageService: ts.createLanguageService(syntacticServiceHost, undefined, 2 satisfies ts.LanguageServiceMode.Syntactic),
-				},
+				languageServiceHost: syntacticServiceHost,
+				languageService: ts.createLanguageService(syntacticServiceHost, undefined, 2 satisfies ts.LanguageServiceMode.Syntactic),
 				ts,
+				uriToFileName: uri => {
+					if (uri !== syntacticHostCtx.document?.uri) {
+						throw new Error(`uriToFileName: uri not found: ${uri}`);
+					}
+					return syntacticHostCtx.fileName;
+				},
+				fileNameToUri: fileName => {
+					if (fileName !== syntacticHostCtx.fileName) {
+						throw new Error(`fileNameToUri: fileName not found: ${fileName}`);
+					}
+					return syntacticHostCtx.document!.uri;
+				},
 				getTextDocument(uri) {
-					const fileName = context.env.uriToFileName(uri);
-					const virtualFile = context.language.files.getVirtualFile(fileName)[0];
-					if (virtualFile) {
-						return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
+					if (uri !== syntacticHostCtx.document?.uri) {
+						throw new Error(`getTextDocument: uri not found: ${uri}`);
 					}
-					const sourceFile = context.language.files.getSourceFile(fileName);
-					if (sourceFile && !sourceFile.virtualFile) {
-						return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
-					}
-					const snapshot = syntacticServiceHost.getScriptSnapshot(fileName);
-					if (snapshot) {
-						let document = documents.get(snapshot);
-						if (!document) {
-							document = TextDocument.create(uri, '', 0, snapshot.getText(0, snapshot.getLength()));
-							documents.set(snapshot, document);
-						}
-						return document;
-					}
+					return syntacticHostCtx.document;
 				},
 			};
 			const findDocumentSymbols = documentSymbol.register(syntacticCtx);
@@ -108,11 +104,10 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provide: {
 					'typescript/typescript': () => ts,
-					'typescript/sys': () => sys,
-					'typescript/languageService': () => syntacticCtx.typescript.languageService,
-					'typescript/languageServiceHost': () => syntacticCtx.typescript.languageServiceHost,
-					'typescript/syntacticLanguageService': () => syntacticCtx.typescript.languageService,
-					'typescript/syntacticLanguageServiceHost': () => syntacticCtx.typescript.languageServiceHost,
+					'typescript/languageService': () => syntacticCtx.languageService,
+					'typescript/languageServiceHost': () => syntacticCtx.languageServiceHost,
+					'typescript/syntacticLanguageService': () => syntacticCtx.languageService,
+					'typescript/syntacticLanguageServiceHost': () => syntacticCtx.languageServiceHost,
 				},
 
 				provideAutoInsertionEdit(document, position, lastChange) {
@@ -123,9 +118,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 						const config = context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
 						if (config) {
 
-							prepareSyntacticService(document);
-
-							const close = syntacticCtx.typescript.languageService.getJsxClosingTagAtPosition(context.env.uriToFileName(document.uri), document.offsetAt(position));
+							const ctx = prepareSyntacticService(document);
+							const close = syntacticCtx.languageService.getJsxClosingTagAtPosition(ctx.fileName, document.offsetAt(position));
 
 							if (close) {
 								return '$0' + close.newText;
@@ -189,7 +183,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (!isTsDocument(document))
 						return;
 
-					const sourceFile = ts.createSourceFile(context.env.uriToFileName(document.uri), document.getText(), ts.ScriptTarget.ESNext);
+					const ctx = prepareSyntacticService(document);
+					const sourceFile = ts.createSourceFile(ctx.fileName, document.getText(), ts.ScriptTarget.ESNext);
 
 					if (sourceFile) {
 
@@ -223,11 +218,11 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				snapshot: ts.ScriptSnapshot.fromString(''),
 			};
 
-			if (!context.language.typescript) {
+			if (!context.typescript) {
 				return syntacticService;
 			}
 
-			const { sys, languageServiceHost, synchronizeFileSystem } = context.language.typescript;
+			const { sys, languageServiceHost } = context.typescript;
 			const created = tsFaster.createLanguageService(
 				ts,
 				sys,
@@ -264,7 +259,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 						updateSourceScriptFileNames();
 					}
 					for (const change of params.changes) {
-						const fileName = context.env.uriToFileName(change.uri);
+						const fileName = context.env.typescript.uriToFileName(change.uri);
 						if (sourceScriptNames.has(normalizeFileName(fileName))) {
 							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 						}
@@ -274,35 +269,53 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				function updateSourceScriptFileNames() {
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const virtualFile = context.language.files.getVirtualFile(fileName);
-						if (virtualFile) {
-							sourceScriptNames.add(normalizeFileName(fileName));
-							continue;
+						const uri = context.env.typescript.fileNameToUri(fileName);
+						const sourceFile = context.files.get(uri);
+						if (sourceFile?.generated) {
+							const tsCode = sourceFile.generated.languagePlugin.typescript?.getScript(sourceFile.generated.code);
+							if (tsCode) {
+								sourceScriptNames.add(normalizeFileName(fileName));
+							}
 						}
-						const sourceFile = context.language.files.getSourceFile(fileName);
-						if (sourceFile && !sourceFile.virtualFile) {
+						else if (sourceFile) {
 							sourceScriptNames.add(normalizeFileName(fileName));
-							continue;
 						}
 					}
 				}
 			}
 
-			const documents = new WeakMap<ts.IScriptSnapshot, TextDocument>();
 			const semanticCtx: SharedContext = {
-				...syntacticCtx,
-				typescript: {
-					languageServiceHost,
-					languageService,
+				...context,
+				languageServiceHost,
+				languageService,
+				ts,
+				uriToFileName: uri => {
+					const [_virtualCode, file] = context.documents.getVirtualCodeByUri(uri);
+					if (file) {
+						return context.env.typescript.uriToFileName(file.id);
+					}
+					else {
+						return context.env.typescript.uriToFileName(uri);
+					}
+				},
+				fileNameToUri: fileName => {
+					const uri = context.env.typescript.fileNameToUri(fileName);
+					const file = context.files.get(uri);
+					if (file?.generated) {
+						const script = file.generated.languagePlugin.typescript?.getScript(file.generated.code);
+						if (script) {
+							return context.documents.getVirtualCodeUri(uri, script.code.id);
+						}
+					}
+					return uri;
 				},
 				getTextDocument(uri) {
-					const fileName = context.env.uriToFileName(uri);
-					const virtualFile = context.language.files.getVirtualFile(fileName)[0];
-					if (virtualFile) {
-						return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
+					const virtualCode = context.documents.getVirtualCodeByUri(uri)[0];
+					if (virtualCode) {
+						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 					}
-					const sourceFile = context.language.files.getSourceFile(fileName);
-					if (sourceFile && !sourceFile.virtualFile) {
+					const sourceFile = context.files.get(uri);
+					if (sourceFile) {
 						return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 					}
 				},
@@ -609,27 +622,28 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 			async function worker<T>(token: CancellationToken, callback: () => T): Promise<Awaited<T>> {
 
-				let oldSysVersion = await synchronizeFileSystem?.();
+				let oldSysVersion = await sys.sync?.();
 				let result = await callback();
-				let newSysVersion = await synchronizeFileSystem?.();
+				let newSysVersion = await sys.sync?.();
 
 				while (newSysVersion !== oldSysVersion && !token.isCancellationRequested) {
 					oldSysVersion = newSysVersion;
 					result = await callback();
-					newSysVersion = await synchronizeFileSystem?.();
+					newSysVersion = await sys.sync?.();
 				}
 
 				return result;
 			}
 
 			function prepareSyntacticService(document: TextDocument) {
-				if (syntacticHostCtx.document === document && syntacticHostCtx.fileVersion === document.version) {
-					return;
+				if (syntacticHostCtx.document !== document || syntacticHostCtx.fileVersion !== document.version) {
+					syntacticHostCtx.document = document;
+					syntacticHostCtx.fileName = URI.parse(document.uri).fsPath.replace(/\\/g, '/');
+					syntacticHostCtx.fileVersion = document.version;
+					syntacticHostCtx.snapshot = ts.ScriptSnapshot.fromString(document.getText());
+					syntacticHostCtx.projectVersion++;
 				}
-				syntacticHostCtx.fileName = context.env.uriToFileName(document.uri);
-				syntacticHostCtx.fileVersion = document.version;
-				syntacticHostCtx.snapshot = ts.ScriptSnapshot.fromString(document.getText());
-				syntacticHostCtx.projectVersion++;
+				return syntacticHostCtx;
 			}
 		},
 	};

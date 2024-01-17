@@ -13,7 +13,8 @@ export function create(rules: IRule[]): ServicePlugin {
 				provideSemanticDiagnostics(document, token) {
 
 					const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
-					const sourceFile = languageService.getProgram()?.getSourceFile(context.env.uriToFileName(document.uri));
+					const fileName = context.env.typescript.uriToFileName(document.uri);
+					const sourceFile = languageService.getProgram()?.getSourceFile(fileName);
 					if (!sourceFile) {
 						return;
 					}

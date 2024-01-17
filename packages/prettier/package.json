@@ -24,6 +24,9 @@
 		"email": "polv@polv.cc",
 		"url": "https://www.polv.cc"
 	},
+	"dependencies": {
+		"vscode-uri": "^3.0.8"
+	},
 	"devDependencies": {
 		"@types/node": "latest",
 		"prettier": "^3.0.3"

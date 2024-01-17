@@ -11,16 +11,16 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
-		const file = ctx.env.uriToFileName(uri);
+		const file = ctx.uriToFileName(uri);
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
 		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		const response2 = safeCall(() => ctx.typescript.languageService.getEncodedSyntacticClassifications(file, { start, length }));
+		const response2 = safeCall(() => ctx.languageService.getEncodedSyntacticClassifications(file, { start, length }));
 		if (!response2) return;
 
 		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		const response1 = safeCall(() => ctx.typescript.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
+		const response1 = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
 		if (!response1) return;
 
 		let tokenModifiersTable: number[] = [];

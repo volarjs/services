@@ -8,9 +8,9 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const references = safeCall(() => ctx.typescript.languageService.findReferences(fileName, offset));
+		const references = safeCall(() => ctx.languageService.findReferences(fileName, offset));
 		if (!references) return [];
 
 		const result: vscode.Location[] = [];
