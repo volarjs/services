@@ -21,7 +21,8 @@ export function create(): ServicePlugin {
 								character: pointerPosition.character,
 							});
 
-							const quickInfo = languageService.getQuickInfoAtPosition(context.env.uriToFileName(document.uri), hoverOffset);
+							const fileName = context.env.typescript!.uriToFileName(document.uri);
+							const quickInfo = languageService.getQuickInfoAtPosition(fileName, hoverOffset);
 							if (quickInfo) {
 								inlayHints.push({
 									position: { line: pointerPosition.line, character: pointerPosition.character + 2 },

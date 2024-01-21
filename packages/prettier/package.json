@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-prettier",
-	"version": "0.0.25",
+	"version": "0.0.26",
 	"description": "Integrate Prettier into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/prettier",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -23,6 +23,9 @@
 		"name": "Pacharapol Withayasakpunt",
 		"email": "polv@polv.cc",
 		"url": "https://www.polv.cc"
+	},
+	"dependencies": {
+		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {
 		"@types/node": "latest",

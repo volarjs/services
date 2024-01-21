@@ -1,5 +1,6 @@
 import type { ServicePluginInstance, ServicePlugin, ServiceEnvironment } from '@volar/language-service';
 import type { Options, ResolveConfigOptions } from 'prettier';
+import { URI } from 'vscode-uri';
 
 export function create(
 	options: {
@@ -68,7 +69,7 @@ export function create(
 						return;
 					}
 
-					const filePath = context.env.uriToFileName(document.uri);
+					const filePath = URI.parse(document.uri).fsPath;
 					const fileInfo = await prettier.getFileInfo(filePath, { ignorePath: '.prettierignore', resolveConfig: false });
 
 					if (fileInfo.ignored) {

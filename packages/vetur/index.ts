@@ -135,7 +135,7 @@ export function create(): ServicePlugin {
 
 				if (!packageJsonPath) {
 
-					let lastDirname = context.env.uriToFileName(document.uri);
+					let lastDirname = context.env.typescript!.uriToFileName(document.uri);
 
 					while (true) {
 

@@ -15,7 +15,7 @@ export function entryToLocation(
 	entry: { fileName: string, textSpan: ts.TextSpan; },
 	ctx: SharedContext,
 ) {
-	const entryUri = ctx.env.fileNameToUri(entry.fileName);
+	const entryUri = ctx.fileNameToUri(entry.fileName);
 	const doc = ctx.getTextDocument(entryUri);
 	if (!doc) return;
 	const range: vscode.Range = {
@@ -31,7 +31,7 @@ export function entriesToLocationLinks<T extends ts.DocumentSpan>(
 ): vscode.LocationLink[] {
 	const locations: vscode.LocationLink[] = [];
 	for (const entry of entries) {
-		const entryUri = ctx.env.fileNameToUri(entry.fileName);
+		const entryUri = ctx.fileNameToUri(entry.fileName);
 		const doc = ctx.getTextDocument(entryUri);
 		if (!doc) continue;
 		const targetSelectionRange: vscode.Range = {
@@ -68,7 +68,7 @@ export function boundSpanToLocationLinks(
 		end: originalDoc.positionAt(info.textSpan.start + info.textSpan.length),
 	};
 	for (const entry of info.definitions) {
-		const entryUri = ctx.env.fileNameToUri(entry.fileName);
+		const entryUri = ctx.fileNameToUri(entry.fileName);
 		const doc = ctx.getTextDocument(entryUri);
 		if (!doc) continue;
 		const targetSelectionRange: vscode.Range = {

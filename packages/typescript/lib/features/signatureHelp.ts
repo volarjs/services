@@ -29,9 +29,9 @@ export function register(ctx: SharedContext) {
 			};
 		}
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const helpItems = safeCall(() => ctx.typescript.languageService.getSignatureHelpItems(fileName, offset, options));
+		const helpItems = safeCall(() => ctx.languageService.getSignatureHelpItems(fileName, offset, options));
 		if (!helpItems) return;
 
 		return {

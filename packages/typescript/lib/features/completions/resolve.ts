@@ -36,7 +36,7 @@ export function register(ctx: SharedContext) {
 
 		let details: ts.CompletionEntryDetails | undefined;
 		try {
-			details = ctx.typescript.languageService.getCompletionEntryDetails(fileName, offset, data.originalItem.name, formatOptions, data.originalItem.source, preferences, data.originalItem.data);
+			details = ctx.languageService.getCompletionEntryDetails(fileName, offset, data.originalItem.name, formatOptions, data.originalItem.source, preferences, data.originalItem.data);
 		}
 		catch (err) {
 			item.detail = `[TS Error]\n${err}\n${JSON.stringify(err, undefined, 2)}`;
@@ -94,7 +94,7 @@ export function register(ctx: SharedContext) {
 			const useCodeSnippet = useCodeSnippetsOnMethodSuggest && (item.kind === 3 satisfies typeof vscode.CompletionItemKind.Function || item.kind === 2 satisfies typeof vscode.CompletionItemKind.Method);
 
 			if (useCodeSnippet) {
-				const shouldCompleteFunction = isValidFunctionCompletionContext(ctx.typescript.languageService, fileName, offset, document);
+				const shouldCompleteFunction = isValidFunctionCompletionContext(ctx.languageService, fileName, offset, document);
 				if (shouldCompleteFunction) {
 					const { snippet, parameterCount } = snippetForFunctionCall(
 						{
@@ -127,7 +127,7 @@ export function register(ctx: SharedContext) {
 		return item;
 
 		function toResource(path: string) {
-			return ctx.env.fileNameToUri(path);
+			return ctx.fileNameToUri(path);
 		}
 	};
 }

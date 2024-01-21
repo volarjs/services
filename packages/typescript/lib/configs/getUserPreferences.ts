@@ -27,7 +27,7 @@ export async function getUserPreferences(
 		includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ?? true,
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
-		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.typescript.languageServiceHost.getCurrentDirectory()),
+		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.languageServiceHost.getCurrentDirectory()),
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,

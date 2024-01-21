@@ -13,9 +13,9 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return;
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const renameInfo = safeCall(() => ctx.typescript.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
+		const renameInfo = safeCall(() => ctx.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
 		if (!renameInfo?.canRename) return;
 
 		if (renameInfo.fileToRename) {
@@ -27,7 +27,7 @@ export function register(ctx: SharedContext) {
 		}
 
 		const { providePrefixAndSuffixTextForRename } = await getUserPreferences(ctx, document);
-		const entries = ctx.typescript.languageService.findRenameLocations(fileName, offset, false, false, providePrefixAndSuffixTextForRename);
+		const entries = ctx.languageService.findRenameLocations(fileName, offset, false, false, providePrefixAndSuffixTextForRename);
 		if (!entries)
 			return;
 
@@ -49,7 +49,7 @@ export function register(ctx: SharedContext) {
 		const dirname = path.dirname(fileToRename);
 		const newFilePath = path.join(dirname, newName);
 
-		const response = ctx.typescript.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences);
+		const response = ctx.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences);
 		const edits = fileTextChangesToWorkspaceEdit(response, ctx);
 		if (!edits.documentChanges) {
 			edits.documentChanges = [];
@@ -57,8 +57,8 @@ export function register(ctx: SharedContext) {
 
 		edits.documentChanges.push({
 			kind: 'rename',
-			oldUri: ctx.env.fileNameToUri(fileToRename),
-			newUri: ctx.env.fileNameToUri(newFilePath),
+			oldUri: ctx.fileNameToUri(fileToRename),
+			newUri: ctx.fileNameToUri(newFilePath),
 		});
 
 		return edits;
@@ -77,7 +77,7 @@ export function fileTextChangesToWorkspaceEdit(
 			workspaceEdit.documentChanges = [];
 		}
 
-		const uri = ctx.env.fileNameToUri(change.fileName);
+		const uri = ctx.fileNameToUri(change.fileName);
 		let doc = ctx.getTextDocument(uri);
 
 		if (change.isNewFile) {
@@ -122,7 +122,7 @@ function locationsToWorkspaceEdit(
 			workspaceEdit.changes = {};
 		}
 
-		const uri = ctx.env.fileNameToUri(location.fileName);
+		const uri = ctx.fileNameToUri(location.fileName);
 		const doc = ctx.getTextDocument(uri);
 		if (!doc) continue;
 

@@ -8,9 +8,9 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const entries = safeCall(() => ctx.typescript.languageService.getTypeDefinitionAtPosition(fileName, offset));
+		const entries = safeCall(() => ctx.languageService.getTypeDefinitionAtPosition(fileName, offset));
 		if (!entries) return [];
 
 		return entriesToLocationLinks([...entries], ctx);

@@ -33,9 +33,9 @@ export function register(ctx: SharedContext) {
 			return;
 
 		const preferences = await getUserPreferences(ctx, document);
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
-		const completionContext = safeCall(() => ctx.typescript.languageService.getCompletionsAtPosition(fileName, offset, {
+		const completionContext = safeCall(() => ctx.languageService.getCompletionsAtPosition(fileName, offset, {
 			...preferences,
 			...options,
 		}));

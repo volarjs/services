@@ -1,4 +1,4 @@
-import { forEachEmbeddedFile, type FileChangeType, type FileType, type ServicePlugin, ServicePluginInstance, LocationLink } from '@volar/language-service';
+import { ServicePluginInstance, forEachEmbeddedCode, type FileChangeType, type FileType, type LocationLink, type ServicePlugin } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
@@ -146,10 +146,11 @@ export function create(options: CreateOptions): ServicePlugin {
 
 			const sync = () => {
 
-				const languageServiceHost = context.language.typescript?.languageServiceHost;
-				if (!languageServiceHost)
+				if (!context.language.typescript) {
 					return;
+				}
 
+				const { languageServiceHost } = context.language.typescript;
 				const newProjectVersion = languageServiceHost.getProjectVersion?.();
 				const shouldUpdate = newProjectVersion === undefined || newProjectVersion !== lastProjectVersion;
 				if (!shouldUpdate) {
@@ -161,11 +162,13 @@ export function create(options: CreateOptions): ServicePlugin {
 				const newVersions = new Map<string, TextDocument>();
 
 				for (const fileName of languageServiceHost.getScriptFileNames()) {
-					const [_, sourceFile] = context.language.files.getVirtualFile(fileName);
-					if (sourceFile?.virtualFile) {
-						for (const virtualFile of Array.from(forEachEmbeddedFile(sourceFile.virtualFile[0]))) {
-							if (virtualFile.languageId === 'markdown') {
-								const document = context.documents.get(virtualFile.fileName, virtualFile.languageId, virtualFile.snapshot);
+					const uri = context.env.typescript!.fileNameToUri(fileName);
+					const [_, sourceFile] = context.documents.getVirtualCodeByUri(uri);
+					if (sourceFile?.generated) {
+						for (const virtualCode of forEachEmbeddedCode(sourceFile.generated.code)) {
+							if (virtualCode.languageId === 'markdown') {
+								const uri = context.documents.getVirtualCodeUri(sourceFile.id, virtualCode.id);
+								const document = context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 								newVersions.set(document.uri, document);
 							}
 						}
@@ -347,13 +350,13 @@ export function create(options: CreateOptions): ServicePlugin {
 
 			function getTextDocument(uri: string, includeVirtualFile: boolean) {
 				if (includeVirtualFile) {
-					const virtualFile = context.language.files.getVirtualFile(context.env.uriToFileName(uri))[0];
-					if (virtualFile) {
-						return context.documents.get(uri, virtualFile.languageId, virtualFile.snapshot);
+					const virtualCode = context.documents.getVirtualCodeByUri(uri)[0];
+					if (virtualCode) {
+						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 					}
 				}
-				const sourceFile = context.language.files.getSourceFile(context.env.uriToFileName(uri));
-				if (sourceFile && !sourceFile.virtualFile) {
+				const sourceFile = context.language.files.get(uri);
+				if (sourceFile) {
 					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}
 			}

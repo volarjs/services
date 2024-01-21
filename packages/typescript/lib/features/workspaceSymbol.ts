@@ -25,7 +25,7 @@ function getSymbolKind(item: ts.NavigateToItem): vscode.SymbolKind {
 export function register(ctx: SharedContext) {
 	return (query: string): vscode.WorkspaceSymbol[] => {
 
-		const items = safeCall(() => ctx.typescript.languageService.getNavigateToItems(query));
+		const items = safeCall(() => ctx.languageService.getNavigateToItems(query));
 		if (!items) return [];
 
 		return items
@@ -35,7 +35,7 @@ export function register(ctx: SharedContext) {
 
 		function toWorkspaceSymbol(item: ts.NavigateToItem) {
 			const label = getLabel(item);
-			const uri = ctx.env.fileNameToUri(item.fileName);
+			const uri = ctx.fileNameToUri(item.fileName);
 			const document = ctx.getTextDocument(uri);
 			if (document) {
 				const range: vscode.Range = {

@@ -20,14 +20,14 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.env.uriToFileName(document.uri);
-		const program = ctx.typescript.languageService.getProgram();
+		const fileName = ctx.uriToFileName(document.uri);
+		const program = ctx.languageService.getProgram();
 		const sourceFile = program?.getSourceFile(fileName);
 		if (!program || !sourceFile) return [];
 
 		const token: ts.CancellationToken = {
 			isCancellationRequested() {
-				return ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
+				return ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
 			},
 			throwIfCancellationRequested() { },
 		};
@@ -35,7 +35,7 @@ export function register(ctx: SharedContext) {
 		let errors = safeCall(() => [
 			...options.semantic ? program.getSemanticDiagnostics(sourceFile, token) : [],
 			...options.syntactic ? program.getSyntacticDiagnostics(sourceFile, token) : [],
-			...options.suggestion ? ctx.typescript.languageService.getSuggestionDiagnostics(fileName) : [],
+			...options.suggestion ? ctx.languageService.getSuggestionDiagnostics(fileName) : [],
 		]) ?? [];
 
 		if (options.declaration && getEmitDeclarations(program.getCompilerOptions())) {
@@ -86,7 +86,7 @@ export function register(ctx: SharedContext) {
 
 			let document: TextDocument | undefined;
 			if (diag.file) {
-				document = ctx.getTextDocument(ctx.env.fileNameToUri(diag.file.fileName));
+				document = ctx.getTextDocument(ctx.fileNameToUri(diag.file.fileName));
 			}
 			if (!document) return;
 

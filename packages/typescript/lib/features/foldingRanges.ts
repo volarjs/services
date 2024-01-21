@@ -12,8 +12,8 @@ export function register(ctx: SharedContext) {
 		const document = ctx.getTextDocument(uri);
 		if (!document) return [];
 
-		const fileName = ctx.env.uriToFileName(document.uri);
-		const outliningSpans = safeCall(() => ctx.typescript.languageService.getOutliningSpans(fileName));
+		const fileName = ctx.uriToFileName(document.uri);
+		const outliningSpans = safeCall(() => ctx.languageService.getOutliningSpans(fileName));
 		if (!outliningSpans) return [];
 
 		const foldingRanges: vscode.FoldingRange[] = [];

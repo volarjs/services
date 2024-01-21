@@ -18,10 +18,10 @@ export function register(ctx: SharedContext) {
 		if (!isPotentiallyValidDocCompletionPosition(document, position))
 			return;
 
-		const fileName = ctx.env.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(document.uri);
 		const offset = document.offsetAt(position);
 
-		const docCommentTemplate = ctx.typescript.languageService.getDocCommentTemplateAtPosition(fileName, offset);
+		const docCommentTemplate = ctx.languageService.getDocCommentTemplateAtPosition(fileName, offset);
 		if (!docCommentTemplate)
 			return;
 
