@@ -15,11 +15,11 @@ export function register(ctx: SharedContext) {
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
-		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
+		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
 		const response2 = safeCall(() => ctx.languageService.getEncodedSyntacticClassifications(file, { start, length }));
 		if (!response2) return;
 
-		if (ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
+		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
 		const response1 = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
 		if (!response1) return;
 

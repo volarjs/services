@@ -218,11 +218,11 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				snapshot: ts.ScriptSnapshot.fromString(''),
 			};
 
-			if (!context.typescript) {
+			if (!context.language.typescript) {
 				return syntacticService;
 			}
 
-			const { sys, languageServiceHost } = context.typescript;
+			const { sys, languageServiceHost } = context.language.typescript;
 			const created = tsFaster.createLanguageService(
 				ts,
 				sys,
@@ -259,7 +259,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 						updateSourceScriptFileNames();
 					}
 					for (const change of params.changes) {
-						const fileName = context.env.typescript.uriToFileName(change.uri);
+						const fileName = context.env.typescript!.uriToFileName(change.uri);
 						if (sourceScriptNames.has(normalizeFileName(fileName))) {
 							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 						}
@@ -269,8 +269,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				function updateSourceScriptFileNames() {
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const uri = context.env.typescript.fileNameToUri(fileName);
-						const sourceFile = context.files.get(uri);
+						const uri = context.env.typescript!.fileNameToUri(fileName);
+						const sourceFile = context.language.files.get(uri);
 						if (sourceFile?.generated) {
 							const tsCode = sourceFile.generated.languagePlugin.typescript?.getScript(sourceFile.generated.code);
 							if (tsCode) {
@@ -292,15 +292,15 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				uriToFileName: uri => {
 					const [_virtualCode, file] = context.documents.getVirtualCodeByUri(uri);
 					if (file) {
-						return context.env.typescript.uriToFileName(file.id);
+						return context.env.typescript!.uriToFileName(file.id);
 					}
 					else {
-						return context.env.typescript.uriToFileName(uri);
+						return context.env.typescript!.uriToFileName(uri);
 					}
 				},
 				fileNameToUri: fileName => {
-					const uri = context.env.typescript.fileNameToUri(fileName);
-					const file = context.files.get(uri);
+					const uri = context.env.typescript!.fileNameToUri(fileName);
+					const file = context.language.files.get(uri);
 					if (file?.generated) {
 						const script = file.generated.languagePlugin.typescript?.getScript(file.generated.code);
 						if (script) {
@@ -314,7 +314,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (virtualCode) {
 						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 					}
-					const sourceFile = context.files.get(uri);
+					const sourceFile = context.language.files.get(uri);
 					if (sourceFile) {
 						return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 					}

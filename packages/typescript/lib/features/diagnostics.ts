@@ -27,7 +27,7 @@ export function register(ctx: SharedContext) {
 
 		const token: ts.CancellationToken = {
 			isCancellationRequested() {
-				return ctx.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
+				return ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
 			},
 			throwIfCancellationRequested() { },
 		};

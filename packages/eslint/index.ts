@@ -18,7 +18,7 @@ export function create(resolveConfig?: (program: ts.Program) => Linter.Config): 
 					const eslint = getEslint(languageService.getProgram()!);
 					const lintResult = await eslint.lintText(
 						document.getText(),
-						{ filePath: context.env.typescript.uriToFileName(document.uri) },
+						{ filePath: context.env.typescript!.uriToFileName(document.uri) },
 					);
 					uriToLintResult.set(document.uri, lintResult);
 					const diagnostics: Diagnostic[] = [];

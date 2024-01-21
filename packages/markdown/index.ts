@@ -146,11 +146,11 @@ export function create(options: CreateOptions): ServicePlugin {
 
 			const sync = () => {
 
-				if (!context.typescript) {
+				if (!context.language.typescript) {
 					return;
 				}
 
-				const { languageServiceHost } = context.typescript;
+				const { languageServiceHost } = context.language.typescript;
 				const newProjectVersion = languageServiceHost.getProjectVersion?.();
 				const shouldUpdate = newProjectVersion === undefined || newProjectVersion !== lastProjectVersion;
 				if (!shouldUpdate) {
@@ -162,7 +162,7 @@ export function create(options: CreateOptions): ServicePlugin {
 				const newVersions = new Map<string, TextDocument>();
 
 				for (const fileName of languageServiceHost.getScriptFileNames()) {
-					const uri = context.env.typescript.fileNameToUri(fileName);
+					const uri = context.env.typescript!.fileNameToUri(fileName);
 					const [_, sourceFile] = context.documents.getVirtualCodeByUri(uri);
 					if (sourceFile?.generated) {
 						for (const virtualCode of forEachEmbeddedCode(sourceFile.generated.code)) {
@@ -335,7 +335,7 @@ export function create(options: CreateOptions): ServicePlugin {
 						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 					}
 				}
-				const sourceFile = context.files.get(uri);
+				const sourceFile = context.language.files.get(uri);
 				if (sourceFile) {
 					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 				}
