@@ -7,7 +7,6 @@
 	"references": [
 		{ "path": "./packages/css/tsconfig.json" },
 		{ "path": "./packages/emmet/tsconfig.json" },
-		{ "path": "./packages/eslint/tsconfig.json" },
 		{ "path": "./packages/html/tsconfig.json" },
 		{ "path": "./packages/json/tsconfig.json" },
 		{ "path": "./packages/markdown/tsconfig.json" },
@@ -18,7 +17,6 @@
 		{ "path": "./packages/pug-beautify/tsconfig.json" },
 		{ "path": "./packages/sass-formatter/tsconfig.json" },
 		{ "path": "./packages/tsconfig/tsconfig.json" },
-		{ "path": "./packages/tslint/tsconfig.json" },
 		{ "path": "./packages/typescript/tsconfig.json" },
 		{ "path": "./packages/typescript-twoslash-queries/tsconfig.json" },
 		{ "path": "./packages/vetur/tsconfig.json" },
