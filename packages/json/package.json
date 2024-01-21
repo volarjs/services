@@ -31,7 +31,7 @@
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "next"
+		"@volar/language-service": "~2.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
