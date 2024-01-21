@@ -15,7 +15,7 @@ importers:
         specifier: latest
         version: 3.2.1(typescript@5.3.3)
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       typescript:
         specifier: latest
@@ -27,7 +27,7 @@ importers:
   packages/css:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       vscode-css-languageservice:
         specifier: ^6.2.10
@@ -46,7 +46,7 @@ importers:
   packages/emmet:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       '@vscode/emmet-helper':
         specifier: ^2.9.2
@@ -58,7 +58,7 @@ importers:
   packages/html:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       vscode-html-languageservice:
         specifier: ^5.1.0
@@ -77,7 +77,7 @@ importers:
   packages/json:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       vscode-json-languageservice:
         specifier: ^5.3.7
@@ -93,7 +93,7 @@ importers:
   packages/markdown:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       markdown-it:
         specifier: ^13.0.2
@@ -118,7 +118,7 @@ importers:
   packages/prettier:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       vscode-uri:
         specifier: ^3.0.8
@@ -134,7 +134,7 @@ importers:
   packages/pretty-ts-errors:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       pretty-ts-errors-lsp:
         specifier: ^0.0.3
@@ -146,13 +146,13 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
 
   packages/pug:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       pug-lexer:
         specifier: ^5.0.1
@@ -180,7 +180,7 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
     devDependencies:
       '@types/node':
@@ -190,7 +190,7 @@ importers:
   packages/sass-formatter:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       sass-formatter:
         specifier: ^0.7.8
@@ -199,7 +199,7 @@ importers:
   packages/tsconfig:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       jsonc-parser:
         specifier: ^3.2.0
@@ -218,7 +218,7 @@ importers:
   packages/typescript:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       path-browserify:
         specifier: ^1.0.1
@@ -252,7 +252,7 @@ importers:
   packages/typescript-twoslash-queries:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
     devDependencies:
       volar-service-typescript:
@@ -262,7 +262,7 @@ importers:
   packages/vetur:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       vls:
         specifier: ^0.8.5
@@ -278,7 +278,7 @@ importers:
   packages/yaml:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0
+        specifier: ~2.0.0
         version: 2.0.0
       yaml-language-server:
         specifier: 1.14.0
