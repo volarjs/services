@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.27](https://github.com/volarjs/volar.js/compare/v0.0.17...v0.0.27) (2024-01-21)
+## [0.0.27](https://github.com/volarjs/services/compare/v0.0.17...v0.0.27) (2024-01-21)
 
 ### Features
 
