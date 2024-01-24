@@ -25,7 +25,7 @@ export function create(): ServicePlugin {
 					mtime: 0,
 					size: 0,
 				},
-				readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
+				readDirectory: async (uri) => await context.env.fs?.readDirectory(uri) ?? [],
 			};
 			const documentContext: css.DocumentContext = {
 				resolveReference(ref, base) {
