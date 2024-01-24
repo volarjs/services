@@ -360,7 +360,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				async provideCompletionItems(document, position, completeContext, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
@@ -416,7 +416,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideRenameRange(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -426,7 +426,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideRenameEdits(document, position, newName, token) {
 
-					if (!isTsDocument(document) && !isJsonDocument(document))
+					if (!isSemanticDocument(document, true))
 						return;
 
 					return worker(token, () => {
@@ -436,7 +436,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideCodeActions(document, range, context, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -452,7 +452,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideInlayHints(document, range, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -462,7 +462,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideCallHierarchyItems(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -484,7 +484,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideDefinition(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -494,7 +494,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideTypeDefinition(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -504,7 +504,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				async provideDiagnostics(document, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
@@ -519,7 +519,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideSemanticDiagnostics(document, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -529,7 +529,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideHover(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -539,7 +539,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideImplementation(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -549,7 +549,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideReferences(document, position, referenceContext, token) {
 
-					if (!isTsDocument(document) && !isJsonDocument(document))
+					if (!isSemanticDocument(document, true))
 						return;
 
 					return worker(token, () => {
@@ -559,7 +559,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideFileReferences(document, token) {
 
-					if (!isTsDocument(document) && !isJsonDocument(document))
+					if (!isSemanticDocument(document, true))
 						return;
 
 					return worker(token, () => {
@@ -569,7 +569,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideDocumentHighlights(document, position, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -579,7 +579,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideDocumentSemanticTokens(document, range, legend, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -601,7 +601,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideSelectionRanges(document, positions, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -611,7 +611,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 				provideSignatureHelp(document, position, context, token) {
 
-					if (!isTsDocument(document))
+					if (!isSemanticDocument(document))
 						return;
 
 					return worker(token, () => {
@@ -619,6 +619,19 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					});
 				},
 			};
+
+			function isSemanticDocument(document: TextDocument, withJson = false) {
+				const [virtualCode, sourceFile] = context.documents.getVirtualCodeByUri(document.uri);
+				if (virtualCode) {
+					return sourceFile.generated?.languagePlugin.typescript?.getScript(sourceFile.generated.code)?.code === virtualCode;
+				}
+				else if (withJson) {
+					return isTsDocument(document) || isJsonDocument(document);
+				}
+				else {
+					return isTsDocument(document);
+				}
+			}
 
 			async function worker<T>(token: CancellationToken, callback: () => T): Promise<Awaited<T>> {
 
