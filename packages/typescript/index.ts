@@ -296,12 +296,25 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					return context.env.typescript!.uriToFileName(uri);
 				},
 				fileNameToUri(fileName) {
+
+					const uri = context.env.typescript!.fileNameToUri(fileName);
+					const sourceFile = context.language.files.get(uri);
 					const extraScript = context.language.typescript!.getExtraScript(fileName);
-					if (extraScript) {
-						const sourceFile = context.language.files.getByVirtualCode(extraScript.code);
-						return context.documents.getVirtualCodeUri(sourceFile.id, extraScript.code.id);
+
+					let virtualCode = extraScript?.code;
+
+					if (!virtualCode && sourceFile?.generated?.languagePlugin.typescript) {
+						const mainScript = sourceFile.generated.languagePlugin.typescript.getScript(sourceFile.generated.code);
+						if (mainScript) {
+							virtualCode = mainScript.code;
+						}
 					}
-					return context.env.typescript!.fileNameToUri(fileName);
+					if (virtualCode) {
+						const sourceFile = context.language.files.getByVirtualCode(virtualCode);
+						return context.documents.getVirtualCodeUri(sourceFile.id, virtualCode.id);
+					}
+
+					return uri;
 				},
 				getTextDocument(uri) {
 					const virtualCode = context.documents.getVirtualCodeByUri(uri)[0];
