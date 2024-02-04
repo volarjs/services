@@ -1,4 +1,4 @@
-import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin, VirtualCode } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -209,9 +209,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					}
 				},
 			};
-
-			let syntacticHostCtx = {
-				projectVersion: 0,
+			const syntacticHostCtx = {
+				projectVersion: -1,
 				document: undefined as TextDocument | undefined,
 				fileName: '',
 				fileVersion: 0,
@@ -289,25 +288,20 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				languageServiceHost,
 				languageService,
 				ts,
-				uriToFileName: uri => {
-					const [_virtualCode, file] = context.documents.getVirtualCodeByUri(uri);
-					if (file) {
-						return context.env.typescript!.uriToFileName(file.id);
+				uriToFileName(uri) {
+					const virtualScript = getVirtualScriptByUri(uri);
+					if (virtualScript) {
+						return virtualScript.fileName;
 					}
-					else {
-						return context.env.typescript!.uriToFileName(uri);
-					}
+					return context.env.typescript!.uriToFileName(uri);
 				},
-				fileNameToUri: fileName => {
-					const uri = context.env.typescript!.fileNameToUri(fileName);
-					const file = context.language.files.get(uri);
-					if (file?.generated) {
-						const script = file.generated.languagePlugin.typescript?.getScript(file.generated.code);
-						if (script) {
-							return context.documents.getVirtualCodeUri(uri, script.code.id);
-						}
+				fileNameToUri(fileName) {
+					const extraScript = context.language.typescript!.getExtraScript(fileName);
+					if (extraScript) {
+						const sourceFile = context.language.files.getByVirtualCode(extraScript.code);
+						return context.documents.getVirtualCodeUri(sourceFile.id, extraScript.code.id);
 					}
-					return uri;
+					return context.env.typescript!.fileNameToUri(fileName);
 				},
 				getTextDocument(uri) {
 					const virtualCode = context.documents.getVirtualCodeByUri(uri)[0];
@@ -621,15 +615,35 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 			};
 
 			function isSemanticDocument(document: TextDocument, withJson = false) {
-				const [virtualCode, sourceFile] = context.documents.getVirtualCodeByUri(document.uri);
-				if (virtualCode) {
-					return sourceFile.generated?.languagePlugin.typescript?.getScript(sourceFile.generated.code)?.code === virtualCode;
+				const virtualScript = getVirtualScriptByUri(document.uri);
+				if (virtualScript) {
+					return true;
 				}
-				else if (withJson) {
-					return isTsDocument(document) || isJsonDocument(document);
+				if (withJson && isJsonDocument(document)) {
+					return true;
 				}
-				else {
-					return isTsDocument(document);
+				return isTsDocument(document);
+			}
+
+			function getVirtualScriptByUri(uri: string): {
+				fileName: string;
+				code: VirtualCode;
+			} | undefined {
+				const [virtualCode, sourceFile] = context.documents.getVirtualCodeByUri(uri);
+				if (virtualCode && sourceFile.generated?.languagePlugin.typescript) {
+					const { getScript, getExtraScripts } = sourceFile.generated?.languagePlugin.typescript;
+					const sourceFileName = context.env.typescript!.uriToFileName(sourceFile.id);
+					if (getScript(sourceFile.generated.code)?.code === virtualCode) {
+						return {
+							fileName: sourceFileName,
+							code: virtualCode,
+						};
+					}
+					for (const extraScript of getExtraScripts?.(sourceFileName, sourceFile.generated.code) ?? []) {
+						if (extraScript.code === virtualCode) {
+							return extraScript;
+						}
+					}
 				}
 			}
 
