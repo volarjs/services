@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.28](https://github.com/volarjs/services/compare/v0.0.27...v0.0.28) (2024-02-05)
+
+### Features
+
+- **typescript:** support for extra scripts [#74](https://github.com/volarjs/services/issues/74)
+
+### Bug Fixes
+
+- **typescript:** only process `getScript()` result in semantic features [#73](https://github.com/volarjs/services/issues/73)
+
 ## [0.0.27](https://github.com/volarjs/services/compare/v0.0.17...v0.0.27) (2024-01-21)
 
 ### Features
