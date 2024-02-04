@@ -15,8 +15,8 @@ importers:
         specifier: latest
         version: 3.2.1(typescript@5.3.3)
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       typescript:
         specifier: latest
         version: 5.3.3
@@ -27,8 +27,8 @@ importers:
   packages/css:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       vscode-css-languageservice:
         specifier: ^6.2.10
         version: 6.2.11
@@ -46,8 +46,8 @@ importers:
   packages/emmet:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       '@vscode/emmet-helper':
         specifier: ^2.9.2
         version: 2.9.2
@@ -58,8 +58,8 @@ importers:
   packages/html:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       vscode-html-languageservice:
         specifier: ^5.1.0
         version: 5.1.1
@@ -77,8 +77,8 @@ importers:
   packages/json:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       vscode-json-languageservice:
         specifier: ^5.3.7
         version: 5.3.7
@@ -93,8 +93,8 @@ importers:
   packages/markdown:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       markdown-it:
         specifier: ^13.0.2
         version: 13.0.2
@@ -118,8 +118,8 @@ importers:
   packages/prettier:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       vscode-uri:
         specifier: ^3.0.8
         version: 3.0.8
@@ -134,8 +134,8 @@ importers:
   packages/pretty-ts-errors:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       pretty-ts-errors-lsp:
         specifier: ^0.0.3
         version: 0.0.3
@@ -146,14 +146,14 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
 
   packages/pug:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       pug-lexer:
         specifier: ^5.0.1
         version: 5.0.1
@@ -180,8 +180,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
     devDependencies:
       '@types/node':
         specifier: latest
@@ -190,8 +190,8 @@ importers:
   packages/sass-formatter:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       sass-formatter:
         specifier: ^0.7.8
         version: 0.7.8
@@ -199,8 +199,8 @@ importers:
   packages/tsconfig:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       jsonc-parser:
         specifier: ^3.2.0
         version: 3.2.0
@@ -218,8 +218,8 @@ importers:
   packages/typescript:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -252,8 +252,8 @@ importers:
   packages/typescript-twoslash-queries:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
     devDependencies:
       volar-service-typescript:
         specifier: 0.0.27
@@ -262,8 +262,8 @@ importers:
   packages/vetur:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       vls:
         specifier: ^0.8.5
         version: 0.8.5
@@ -278,8 +278,8 @@ importers:
   packages/yaml:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.0.0
-        version: 2.0.0
+        specifier: ~2.0.1
+        version: 2.0.1
       yaml-language-server:
         specifier: 1.14.0
         version: 1.14.0
@@ -1160,15 +1160,15 @@ packages:
       '@volar/source-map': 1.11.1
     dev: true
 
-  /@volar/language-core@2.0.0:
-    resolution: {integrity: sha512-1L9GB7CwI4LKKwpKOxFSICJ54GdWGwjIUkI7UwAjJpnFIFm8+xteSf86nsEknFh0k7MHScm+Xb0x8eEx/8Qdrg==}
+  /@volar/language-core@2.0.1:
+    resolution: {integrity: sha512-k979vTFcACHGAmiMVZJpHP0Er3ULVhR2bjGEy5CYKXKd4stx4VHT/sRWEsc5v/pBBrfTVm18wziSjWEQC4v+dw==}
     dependencies:
-      '@volar/source-map': 2.0.0
+      '@volar/source-map': 2.0.1
 
-  /@volar/language-service@2.0.0:
-    resolution: {integrity: sha512-aWalwQ54DAEvJ9dfEyJN/pr6ID5GWL7dBR46CMx6fr9JK/m9NkXaK7qJRcxKXaaSTYtlWA342dEhYESLB2dAYw==}
+  /@volar/language-service@2.0.1:
+    resolution: {integrity: sha512-M8MyDXojSJ13KaSmFVSyRTC8rbyRgI/vAtuw8meTeU+mPsqg7z+QTSvbqx4VfLHrBvo1uzeT11PZt5QGTmL2Mg==}
     dependencies:
-      '@volar/language-core': 2.0.0
+      '@volar/language-core': 2.0.1
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.8
@@ -1179,8 +1179,8 @@ packages:
       muggle-string: 0.3.1
     dev: true
 
-  /@volar/source-map@2.0.0:
-    resolution: {integrity: sha512-WZO1hZPqMGyCmWs9j4ZV090D7jfMjQUwALuz5CCbrMVSCGlvYxv5jhw0M5G39thJmiNV/ttgdgiavzvtOMe5/w==}
+  /@volar/source-map@2.0.1:
+    resolution: {integrity: sha512-irMc9kI3xLlc50nwdz+o+rHAncPpDXL2pn21e1qMG3mijxuLAZYOFSx6B6f0VDnTKvExXJ8pN85NBxWm3ksPgQ==}
     dependencies:
       muggle-string: 0.4.1
 
