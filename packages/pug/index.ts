@@ -107,8 +107,8 @@ export function create(): ServicePlugin {
 					return worker(document, async (pugDocument) => {
 
 						const lastCharacter = lastChange.text[lastChange.text.length - 1];
-						const rangeLengthIsZero = lastChange.range.start.line && lastChange.range.end.line
-							&& lastChange.range.start.character && lastChange.range.end.character;
+						const rangeLengthIsZero = lastChange.range.start.line === lastChange.range.end.line
+							&& lastChange.range.start.character === lastChange.range.end.character;
 
 						if (rangeLengthIsZero && lastCharacter === '=') {
 
