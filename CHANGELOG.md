@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.29](https://github.com/volarjs/services/compare/v0.0.28...v0.0.29) (2024-02-10)
+
+### Bug Fixes
+
+- **html:** `autoClosingTags` not working at first line
+
 ## [0.0.28](https://github.com/volarjs/services/compare/v0.0.27...v0.0.28) (2024-02-05)
 
 ### Features
