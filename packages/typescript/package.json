@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-typescript",
-	"version": "0.0.28",
+	"version": "0.0.29",
 	"description": "Integrate TypeScript into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/typescript",
 	"bugs": "https://github.com/volarjs/services/issues",

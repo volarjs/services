@@ -52,7 +52,7 @@ importers:
         specifier: ^2.9.2
         version: 2.9.2
       volar-service-html:
-        specifier: 0.0.28
+        specifier: 0.0.29
         version: link:../html
 
   packages/html:
@@ -161,7 +161,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       volar-service-html:
-        specifier: 0.0.28
+        specifier: 0.0.29
         version: link:../html
       vscode-html-languageservice:
         specifier: ^5.1.0
@@ -256,7 +256,7 @@ importers:
         version: 2.0.1
     devDependencies:
       volar-service-typescript:
-        specifier: 0.0.28
+        specifier: 0.0.29
         version: link:../typescript
 
   packages/vetur:
