@@ -524,10 +524,15 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					});
 				},
 
-				provideSemanticDiagnostics(document, token) {
+				async provideSemanticDiagnostics(document, token) {
 
 					if (!isSemanticDocument(document))
 						return;
+
+					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
+					if (!enable) {
+						return;
+					}
 
 					return worker(token, () => {
 						return doValidation(document.uri, { semantic: true, declaration: true });
