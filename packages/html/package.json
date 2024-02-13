@@ -32,7 +32,7 @@
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.0.1"
+		"@volar/language-service": "~2.0.4"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
