@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-emmet",
-	"version": "0.0.29",
+	"version": "0.0.30",
 	"description": "Integrate @vscode/emmet-helper into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/emmet",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -25,7 +25,7 @@
 	},
 	"dependencies": {
 		"@vscode/emmet-helper": "^2.9.2",
-		"volar-service-html": "0.0.29"
+		"volar-service-html": "0.0.30"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "~2.0.1"
