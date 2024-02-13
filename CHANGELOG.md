@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.30](https://github.com/volarjs/services/compare/v0.0.29...v0.0.30) (2024-02-13)
+
+### Bug Fixes
+
+- **typescript:** `validate.enable` config not working for semantic check
+
 ## [0.0.29](https://github.com/volarjs/services/compare/v0.0.28...v0.0.29) (2024-02-10)
 
 ### Bug Fixes
