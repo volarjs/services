@@ -5,11 +5,13 @@
 		"build": "tsc -b",
 		"watch": "tsc -b -w",
 		"prerelease": "npm run build",
-		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock --dist-tag volar-2.0",
+		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
+		"postrelease": "lerna exec --no-bail --no-private --no-sort --stream -- '[ -n \"$(npm v . dist-tags.latest)\" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.latest) volar-2.0'",
 		"release:next": "npm run release -- --dist-tag next"
 	},
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
+		"@lerna-lite/exec": "latest",
 		"@lerna-lite/publish": "latest",
 		"@volar/language-service": "~2.0.1",
 		"typescript": "latest",
