@@ -32,7 +32,7 @@ export function create(): ServicePlugin {
 
 				provideCompletionItems(document, position, _) {
 					return worker(document, (pugDocument) => {
-						return pugLs.doComplete(pugDocument, position, htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */);
+						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */);
 					});
 				},
 

@@ -1,7 +1,7 @@
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
-import { transformCompletionList } from '@volar/language-service';
+import { ServiceContext, transformCompletionList } from '@volar/language-service';
 
 export function register(htmlLs: html.LanguageService) {
 
@@ -9,7 +9,13 @@ export function register(htmlLs: html.LanguageService) {
 	const htmlDocForEmptyLineCompletion = htmlLs.parseHTMLDocument(docForEmptyLineCompletion);
 	const posForEmptyLine = docForEmptyLineCompletion.positionAt(1);
 
-	return async (pugDoc: PugDocument, pos: html.Position, documentContext: html.DocumentContext | undefined, options?: html.CompletionConfiguration | undefined) => {
+	return async (
+		pugDoc: PugDocument,
+		pos: html.Position,
+		serviceContext: ServiceContext,
+		documentContext: html.DocumentContext | undefined,
+		options?: html.CompletionConfiguration | undefined
+	) => {
 
 		const offset = pugDoc.pugTextDocument.offsetAt(pos);
 
@@ -44,6 +50,11 @@ export function register(htmlLs: html.LanguageService) {
 			options,
 		);
 
-		return transformCompletionList(htmlComplete, htmlRange => pugDoc.map.getSourceRange(htmlRange), pugDoc.map.virtualFileDocument);
+		return transformCompletionList(
+			htmlComplete,
+			htmlRange => pugDoc.map.getSourceRange(htmlRange),
+			pugDoc.map.virtualFileDocument,
+			serviceContext,
+		);
 	};
 }
