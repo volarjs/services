@@ -63,7 +63,11 @@ export function create({
 						return ref;
 					}
 					if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-						return base + ref;
+						let folderUri = context.env.workspaceFolder;
+						if (!folderUri.endsWith('/')) {
+							folderUri += '/';
+						}
+						return folderUri + ref.substr(1);
 					}
 					const baseUri = URI.parse(base);
 					const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
