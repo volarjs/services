@@ -169,8 +169,8 @@ export function create(): ServicePlugin {
 				},
 
 				provideFoldingRanges(document) {
-					return worker(document, (stylesheet, cssLs) => {
-						return cssLs.getFoldingRanges(document, stylesheet);
+					return worker(document, (_stylesheet, cssLs) => {
+						return cssLs.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange);
 					});
 				},
 

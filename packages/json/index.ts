@@ -109,7 +109,7 @@ export function create(settings?: json.LanguageSettings): ServicePlugin {
 
 				provideFoldingRanges(document) {
 					return worker(document, async () => {
-						return await jsonLs.getFoldingRanges(document);
+						return await jsonLs.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange);
 					});
 				},
 

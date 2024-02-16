@@ -150,7 +150,7 @@ export function create({
 
 				provideFoldingRanges(document) {
 					return worker(document, () => {
-						return htmlLs.getFoldingRanges(document);
+						return htmlLs.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange);
 					});
 				},
 

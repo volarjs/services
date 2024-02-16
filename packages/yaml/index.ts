@@ -108,7 +108,7 @@ export function create(settings?: LanguageSettings): ServicePlugin {
 
 				provideFoldingRanges(document) {
 					if (isYaml(document)) {
-						return ls.getFoldingRanges(document, {});
+						return ls.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange ?? {});
 					}
 				},
 
