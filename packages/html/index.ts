@@ -56,24 +56,7 @@ export function create({
 				},
 				readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
 			};
-			const documentContext: html.DocumentContext = {
-				resolveReference(ref, base) {
-					if (ref.match(/^\w[\w\d+.-]*:/)) {
-						// starts with a schema
-						return ref;
-					}
-					if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-						let folderUri = context.env.workspaceFolder;
-						if (!folderUri.endsWith('/')) {
-							folderUri += '/';
-						}
-						return folderUri + ref.substr(1);
-					}
-					const baseUri = URI.parse(base);
-					const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
-					return Utils.resolvePath(baseUriDir, ref).toString(true);
-				},
-			};
+			const documentContext = getDocumentContext(context.env.workspaceFolder);
 			const htmlLs = html.getLanguageService({
 				fileSystemProvider,
 				clientCapabilities: context.env.clientCapabilities,
@@ -342,6 +325,28 @@ export function create({
 			}
 		},
 	};
+}
+
+export function getDocumentContext(workspaceFolder: string) {
+	const documentContext: html.DocumentContext = {
+		resolveReference(ref, base) {
+			if (ref.match(/^\w[\w\d+.-]*:/)) {
+				// starts with a schema
+				return ref;
+			}
+			if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+				let folderUri = workspaceFolder;
+				if (!folderUri.endsWith('/')) {
+					folderUri += '/';
+				}
+				return folderUri + ref.substr(1);
+			}
+			const baseUri = URI.parse(base);
+			const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+			return Utils.resolvePath(baseUriDir, ref).toString(true);
+		},
+	};
+	return documentContext;
 }
 
 function isEOL(content: string, offset: number) {
