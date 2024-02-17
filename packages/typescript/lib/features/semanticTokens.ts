@@ -16,12 +16,8 @@ export function register(ctx: SharedContext) {
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
 		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		const response2 = safeCall(() => ctx.languageService.getEncodedSyntacticClassifications(file, { start, length }));
-		if (!response2) return;
-
-		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		const response1 = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
-		if (!response1) return;
+		const response = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
+		if (!response) return;
 
 		let tokenModifiersTable: number[] = [];
 		tokenModifiersTable[TokenModifier.async] = 1 << legend.tokenModifiers.indexOf('async');
@@ -32,7 +28,7 @@ export function register(ctx: SharedContext) {
 		tokenModifiersTable[TokenModifier.defaultLibrary] = 1 << legend.tokenModifiers.indexOf('defaultLibrary');
 		tokenModifiersTable = tokenModifiersTable.map(mod => Math.max(mod, 0));
 
-		const tokenSpan = [...response1.spans, ...response2.spans];
+		const tokenSpan = response.spans;
 		const tokens: [number, number, number, number, number][] = [];
 		let i = 0;
 		while (i < tokenSpan.length) {
@@ -40,28 +36,21 @@ export function register(ctx: SharedContext) {
 			const length = tokenSpan[i++];
 			const tsClassification = tokenSpan[i++];
 
-			let tokenModifiers = 0;
-			let tokenType = getTokenTypeFromClassification(tsClassification);
-			if (tokenType !== undefined) {
-				// it's a classification as returned by the typescript-vscode-sh-plugin
-				tokenModifiers = getTokenModifierFromClassification(tsClassification);
-			} else {
-				// typescript-vscode-sh-plugin is not present
-				tokenType = tokenTypeMap[tsClassification];
-				if (tokenType === undefined) {
-					continue;
-				}
+			const tokenType = getTokenTypeFromClassification(tsClassification);
+			if (tokenType === undefined) {
+				continue;
 			}
 
+			const tokenModifiers = getTokenModifierFromClassification(tsClassification);
+
+			// we can use the document's range conversion methods because the result is at the same version as the document
+			const startPos = document.positionAt(offset);
+			const endPos = document.positionAt(offset + length);
 			const serverToken = tsTokenTypeToServerTokenType(tokenType);
 			if (serverToken === undefined) {
 				continue;
 			}
-
 			const serverTokenModifiers = tsTokenModifierToServerTokenModifier(tokenModifiers);
-			// we can use the document's range conversion methods because the result is at the same version as the document
-			const startPos = document.positionAt(offset);
-			const endPos = document.positionAt(offset + length);
 
 			for (let line = startPos.line; line <= endPos.line; line++) {
 				const startCharacter = (line === startPos.line ? startPos.character : 0);
