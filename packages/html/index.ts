@@ -146,31 +146,37 @@ export function create({
 				async provideDocumentFormattingEdits(document, formatRange, options) {
 					return worker(document, async () => {
 
-						const options_2 = await context.env.getConfiguration?.<html.HTMLFormatConfiguration & { enable: boolean; }>('html.format');
-						if (options_2?.enable === false) {
+						const formatSettings = await context.env.getConfiguration?.<html.HTMLFormatConfiguration & { enable?: boolean; }>('html.format') ?? {};
+						if (formatSettings.enable === false) {
 							return;
 						}
 
-						{ // https://github.com/microsoft/vscode/blob/dce493cb6e36346ef2714e82c42ce14fc461b15c/extensions/html-language-features/server/src/modes/formatting.ts#L13-L23
-							const endPos = formatRange.end;
-							let endOffset = document.offsetAt(endPos);
-							const content = document.getText();
-							if (endPos.character === 0 && endPos.line > 0 && endOffset !== content.length) {
-								// if selection ends after a new line, exclude that new line
-								const prevLineStart = document.offsetAt({ line: endPos.line - 1, character: 0 });
-								while (isEOL(content, endOffset - 1) && endOffset > prevLineStart) {
-									endOffset--;
-								}
-								formatRange = {
-									start: formatRange.start,
-									end: document.positionAt(endOffset),
-								};
+						// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
+						if (formatSettings.contentUnformatted) {
+							formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
+						} else {
+							formatSettings.contentUnformatted = 'script';
+						}
+
+						// https://github.com/microsoft/vscode/blob/dce493cb6e36346ef2714e82c42ce14fc461b15c/extensions/html-language-features/server/src/modes/formatting.ts#L13-L23
+						const endPos = formatRange.end;
+						let endOffset = document.offsetAt(endPos);
+						const content = document.getText();
+						if (endPos.character === 0 && endPos.line > 0 && endOffset !== content.length) {
+							// if selection ends after a new line, exclude that new line
+							const prevLineStart = document.offsetAt({ line: endPos.line - 1, character: 0 });
+							while (isEOL(content, endOffset - 1) && endOffset > prevLineStart) {
+								endOffset--;
 							}
+							formatRange = {
+								start: formatRange.start,
+								end: document.positionAt(endOffset),
+							};
 						}
 
 						return htmlLs.format(document, formatRange, {
-							...options_2,
 							...options,
+							...formatSettings,
 						});
 					});
 				},
