@@ -9,16 +9,12 @@ export async function getFormatCodeSettings(
 	document: TextDocument,
 	options?: FormattingOptions,
 ): Promise<ts.FormatCodeSettings> {
-
-	let config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document) + '.format');
-
-	config = config ?? {};
-
+	const config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document) + '.format') ?? {};
 	return {
 		convertTabsToSpaces: options?.insertSpaces,
 		tabSize: options?.tabSize,
 		indentSize: options?.tabSize,
-		indentStyle: 2 /** ts.IndentStyle.Smart */,
+		indentStyle: 2 satisfies ts.IndentStyle.Smart,
 		newLineCharacter: '\n',
 		insertSpaceAfterCommaDelimiter: config.insertSpaceAfterCommaDelimiter ?? true,
 		insertSpaceAfterConstructor: config.insertSpaceAfterConstructor ?? false,

@@ -3,7 +3,6 @@ import * as semver from 'semver';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle, isJsonDocument, isTsDocument } from './lib/shared';
-import { URI } from 'vscode-uri';
 
 import { getDocumentRegistry } from '@volar/typescript';
 import * as tsFaster from 'typescript-auto-import-cache';
@@ -68,7 +67,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 				getScriptVersion: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.fileVersion.toString() : '',
 				getScriptSnapshot: fileName => fileName === syntacticHostCtx.fileName ? syntacticHostCtx.snapshot : undefined,
 				getCompilationSettings: () => ({}),
-				getCurrentDirectory: () => '/',
+				getCurrentDirectory: () => '',
 				getDefaultLibFileName: () => '',
 				readFile: () => undefined,
 				fileExists: fileName => fileName === syntacticHostCtx.fileName,
@@ -148,7 +147,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					return findDocumentSymbols(document.uri);
 				},
 
-				async provideDocumentFormattingEdits(document, range, options_2) {
+				async provideDocumentFormattingEdits(document, range, options, codeOptions) {
 
 					if (!isTsDocument(document))
 						return;
@@ -160,10 +159,10 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 					prepareSyntacticService(document);
 
-					return await doFormatting.onRange(document, range, options_2);
+					return await doFormatting.onRange(document, range, options, codeOptions);
 				},
 
-				async provideOnTypeFormattingEdits(document, position, key, options_2) {
+				async provideOnTypeFormattingEdits(document, position, key, options, codeOptions) {
 
 					if (!isTsDocument(document))
 						return;
@@ -175,43 +174,13 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 
 					prepareSyntacticService(document);
 
-					return doFormatting.onType(document, options_2, position, key);
-				},
-
-				provideFormattingIndentSensitiveLines(document) {
-
-					if (!isTsDocument(document))
-						return;
-
-					const ctx = prepareSyntacticService(document);
-					const sourceFile = ts.createSourceFile(ctx.fileName, document.getText(), ts.ScriptTarget.ESNext);
-
-					if (sourceFile) {
-
-						const lines: number[] = [];
-
-						sourceFile.forEachChild(function walk(node) {
-							if (
-								node.kind === ts.SyntaxKind.FirstTemplateToken
-								|| node.kind === ts.SyntaxKind.LastTemplateToken
-								|| node.kind === ts.SyntaxKind.TemplateHead
-							) {
-								const startLine = document.positionAt(node.getStart(sourceFile)).line;
-								const endLine = document.positionAt(node.getEnd()).line;
-								for (let i = startLine + 1; i <= endLine; i++) {
-									lines.push(i);
-								}
-							}
-							node.forEachChild(walk);
-						});
-
-						return lines;
-					}
+					return doFormatting.onType(document, options, codeOptions, position, key);
 				},
 			};
 			const syntacticHostCtx = {
 				projectVersion: -1,
 				document: undefined as TextDocument | undefined,
+				documentVersion: undefined as number | undefined,
 				fileName: '',
 				fileVersion: 0,
 				snapshot: ts.ScriptSnapshot.fromString(''),
@@ -681,10 +650,14 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 			}
 
 			function prepareSyntacticService(document: TextDocument) {
-				if (syntacticHostCtx.document !== document || syntacticHostCtx.fileVersion !== document.version) {
+				if (syntacticHostCtx.document !== document || syntacticHostCtx.documentVersion !== document.version) {
 					syntacticHostCtx.document = document;
-					syntacticHostCtx.fileName = URI.parse(document.uri).fsPath.replace(/\\/g, '/');
-					syntacticHostCtx.fileVersion = document.version;
+					syntacticHostCtx.fileName = '/tmp.' +
+						document.languageId === 'javascript' ? 'js' :
+						document.languageId === 'typescriptreact' ? 'tsx' :
+							document.languageId === 'javascriptreact' ? 'jsx' :
+								'ts';
+					syntacticHostCtx.fileVersion++;
 					syntacticHostCtx.snapshot = ts.ScriptSnapshot.fromString(document.getText());
 					syntacticHostCtx.projectVersion++;
 				}
