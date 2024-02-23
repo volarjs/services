@@ -10,7 +10,7 @@ export function register(htmlLs: html.LanguageService) {
 			return;
 
 		const htmlResult = htmlLs.findDocumentHighlights(
-			pugDoc.map.virtualFileDocument,
+			pugDoc.map.embeddedDocument,
 			htmlPos,
 			pugDoc.htmlDocument,
 		);
