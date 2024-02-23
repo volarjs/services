@@ -53,7 +53,7 @@ export function register(htmlLs: html.LanguageService) {
 		return transformCompletionList(
 			htmlComplete,
 			htmlRange => pugDoc.map.getSourceRange(htmlRange),
-			pugDoc.map.virtualFileDocument,
+			pugDoc.map.embeddedDocument,
 			serviceContext,
 		);
 	};

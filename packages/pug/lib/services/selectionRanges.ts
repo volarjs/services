@@ -10,7 +10,7 @@ export function register(htmlLs: html.LanguageService) {
 			.filter((v): v is NonNullable<typeof v> => !!v);
 
 		const htmlResult = htmlLs.getSelectionRanges(
-			pugDoc.map.virtualFileDocument,
+			pugDoc.map.embeddedDocument,
 			htmlPosArr,
 		);
 

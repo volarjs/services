@@ -6,7 +6,7 @@ export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, docContext: html.DocumentContext) => {
 
 		const htmlResult = htmlLs.findDocumentLinks(
-			pugDoc.map.virtualFileDocument,
+			pugDoc.map.embeddedDocument,
 			docContext,
 		);
 

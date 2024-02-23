@@ -81,7 +81,7 @@ export function create(): ServicePlugin {
 				provideDocumentSymbols(document, token) {
 					return worker(document, async (pugDoc) => {
 
-						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.virtualFileDocument, token) ?? [];
+						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.embeddedDocument, token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
 							htmlSymbol,
 							range => pugDoc.map.getSourceRange(range),
