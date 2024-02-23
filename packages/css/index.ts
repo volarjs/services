@@ -1,6 +1,6 @@
 import type { CodeAction, Diagnostic, LocationLink, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 
 export interface Provide {
@@ -180,18 +180,103 @@ export function create(): ServicePlugin {
 					});
 				},
 
-				async provideDocumentFormattingEdits(document, formatRange, options) {
+				async provideDocumentFormattingEdits(document, formatRange, options, codeOptions) {
 					return worker(document, async (_stylesheet, cssLs) => {
 
-						const options_2 = await context.env.getConfiguration?.<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');
-						if (options_2?.enable === false) {
+						const formatSettings = await context.env.getConfiguration?.<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');
+						if (formatSettings?.enable === false) {
 							return;
 						}
 
-						return cssLs.format(document, formatRange, {
-							...options_2,
+						const formatOptions: css.CSSFormatConfiguration = {
 							...options,
-						});
+							...formatSettings,
+						};
+
+						let formatDocument = document;
+						let prefixes = [];
+						let suffixes = [];
+
+						if (codeOptions?.initialIndentLevel) {
+							for (let i = 0; i < codeOptions.initialIndentLevel; i++) {
+								if (i === codeOptions.initialIndentLevel - 1) {
+									prefixes.push('_', '{');
+									suffixes.unshift('}');
+								}
+								else {
+									prefixes.push('_', '{\n');
+									suffixes.unshift('\n}');
+								}
+							}
+							formatDocument = TextDocument.create(document.uri, document.languageId, document.version, prefixes.join('') + document.getText() + suffixes.join(''));
+							formatRange = {
+								start: formatDocument.positionAt(0),
+								end: formatDocument.positionAt(formatDocument.getText().length),
+							};
+						}
+
+						let edits = cssLs.format(formatDocument, formatRange, formatOptions);
+
+						if (codeOptions) {
+							let newText = TextDocument.applyEdits(formatDocument, edits);
+							for (const prefix of prefixes) {
+								newText = newText.trimStart().slice(prefix.trim().length);
+							}
+							for (const suffix of suffixes.reverse()) {
+								newText = newText.trimEnd().slice(0, -suffix.trim().length);
+							}
+							if (!codeOptions.initialIndentLevel && codeOptions.level > 0) {
+								newText = ensureNewLines(newText);
+							}
+							edits = [{
+								range: {
+									start: document.positionAt(0),
+									end: document.positionAt(document.getText().length),
+								},
+								newText,
+							}];
+						}
+
+						return edits;
+
+						function ensureNewLines(newText: string) {
+							const verifyDocument = TextDocument.create(document.uri, document.languageId, document.version, '_ {' + newText + '}');
+							const verifyEdits = cssLs.format(verifyDocument, undefined, formatOptions);
+							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
+							verifyText = verifyText.trimStart().slice('_'.length);
+							verifyText = verifyText.trim().slice('{'.length, -'}'.length);
+							if (startWithNewLine(verifyText) !== startWithNewLine(newText)) {
+								if (startWithNewLine(verifyText)) {
+									newText = '\n' + newText;
+								}
+								else if (newText.startsWith('\n')) {
+									newText = newText.slice(1);
+								}
+								else if (newText.startsWith('\r\n')) {
+									newText = newText.slice(2);
+								}
+							}
+							if (endWithNewLine(verifyText) !== endWithNewLine(newText)) {
+								if (endWithNewLine(verifyText)) {
+									newText = newText + '\n';
+								}
+								else if (newText.endsWith('\n')) {
+									newText = newText.slice(0, -1);
+								}
+								else if (newText.endsWith('\r\n')) {
+									newText = newText.slice(0, -2);
+								}
+							}
+							return newText;
+						}
+
+						function startWithNewLine(text: string) {
+							return text.startsWith('\n') || text.startsWith('\r\n');
+						}
+
+						function endWithNewLine(text: string) {
+							return text.endsWith('\n') || text.endsWith('\r\n');
+						}
 					});
 				},
 			};

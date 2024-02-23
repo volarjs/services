@@ -1,6 +1,6 @@
 import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 
 const parserLs = html.getLanguageService();
@@ -143,7 +143,7 @@ export function create({
 					});
 				},
 
-				async provideDocumentFormattingEdits(document, formatRange, options) {
+				async provideDocumentFormattingEdits(document, formatRange, options, codeOptions) {
 					return worker(document, async () => {
 
 						const formatSettings = await context.env.getConfiguration?.<html.HTMLFormatConfiguration & { enable?: boolean; }>('html.format') ?? {};
@@ -174,62 +174,95 @@ export function create({
 							};
 						}
 
-						return htmlLs.format(document, formatRange, {
+						const formatOptions: html.HTMLFormatConfiguration = {
 							...options,
 							...formatSettings,
-						});
-					});
-				},
+							endWithNewline: options.insertFinalNewline ? true : options.trimFinalNewlines ? false : undefined,
+						};
 
-				provideFormattingIndentSensitiveLines(document) {
-					return worker(document, (htmlDocument) => {
-						const lines: number[] = [];
-						/**
-						 * comments
-						 */
-						const scanner = htmlLs.createScanner(document.getText());
-						let token = scanner.scan();
-						let startCommentTagLine: number | undefined;
-						while (token !== html.TokenType.EOS) {
-							if (token === html.TokenType.StartCommentTag) {
-								startCommentTagLine = document.positionAt(scanner.getTokenOffset()).line;
-							}
-							else if (token === html.TokenType.EndCommentTag) {
-								const line = document.positionAt(scanner.getTokenOffset()).line;
-								for (let i = startCommentTagLine! + 1; i <= line; i++) {
-									lines.push(i);
+						let formatDocument = document;
+						let prefixes = [];
+						let suffixes = [];
+
+						if (codeOptions?.initialIndentLevel) {
+							for (let i = 0; i < codeOptions.initialIndentLevel; i++) {
+								if (i === codeOptions.initialIndentLevel - 1) {
+									prefixes.push('<template>');
+									suffixes.unshift('</template>');
 								}
-								startCommentTagLine = undefined;
-							}
-							else if (token === html.TokenType.AttributeValue) {
-								const startLine = document.positionAt(scanner.getTokenOffset()).line;
-								for (let i = 1; i < scanner.getTokenText().split('\n').length; i++) {
-									lines.push(startLine + i);
+								else {
+									prefixes.push('<template>\n');
+									suffixes.unshift('\n</template>');
 								}
 							}
-							token = scanner.scan();
+							formatDocument = TextDocument.create(document.uri, document.languageId, document.version, prefixes.join('') + document.getText() + suffixes.join(''));
+							formatRange = {
+								start: formatDocument.positionAt(0),
+								end: formatDocument.positionAt(formatDocument.getText().length),
+							};
 						}
-						/**
-						 * tags
-						 */
-						// https://github.com/beautify-web/js-beautify/blob/686f8c1b265990908ece86ce39291733c75c997c/js/src/html/options.js#L81
-						const indentSensitiveTags = new Set(['pre', 'textarea']);
-						htmlDocument.roots.forEach(function visit(node) {
-							if (
-								node.tag !== undefined
-								&& node.startTagEnd !== undefined
-								&& node.endTagStart !== undefined
-								&& indentSensitiveTags.has(node.tag)
-							) {
-								for (let i = document.positionAt(node.startTagEnd).line + 1; i <= document.positionAt(node.endTagStart).line; i++) {
-									lines.push(i);
+
+						let edits = htmlLs.format(formatDocument, formatRange, formatOptions);
+
+						if (codeOptions) {
+							let newText = TextDocument.applyEdits(formatDocument, edits);
+							for (const prefix of prefixes) {
+								newText = newText.trimStart().slice(prefix.trim().length);
+							}
+							for (const suffix of suffixes.reverse()) {
+								newText = newText.trimEnd().slice(0, -suffix.trim().length);
+							}
+							if (!codeOptions.initialIndentLevel && codeOptions.level > 0) {
+								newText = ensureNewLines(newText);
+							}
+							edits = [{
+								range: {
+									start: document.positionAt(0),
+									end: document.positionAt(document.getText().length),
+								},
+								newText,
+							}];
+						}
+
+						return edits;
+
+						function ensureNewLines(newText: string) {
+							const verifyDocument = TextDocument.create(document.uri, document.languageId, document.version, '<template>' + newText + '</template>');
+							const verifyEdits = htmlLs.format(verifyDocument, undefined, formatOptions);
+							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
+							verifyText = verifyText.trim().slice('<template>'.length, -'</template>'.length);
+							if (startWithNewLine(verifyText) !== startWithNewLine(newText)) {
+								if (startWithNewLine(verifyText)) {
+									newText = '\n' + newText;
+								}
+								else if (newText.startsWith('\n')) {
+									newText = newText.slice(1);
+								}
+								else if (newText.startsWith('\r\n')) {
+									newText = newText.slice(2);
 								}
 							}
-							else {
-								node.children.forEach(visit);
+							if (endWithNewLine(verifyText) !== endWithNewLine(newText)) {
+								if (endWithNewLine(verifyText)) {
+									newText = newText + '\n';
+								}
+								else if (newText.endsWith('\n')) {
+									newText = newText.slice(0, -1);
+								}
+								else if (newText.endsWith('\r\n')) {
+									newText = newText.slice(0, -2);
+								}
 							}
-						});
-						return lines;
+							return newText;
+						}
+
+						function startWithNewLine(text: string) {
+							return text.startsWith('\n') || text.startsWith('\r\n');
+						}
+
+						function endWithNewLine(text: string) {
+							return text.endsWith('\n') || text.endsWith('\r\n');
+						}
 					});
 				},
 

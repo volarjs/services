@@ -33,12 +33,11 @@
 		"semver": "^7.5.4",
 		"typescript-auto-import-cache": "^0.3.1",
 		"vscode-languageserver-textdocument": "^1.0.11",
-		"vscode-nls": "^5.2.0",
-		"vscode-uri": "^3.0.8"
+		"vscode-nls": "^5.2.0"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.0.4",
-		"@volar/typescript": "~2.0.4"
+		"@volar/language-service": "~2.1.0",
+		"@volar/typescript": "~2.1.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

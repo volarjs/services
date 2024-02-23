@@ -35,6 +35,9 @@ importers:
       vscode-css-languageservice:
         specifier: ^6.2.10
         version: 6.2.12
+      vscode-languageserver-textdocument:
+        specifier: ^1.0.11
+        version: 1.0.11
       vscode-uri:
         specifier: ^3.0.8
         version: 3.0.8
@@ -42,9 +45,6 @@ importers:
       '@types/node':
         specifier: latest
         version: 20.11.17
-      vscode-languageserver-textdocument:
-        specifier: ^1.0.11
-        version: 1.0.11
 
   packages/emmet:
     dependencies:
@@ -66,6 +66,9 @@ importers:
       vscode-html-languageservice:
         specifier: ^5.1.0
         version: 5.1.2
+      vscode-languageserver-textdocument:
+        specifier: ^1.0.11
+        version: 1.0.11
       vscode-uri:
         specifier: ^3.0.8
         version: 3.0.8
@@ -73,9 +76,6 @@ importers:
       '@types/node':
         specifier: latest
         version: 20.11.17
-      vscode-languageserver-textdocument:
-        specifier: ^1.0.11
-        version: 1.0.11
 
   packages/json:
     dependencies:
@@ -238,9 +238,6 @@ importers:
       vscode-nls:
         specifier: ^5.2.0
         version: 5.2.0
-      vscode-uri:
-        specifier: ^3.0.8
-        version: 3.0.8
     devDependencies:
       '@types/path-browserify':
         specifier: latest
