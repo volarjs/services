@@ -1,4 +1,4 @@
-import { ServicePluginInstance, forEachEmbeddedCode, type FileChangeType, type FileType, type LocationLink, type ServicePlugin } from '@volar/language-service';
+import { ServicePluginInstance, forEachEmbeddedCode, type FileChangeType, type FileType, type LocationLink, type ServicePlugin, ServiceContext, DocumentSelector } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
@@ -10,20 +10,7 @@ export interface Provide {
 	'markdown/languageService': () => IMdLanguageService;
 }
 
-export interface CreateOptions {
-	/**
-	 * The section to use for configuring validation options.
-	 * 
-	 * @example 'markdown.validate'
-	 */
-	configurationSection: string;
-}
-
 const md = new MarkdownIt();
-
-function isMarkdown(document: TextDocument): boolean {
-	return document.languageId === 'markdown';
-}
 
 function assert(condition: unknown, message: string): asserts condition {
 	if (!condition) {
@@ -31,7 +18,15 @@ function assert(condition: unknown, message: string): asserts condition {
 	}
 }
 
-export function create(options: CreateOptions): ServicePlugin {
+export function create({
+	documentSelector = ['markdown'],
+	getDiagnosticOptions = async (_document, context) => {
+		return await context.env.getConfiguration?.('markdown.validate');
+	},
+}: {
+	documentSelector?: DocumentSelector;
+	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): Promise<DiagnosticOptions | undefined>;
+} = {}): ServicePlugin {
 	return {
 		name: 'markdown',
 		triggerCharacters: ['.', '/', '#'],
@@ -39,7 +34,7 @@ export function create(options: CreateOptions): ServicePlugin {
 
 			let lastProjectVersion: string | undefined;
 
-			const { fs, getConfiguration, onDidChangeWatchedFiles } = context.env;
+			const { fs, onDidChangeWatchedFiles } = context.env;
 			assert(fs, 'context.env.fs must be defined');
 			assert(
 				onDidChangeWatchedFiles,
@@ -76,7 +71,6 @@ export function create(options: CreateOptions): ServicePlugin {
 							}
 							break;
 						}
-
 						case 1 satisfies typeof FileChangeType.Created: {
 							const document = getTextDocument(change.uri, false);
 							if (document) {
@@ -84,7 +78,6 @@ export function create(options: CreateOptions): ServicePlugin {
 							}
 							break;
 						}
-
 						case 3 satisfies typeof FileChangeType.Deleted: {
 							onDidDeleteMarkdownDocument.fire(URI.parse(change.uri));
 							break;
@@ -105,7 +98,7 @@ export function create(options: CreateOptions): ServicePlugin {
 
 				hasMarkdownDocument(resource) {
 					const document = getTextDocument(resource.toString(), true);
-					return Boolean(document && isMarkdown(document));
+					return Boolean(document && matchDocument(documentSelector, document));
 				},
 
 				onDidChangeMarkdownDocument: onDidChangeMarkdownDocument.event,
@@ -133,7 +126,7 @@ export function create(options: CreateOptions): ServicePlugin {
 					}
 				},
 
-				workspaceFolders: []
+				workspaceFolders: [URI.parse(context.env.workspaceFolder)],
 			};
 
 			const ls = createLanguageService({
@@ -166,7 +159,7 @@ export function create(options: CreateOptions): ServicePlugin {
 					const [_, sourceFile] = context.documents.getVirtualCodeByUri(uri);
 					if (sourceFile?.generated) {
 						for (const virtualCode of forEachEmbeddedCode(sourceFile.generated.code)) {
-							if (virtualCode.languageId === 'markdown') {
+							if (matchDocument(documentSelector, virtualCode)) {
 								const uri = context.documents.getVirtualCodeUri(sourceFile.id, virtualCode.id);
 								const document = context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 								newVersions.set(document.uri, document);
@@ -175,7 +168,7 @@ export function create(options: CreateOptions): ServicePlugin {
 					}
 					else if (sourceFile) {
 						const document = context.documents.get(fileName, sourceFile.languageId, sourceFile.snapshot);
-						if (document && isMarkdown(document)) {
+						if (document && matchDocument(documentSelector, document)) {
 							newVersions.set(document.uri, document);
 						}
 					}
@@ -199,7 +192,7 @@ export function create(options: CreateOptions): ServicePlugin {
 				}
 			};
 			const prepare = (document: TextDocument) => {
-				if (!isMarkdown(document)) {
+				if (!matchDocument(documentSelector, document)) {
 					return false;
 				}
 				sync();
@@ -262,13 +255,9 @@ export function create(options: CreateOptions): ServicePlugin {
 
 				async provideDiagnostics(document, token) {
 					if (prepare(document)) {
-						const configuration = await getConfiguration?.(options.configurationSection, document.uri);
+						const configuration = await getDiagnosticOptions(document, context);
 						if (configuration) {
-							return ls.computeDiagnostics(
-								document,
-								configuration as DiagnosticOptions,
-								token
-							);
+							return ls.computeDiagnostics(document, configuration, token);
 						}
 					}
 				},
@@ -362,4 +351,13 @@ export function create(options: CreateOptions): ServicePlugin {
 			}
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: { languageId: string; }) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }

@@ -1,4 +1,4 @@
-import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin, VirtualCode } from '@volar/language-service';
+import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin, VirtualCode, ServiceContext } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -44,7 +44,28 @@ export interface Provide {
 	'typescript/syntacticLanguageServiceHost': () => ts.LanguageServiceHost;
 };
 
-export function create(ts: typeof import('typescript')): ServicePlugin {
+export function create(
+	ts: typeof import('typescript'),
+	{
+		isFormattingEnabled = async (document, context) => {
+			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
+		},
+		isValidationEnabled = async (document, context) => {
+			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
+		},
+		isSuggestionsEnabled = async (document, context) => {
+			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
+		},
+		isAutoClosingTagsEnabled = async (document, context) => {
+			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
+		},
+	}: {
+		isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+		isValidationEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+		isSuggestionsEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+		isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+	} = {},
+): ServicePlugin {
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);
 	const jsDocTriggerCharacter = '*';
 	const directiveCommentTriggerCharacter = '@';
@@ -109,20 +130,17 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					'typescript/syntacticLanguageServiceHost': () => syntacticCtx.languageServiceHost,
 				},
 
-				provideAutoInsertionEdit(document, position, lastChange) {
+				async provideAutoInsertionEdit(document, position, lastChange) {
 					if (
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 						&& lastChange.text.endsWith('>')
+						&& await isAutoClosingTagsEnabled(document, context)
 					) {
-						const config = context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
-						if (config) {
+						const ctx = prepareSyntacticService(document);
+						const close = syntacticCtx.languageService.getJsxClosingTagAtPosition(ctx.fileName, document.offsetAt(position));
 
-							const ctx = prepareSyntacticService(document);
-							const close = syntacticCtx.languageService.getJsxClosingTagAtPosition(ctx.fileName, document.offsetAt(position));
-
-							if (close) {
-								return '$0' + close.newText;
-							}
+						if (close) {
+							return '$0' + close.newText;
 						}
 					}
 				},
@@ -152,10 +170,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (!isTsDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
-					if (!enable) {
+					if (!await isFormattingEnabled(document, context))
 						return;
-					}
 
 					prepareSyntacticService(document);
 
@@ -167,10 +183,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (!isTsDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
-					if (!enable) {
+					if (!await isFormattingEnabled(document, context))
 						return;
-					}
 
 					prepareSyntacticService(document);
 
@@ -339,10 +353,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (!isSemanticDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
-					if (!enable) {
+					if (!await isSuggestionsEnabled(document, context))
 						return;
-					}
 
 					return await worker(token, async () => {
 
@@ -483,10 +495,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (!isSemanticDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
-					if (!enable) {
+					if (!await isValidationEnabled(document, context))
 						return;
-					}
 
 					return await worker(token, () => {
 						return doValidation(document.uri, { syntactic: true, suggestion: true });
@@ -498,10 +508,8 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 					if (!isSemanticDocument(document))
 						return;
 
-					const enable = await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
-					if (!enable) {
+					if (!await isValidationEnabled(document, context))
 						return;
-					}
 
 					return worker(token, () => {
 						return doValidation(document.uri, { semantic: true, declaration: true });

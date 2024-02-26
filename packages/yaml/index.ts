@@ -1,14 +1,10 @@
-import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin, DocumentSelector, ServiceContext, Disposable } from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { LanguageService, LanguageSettings } from 'yaml-language-server';
-import { getLanguageService } from 'yaml-language-server';
+import * as yaml from 'yaml-language-server';
+import { URI, Utils } from 'vscode-uri';
 
 export interface Provide {
-	'yaml/languageService': () => LanguageService;
-}
-
-function isYaml(document: TextDocument): boolean {
-	return document.languageId === 'yaml';
+	'yaml/languageService': () => yaml.LanguageService;
 }
 
 function noop(): undefined { }
@@ -16,13 +12,42 @@ function noop(): undefined { }
 /**
  * Create a Volar language service for YAML documents.
  */
-export function create(settings?: LanguageSettings): ServicePlugin {
+export function create({
+	documentSelector = ['yaml'],
+	getWorkspaceContextService = () => {
+		return {
+			resolveRelativePath(relativePath, resource) {
+				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
+				return Utils.resolvePath(URI.parse(base), relativePath).toString();
+			},
+		};
+	},
+	getLanguageSettings = async () => {
+		return {
+			completion: true,
+			customTags: [],
+			format: true,
+			hover: true,
+			isKubernetes: false,
+			validate: true,
+			yamlVersion: '1.2',
+		};
+	},
+	onDidChangeLanguageSettings = () => {
+		return { dispose() { } };
+	},
+}: {
+	documentSelector?: DocumentSelector;
+	getWorkspaceContextService?(context: ServiceContext): yaml.WorkspaceContextService;
+	getLanguageSettings?(context: ServiceContext): Promise<yaml.LanguageSettings>;
+	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
+} = {}): ServicePlugin {
 	return {
 		name: 'yaml',
 		triggerCharacters: [' ', ':'],
 		create(context): ServicePluginInstance<Provide> {
 
-			const ls = getLanguageService({
+			const ls = yaml.getLanguageService({
 				schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
 				telemetry: {
 					send: noop,
@@ -31,97 +56,114 @@ export function create(settings?: LanguageSettings): ServicePlugin {
 				},
 				// @ts-expect-error https://github.com/redhat-developer/yaml-language-server/pull/910
 				clientCapabilities: context.env?.clientCapabilities,
-				workspaceContext: {
-					resolveRelativePath(relativePath, resource) {
-						return String(new URL(relativePath, resource));
-					}
-				},
+				workspaceContext: getWorkspaceContextService(context),
 			});
+			const disposable = onDidChangeLanguageSettings(() => initializing = undefined, context);
 
-			ls.configure({
-				completion: true,
-				customTags: [],
-				format: true,
-				hover: true,
-				isKubernetes: false,
-				validate: true,
-				yamlVersion: '1.2',
-				...settings
-			});
+			let initializing: Promise<void> | undefined;
 
 			return {
+				dispose() {
+					disposable.dispose();
+				},
+
 				provide: {
 					'yaml/languageService': () => ls
 				},
 
 				provideCodeActions(document, range, context) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.getCodeAction(document, {
 							context,
 							range,
 							textDocument: document
 						});
-					}
+					});
 				},
 
 				provideCodeLenses(document) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.getCodeLens(document);
-					}
+					});
 				},
 
 				provideCompletionItems(document, position) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.doComplete(document, position, false);
-					}
+					});
 				},
 
 				provideDefinition(document, position) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.doDefinition(document, { position, textDocument: document });
-					}
+					});
 				},
 
 				provideDiagnostics(document) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.doValidation(document, false);
-					}
+					});
 				},
 
 				provideDocumentSymbols(document) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.findDocumentSymbols2(document, {});
-					}
+					});
 				},
 
 				provideHover(document, position) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.doHover(document, position);
-					}
+					});
 				},
 
 				provideDocumentLinks(document) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.findLinks(document);
-					}
+					});
 				},
 
 				provideFoldingRanges(document) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange ?? {});
-					}
+					});
 				},
 
 				provideSelectionRanges(document, positions) {
-					if (isYaml(document)) {
+					return worker(document, () => {
 						return ls.getSelectionRanges(document, positions);
-					}
+					});
 				},
 
 				resolveCodeLens(codeLens) {
 					return ls.resolveCodeLens(codeLens);
 				},
 			};
+
+			async function worker<T>(document: TextDocument, callback: () => T): Promise<Awaited<T> | undefined> {
+
+				if (!matchDocument(documentSelector, document)) {
+					return;
+				}
+
+				await (initializing ??= initialize());
+
+				return await callback();
+			}
+
+			async function initialize() {
+				const settings = await getLanguageSettings(context);
+				ls.configure(settings);
+			}
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }
