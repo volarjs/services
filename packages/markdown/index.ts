@@ -1,4 +1,5 @@
-import { ServicePluginInstance, forEachEmbeddedCode, type FileChangeType, type FileType, type LocationLink, type ServicePlugin, ServiceContext, DocumentSelector } from '@volar/language-service';
+import type { DocumentSelector, FileChangeType, FileType, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import { forEachEmbeddedCode } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
@@ -25,7 +26,7 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
-	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): Promise<DiagnosticOptions | undefined>;
+	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): Result<DiagnosticOptions | undefined>;
 } = {}): ServicePlugin {
 	return {
 		name: 'markdown',

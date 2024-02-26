@@ -1,4 +1,4 @@
-import type { ServicePlugin, ServicePluginInstance, DocumentSelector, ServiceContext, Disposable } from '@volar/language-service';
+import type { ServicePlugin, ServicePluginInstance, DocumentSelector, ServiceContext, Disposable, Result } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -51,7 +51,7 @@ export function create({
 		}
 		return languageSettings;
 	},
-	getDocumentLanguageSettings = async document => {
+	getDocumentLanguageSettings = document => {
 		return document.languageId === 'jsonc'
 			? { comments: 'ignore', trailingCommas: 'warning' }
 			: { comments: 'error', trailingCommas: 'error' };
@@ -67,10 +67,10 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	getWorkspaceContextService?(context: ServiceContext): json.WorkspaceContextService;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Promise<json.FormattingOptions | undefined>;
-	getLanguageSettings?(context: ServiceContext): Promise<json.LanguageSettings>;
-	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): Promise<json.DocumentLanguageSettings | undefined>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<json.FormattingOptions | undefined>;
+	getLanguageSettings?(context: ServiceContext): Result<json.LanguageSettings>;
+	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): Result<json.DocumentLanguageSettings | undefined>;
 	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
 } = {}): ServicePlugin {
 	return {

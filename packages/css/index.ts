@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, LocationLink, ServicePluginInstance, ServicePlugin, ServiceContext, DocumentSelector, Disposable } from '@volar/language-service';
+import type { CodeAction, Diagnostic, Disposable, DocumentSelector, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -74,10 +74,10 @@ export function create({
 	lessDocumentSelector?: DocumentSelector,
 	useDefaultDataProvider?: boolean;
 	getDocumentContext?(context: ServiceContext): css.DocumentContext;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-	getFormatConfiguration?(document: TextDocument, context: ServiceContext): Promise<css.CSSFormatConfiguration | undefined>;
-	getLanguageSettings?(document: TextDocument, context: ServiceContext): Promise<css.LanguageSettings | undefined>;
-	getCustomData?(context: ServiceContext): Promise<css.ICSSDataProvider[]>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormatConfiguration?(document: TextDocument, context: ServiceContext): Result<css.CSSFormatConfiguration | undefined>;
+	getLanguageSettings?(document: TextDocument, context: ServiceContext): Result<css.LanguageSettings | undefined>;
+	getCustomData?(context: ServiceContext): Result<css.ICSSDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
 } = {}): ServicePlugin {
 	return {

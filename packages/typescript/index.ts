@@ -1,4 +1,4 @@
-import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, ServicePluginInstance, ServicePlugin, VirtualCode, ServiceContext } from '@volar/language-service';
+import type { CancellationToken, CompletionList, CompletionTriggerKind, FileChangeType, Result, ServiceContext, ServicePlugin, ServicePluginInstance, VirtualCode } from '@volar/language-service';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -60,10 +60,10 @@ export function create(
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
 		},
 	}: {
-		isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-		isValidationEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-		isSuggestionsEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-		isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+		isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+		isValidationEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+		isSuggestionsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+		isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 	} = {},
 ): ServicePlugin {
 	const basicTriggerCharacters = getBasicTriggerCharacters(ts.version);

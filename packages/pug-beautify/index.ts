@@ -1,13 +1,11 @@
-import type { ServicePluginInstance, ServicePlugin, DocumentSelector, TextDocument, ServiceContext } from '@volar/language-service';
+import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 
 export function create({
 	documentSelector = ['jade'],
-	isFormattingEnabled = async () => {
-		return true;
-	},
+	isFormattingEnabled = () => true,
 }: {
 	documentSelector?: DocumentSelector;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 } = {}): ServicePlugin {
 	return {
 		name: 'pug-beautify',

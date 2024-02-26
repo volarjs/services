@@ -1,4 +1,5 @@
-import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type Disposable, type DocumentSelector, type ServiceContext, type ServicePlugin, type ServicePluginInstance } from '@volar/language-service';
+import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import { transformDocumentSymbol } from '@volar/language-service';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -15,7 +16,7 @@ export function create({
 	onDidChangeCustomData,
 }: {
 	documentSelector?: DocumentSelector;
-	getCustomData?(context: ServiceContext): Promise<html.IHTMLDataProvider[]>;
+	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
 } = {}): ServicePlugin {
 	const _htmlService = createHtmlService({

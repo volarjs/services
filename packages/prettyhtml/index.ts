@@ -1,16 +1,16 @@
-import type { ServicePluginInstance, ServicePlugin, DocumentSelector, TextDocument, ServiceContext } from '@volar/language-service';
 import * as prettyhtml from '@starptech/prettyhtml';
+import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 
 export type FormattingOptions = Parameters<typeof prettyhtml>[1];
 
 export function create({
 	documentSelector = ['html'],
-	isFormattingEnabled = async () => true,
-	getFormattingOptions = async () => ({}),
+	isFormattingEnabled = () => true,
+	getFormattingOptions = () => ({}),
 }: {
 	documentSelector?: DocumentSelector;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Promise<FormattingOptions>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<FormattingOptions>;
 } = {}): ServicePlugin {
 	return {
 		name: 'prettyhtml',

@@ -1,4 +1,4 @@
-import type { ServicePluginInstance, ServicePlugin, DocumentSelector, ServiceContext, Disposable } from '@volar/language-service';
+import type { Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -81,14 +81,14 @@ export function create({
 	documentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
 	useCustomDataProviders?: boolean;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
-	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 	getDocumentContext?(context: ServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Promise<html.HTMLFormatConfiguration | undefined>;
-	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): Promise<html.CompletionConfiguration | undefined>;
-	getHoverSettings?(document: TextDocument, context: ServiceContext): Promise<html.HoverSettings | undefined>;
-	getCustomData?(context: ServiceContext): Promise<html.IHTMLDataProvider[]>;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<html.HTMLFormatConfiguration | undefined>;
+	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): Result<html.CompletionConfiguration | undefined>;
+	getHoverSettings?(document: TextDocument, context: ServiceContext): Result<html.HoverSettings | undefined>;
+	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
 } = {}): ServicePlugin {
 	return {
