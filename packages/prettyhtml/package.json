@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-prettyhtml",
-	"version": "0.0.30",
+	"version": "0.0.31",
 	"description": "Integrate prettyhtml into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/prettyhtml",
 	"bugs": "https://github.com/volarjs/services/issues",
