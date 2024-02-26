@@ -85,7 +85,7 @@ export function create({
 	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
 	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Promise<boolean>;
 	getDocumentContext?(context: ServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Promise<html.FormattingOptions | undefined>;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Promise<html.HTMLFormatConfiguration | undefined>;
 	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): Promise<html.CompletionConfiguration | undefined>;
 	getHoverSettings?(document: TextDocument, context: ServiceContext): Promise<html.HoverSettings | undefined>;
 	getCustomData?(context: ServiceContext): Promise<html.IHTMLDataProvider[]>;
@@ -212,12 +212,18 @@ export function create({
 							};
 						}
 
-						const formatSettings = await getFormattingOptions(document, context);
-						const formatOptions: html.HTMLFormatConfiguration = {
+						const formatSettings: html.HTMLFormatConfiguration = {
 							...options,
-							...formatSettings,
 							endWithNewline: options.insertFinalNewline ? true : options.trimFinalNewlines ? false : undefined,
+							...await getFormattingOptions(document, context),
 						};
+
+						// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
+						if (formatSettings.contentUnformatted) {
+							formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
+						} else {
+							formatSettings.contentUnformatted = 'script';
+						}
 
 						let formatDocument = document;
 						let prefixes = [];
@@ -241,7 +247,7 @@ export function create({
 							};
 						}
 
-						let edits = htmlLs.format(formatDocument, formatRange, formatOptions);
+						let edits = htmlLs.format(formatDocument, formatRange, formatSettings);
 
 						if (codeOptions) {
 							let newText = TextDocument.applyEdits(formatDocument, edits);
@@ -267,7 +273,7 @@ export function create({
 
 						function ensureNewLines(newText: string) {
 							const verifyDocument = TextDocument.create(document.uri, document.languageId, document.version, '<template>' + newText + '</template>');
-							const verifyEdits = htmlLs.format(verifyDocument, undefined, formatOptions);
+							const verifyEdits = htmlLs.format(verifyDocument, undefined, formatSettings);
 							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
 							verifyText = verifyText.trim().slice('<template>'.length, -'</template>'.length);
 							if (startWithNewLine(verifyText) !== startWithNewLine(newText)) {
