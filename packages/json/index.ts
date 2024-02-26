@@ -1,4 +1,4 @@
-import type { ServicePlugin, Diagnostic, ServicePluginInstance } from '@volar/language-service';
+import type { ServicePlugin, ServicePluginInstance, DocumentSelector, ServiceContext, Disposable, Result } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -8,7 +8,71 @@ export interface Provide {
 	'json/languageService': () => json.LanguageService;
 }
 
-export function create(settings?: json.LanguageSettings): ServicePlugin {
+export interface JSONSchemaSettings {
+	fileMatch?: string[];
+	url?: string;
+	schema?: json.JSONSchema;
+	folderUri?: string;
+}
+
+export function create({
+	documentSelector = ['json', 'jsonc'],
+	getWorkspaceContextService = () => {
+		return {
+			resolveRelativePath(relativePath, resource) {
+				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
+				return Utils.resolvePath(URI.parse(base), relativePath).toString();
+			},
+		};
+	},
+	isFormattingEnabled = async (_document, context) => {
+		return await context.env.getConfiguration?.('json.format.enable') ?? true;
+	},
+	getFormattingOptions = async (_document, context) => {
+		return await context.env.getConfiguration?.('json.format');
+	},
+	getLanguageSettings = async context => {
+		const languageSettings: json.LanguageSettings = {};
+
+		languageSettings.validate = await context.env.getConfiguration?.<boolean>('json.validate') ?? true;
+		languageSettings.schemas ??= [];
+
+		const schemas = await context.env.getConfiguration?.<JSONSchemaSettings[]>('json.schemas') ?? [];
+
+		for (let i = 0; i < schemas.length; i++) {
+			const schema = schemas[i];
+			let uri = schema.url;
+			if (!uri && schema.schema) {
+				uri = schema.schema.id || `vscode://schemas/custom/${i}`;
+			}
+			if (uri) {
+				languageSettings.schemas.push({ uri, fileMatch: schema.fileMatch, schema: schema.schema, folderUri: schema.folderUri });
+			}
+		}
+		return languageSettings;
+	},
+	getDocumentLanguageSettings = document => {
+		return document.languageId === 'jsonc'
+			? { comments: 'ignore', trailingCommas: 'warning' }
+			: { comments: 'error', trailingCommas: 'error' };
+	},
+	onDidChangeLanguageSettings = (listener, context) => {
+		const disposable = context.env.onDidChangeConfiguration?.(listener);
+		return {
+			dispose() {
+				disposable?.dispose();
+			},
+		};
+	},
+}: {
+	documentSelector?: DocumentSelector;
+	getWorkspaceContextService?(context: ServiceContext): json.WorkspaceContextService;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<json.FormattingOptions | undefined>;
+	getLanguageSettings?(context: ServiceContext): Result<json.LanguageSettings>;
+	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): Result<json.DocumentLanguageSettings | undefined>;
+	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
+} = {}): ServicePlugin {
 	return {
 		name: 'json',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
@@ -16,31 +80,20 @@ export function create(settings?: json.LanguageSettings): ServicePlugin {
 		create(context): ServicePluginInstance<Provide> {
 
 			const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
-			const workspaceContext: json.WorkspaceContextService = {
-				resolveRelativePath: (ref: string, base: string) => {
-					if (ref.match(/^\w[\w\d+.-]*:/)) {
-						// starts with a schema
-						return ref;
-					}
-					if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-						return base + ref;
-					}
-					const baseUri = URI.parse(base);
-					const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
-					return Utils.resolvePath(baseUriDir, ref).toString(true);
-				},
-			};
 			const jsonLs = json.getLanguageService({
 				schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
-				workspaceContext,
+				workspaceContext: getWorkspaceContextService(context),
 				clientCapabilities: context.env.clientCapabilities,
 			});
+			const disposable = onDidChangeLanguageSettings(() => initializing = undefined, context);
 
-			if (settings) {
-				jsonLs.configure(settings);
-			}
+			let initializing: Promise<void> | undefined;
 
 			return {
+
+				dispose() {
+					disposable.dispose();
+				},
 
 				provide: {
 					'json/jsonDocument': getJsonDocument,
@@ -65,15 +118,8 @@ export function create(settings?: json.LanguageSettings): ServicePlugin {
 
 				provideDiagnostics(document) {
 					return worker(document, async (jsonDocument) => {
-
-						const documentLanguageSettings = undefined; // await getSettings(); // TODO
-
-						return await jsonLs.doValidation(
-							document,
-							jsonDocument,
-							documentLanguageSettings,
-							undefined, // TODO
-						) as Diagnostic[];
+						const settings = await getDocumentLanguageSettings(document, context);
+						return await jsonLs.doValidation(document, jsonDocument, settings);
 					});
 				},
 
@@ -122,32 +168,41 @@ export function create(settings?: json.LanguageSettings): ServicePlugin {
 				provideDocumentFormattingEdits(document, range, options) {
 					return worker(document, async () => {
 
-						const options_2 = await context.env.getConfiguration?.<json.FormattingOptions & { enable: boolean; }>('json.format');
-						if (!(options_2?.enable ?? true)) {
+						if (!await isFormattingEnabled(document, context)) {
 							return;
 						}
 
+						const formatOptions = await getFormattingOptions(document, context);
+
 						return jsonLs.format(document, range, {
-							...options_2,
 							...options,
+							...formatOptions,
 						});
 					});
 				},
 			};
 
-			function worker<T>(document: TextDocument, callback: (jsonDocument: json.JSONDocument) => T) {
+			async function worker<T>(document: TextDocument, callback: (jsonDocument: json.JSONDocument) => T): Promise<Awaited<T> | undefined> {
 
 				const jsonDocument = getJsonDocument(document);
 				if (!jsonDocument)
 					return;
 
-				return callback(jsonDocument);
+				await (initializing ??= initialize());
+
+				return await callback(jsonDocument);
+			}
+
+			async function initialize() {
+				const settings = await getLanguageSettings(context);
+				jsonLs.configure(settings);
 			}
 
 			function getJsonDocument(textDocument: TextDocument) {
 
-				if (textDocument.languageId !== 'json' && textDocument.languageId !== 'jsonc')
+				if (!matchDocument(documentSelector, textDocument)) {
 					return;
+				}
 
 				const cache = jsonDocuments.get(textDocument);
 				if (cache) {
@@ -164,4 +219,13 @@ export function create(settings?: json.LanguageSettings): ServicePlugin {
 			}
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }

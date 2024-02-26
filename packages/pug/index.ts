@@ -1,4 +1,5 @@
-import { transformDocumentSymbol, type Diagnostic, type DiagnosticSeverity, type ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import { transformDocumentSymbol } from '@volar/language-service';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -7,11 +8,21 @@ import * as pug from './lib/languageService';
 export interface Provide {
 	'pug/pugDocument': (document: TextDocument) => pug.PugDocument | undefined;
 	'pug/languageService': () => pug.LanguageService;
-	'pug/updateCustomData': (extraData: html.IHTMLDataProvider[]) => void;
 }
 
-export function create(): ServicePlugin {
-	const _htmlService = createHtmlService();
+export function create({
+	documentSelector = ['jade'],
+	getCustomData,
+	onDidChangeCustomData,
+}: {
+	documentSelector?: DocumentSelector;
+	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
+	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
+} = {}): ServicePlugin {
+	const _htmlService = createHtmlService({
+		getCustomData,
+		onDidChangeCustomData,
+	});
 	return {
 		..._htmlService,
 		name: 'pug',
@@ -27,7 +38,6 @@ export function create(): ServicePlugin {
 				provide: {
 					'pug/pugDocument': getPugDocument,
 					'pug/languageService': () => pugLs,
-					'pug/updateCustomData': htmlService.provide['html/updateCustomData'],
 				},
 
 				provideCompletionItems(document, position, _) {
@@ -138,7 +148,7 @@ export function create(): ServicePlugin {
 
 			function getPugDocument(document: TextDocument) {
 
-				if (document.languageId !== 'jade')
+				if (!matchDocument(documentSelector, document))
 					return;
 
 				const cache = pugDocuments.get(document);
@@ -156,4 +166,13 @@ export function create(): ServicePlugin {
 			}
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }

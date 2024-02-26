@@ -1,13 +1,22 @@
-import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 
-export function create(): ServicePlugin {
+export function create({
+	documentSelector = ['jade'],
+	isFormattingEnabled = () => true,
+}: {
+	documentSelector?: DocumentSelector;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+} = {}): ServicePlugin {
 	return {
 		name: 'pug-beautify',
-		create(): ServicePluginInstance {
+		create(context): ServicePluginInstance {
 			return {
-				provideDocumentFormattingEdits(document, range, options) {
+				async provideDocumentFormattingEdits(document, range, options) {
 
-					if (document.languageId !== 'jade')
+					if (!matchDocument(documentSelector, document))
+						return;
+
+					if (!await isFormattingEnabled(document, context))
 						return;
 
 					const pugCode = document.getText(range);
@@ -35,4 +44,13 @@ export function create(): ServicePlugin {
 			};
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }

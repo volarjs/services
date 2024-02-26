@@ -1,21 +1,34 @@
-import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
 import * as prettyhtml from '@starptech/prettyhtml';
+import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 
-export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): ServicePlugin {
+export type FormattingOptions = Parameters<typeof prettyhtml>[1];
+
+export function create({
+	documentSelector = ['html'],
+	isFormattingEnabled = () => true,
+	getFormattingOptions = () => ({}),
+}: {
+	documentSelector?: DocumentSelector;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<FormattingOptions>;
+} = {}): ServicePlugin {
 	return {
 		name: 'prettyhtml',
-		create(): ServicePluginInstance {
+		create(context): ServicePluginInstance {
 			return {
-				provideDocumentFormattingEdits(document, range, options) {
+				async provideDocumentFormattingEdits(document, range, options) {
 
-					if (document.languageId !== 'html')
+					if (!matchDocument(documentSelector, document))
+						return;
+
+					if (!await isFormattingEnabled(document, context))
 						return;
 
 					const oldRangeText = document.getText(range);
 					const newRangeText = prettyhtml(oldRangeText, {
-						...configs,
 						tabWidth: options.tabSize,
 						useTabs: !options.insertSpaces,
+						...await getFormattingOptions(document, context),
 					}).contents;
 
 					if (newRangeText === oldRangeText)
@@ -42,4 +55,13 @@ export function create(configs: NonNullable<Parameters<typeof prettyhtml>[1]>): 
 			};
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }
