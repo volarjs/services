@@ -1,70 +1,111 @@
-import type { CodeAction, Diagnostic, LocationLink, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { CodeAction, Diagnostic, Disposable, DocumentSelector, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 
 export interface Provide {
-	'css/stylesheet': (document: TextDocument) => css.Stylesheet | undefined;
-	'css/languageService': (languageId: string) => css.LanguageService | undefined;
+	'css/stylesheet': (document: TextDocument, ls: css.LanguageService) => css.Stylesheet;
+	'css/languageService': (document: TextDocument) => css.LanguageService | undefined;
 }
 
-export function create(): ServicePlugin {
+export function create({
+	cssDocumentSelector = ['css'],
+	scssDocumentSelector = ['scss'],
+	lessDocumentSelector = ['less'],
+	useDefaultDataProvider = true,
+	getDocumentContext = context => {
+		return {
+			resolveReference(ref, base) {
+				if (ref.match(/^\w[\w\d+.-]*:/)) {
+					// starts with a schema
+					return ref;
+				}
+				if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+					let folderUri = context.env.workspaceFolder;
+					if (!folderUri.endsWith('/')) {
+						folderUri += '/';
+					}
+					return folderUri + ref.substring(1);
+				}
+				const baseUri = URI.parse(base);
+				const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+				return Utils.resolvePath(baseUriDir, ref).toString(true);
+			},
+		};
+	},
+	isFormattingEnabled = async (document, context) => {
+		return await context.env.getConfiguration?.(document.languageId + '.format.enable') ?? true;
+	},
+	getFormatConfiguration = async (document, context) => {
+		return await context.env.getConfiguration?.(document.languageId + '.format');
+	},
+	getLanguageSettings = async (document, context) => {
+		return await context.env.getConfiguration?.(document.languageId);
+	},
+	getCustomData = async context => {
+		const customData: string[] = await context.env.getConfiguration?.('css.customData') ?? [];
+		const newData: css.ICSSDataProvider[] = [];
+		for (const customDataPath of customData) {
+			const uri = Utils.resolvePath(URI.parse(context.env.workspaceFolder), customDataPath);
+			const json = await context.env.fs?.readFile?.(uri.toString());
+			if (json) {
+				try {
+					const data = JSON.parse(json);
+					newData.push(css.newCSSDataProvider(data));
+				}
+				catch (error) {
+					console.error(error);
+				}
+			}
+		}
+		return newData;
+	},
+	onDidChangeCustomData = (listener, context) => {
+		const disposable = context.env.onDidChangeConfiguration?.(listener);
+		return {
+			dispose() {
+				disposable?.dispose();
+			},
+		};
+	},
+}: {
+	cssDocumentSelector?: DocumentSelector,
+	scssDocumentSelector?: DocumentSelector,
+	lessDocumentSelector?: DocumentSelector,
+	useDefaultDataProvider?: boolean;
+	getDocumentContext?(context: ServiceContext): css.DocumentContext;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormatConfiguration?(document: TextDocument, context: ServiceContext): Result<css.CSSFormatConfiguration | undefined>;
+	getLanguageSettings?(document: TextDocument, context: ServiceContext): Result<css.LanguageSettings | undefined>;
+	getCustomData?(context: ServiceContext): Result<css.ICSSDataProvider[]>;
+	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
+} = {}): ServicePlugin {
 	return {
 		name: 'css',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
 		triggerCharacters: ['/', '-', ':'],
 		create(context): ServicePluginInstance<Provide> {
 
-			let inited = false;
-
 			const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
 			const fileSystemProvider: css.FileSystemProvider = {
-				stat: async uri => await context.env.fs?.stat(uri) ?? {
-					type: css.FileType.Unknown,
-					ctime: 0,
-					mtime: 0,
-					size: 0,
-				},
-				readDirectory: async (uri) => await context.env.fs?.readDirectory(uri) ?? [],
+				stat: async uri => await context.env.fs?.stat(uri)
+					?? { type: css.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
+				readDirectory: async uri => await context.env.fs?.readDirectory(uri) ?? [],
 			};
-			const documentContext: css.DocumentContext = {
-				resolveReference(ref, base) {
-					if (ref.match(/^\w[\w\d+.-]*:/)) {
-						// starts with a schema
-						return ref;
-					}
-					if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-						return base + ref;
-					}
-					const baseUri = URI.parse(base);
-					const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
-					return Utils.resolvePath(baseUriDir, ref).toString(true);
-				},
-			};
-			const cssLs = css.getCSSLanguageService({
-				fileSystemProvider,
-				clientCapabilities: context.env.clientCapabilities,
-			});
-			const scssLs = css.getSCSSLanguageService({
-				fileSystemProvider,
-				clientCapabilities: context.env.clientCapabilities,
-			});
-			const lessLs = css.getLESSLanguageService({
-				fileSystemProvider,
-				clientCapabilities: context.env.clientCapabilities,
-			});
-			const postcssLs: css.LanguageService = {
-				...scssLs,
-				doValidation: (document, stylesheet, documentSettings) => {
-					let errors = scssLs.doValidation(document, stylesheet, documentSettings);
-					errors = errors.filter(error => error.code !== 'css-semicolonexpected');
-					errors = errors.filter(error => error.code !== 'css-ruleorselectorexpected');
-					errors = errors.filter(error => error.code !== 'unknownAtRules');
-					return errors;
-				},
-			};
+			const documentContext = getDocumentContext(context);
+			const disposable = onDidChangeCustomData(() => initializing = undefined, context);
+
+			let cssLs: css.LanguageService | undefined;
+			let scssLs: css.LanguageService | undefined;
+			let lessLs: css.LanguageService | undefined;
+			let customData: css.ICSSDataProvider[] = [];
+			let initializing: Promise<void> | undefined;
 
 			return {
+
+				dispose() {
+					disposable.dispose();
+				},
 
 				provide: {
 					'css/stylesheet': getStylesheet,
@@ -73,11 +114,8 @@ export function create(): ServicePlugin {
 
 				async provideCompletionItems(document, position) {
 					return worker(document, async (stylesheet, cssLs) => {
-
-						const settings = await context.env.getConfiguration?.<css.LanguageSettings>(document.languageId);
-						const cssResult = await cssLs.doComplete2(document, position, stylesheet, documentContext, settings?.completion);
-
-						return cssResult;
+						const settings = await getLanguageSettings(document, context);
+						return await cssLs.doComplete2(document, position, stylesheet, documentContext, settings?.completion);
 					});
 				},
 
@@ -101,9 +139,7 @@ export function create(): ServicePlugin {
 
 				provideDefinition(document, position) {
 					return worker(document, (stylesheet, cssLs) => {
-
 						const location = cssLs.findDefinition(document, position, stylesheet);
-
 						if (location) {
 							return [{
 								targetUri: location.uri,
@@ -116,18 +152,14 @@ export function create(): ServicePlugin {
 
 				async provideDiagnostics(document) {
 					return worker(document, async (stylesheet, cssLs) => {
-
-						const settings = await context.env.getConfiguration?.<css.LanguageSettings>(document.languageId);
-
+						const settings = await getLanguageSettings(document, context);
 						return cssLs.doValidation(document, stylesheet, settings) as Diagnostic[];
 					});
 				},
 
 				async provideHover(document, position) {
 					return worker(document, async (stylesheet, cssLs) => {
-
-						const settings = await context.env.getConfiguration?.<css.LanguageSettings>(document.languageId);
-
+						const settings = await getLanguageSettings(document, context);
 						return cssLs.doHover(document, position, stylesheet, settings?.hover);
 					});
 				},
@@ -183,11 +215,11 @@ export function create(): ServicePlugin {
 				async provideDocumentFormattingEdits(document, formatRange, options, codeOptions) {
 					return worker(document, async (_stylesheet, cssLs) => {
 
-						const formatSettings = await context.env.getConfiguration?.<css.CSSFormatConfiguration & { enable: boolean; }>(document.languageId + '.format');
-						if (formatSettings?.enable === false) {
+						if (!await isFormattingEnabled(document, context)) {
 							return;
 						}
 
+						const formatSettings = await getFormatConfiguration(document, context);
 						const formatOptions: css.CSSFormatConfiguration = {
 							...options,
 							...formatSettings,
@@ -281,54 +313,57 @@ export function create(): ServicePlugin {
 				},
 			};
 
-			async function initCustomData() {
-				if (!inited) {
-
-					context.env.onDidChangeConfiguration?.(async () => {
-						const customData = await getCustomData();
-						cssLs.setDataProviders(true, customData);
-						scssLs.setDataProviders(true, customData);
-						lessLs.setDataProviders(true, customData);
-					});
-
-					const customData = await getCustomData();
-					cssLs.setDataProviders(true, customData);
-					scssLs.setDataProviders(true, customData);
-					lessLs.setDataProviders(true, customData);
-					inited = true;
-				}
-			}
-
-			async function getCustomData() {
-
-				const customData: string[] = await context.env.getConfiguration?.('css.customData') ?? [];
-				const newData: css.ICSSDataProvider[] = [];
-
-				for (const customDataPath of customData) {
-					try {
-						const pathModuleName = 'path'; // avoid bundle
-						const { posix: path } = require(pathModuleName) as typeof import('path');
-						const jsonPath = path.resolve(customDataPath);
-						newData.push(css.newCSSDataProvider(require(jsonPath)));
+			function getCssLs(document: TextDocument): css.LanguageService | undefined {
+				if (matchDocument(cssDocumentSelector, document)) {
+					if (!cssLs) {
+						cssLs = css.getCSSLanguageService({
+							fileSystemProvider,
+							clientCapabilities: context.env.clientCapabilities,
+							useDefaultDataProvider,
+							customDataProviders: customData,
+						});
+						cssLs.setDataProviders(useDefaultDataProvider, customData);
 					}
-					catch (error) {
-						console.error(error);
+					return cssLs;
+				}
+				else if (matchDocument(scssDocumentSelector, document)) {
+					if (!scssLs) {
+						scssLs = css.getSCSSLanguageService({
+							fileSystemProvider,
+							clientCapabilities: context.env.clientCapabilities,
+							useDefaultDataProvider,
+							customDataProviders: customData,
+						});
+						scssLs.setDataProviders(useDefaultDataProvider, customData);
 					}
+					return scssLs;
 				}
-
-				return newData;
+				else if (matchDocument(lessDocumentSelector, document)) {
+					if (!lessLs) {
+						lessLs = css.getLESSLanguageService({
+							fileSystemProvider,
+							clientCapabilities: context.env.clientCapabilities,
+							useDefaultDataProvider,
+							customDataProviders: customData,
+						});
+						lessLs.setDataProviders(useDefaultDataProvider, customData);
+					}
+					return lessLs;
+				}
 			}
 
-			function getCssLs(lang: string) {
-				switch (lang) {
-					case 'css': return cssLs;
-					case 'scss': return scssLs;
-					case 'less': return lessLs;
-					case 'postcss': return postcssLs;
-				}
+			async function worker<T>(document: TextDocument, callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T) {
+
+				const cssLs = getCssLs(document);
+				if (!cssLs)
+					return;
+
+				await (initializing ??= initialize());
+
+				return callback(getStylesheet(document, cssLs), cssLs);
 			}
 
-			function getStylesheet(document: TextDocument) {
+			function getStylesheet(document: TextDocument, ls: css.LanguageService) {
 
 				const cache = stylesheets.get(document);
 				if (cache) {
@@ -338,30 +373,27 @@ export function create(): ServicePlugin {
 					}
 				}
 
-				const cssLs = getCssLs(document.languageId);
-				if (!cssLs)
-					return;
-
-				const stylesheet = cssLs.parseStylesheet(document);
+				const stylesheet = ls.parseStylesheet(document);
 				stylesheets.set(document, [document.version, stylesheet]);
 
 				return stylesheet;
 			}
 
-			async function worker<T>(document: TextDocument, callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T) {
-
-				const stylesheet = getStylesheet(document);
-				if (!stylesheet)
-					return;
-
-				const cssLs = getCssLs(document.languageId);
-				if (!cssLs)
-					return;
-
-				await initCustomData();
-
-				return callback(stylesheet, cssLs);
+			async function initialize() {
+				customData = await getCustomData(context);
+				cssLs?.setDataProviders(useDefaultDataProvider, customData);
+				scssLs?.setDataProviders(useDefaultDataProvider, customData);
+				lessLs?.setDataProviders(useDefaultDataProvider, customData);
 			}
 		},
 	};
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }

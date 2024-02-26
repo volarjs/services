@@ -1,89 +1,137 @@
-import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 
-const parserLs = html.getLanguageService();
-const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 
 export interface Provide {
 	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
 	'html/languageService': () => html.LanguageService;
 	'html/documentContext': () => html.DocumentContext;
-	'html/updateCustomData': (extraData: html.IHTMLDataProvider[]) => void;
-}
-
-export function getHtmlDocument(document: TextDocument) {
-
-	const cache = htmlDocuments.get(document);
-	if (cache) {
-		const [cacheVersion, cacheDoc] = cache;
-		if (cacheVersion === document.version) {
-			return cacheDoc;
-		}
-	}
-
-	const doc = parserLs.parseHTMLDocument(document);
-	htmlDocuments.set(document, [document.version, doc]);
-
-	return doc;
 }
 
 export function create({
-	languageId = 'html',
+	documentSelector = ['html'],
 	useDefaultDataProvider = true,
-	useCustomDataProviders = true,
+	getDocumentContext = context => {
+		return {
+			resolveReference(ref, base) {
+				if (ref.match(/^\w[\w\d+.-]*:/)) {
+					// starts with a schema
+					return ref;
+				}
+				if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+					let folderUri = context.env.workspaceFolder;
+					if (!folderUri.endsWith('/')) {
+						folderUri += '/';
+					}
+					return folderUri + ref.substring(1);
+				}
+				const baseUri = URI.parse(base);
+				const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+				return Utils.resolvePath(baseUriDir, ref).toString(true);
+			},
+		};
+	},
+	isFormattingEnabled = async (_document, context) => {
+		return await context.env.getConfiguration?.('html.format.enable') ?? true;
+	},
+	isAutoCreateQuotesEnabled = async (_document, context) => {
+		return await context.env.getConfiguration?.('html.autoCreateQuotes') ?? true;
+	},
+	isAutoClosingTagsEnabled = async (_document, context) => {
+		return await context.env.getConfiguration?.('html.autoClosingTags') ?? true;
+	},
+	getFormattingOptions = async (_document, context) => {
+		return await context.env.getConfiguration?.('html.format');
+	},
+	getCompletionConfiguration = async (_document, context) => {
+		return await context.env.getConfiguration?.('html.completion');
+	},
+	getHoverSettings = async (_document, context) => {
+		return await context.env.getConfiguration?.('html.hover');
+	},
+	getCustomData = async context => {
+		const customData: string[] = await context.env.getConfiguration?.('html.customData') ?? [];
+		const newData: html.IHTMLDataProvider[] = [];
+		for (const customDataPath of customData) {
+			const uri = Utils.resolvePath(URI.parse(context.env.workspaceFolder), customDataPath);
+			const json = await context.env.fs?.readFile?.(uri.toString());
+			if (json) {
+				try {
+					const data = JSON.parse(json);
+					newData.push(html.newHTMLDataProvider(customDataPath, data));
+				}
+				catch (error) {
+					console.error(error);
+				}
+			}
+		}
+		return newData;
+	},
+	onDidChangeCustomData = (listener, context) => {
+		const disposable = context.env.onDidChangeConfiguration?.(listener);
+		return {
+			dispose() {
+				disposable?.dispose();
+			},
+		};
+	},
 }: {
-	languageId?: string;
+	documentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
 	useCustomDataProviders?: boolean;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getDocumentContext?(context: ServiceContext): html.DocumentContext;
+	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<html.HTMLFormatConfiguration | undefined>;
+	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): Result<html.CompletionConfiguration | undefined>;
+	getHoverSettings?(document: TextDocument, context: ServiceContext): Result<html.HoverSettings | undefined>;
+	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
+	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
 } = {}): ServicePlugin {
 	return {
 		name: 'html',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
 		create(context): ServicePluginInstance<Provide> {
-			let shouldUpdateCustomData = true;
-			let customData: html.IHTMLDataProvider[] = [];
-			let extraData: html.IHTMLDataProvider[] = [];
 
+			const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 			const fileSystemProvider: html.FileSystemProvider = {
-				stat: async uri => await context.env.fs?.stat(uri) ?? {
-					type: html.FileType.Unknown,
-					ctime: 0,
-					mtime: 0,
-					size: 0,
-				},
+				stat: async uri => await context.env.fs?.stat(uri)
+					?? { type: html.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
 				readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
 			};
-			const documentContext = getDocumentContext(context.env.workspaceFolder);
+			const documentContext = getDocumentContext(context);
 			const htmlLs = html.getLanguageService({
 				fileSystemProvider,
 				clientCapabilities: context.env.clientCapabilities,
+				useDefaultDataProvider,
 			});
+			const disposable = onDidChangeCustomData(() => initializing = undefined, context);
 
-			context.env.onDidChangeConfiguration?.(() => {
-				shouldUpdateCustomData = true;
-			});
+			let initializing: Promise<void> | undefined;
 
 			return {
 
+				dispose() {
+					disposable.dispose();
+				},
+
 				provide: {
 					'html/htmlDocument': (document) => {
-						if (document.languageId === languageId) {
+						if (matchDocument(documentSelector, document)) {
 							return getHtmlDocument(document);
 						}
 					},
 					'html/languageService': () => htmlLs,
 					'html/documentContext': () => documentContext,
-					'html/updateCustomData': updateExtraCustomData,
 				},
 
 				async provideCompletionItems(document, position) {
 					return worker(document, async (htmlDocument) => {
-
-						const configs = await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion');
-
+						const configs = await getCompletionConfiguration(document, context);
 						return htmlLs.doComplete2(document, position, htmlDocument, documentContext, configs);
 					});
 				},
@@ -106,9 +154,7 @@ export function create({
 
 				async provideHover(document, position) {
 					return worker(document, async (htmlDocument) => {
-
-						const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
-
+						const hoverSettings = await getHoverSettings(document, context);
 						return htmlLs.doHover(document, position, htmlDocument, hoverSettings);
 					});
 				},
@@ -146,16 +192,8 @@ export function create({
 				async provideDocumentFormattingEdits(document, formatRange, options, codeOptions) {
 					return worker(document, async () => {
 
-						const formatSettings = await context.env.getConfiguration?.<html.HTMLFormatConfiguration & { enable?: boolean; }>('html.format') ?? {};
-						if (formatSettings.enable === false) {
+						if (!await isFormattingEnabled(document, context)) {
 							return;
-						}
-
-						// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
-						if (formatSettings.contentUnformatted) {
-							formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
-						} else {
-							formatSettings.contentUnformatted = 'script';
 						}
 
 						// https://github.com/microsoft/vscode/blob/dce493cb6e36346ef2714e82c42ce14fc461b15c/extensions/html-language-features/server/src/modes/formatting.ts#L13-L23
@@ -174,11 +212,18 @@ export function create({
 							};
 						}
 
-						const formatOptions: html.HTMLFormatConfiguration = {
+						const formatSettings: html.HTMLFormatConfiguration = {
 							...options,
-							...formatSettings,
 							endWithNewline: options.insertFinalNewline ? true : options.trimFinalNewlines ? false : undefined,
+							...await getFormattingOptions(document, context),
 						};
+
+						// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
+						if (formatSettings.contentUnformatted) {
+							formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
+						} else {
+							formatSettings.contentUnformatted = 'script';
+						}
 
 						let formatDocument = document;
 						let prefixes = [];
@@ -202,7 +247,7 @@ export function create({
 							};
 						}
 
-						let edits = htmlLs.format(formatDocument, formatRange, formatOptions);
+						let edits = htmlLs.format(formatDocument, formatRange, formatSettings);
 
 						if (codeOptions) {
 							let newText = TextDocument.applyEdits(formatDocument, edits);
@@ -228,7 +273,7 @@ export function create({
 
 						function ensureNewLines(newText: string) {
 							const verifyDocument = TextDocument.create(document.uri, document.languageId, document.version, '<template>' + newText + '</template>');
-							const verifyEdits = htmlLs.format(verifyDocument, undefined, formatOptions);
+							const verifyEdits = htmlLs.format(verifyDocument, undefined, formatSettings);
 							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
 							verifyText = verifyText.trim().slice('<template>'.length, -'</template>'.length);
 							if (startWithNewLine(verifyText) !== startWithNewLine(newText)) {
@@ -287,11 +332,12 @@ export function create({
 
 						if (rangeLengthIsZero && lastCharacter === '=') {
 
-							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
+							const enabled = await isAutoCreateQuotesEnabled(document, context);
 
 							if (enabled) {
 
-								const text = htmlLs.doQuoteComplete(document, position, htmlDocument, await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion'));
+								const completionConfiguration = await getCompletionConfiguration(document, context);
+								const text = htmlLs.doQuoteComplete(document, position, htmlDocument, completionConfiguration);
 
 								if (text) {
 									return text;
@@ -301,7 +347,7 @@ export function create({
 
 						if (rangeLengthIsZero && (lastCharacter === '>' || lastCharacter === '/')) {
 
-							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoClosingTags')) ?? true;
+							const enabled = await isAutoClosingTagsEnabled(document, context);
 
 							if (enabled) {
 
@@ -316,76 +362,42 @@ export function create({
 				},
 			};
 
-			async function initCustomData() {
-				if (shouldUpdateCustomData && useCustomDataProviders) {
-					shouldUpdateCustomData = false;
-					customData = await getCustomData();
-					htmlLs.setDataProviders(useDefaultDataProvider, [...customData, ...extraData]);
-				}
-			}
+			function getHtmlDocument(document: TextDocument) {
 
-			function updateExtraCustomData(data: html.IHTMLDataProvider[]) {
-				extraData = data;
-				htmlLs.setDataProviders(useDefaultDataProvider, [...customData, ...extraData]);
-			}
-
-			async function getCustomData() {
-
-				const customData: string[] = await context.env.getConfiguration?.('html.customData') ?? [];
-				const newData: html.IHTMLDataProvider[] = [];
-
-				for (const customDataPath of customData) {
-					try {
-						const pathModuleName = 'path'; // avoid bundle
-						const { posix: path } = require(pathModuleName) as typeof import('path');
-						const jsonPath = path.resolve(customDataPath);
-						newData.push(html.newHTMLDataProvider(customDataPath, require(jsonPath)));
-					}
-					catch (error) {
-						console.error(error);
+				const cache = htmlDocuments.get(document);
+				if (cache) {
+					const [cacheVersion, cacheDoc] = cache;
+					if (cacheVersion === document.version) {
+						return cacheDoc;
 					}
 				}
 
-				return newData;
+				const doc = htmlLs.parseHTMLDocument(document);
+				htmlDocuments.set(document, [document.version, doc]);
+
+				return doc;
 			}
 
 			async function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
-				if (document.languageId !== languageId)
+				if (!matchDocument(documentSelector, document))
 					return;
 
 				const htmlDocument = getHtmlDocument(document);
 				if (!htmlDocument)
 					return;
 
-				await initCustomData();
+				await (initializing ??= initialize());
 
 				return callback(htmlDocument);
 			}
-		},
-	};
-}
 
-export function getDocumentContext(workspaceFolder: string) {
-	const documentContext: html.DocumentContext = {
-		resolveReference(ref, base) {
-			if (ref.match(/^\w[\w\d+.-]*:/)) {
-				// starts with a schema
-				return ref;
+			async function initialize() {
+				const customData = await getCustomData(context);
+				htmlLs.setDataProviders(useDefaultDataProvider, customData);
 			}
-			if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-				let folderUri = workspaceFolder;
-				if (!folderUri.endsWith('/')) {
-					folderUri += '/';
-				}
-				return folderUri + ref.substr(1);
-			}
-			const baseUri = URI.parse(base);
-			const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
-			return Utils.resolvePath(baseUriDir, ref).toString(true);
 		},
 	};
-	return documentContext;
 }
 
 function isEOL(content: string, offset: number) {
@@ -396,4 +408,13 @@ const CR = '\r'.charCodeAt(0);
 const NL = '\n'.charCodeAt(0);
 function isNewlineCharacter(charCode: number) {
 	return charCode === CR || charCode === NL;
+}
+
+function matchDocument(selector: DocumentSelector, document: TextDocument) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
+	}
+	return false;
 }

@@ -1,6 +1,28 @@
-import type { ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { ServicePluginInstance, ServicePlugin, TextDocument } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
-import { getHtmlDocument } from 'volar-service-html';
+import * as html from 'vscode-html-languageservice';
+
+const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
+
+let htmlLs: html.LanguageService;
+
+function getHtmlDocument(document: TextDocument) {
+
+	const cache = htmlDocuments.get(document);
+	if (cache) {
+		const [cacheVersion, cacheDoc] = cache;
+		if (cacheVersion === document.version) {
+			return cacheDoc;
+		}
+	}
+
+	htmlLs ??= html.getLanguageService();
+
+	const doc = htmlLs.parseHTMLDocument(document);
+	htmlDocuments.set(document, [document.version, doc]);
+
+	return doc;
+}
 
 export function create(): ServicePlugin {
 	return {
