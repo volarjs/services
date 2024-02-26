@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.0.31](https://github.com/volarjs/services/compare/v0.0.30...v0.0.31) (2024-02-26)
+
+### Features
+
+- Upgrade to Volar 2.1
+- **css, html, typescript:** consume `initialIndentLevel` option for accurate embedded code formatting [#75](https://github.com/volarjs/services/issues/75)
+
+### Refactors
+
+- Deprecate `volar-service-tsconfig` package
+- Deprecate `volar-service-pretty-ts-errors` package
+- Make all editor settings configurable [#78](https://github.com/volarjs/services/issues/78)
+	- Most services now expose `documentSelector` / `*DocumentSelector` option.
+	- Services with formatting capabilities now expose the `isFormattingEnabled` option.
+	- **css:** no longer has built-in support for `postcss` language. If necessary, you can configure `scssDocumentSelector: ['scss', 'postcss']` option.
+	- **html:** if you need to update custom data, now you should implement the `onDidChangeCustomData` option instead of inject `'html/updateCustomData'` key.
+
+### Bug Fixes
+
+- **html:** reference resolving inconsistent with VSCode
+- **html:** script block formatting inconsistent with VSCode
+- **css, html, json, yaml:** respect `ClientCapabilities.textDocument.foldingRange` option
+- **typescript:** semantic tokens return redundant invalid results
+
 ## [0.0.30](https://github.com/volarjs/services/compare/v0.0.29...v0.0.30) (2024-02-13)
 
 ### Bug Fixes
