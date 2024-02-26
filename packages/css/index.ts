@@ -4,7 +4,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 
 export interface Provide {
-	'css/stylesheet': (document: TextDocument) => css.Stylesheet | undefined;
+	'css/stylesheet': (document: TextDocument, ls: css.LanguageService) => css.Stylesheet;
 	'css/languageService': (document: TextDocument) => css.LanguageService | undefined;
 }
 
@@ -315,32 +315,55 @@ export function create({
 
 			function getCssLs(document: TextDocument): css.LanguageService | undefined {
 				if (matchDocument(cssDocumentSelector, document)) {
-					return cssLs ??= css.getCSSLanguageService({
-						fileSystemProvider,
-						clientCapabilities: context.env.clientCapabilities,
-						useDefaultDataProvider,
-						customDataProviders: customData,
-					});
+					if (!cssLs) {
+						cssLs = css.getCSSLanguageService({
+							fileSystemProvider,
+							clientCapabilities: context.env.clientCapabilities,
+							useDefaultDataProvider,
+							customDataProviders: customData,
+						});
+						cssLs.setDataProviders(useDefaultDataProvider, customData);
+					}
+					return cssLs;
 				}
 				else if (matchDocument(scssDocumentSelector, document)) {
-					return scssLs ??= css.getSCSSLanguageService({
-						fileSystemProvider,
-						clientCapabilities: context.env.clientCapabilities,
-						useDefaultDataProvider,
-						customDataProviders: customData,
-					});
+					if (!scssLs) {
+						scssLs = css.getSCSSLanguageService({
+							fileSystemProvider,
+							clientCapabilities: context.env.clientCapabilities,
+							useDefaultDataProvider,
+							customDataProviders: customData,
+						});
+						scssLs.setDataProviders(useDefaultDataProvider, customData);
+					}
+					return scssLs;
 				}
 				else if (matchDocument(lessDocumentSelector, document)) {
-					return lessLs ??= css.getLESSLanguageService({
-						fileSystemProvider,
-						clientCapabilities: context.env.clientCapabilities,
-						useDefaultDataProvider,
-						customDataProviders: customData,
-					});
+					if (!lessLs) {
+						lessLs = css.getLESSLanguageService({
+							fileSystemProvider,
+							clientCapabilities: context.env.clientCapabilities,
+							useDefaultDataProvider,
+							customDataProviders: customData,
+						});
+						lessLs.setDataProviders(useDefaultDataProvider, customData);
+					}
+					return lessLs;
 				}
 			}
 
-			function getStylesheet(document: TextDocument) {
+			async function worker<T>(document: TextDocument, callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T) {
+
+				const cssLs = getCssLs(document);
+				if (!cssLs)
+					return;
+
+				await (initializing ??= initialize());
+
+				return callback(getStylesheet(document, cssLs), cssLs);
+			}
+
+			function getStylesheet(document: TextDocument, ls: css.LanguageService) {
 
 				const cache = stylesheets.get(document);
 				if (cache) {
@@ -350,29 +373,10 @@ export function create({
 					}
 				}
 
-				const cssLs = getCssLs(document);
-				if (!cssLs)
-					return;
-
-				const stylesheet = cssLs.parseStylesheet(document);
+				const stylesheet = ls.parseStylesheet(document);
 				stylesheets.set(document, [document.version, stylesheet]);
 
 				return stylesheet;
-			}
-
-			async function worker<T>(document: TextDocument, callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T) {
-
-				const stylesheet = getStylesheet(document);
-				if (!stylesheet)
-					return;
-
-				const cssLs = getCssLs(document);
-				if (!cssLs)
-					return;
-
-				await (initializing ??= initialize());
-
-				return callback(stylesheet, cssLs);
 			}
 
 			async function initialize() {
