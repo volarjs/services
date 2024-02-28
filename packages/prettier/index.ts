@@ -44,6 +44,10 @@ export function create(
 		 */
 		prettier?: typeof import('prettier') | undefined;
 		getPrettier?: (serviceEnv: ServiceEnvironment) => typeof import('prettier') | undefined,
+		/**
+		 * If true, the plugin will not throw an error if it can't load Prettier either through the `prettier`, or `getPrettier` properties or through a normal `import('prettier')`.
+		 */
+		allowImportError?: boolean;
 	} = {},
 	getPrettierConfig = async (filePath: string, prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
 		return await prettier.resolveConfig(filePath, config) ?? {};
@@ -59,12 +63,13 @@ export function create(
 					?? options.getPrettier?.(context.env)
 					?? require('prettier');
 			} catch (e) {
-				throw new Error("Could not load Prettier: " + e);
+				if (!options.allowImportError) throw new Error("Could not load Prettier: " + e);
 			}
 			const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 
 			return {
 				async provideDocumentFormattingEdits(document, _, formatOptions) {
+					if (!prettier) return;
 					if (!languages.includes(document.languageId)) {
 						return;
 					}
