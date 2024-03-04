@@ -58,13 +58,13 @@ export function create(
 		create(context): ServicePluginInstance {
 			const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 
-			let prettier = options.prettier;
+			let _prettier = options.prettier;
 			try {
-				if (!prettier) {
+				if (!_prettier) {
 					if (options.getPrettier) {
-						prettier = options.getPrettier(context.env);
+						_prettier = options.getPrettier(context.env);
 					} else {
-						prettier = require('prettier');
+						_prettier = require('prettier');
 					}
 				}
 			} catch (error) {
@@ -73,13 +73,14 @@ export function create(
 				};
 			}
 
-			if (!prettier) {
+			if (!_prettier) {
 				return {};
 			}
 
+			const prettier = _prettier;
+
 			return {
 				async provideDocumentFormattingEdits(document, _, formatOptions) {
-					if (!prettier) return;
 					if (!languages.includes(document.languageId)) {
 						return;
 					}
