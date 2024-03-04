@@ -80,7 +80,6 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
-	useCustomDataProviders?: boolean;
 	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
