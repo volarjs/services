@@ -660,11 +660,12 @@ export function create(
 			function prepareSyntacticService(document: TextDocument) {
 				if (syntacticHostCtx.document !== document || syntacticHostCtx.documentVersion !== document.version) {
 					syntacticHostCtx.document = document;
-					syntacticHostCtx.fileName = '/tmp.' +
+					syntacticHostCtx.fileName = '/tmp.' + (
 						document.languageId === 'javascript' ? 'js' :
-						document.languageId === 'typescriptreact' ? 'tsx' :
-							document.languageId === 'javascriptreact' ? 'jsx' :
-								'ts';
+							document.languageId === 'typescriptreact' ? 'tsx' :
+								document.languageId === 'javascriptreact' ? 'jsx' :
+									'ts'
+					);
 					syntacticHostCtx.fileVersion++;
 					syntacticHostCtx.snapshot = ts.ScriptSnapshot.fromString(document.getText());
 					syntacticHostCtx.projectVersion++;
