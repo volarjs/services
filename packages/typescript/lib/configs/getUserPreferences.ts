@@ -2,7 +2,7 @@ import * as path from 'path-browserify';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
-import type { SharedContext } from '../types';
+import type { SharedContext } from '../semanticFeatures/types';
 
 export async function getUserPreferences(
 	ctx: SharedContext,

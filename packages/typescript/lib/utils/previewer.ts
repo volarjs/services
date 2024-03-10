@@ -4,14 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import type * as ts from 'typescript';
-import type { SharedContext } from '../types';
-
-export interface IFilePathToResourceConverter {
-	/**
-	 * Convert a typescript filepath to a VS Code resource.
-	 */
-	toResource(filepath: string): string;
-}
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 function replaceLinks(text: string): string {
 	return text
@@ -33,8 +26,8 @@ function processInlineTags(text: string): string {
 
 function getTagBodyText(
 	tag: ts.server.protocol.JSDocTagInfo,
-	filePathConverter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string | undefined {
 	if (!tag.text) {
 		return undefined;
@@ -48,7 +41,7 @@ function getTagBodyText(
 		return '```\n' + text + '\n```';
 	}
 
-	const text = convertLinkTags(tag.text, filePathConverter, ctx);
+	const text = convertLinkTags(tag.text, fileNameToUri, getTextDocument);
 	switch (tag.name) {
 		case 'example':
 			// check for caption tags, fix for #79704
@@ -76,15 +69,15 @@ function getTagBodyText(
 
 function getTagDocumentation(
 	tag: ts.server.protocol.JSDocTagInfo,
-	filePathConverter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string | undefined {
 	switch (tag.name) {
 		case 'augments':
 		case 'extends':
 		case 'param':
 		case 'template':
-			const body = (convertLinkTags(tag.text, filePathConverter, ctx)).split(/^(\S+)\s*-?\s*/);
+			const body = (convertLinkTags(tag.text, fileNameToUri, getTextDocument)).split(/^(\S+)\s*-?\s*/);
 			if (body?.length === 3) {
 				const param = body[1];
 				const doc = body[2];
@@ -98,7 +91,7 @@ function getTagDocumentation(
 
 	// Generic tag
 	const label = `*@${tag.name}*`;
-	const text = getTagBodyText(tag, filePathConverter, ctx);
+	const text = getTagBodyText(tag, fileNameToUri, getTextDocument);
 	if (!text) {
 		return label;
 	}
@@ -107,10 +100,10 @@ function getTagDocumentation(
 
 export function plainWithLinks(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string,
-	filePathConverter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string {
-	return processInlineTags(convertLinkTags(parts, filePathConverter, ctx));
+	return processInlineTags(convertLinkTags(parts, fileNameToUri, getTextDocument));
 }
 
 /**
@@ -118,8 +111,8 @@ export function plainWithLinks(
  */
 function convertLinkTags(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string | undefined,
-	filePathConverter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string {
 	if (!parts) {
 		return '';
@@ -144,29 +137,24 @@ function convertLinkTags(
 							fileName: string,
 							textSpan: { start: number, length: number; },
 						};
-						const fileDoc = ctx.getTextDocument(ctx.uriToFileName(_target.fileName));
-						if (fileDoc) {
-							const start = fileDoc.positionAt(_target.textSpan.start);
-							const end = fileDoc.positionAt(_target.textSpan.start + _target.textSpan.length);
-							target = {
-								file: _target.fileName,
-								start: {
-									line: start.line + 1,
-									offset: start.character + 1,
-								},
-								end: {
-									line: end.line + 1,
-									offset: end.character + 1,
-								},
-							};
-						}
-						else {
-							target = undefined;
-						}
+						const fileDoc = getTextDocument(fileNameToUri(_target.fileName));
+						const start = fileDoc.positionAt(_target.textSpan.start);
+						const end = fileDoc.positionAt(_target.textSpan.start + _target.textSpan.length);
+						target = {
+							file: _target.fileName,
+							start: {
+								line: start.line + 1,
+								offset: start.character + 1,
+							},
+							end: {
+								line: end.line + 1,
+								offset: end.character + 1,
+							},
+						};
 					}
 
 					if (target) {
-						const link = filePathConverter.toResource(target.file) + '#' + `L${target.start.line},${target.start.offset}`;
+						const link = fileNameToUri(target.file) + '#' + `L${target.start.line},${target.start.offset}`;
 
 						out.push(`[${text}](${link})`);
 					} else {
@@ -203,34 +191,34 @@ function convertLinkTags(
 
 export function tagsMarkdownPreview(
 	tags: readonly ts.JSDocTagInfo[],
-	filePathConverter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string {
-	return tags.map(tag => getTagDocumentation(tag, filePathConverter, ctx)).join('  \n\n');
+	return tags.map(tag => getTagDocumentation(tag, fileNameToUri, getTextDocument)).join('  \n\n');
 }
 
 export function markdownDocumentation(
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
-	filePathConverter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string {
-	return addMarkdownDocumentation('', documentation, tags, filePathConverter, ctx);
+	return addMarkdownDocumentation('', documentation, tags, fileNameToUri, getTextDocument);
 }
 
 export function addMarkdownDocumentation(
 	out: string,
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
-	converter: IFilePathToResourceConverter,
-	ctx: SharedContext,
+	fileNameToUri: (fileName: string) => string,
+	getTextDocument: (uri: string) => TextDocument,
 ): string {
 	if (documentation) {
-		out += plainWithLinks(documentation, converter, ctx);
+		out += plainWithLinks(documentation, fileNameToUri, getTextDocument);
 	}
 
 	if (tags) {
-		const tagsPreview = tagsMarkdownPreview(tags, converter, ctx);
+		const tagsPreview = tagsMarkdownPreview(tags, fileNameToUri, getTextDocument);
 		if (tagsPreview) {
 			out += '\n\n' + tagsPreview;
 		}

@@ -1,44 +1,56 @@
 import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
-import type { SharedContext } from '../../types';
-import { getLineText } from './resolve';
+import { isTsDocument } from './lib/shared';
+import { getLanguageService } from './lib/syntacticLanguageService';
+import { getLineText } from './lib/utils/lspConverters';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 
 const defaultJsDoc = `/**\n * $0\n */`;
 
-export function register(ctx: SharedContext) {
-	return (uri: string, position: vscode.Position) => {
+export function create(ts: typeof import('typescript')): vscode.ServicePlugin {
+	return {
+		name: 'typescript-doc-comment-template',
+		triggerCharacters: ['*'],
+		create(): vscode.ServicePluginInstance {
 
-		const document = ctx.getTextDocument(uri);
-		if (!document)
-			return;
+			return {
 
-		if (!isPotentiallyValidDocCompletionPosition(document, position))
-			return;
+				provideCompletionItems(document, position) {
 
-		const fileName = ctx.uriToFileName(document.uri);
-		const offset = document.offsetAt(position);
+					if (!isTsDocument(document))
+						return;
 
-		const docCommentTemplate = ctx.languageService.getDocCommentTemplateAtPosition(fileName, offset);
-		if (!docCommentTemplate)
-			return;
+					if (!isPotentiallyValidDocCompletionPosition(document, position))
+						return;
 
-		let insertText: string;
+					const { languageService, fileName } = getLanguageService(ts, document);
+					const offset = document.offsetAt(position);
+					const docCommentTemplate = languageService.getDocCommentTemplateAtPosition(fileName, offset);
+					if (!docCommentTemplate)
+						return;
 
-		// Workaround for #43619
-		// docCommentTemplate previously returned undefined for empty jsdoc templates.
-		// TS 2.7 now returns a single line doc comment, which breaks indentation.
-		if (docCommentTemplate.newText === '/** */') {
-			insertText = defaultJsDoc;
-		} else {
-			insertText = templateToSnippet(docCommentTemplate.newText);
-		}
+					let insertText: string;
 
-		const item = createCompletionItem(document, position, insertText);
+					// Workaround for #43619
+					// docCommentTemplate previously returned undefined for empty jsdoc templates.
+					// TS 2.7 now returns a single line doc comment, which breaks indentation.
+					if (docCommentTemplate.newText === '/** */') {
+						insertText = defaultJsDoc;
+					} else {
+						insertText = templateToSnippet(docCommentTemplate.newText);
+					}
 
-		return item;
+					const item = createCompletionItem(document, position, insertText);
+
+					return {
+						isIncomplete: false,
+						items: [item],
+					};
+				},
+			};
+		},
 	};
 }
 

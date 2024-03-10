@@ -27,3 +27,7 @@ export function safeCall<T>(cb: () => T) {
 		return cb();
 	} catch { }
 }
+
+export function notEmpty(value: any): value is NonNullable<typeof value> {
+	return value !== null && value !== undefined;
+}

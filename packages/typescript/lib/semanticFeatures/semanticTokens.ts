@@ -1,22 +1,16 @@
 import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { safeCall } from '../shared';
-import type { SharedContext } from '../types';
+import type { SharedContext } from './types';
 
-export function register(ctx: SharedContext) {
-	const { ts } = ctx;
-
-	return (uri: string, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
-
-		const document = ctx.getTextDocument(uri);
-		if (!document) return;
-
-		const file = ctx.uriToFileName(uri);
+export function register(ts: typeof import('typescript'), ctx: SharedContext) {
+	return (document: TextDocument, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
+		const fileName = ctx.uriToFileName(document.uri);
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
 		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
-		const response = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(file, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
+		const response = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(fileName, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
 		if (!response) return;
 
 		let tokenModifiersTable: number[] = [];
