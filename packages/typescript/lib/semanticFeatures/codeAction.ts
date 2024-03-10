@@ -3,10 +3,11 @@ import type * as ts from 'typescript';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
-import type { SharedContext } from '../types';
+import type { SharedContext } from './types';
 import * as fixNames from '../utils/fixNames';
 import { resolveFixAllCodeAction, resolveOrganizeImportsCodeAction, resolveRefactorCodeAction } from './codeActionResolve';
-import { fileTextChangesToWorkspaceEdit } from './rename';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { convertFileTextChanges } from '../utils/lspConverters';
 
 export interface FixAllData {
 	type: 'fixAll',
@@ -42,11 +43,7 @@ export function register(ctx: SharedContext) {
 		resolveEditSupport = true;
 	}
 
-	return async (uri: string, range: vscode.Range, context: vscode.CodeActionContext) => {
-
-		const document = ctx.getTextDocument(uri);
-		if (!document) return;
-
+	return async (document: TextDocument, range: vscode.Range, context: vscode.CodeActionContext) => {
 		const [formatOptions, preferences] = await Promise.all([
 			getFormatCodeSettings(ctx, document),
 			getUserPreferences(ctx, document),
@@ -69,7 +66,7 @@ export function register(ctx: SharedContext) {
 					preferences,
 				)) ?? [];
 				for (const codeFix of codeFixes) {
-					result = result.concat(transformCodeFix(codeFix, [error], onlyQuickFix ?? '' satisfies typeof vscode.CodeActionKind.Empty));
+					result = result.concat(convertCodeFixAction(codeFix, [error], onlyQuickFix ?? '' satisfies typeof vscode.CodeActionKind.Empty));
 				}
 			}
 		}
@@ -85,7 +82,7 @@ export function register(ctx: SharedContext) {
 						only,
 					)) ?? [];
 					for (const refactor of refactors) {
-						result = result.concat(transformRefactor(refactor));
+						result = result.concat(convertApplicableRefactorInfo(refactor));
 					}
 				}
 			}
@@ -99,7 +96,7 @@ export function register(ctx: SharedContext) {
 				undefined,
 			)) ?? [];
 			for (const refactor of refactors) {
-				result = result.concat(transformRefactor(refactor));
+				result = result.concat(convertApplicableRefactorInfo(refactor));
 			}
 		}
 
@@ -111,7 +108,7 @@ export function register(ctx: SharedContext) {
 			};
 			const data: OrganizeImportsData = {
 				type: 'organizeImports',
-				uri,
+				uri: document.uri,
 				fileName,
 			};
 			if (resolveEditSupport) {
@@ -130,7 +127,7 @@ export function register(ctx: SharedContext) {
 				kind: onlySourceFixAll,
 			};
 			const data: FixAllData = {
-				uri,
+				uri: document.uri,
 				type: 'fixAll',
 				fileName,
 				fixIds: [
@@ -155,7 +152,7 @@ export function register(ctx: SharedContext) {
 				kind: onlyRemoveUnused,
 			};
 			const data: FixAllData = {
-				uri,
+				uri: document.uri,
 				type: 'fixAll',
 				fileName,
 				fixIds: [
@@ -184,7 +181,7 @@ export function register(ctx: SharedContext) {
 				kind: onlyAddMissingImports,
 			};
 			const data: FixAllData = {
-				uri,
+				uri: document.uri,
 				type: 'fixAll',
 				fileName,
 				fixIds: [
@@ -234,8 +231,8 @@ export function register(ctx: SharedContext) {
 				}
 			}
 		}
-		function transformCodeFix(codeFix: ts.CodeFixAction, diagnostics: vscode.Diagnostic[], kind: vscode.CodeActionKind) {
-			const edit = fileTextChangesToWorkspaceEdit(codeFix.changes, ctx);
+		function convertCodeFixAction(codeFix: ts.CodeFixAction, diagnostics: vscode.Diagnostic[], kind: vscode.CodeActionKind) {
+			const edit = convertFileTextChanges(codeFix.changes, ctx.fileNameToUri, ctx.getTextDocument);
 			const codeActions: vscode.CodeAction[] = [];
 			const fix: vscode.CodeAction = {
 				title: codeFix.description,
@@ -250,7 +247,7 @@ export function register(ctx: SharedContext) {
 					kind,
 				};
 				const data: FixAllData = {
-					uri,
+					uri: document.uri,
 					type: 'fixAll',
 					fileName,
 					fixIds: [codeFix.fixId],
@@ -266,7 +263,7 @@ export function register(ctx: SharedContext) {
 			}
 			return codeActions;
 		}
-		function transformRefactor(refactor: ts.ApplicableRefactorInfo) {
+		function convertApplicableRefactorInfo(refactor: ts.ApplicableRefactorInfo) {
 			const codeActions: vscode.CodeAction[] = [];
 			for (const action of refactor.actions) {
 				const codeAction: vscode.CodeAction = {
@@ -280,7 +277,7 @@ export function register(ctx: SharedContext) {
 					codeAction.isPreferred = true;
 				}
 				const data: RefactorData = {
-					uri,
+					uri: document.uri,
 					type: 'refactor',
 					fileName,
 					range: { pos: start, end: end },

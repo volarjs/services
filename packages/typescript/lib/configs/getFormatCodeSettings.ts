@@ -1,11 +1,10 @@
-import type { FormattingOptions } from '@volar/language-service';
+import type { FormattingOptions, ServiceContext } from '@volar/language-service';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
-import type { SharedContext } from '../types';
 
 export async function getFormatCodeSettings(
-	ctx: SharedContext,
+	ctx: ServiceContext,
 	document: TextDocument,
 	options?: FormattingOptions,
 ): Promise<ts.FormatCodeSettings> {

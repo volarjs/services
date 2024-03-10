@@ -1,7 +1,7 @@
 import type { InlayHint, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import type { Provide } from 'volar-service-typescript';
 
-export function create(): ServicePlugin {
+export function create(ts: typeof import('typescript')): ServicePlugin {
 	return {
 		name: 'typescript-twoslash-queries',
 		create(context): ServicePluginInstance {
@@ -9,7 +9,6 @@ export function create(): ServicePlugin {
 				provideInlayHints(document, range) {
 					if (isTsDocument(document.languageId)) {
 
-						const ts = context.inject<Provide, 'typescript/typescript'>('typescript/typescript');
 						const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
 						const inlayHints: InlayHint[] = [];
 
