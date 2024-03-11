@@ -25,8 +25,7 @@
 	},
 	"devDependencies": {
 		"@types/path-browserify": "latest",
-		"@types/semver": "latest",
-		"@volar/typescript": "latest"
+		"@types/semver": "latest"
 	},
 	"dependencies": {
 		"path-browserify": "^1.0.1",
@@ -36,8 +35,7 @@
 		"vscode-nls": "^5.2.0"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.1.0",
-		"@volar/typescript": "~2.1.0"
+		"@volar/language-service": "~2.1.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

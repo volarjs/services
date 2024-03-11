@@ -1,4 +1,3 @@
-export * from '@volar/typescript';
 export { Provide } from './semantic';
 
 import { create as createDirectiveCommentServicePlugin } from './directiveComment';

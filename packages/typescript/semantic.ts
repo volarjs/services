@@ -15,7 +15,6 @@ import type {
 	VirtualCode,
 	WorkspaceEdit
 } from '@volar/language-service';
-import { getDocumentRegistry } from '@volar/typescript';
 import * as path from 'path-browserify';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
@@ -65,6 +64,17 @@ export interface CompletionItemData {
 		data: ts.CompletionEntry['data'],
 		labelDetails: ts.CompletionEntry['labelDetails'],
 	};
+}
+
+const documentRegistries: [boolean, string, ts.DocumentRegistry][] = [];
+
+function getDocumentRegistry(ts: typeof import('typescript'), useCaseSensitiveFileNames: boolean, currentDirectory: string) {
+	let documentRegistry = documentRegistries.find(item => item[0] === useCaseSensitiveFileNames && item[1] === currentDirectory)?.[2];
+	if (!documentRegistry) {
+		documentRegistry = ts.createDocumentRegistry(useCaseSensitiveFileNames, currentDirectory);
+		documentRegistries.push([useCaseSensitiveFileNames, currentDirectory, documentRegistry]);
+	}
+	return documentRegistry;
 }
 
 export function create(
