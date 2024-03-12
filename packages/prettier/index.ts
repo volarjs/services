@@ -13,13 +13,9 @@ export function create(
 		isFormattingEnabled = async (prettier, document) => {
 			const uri = URI.parse(document.uri);
 			if (uri.scheme === 'file') {
-				try {
-					const fileInfo = await prettier.getFileInfo(uri.fsPath, { ignorePath: '.prettierignore', resolveConfig: false });
-					if (fileInfo.ignored) {
-						return false;
-					}
-				} catch (err) {
-					console.warn(err);
+				const fileInfo = await prettier.getFileInfo(uri.fsPath, { ignorePath: '.prettierignore', resolveConfig: false });
+				if (fileInfo.ignored) {
+					return false;
 				}
 			}
 			return true;
