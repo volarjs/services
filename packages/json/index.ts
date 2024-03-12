@@ -1,4 +1,4 @@
-import type { ServicePlugin, ServicePluginInstance, DocumentSelector, ServiceContext, Disposable, Result } from '@volar/language-service';
+import type { ServicePlugin, ServicePluginInstance, DocumentSelector, ServiceContext, Disposable, Result, FormattingOptions } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -28,8 +28,11 @@ export function create({
 	isFormattingEnabled = async (_document, context) => {
 		return await context.env.getConfiguration?.('json.format.enable') ?? true;
 	},
-	getFormattingOptions = async (_document, context) => {
-		return await context.env.getConfiguration?.('json.format');
+	getFormattingOptions = async (_document, options, context) => {
+		return {
+			...options,
+			...await context.env.getConfiguration?.('json.format'),
+		};
 	},
 	getLanguageSettings = async context => {
 		const languageSettings: json.LanguageSettings = {};
@@ -68,7 +71,7 @@ export function create({
 	documentSelector?: DocumentSelector;
 	getWorkspaceContextService?(context: ServiceContext): json.WorkspaceContextService;
 	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<json.FormattingOptions | undefined>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<json.FormattingOptions>;
 	getLanguageSettings?(context: ServiceContext): Result<json.LanguageSettings>;
 	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): Result<json.DocumentLanguageSettings | undefined>;
 	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
@@ -172,12 +175,9 @@ export function create({
 							return;
 						}
 
-						const formatOptions = await getFormattingOptions(document, context);
+						const formatOptions = await getFormattingOptions(document, options, context);
 
-						return jsonLs.format(document, range, {
-							...options,
-							...formatOptions,
-						});
+						return jsonLs.format(document, range, formatOptions);
 					});
 				},
 			};

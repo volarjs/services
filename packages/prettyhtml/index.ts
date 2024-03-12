@@ -1,16 +1,21 @@
 import * as prettyhtml from '@starptech/prettyhtml';
-import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 
-export type FormattingOptions = Parameters<typeof prettyhtml>[1];
+export type PrettyhtmlFormattingOptions = Parameters<typeof prettyhtml>[1];
 
 export function create({
 	documentSelector = ['html'],
 	isFormattingEnabled = () => true,
-	getFormattingOptions = () => ({}),
+	getFormattingOptions = (_document, options) => {
+		return {
+			tabWidth: options.tabSize,
+			useTabs: !options.insertSpaces,
+		};
+	},
 }: {
 	documentSelector?: DocumentSelector;
 	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<FormattingOptions>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<PrettyhtmlFormattingOptions>;
 } = {}): ServicePlugin {
 	return {
 		name: 'prettyhtml',
@@ -25,11 +30,10 @@ export function create({
 						return;
 
 					const oldRangeText = document.getText(range);
-					const newRangeText = prettyhtml(oldRangeText, {
-						tabWidth: options.tabSize,
-						useTabs: !options.insertSpaces,
-						...await getFormattingOptions(document, context),
-					}).contents;
+					const newRangeText = prettyhtml(
+						oldRangeText,
+						await getFormattingOptions(document, options, context),
+					).contents;
 
 					if (newRangeText === oldRangeText)
 						return [];

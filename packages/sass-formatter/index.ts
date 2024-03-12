@@ -1,14 +1,14 @@
-import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 import { SassFormatter, SassFormatterConfig } from 'sass-formatter';
 
 export function create({
 	documentSelector = ['sass'],
 	isFormattingEnabled = () => true,
-	getFormatterConfig,
+	getFormatterConfig = (_document, options) => options,
 }: {
 	documentSelector?: DocumentSelector;
 	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormatterConfig?(document: TextDocument): Result<SassFormatterConfig>;
+	getFormatterConfig?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<Partial<SassFormatterConfig>>;
 } = {}): ServicePlugin {
 	return {
 		name: 'sass-formatter',
@@ -22,10 +22,7 @@ export function create({
 					if (!await isFormattingEnabled(document, context))
 						return;
 
-					const config = {
-						...options,
-						...getFormatterConfig ? await getFormatterConfig(document) : {},
-					};
+					const config = await getFormatterConfig(document, options, context);
 
 					// don't set when options.insertSpaces is false to avoid sass-formatter internal judge bug
 					if (config.insertSpaces)

@@ -1,11 +1,18 @@
-import type { DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
 
 export function create({
 	documentSelector = ['jade'],
 	isFormattingEnabled = () => true,
+	getFormattingOptions = (_document, options) => {
+		return {
+			tab_size: options.tabSize,
+			fill_tab: !options.insertSpaces,
+		};
+	},
 }: {
 	documentSelector?: DocumentSelector;
 	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<{}>;
 } = {}): ServicePlugin {
 	return {
 		name: 'pug-beautify',
@@ -20,7 +27,6 @@ export function create({
 						return;
 
 					const pugCode = document.getText(range);
-
 					// fix https://github.com/johnsoncodehk/volar/issues/304
 					if (pugCode.trim() === '')
 						return;
@@ -30,11 +36,8 @@ export function create({
 					const suffixesLength = pugCode.length - pugCode.trimEnd().length;
 					const prefixes = pugCode.slice(0, prefixesLength);
 					const suffixes = pugCode.slice(pugCode.length - suffixesLength);
-
-					let newText: string = pugBeautify(pugCode, {
-						tab_size: options.tabSize,
-						fill_tab: !options.insertSpaces,
-					});
+					const formatOptions = await getFormattingOptions(document, options, context);
+					const newText: string = pugBeautify(pugCode, formatOptions);
 
 					return [{
 						range,
