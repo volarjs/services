@@ -1,4 +1,4 @@
-import type { Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -42,8 +42,19 @@ export function create({
 	isAutoClosingTagsEnabled = async (_document, context) => {
 		return await context.env.getConfiguration?.('html.autoClosingTags') ?? true;
 	},
-	getFormattingOptions = async (_document, context) => {
-		return await context.env.getConfiguration?.('html.format');
+	getFormattingOptions = async (_document, options, context) => {
+		const formatSettings: html.FormattingOptions = {
+			...options,
+			endWithNewline: options.insertFinalNewline ? true : options.trimFinalNewlines ? false : undefined,
+			...await context.env.getConfiguration?.('html.format'),
+		};
+		// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
+		if (formatSettings.contentUnformatted) {
+			formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
+		} else {
+			formatSettings.contentUnformatted = 'script';
+		}
+		return formatSettings;
 	},
 	getCompletionConfiguration = async (_document, context) => {
 		return await context.env.getConfiguration?.('html.completion');
@@ -84,7 +95,7 @@ export function create({
 	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
 	getDocumentContext?(context: ServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, context: ServiceContext): Result<html.HTMLFormatConfiguration | undefined>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<html.HTMLFormatConfiguration>;
 	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): Result<html.CompletionConfiguration | undefined>;
 	getHoverSettings?(document: TextDocument, context: ServiceContext): Result<html.HoverSettings | undefined>;
 	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
@@ -211,18 +222,7 @@ export function create({
 							};
 						}
 
-						const formatSettings: html.HTMLFormatConfiguration = {
-							...options,
-							endWithNewline: options.insertFinalNewline ? true : options.trimFinalNewlines ? false : undefined,
-							...await getFormattingOptions(document, context),
-						};
-
-						// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
-						if (formatSettings.contentUnformatted) {
-							formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
-						} else {
-							formatSettings.contentUnformatted = 'script';
-						}
+						const formatSettings = await getFormattingOptions(document, options, context);
 
 						let formatDocument = document;
 						let prefixes = [];

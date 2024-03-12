@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Disposable, DocumentSelector, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -36,8 +36,11 @@ export function create({
 	isFormattingEnabled = async (document, context) => {
 		return await context.env.getConfiguration?.(document.languageId + '.format.enable') ?? true;
 	},
-	getFormatConfiguration = async (document, context) => {
-		return await context.env.getConfiguration?.(document.languageId + '.format');
+	getFormattingOptions = async (document, options, context) => {
+		return {
+			...options,
+			...await context.env.getConfiguration?.(document.languageId + '.format'),
+		};
 	},
 	getLanguageSettings = async (document, context) => {
 		return await context.env.getConfiguration?.(document.languageId);
@@ -75,7 +78,7 @@ export function create({
 	useDefaultDataProvider?: boolean;
 	getDocumentContext?(context: ServiceContext): css.DocumentContext;
 	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormatConfiguration?(document: TextDocument, context: ServiceContext): Result<css.CSSFormatConfiguration | undefined>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<css.CSSFormatConfiguration>;
 	getLanguageSettings?(document: TextDocument, context: ServiceContext): Result<css.LanguageSettings | undefined>;
 	getCustomData?(context: ServiceContext): Result<css.ICSSDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
@@ -219,11 +222,7 @@ export function create({
 							return;
 						}
 
-						const formatSettings = await getFormatConfiguration(document, context);
-						const formatOptions: css.CSSFormatConfiguration = {
-							...options,
-							...formatSettings,
-						};
+						const formatOptions = await getFormattingOptions(document, options, context);
 
 						let formatDocument = document;
 						let prefixes = [];
