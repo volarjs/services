@@ -1,6 +1,6 @@
 import type * as vscode from '@volar/language-service';
 import * as nls from 'vscode-nls';
-import { isTsDocument } from './lib/shared';
+import { isTsDocument } from '../shared';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 

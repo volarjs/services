@@ -20,9 +20,9 @@ import * as semver from 'semver';
 import type * as ts from 'typescript';
 import * as tsWithImportCache from 'typescript-auto-import-cache';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { getFormatCodeSettings } from './lib/configs/getFormatCodeSettings';
-import { getUserPreferences } from './lib/configs/getUserPreferences';
-import { getConfigTitle, isJsonDocument, isTsDocument, notEmpty, safeCall } from './lib/shared';
+import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
+import { getUserPreferences } from '../configs/getUserPreferences';
+import { getConfigTitle, isJsonDocument, isTsDocument, notEmpty, safeCall } from '../shared';
 import {
 	applyCompletionEntryDetails,
 	convertCallHierarchyIncomingCall,
@@ -42,12 +42,12 @@ import {
 	convertSelectionRange,
 	convertTextSpan,
 	getLineText
-} from './lib/utils/lspConverters';
-import { snippetForFunctionCall } from './lib/utils/snippetForFunctionCall';
-import * as codeActions from './lib/semanticFeatures/codeAction';
-import * as codeActionResolve from './lib/semanticFeatures/codeActionResolve';
-import * as semanticTokens from './lib/semanticFeatures/semanticTokens';
-import type { SharedContext } from './lib/semanticFeatures/types';
+} from '../utils/lspConverters';
+import { snippetForFunctionCall } from '../utils/snippetForFunctionCall';
+import * as codeActions from '../semanticFeatures/codeAction';
+import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
+import * as semanticTokens from '../semanticFeatures/semanticTokens';
+import type { SharedContext } from '../semanticFeatures/types';
 
 export interface Provide {
 	'typescript/languageService': () => ts.LanguageService;

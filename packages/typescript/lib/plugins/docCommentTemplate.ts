@@ -1,9 +1,9 @@
 import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
-import { isTsDocument } from './lib/shared';
-import { getLanguageService } from './lib/syntacticLanguageService';
-import { getLineText } from './lib/utils/lspConverters';
+import { isTsDocument } from '../shared';
+import { getLanguageService } from '../syntacticLanguageService';
+import { getLineText } from '../utils/lspConverters';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 

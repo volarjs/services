@@ -5,14 +5,14 @@ import type {
 	ServicePluginInstance
 } from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { getFormatCodeSettings } from './lib/configs/getFormatCodeSettings';
-import { getConfigTitle, isTsDocument, safeCall } from './lib/shared';
+import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
+import { getConfigTitle, isTsDocument, safeCall } from '../shared';
 import {
 	convertNavTree,
 	convertOutliningSpan,
 	convertTextChange
-} from './lib/utils/lspConverters';
-import { getLanguageService } from './lib/syntacticLanguageService';
+} from '../utils/lspConverters';
+import { getLanguageService } from '../syntacticLanguageService';
 
 export function create(
 	ts: typeof import('typescript'),
