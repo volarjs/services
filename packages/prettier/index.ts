@@ -1,16 +1,38 @@
-import type { ServicePluginInstance, ServicePlugin, ServiceEnvironment } from '@volar/language-service';
-import type { Options, ResolveConfigOptions } from 'prettier';
+import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { Options } from 'prettier';
 import { URI } from 'vscode-uri';
 
 export function create(
-	options: {
-		/**
-		 * Languages to be formatted by prettier.
-		 *
-		 * @default
-		 * ['html', 'css', 'scss', 'typescript', 'javascript']
-		 */
-		languages?: string[];
+	/**
+	 * Prettier instance or getter to use.
+	 */
+	prettierInstanceOrGetter: typeof import('prettier') | ((context: ServiceContext) => Result<typeof import('prettier') | undefined>),
+	{
+		html,
+		documentSelector = ['html', 'css', 'scss', 'typescript', 'javascript'],
+		isFormattingEnabled = async (prettier, document) => {
+			const uri = URI.parse(document.uri);
+			if (uri.scheme === 'file') {
+				const fileInfo = await prettier.getFileInfo(uri.fsPath, { ignorePath: '.prettierignore', resolveConfig: false });
+				if (fileInfo.ignored) {
+					return false;
+				}
+			}
+			return true;
+		},
+		getFormattingOptions = async (prettier, document, formatOptions, context) => {
+			const filepath = URI.parse(document.uri).fsPath;
+			const configOptions = await prettier.resolveConfig(filepath);
+			const editorOptions = await context.env.getConfiguration<Options>?.('prettier', document.uri);
+			return {
+				filepath,
+				tabWidth: formatOptions.tabSize,
+				useTabs: !formatOptions.insertSpaces,
+				...editorOptions,
+				...configOptions,
+			};
+		},
+	}: {
 		html?: {
 			/**
 			 * Preprocessing to break "contents" from "HTML tags".
@@ -20,123 +42,56 @@ export function create(
 			breakContentsFromTags?: boolean;
 		};
 		/**
-		 * Do not use settings from VSCode's `editor.tabSize` and temporary tabSize on status bar
+		 * Languages to be formatted by prettier.
 		 *
-		 * @see https://github.com/volarjs/services/issues/5
+		 * @default
+		 * ['html', 'css', 'scss', 'typescript', 'javascript']
 		 */
-		ignoreIdeOptions?: boolean;
-		/**
-		 * Determine if IDE options should be used as a fallback if there's no Prettier specific settings in the workspace
-		 */
-		useIdeOptionsFallback?: boolean;
-		/**
-		 * Additional options to pass to Prettier
-		 * This is useful, for instance, to add specific plugins you need.
-		 */
-		additionalOptions?: (resolvedConfig: Options) => Options | Promise<Options>;
-		/**
-		 * Options to use when resolving the Prettier config
-		 */
-		resolveConfigOptions?: ResolveConfigOptions;
-		/**
-		 * Prettier instance to use. If undefined, Prettier will be imported through a normal `import('prettier')`.
-		 * This property is useful whenever you want to load a specific instance of Prettier (for instance, loading the Prettier version installed in the user's project)
-		 */
-		prettier?: typeof import('prettier') | undefined;
-		getPrettier?: (serviceEnv: ServiceEnvironment) => typeof import('prettier') | undefined,
-		/**
-		 * If true, the plugin will not throw an error if it can't load Prettier either through the `prettier`, or `getPrettier` properties or through a normal `import('prettier')`.
-		 */
-		allowImportError?: boolean;
+		documentSelector?: DocumentSelector;
+		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: ServiceContext): Result<boolean>;
+		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: ServiceContext): Result<Options>;
 	} = {},
-	getPrettierConfig = async (filePath: string, prettier: typeof import('prettier'), config?: ResolveConfigOptions) => {
-		return await prettier.resolveConfig(filePath, config) ?? {};
-	},
 ): ServicePlugin {
 	return {
 		name: 'prettier',
 		create(context): ServicePluginInstance {
-			const languages = options.languages ?? ['html', 'css', 'scss', 'typescript', 'javascript'];
 
-			let _prettier = options.prettier;
-			try {
-				if (!_prettier) {
-					if (options.getPrettier) {
-						_prettier = options.getPrettier(context.env);
-					} else {
-						_prettier = require('prettier');
-					}
-				}
-			} catch (error) {
-				if (!options.allowImportError) {
-					throw new Error("Could not load Prettier: ");
-				};
-			}
-
-			if (!_prettier) {
-				return {};
-			}
-
-			const prettier = _prettier;
+			let prettierInstanceOrPromise: Result<typeof import('prettier') | undefined>;
 
 			return {
 				async provideDocumentFormattingEdits(document, _, formatOptions) {
-					if (!languages.includes(document.languageId)) {
+					if (!matchDocument(documentSelector, document)) {
 						return;
 					}
 
-					const filePath = URI.parse(document.uri).fsPath;
-					const fileInfo = await prettier.getFileInfo(filePath, { ignorePath: '.prettierignore', resolveConfig: false });
+					prettierInstanceOrPromise ??= typeof prettierInstanceOrGetter === 'function'
+						? prettierInstanceOrGetter(context)
+						: prettierInstanceOrGetter;
 
-					if (fileInfo.ignored) {
+					const prettier = await prettierInstanceOrPromise;
+					if (!prettier) {
 						return;
 					}
 
-					const filePrettierOptions = await getPrettierConfig(
-						filePath,
-						prettier,
-						options.resolveConfigOptions
-					);
-
-					const editorPrettierOptions = await context.env.getConfiguration?.('prettier', document.uri);
-					const ideFormattingOptions =
-						formatOptions !== undefined && options.useIdeOptionsFallback // We need to check for options existing here because some editors might not have it
-							? {
-								tabWidth: formatOptions.tabSize,
-								useTabs: !formatOptions.insertSpaces,
-							}
-							: {};
-
-					// Return a config with the following cascade:
-					// - Prettier config file should always win if it exists, if it doesn't:
-					// - Prettier config from the VS Code extension is used, if it doesn't exist:
-					// - Use the editor's basic configuration settings
-					const prettierOptions = returnObjectIfHasKeys(filePrettierOptions) || returnObjectIfHasKeys(editorPrettierOptions) || ideFormattingOptions;
-
-					const currentPrettierConfig: Options = {
-						...(options.additionalOptions
-							? await options.additionalOptions(prettierOptions)
-							: prettierOptions),
-						filepath: filePath,
-					};
-
-					if (!options.ignoreIdeOptions) {
-						currentPrettierConfig.useTabs = !formatOptions.insertSpaces;
-						currentPrettierConfig.tabWidth = formatOptions.tabSize;
+					if (!isFormattingEnabled(prettier, document, context)) {
+						return;
 					}
 
 					const fullText = document.getText();
 					let oldText = fullText;
 
-					const isHTML = document.languageId === "html";
-					if (isHTML && options.html?.breakContentsFromTags) {
+					const isHTML = document.languageId === 'html';
+					if (isHTML && html?.breakContentsFromTags) {
 						oldText = oldText
-							.replace(/(<[a-z][^>]*>)([^ \n])/gi, "$1 $2")
-							.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, "$1 $2");
+							.replace(/(<[a-z][^>]*>)([^ \n])/gi, '$1 $2')
+							.replace(/([^ \n])(<\/[a-z][a-z0-9\t\n\r -]*>)/gi, '$1 $2');
 					}
 
+					const prettierOptions = await getFormattingOptions(prettier, document, formatOptions, context);
+					const newText = await prettier.format(oldText, prettierOptions);
+
 					return [{
-						newText: await prettier.format(oldText, currentPrettierConfig),
+						newText,
 						range: {
 							start: document.positionAt(0),
 							end: document.positionAt(fullText.length),
@@ -148,8 +103,11 @@ export function create(
 	};
 }
 
-function returnObjectIfHasKeys<T>(obj: T | undefined): T | undefined {
-	if (Object.keys(obj || {}).length > 0) {
-		return obj;
+function matchDocument(selector: DocumentSelector, document: { languageId: string; }) {
+	for (const sel of selector) {
+		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
+			return true;
+		}
 	}
+	return false;
 }
