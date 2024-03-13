@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.0.32](https://github.com/volarjs/services/compare/v0.0.31...v0.0.32) (2024-03-13)
+
+### Features
+
+- **prettier:** don't throw an error when no Prettier instance is available [#81](https://github.com/volarjs/services/issues/81)
+
+### Bug Fixes
+
+- **typescript:** can't format JSX/TSX document correctly (https://github.com/vuejs/language-tools/issues/3949)
+
+### Refactors
+
+- all package formatting options are now consistent
+- **typescript:** split the main plugin into multiple plugins [#83](https://github.com/volarjs/services/issues/83)
+- **typescript:** no longer depend on `@volar/typescript`
+- **prettier:** simplify plugin options [#84](https://github.com/volarjs/services/issues/84)
+- **html:** remove useCustomDataProviders option that is no longer used
+
 ## [0.0.31](https://github.com/volarjs/services/compare/v0.0.30...v0.0.31) (2024-02-26)
 
 ### Features
