@@ -7,7 +7,7 @@ import { create as createSyntacticServicePlugin } from './lib/plugins/syntactic'
 
 export function create(
 	ts: typeof import('typescript'),
-	options: Parameters<typeof createSemanticServicePlugin>[1] & Parameters<typeof createSyntacticServicePlugin>[1]
+	options?: Parameters<typeof createSemanticServicePlugin>[1] & Parameters<typeof createSyntacticServicePlugin>[1]
 ) {
 	return [
 		createSemanticServicePlugin(ts, options),
