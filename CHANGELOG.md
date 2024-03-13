@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.33](https://github.com/volarjs/services/compare/v0.0.32...v0.0.33) (2024-03-14)
+
+### Bug Fixes
+
+- **typescript:** options should be optional
+- **typescript:** coee actions not working
+
 ## [0.0.32](https://github.com/volarjs/services/compare/v0.0.31...v0.0.32) (2024-03-13)
 
 ### Features
