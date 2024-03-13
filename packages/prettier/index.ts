@@ -6,7 +6,7 @@ export function create(
 	/**
 	 * Prettier instance or getter to use.
 	 */
-	prettierInstanceOrGetter: typeof import('prettier') | ((context: ServiceContext) => typeof import('prettier') | undefined),
+	prettierInstanceOrGetter: typeof import('prettier') | ((context: ServiceContext) => Result<typeof import('prettier') | undefined>),
 	{
 		html,
 		documentSelector = ['html', 'css', 'scss', 'typescript', 'javascript'],
@@ -56,17 +56,20 @@ export function create(
 		name: 'prettier',
 		create(context): ServicePluginInstance {
 
-			const prettier = typeof prettierInstanceOrGetter === 'function'
-				? prettierInstanceOrGetter(context)
-				: prettierInstanceOrGetter;
-
-			if (!prettier) {
-				return {};
-			}
+			let prettierInstanceOrPromise: Result<typeof import('prettier') | undefined>;
 
 			return {
 				async provideDocumentFormattingEdits(document, _, formatOptions) {
 					if (!matchDocument(documentSelector, document)) {
+						return;
+					}
+
+					prettierInstanceOrPromise ??= typeof prettierInstanceOrGetter === 'function'
+						? prettierInstanceOrGetter(context)
+						: prettierInstanceOrGetter;
+
+					const prettier = await prettierInstanceOrPromise;
+					if (!prettier) {
 						return;
 					}
 
