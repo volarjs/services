@@ -606,12 +606,10 @@ export function convertFileTextChanges(
 			workspaceEdit.documentChanges = [];
 		}
 		const uri = fileNameToUri(change.fileName);
-		let doc = getTextDocument(uri);
+		const doc = getTextDocument(uri);
 		if (change.isNewFile) {
 			workspaceEdit.documentChanges.push({ kind: 'create', uri });
 		}
-		if (!change.isNewFile)
-			continue;
 		workspaceEdit.documentChanges.push({
 			textDocument: {
 				uri,
