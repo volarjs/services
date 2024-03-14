@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.34](https://github.com/volarjs/services/compare/v0.0.33...v0.0.34) (2024-03-14)
+
+### Bug Fixes
+
+- **prettier:** await isFormattingEnabled [#85](https://github.com/volarjs/services/issues/85)
+
 ## [0.0.33](https://github.com/volarjs/services/compare/v0.0.32...v0.0.33) (2024-03-14)
 
 ### Bug Fixes
