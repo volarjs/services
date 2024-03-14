@@ -73,7 +73,8 @@ export function create(
 						return;
 					}
 
-					if (!isFormattingEnabled(prettier, document, context)) {
+					const hasFormattingEnabled = await isFormattingEnabled(prettier, document, context);
+					if (!hasFormattingEnabled) {
 						return;
 					}
 
