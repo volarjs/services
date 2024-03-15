@@ -7,13 +7,17 @@
 		"prerelease": "npm run build",
 		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
 		"postrelease": "lerna exec --no-bail --no-private --no-sort --stream -- '[ -n \"$(npm v . dist-tags.latest)\" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.latest) volar-2.1'",
-		"release:next": "npm run release -- --dist-tag next"
+		"release:next": "npm run release -- --dist-tag next",
+		"lint": "tsl --projects **/tsconfig.json",
+		"lint:fix": "npm run lint -- --fix"
 	},
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/exec": "latest",
 		"@lerna-lite/publish": "latest",
 		"@volar/language-service": "~2.1.0",
+		"@volar/tsl-config": "latest",
+		"tsl": "latest",
 		"typescript": "latest",
 		"vscode-languageserver-protocol": "^3.17.5"
 	}
