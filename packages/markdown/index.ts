@@ -62,7 +62,7 @@ export function create({
 			const onDidCreateMarkdownDocument = new Emitter<TextDocument>();
 			const onDidDeleteMarkdownDocument = new Emitter<URI>();
 
-			const fileWatcher = onDidChangeWatchedFiles((event) => {
+			const fileWatcher = onDidChangeWatchedFiles(event => {
 				for (const change of event.changes) {
 					switch (change.type) {
 						case 2 satisfies typeof FileChangeType.Changed: {

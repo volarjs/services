@@ -9,8 +9,9 @@ export function register(htmlLs: html.LanguageService) {
 			.sort((a, b) => a.generatedOffsets[0] - b.generatedOffsets[0])[0]
 			?.generatedOffsets[0];
 
-		if (htmlOffset === undefined)
+		if (htmlOffset === undefined) {
 			return;
+		}
 
 		const htmlScanner = htmlLs.createScanner(pugDoc.htmlTextDocument.getText(), htmlOffset);
 

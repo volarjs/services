@@ -84,7 +84,7 @@ export function create({
 
 			const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 			const jsonLs = json.getLanguageService({
-				schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
+				schemaRequestService: async uri => await context.env.fs?.readFile(uri) ?? '',
 				workspaceContext: getWorkspaceContextService(context),
 				clientCapabilities: context.env.clientCapabilities,
 			});
@@ -104,7 +104,7 @@ export function create({
 				},
 
 				provideCompletionItems(document, position) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.doComplete(document, position, jsonDocument);
 					});
 				},
@@ -114,44 +114,44 @@ export function create({
 				},
 
 				provideDefinition(document, position) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.findDefinition(document, position, jsonDocument);
 					});
 				},
 
 				provideDiagnostics(document) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						const settings = await getDocumentLanguageSettings(document, context);
 						return await jsonLs.doValidation(document, jsonDocument, settings);
 					});
 				},
 
 				provideHover(document, position) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.doHover(document, position, jsonDocument);
 					});
 				},
 
 				provideDocumentLinks(document) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.findLinks(document, jsonDocument);
 					});
 				},
 
 				provideDocumentSymbols(document) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.findDocumentSymbols2(document, jsonDocument);
 					});
 				},
 
 				provideDocumentColors(document) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.findDocumentColors(document, jsonDocument);
 					});
 				},
 
 				provideColorPresentations(document, color, range) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.getColorPresentations(document, jsonDocument, color, range);
 					});
 				},
@@ -163,7 +163,7 @@ export function create({
 				},
 
 				provideSelectionRanges(document, positions) {
-					return worker(document, async (jsonDocument) => {
+					return worker(document, async jsonDocument => {
 						return await jsonLs.getSelectionRanges(document, positions, jsonDocument);
 					});
 				},
@@ -185,8 +185,9 @@ export function create({
 			async function worker<T>(document: TextDocument, callback: (jsonDocument: json.JSONDocument) => T): Promise<Awaited<T> | undefined> {
 
 				const jsonDocument = getJsonDocument(document);
-				if (!jsonDocument)
+				if (!jsonDocument) {
 					return;
+				}
 
 				await (initializing ??= initialize());
 

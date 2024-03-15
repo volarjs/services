@@ -23,11 +23,13 @@ export function create({
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
 
-					if (!matchDocument(documentSelector, document))
+					if (!matchDocument(documentSelector, document)) {
 						return;
+					}
 
-					if (!await isFormattingEnabled(document, context))
+					if (!await isFormattingEnabled(document, context)) {
 						return;
+					}
 
 					const oldRangeText = document.getText(range);
 					const newRangeText = prettyhtml(
@@ -35,8 +37,9 @@ export function create({
 						await getFormattingOptions(document, options, context),
 					).contents;
 
-					if (newRangeText === oldRangeText)
+					if (newRangeText === oldRangeText) {
 						return [];
+					}
 
 					const newText = document.getText({
 						start: document.positionAt(0),

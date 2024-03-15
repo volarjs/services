@@ -111,7 +111,7 @@ export function create({
 			const fileSystemProvider: html.FileSystemProvider = {
 				stat: async uri => await context.env.fs?.stat(uri)
 					?? { type: html.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
-				readDirectory: async (uri) => context.env.fs?.readDirectory(uri) ?? [],
+				readDirectory: async uri => context.env.fs?.readDirectory(uri) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
 			const htmlLs = html.getLanguageService({
@@ -130,7 +130,7 @@ export function create({
 				},
 
 				provide: {
-					'html/htmlDocument': (document) => {
+					'html/htmlDocument': document => {
 						if (matchDocument(documentSelector, document)) {
 							return getHtmlDocument(document);
 						}
@@ -140,14 +140,14 @@ export function create({
 				},
 
 				async provideCompletionItems(document, position) {
-					return worker(document, async (htmlDocument) => {
+					return worker(document, async htmlDocument => {
 						const configs = await getCompletionConfiguration(document, context);
 						return htmlLs.doComplete2(document, position, htmlDocument, documentContext, configs);
 					});
 				},
 
 				provideRenameRange(document, position) {
-					return worker(document, (htmlDocument) => {
+					return worker(document, htmlDocument => {
 						const offset = document.offsetAt(position);
 						return htmlLs
 							.findDocumentHighlights(document, position, htmlDocument)
@@ -157,20 +157,20 @@ export function create({
 				},
 
 				provideRenameEdits(document, position, newName) {
-					return worker(document, (htmlDocument) => {
+					return worker(document, htmlDocument => {
 						return htmlLs.doRename(document, position, newName, htmlDocument);
 					});
 				},
 
 				async provideHover(document, position) {
-					return worker(document, async (htmlDocument) => {
+					return worker(document, async htmlDocument => {
 						const hoverSettings = await getHoverSettings(document, context);
 						return htmlLs.doHover(document, position, htmlDocument, hoverSettings);
 					});
 				},
 
 				provideDocumentHighlights(document, position) {
-					return worker(document, (htmlDocument) => {
+					return worker(document, htmlDocument => {
 						return htmlLs.findDocumentHighlights(document, position, htmlDocument);
 					});
 				},
@@ -182,7 +182,7 @@ export function create({
 				},
 
 				provideDocumentSymbols(document) {
-					return worker(document, (htmlDocument) => {
+					return worker(document, htmlDocument => {
 						return htmlLs.findDocumentSymbols2(document, htmlDocument);
 					});
 				},
@@ -311,19 +311,20 @@ export function create({
 				},
 
 				provideLinkedEditingRanges(document, position) {
-					return worker(document, (htmlDocument) => {
+					return worker(document, htmlDocument => {
 
 						const ranges = htmlLs.findLinkedEditingRanges(document, position, htmlDocument);
 
-						if (!ranges)
+						if (!ranges) {
 							return;
+						}
 
 						return { ranges };
 					});
 				},
 
 				async provideAutoInsertionEdit(document, position, lastChange) {
-					return worker(document, async (htmlDocument) => {
+					return worker(document, async htmlDocument => {
 
 						const lastCharacter = lastChange.text[lastChange.text.length - 1];
 						const rangeLengthIsZero = lastChange.range.start.line === lastChange.range.end.line
@@ -379,12 +380,14 @@ export function create({
 
 			async function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
-				if (!matchDocument(documentSelector, document))
+				if (!matchDocument(documentSelector, document)) {
 					return;
+				}
 
 				const htmlDocument = getHtmlDocument(document);
-				if (!htmlDocument)
+				if (!htmlDocument) {
 					return;
+				}
 
 				await (initializing ??= initialize());
 

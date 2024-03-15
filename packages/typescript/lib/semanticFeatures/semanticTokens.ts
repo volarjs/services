@@ -9,9 +9,13 @@ export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
-		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) return;
+		if (ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) {
+			return;
+		}
 		const response = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(fileName, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
-		if (!response) return;
+		if (!response) {
+			return;
+		}
 
 		let tokenModifiersTable: number[] = [];
 		tokenModifiersTable[TokenModifier.async] = 1 << legend.tokenModifiers.indexOf('async');

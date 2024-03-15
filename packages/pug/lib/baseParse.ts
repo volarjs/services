@@ -174,7 +174,9 @@ export function baseParse(pugCode: string) {
 		codes.push(`</${node.name}>`);
 	}
 	function addClassesOrStyles(attrs: TagNode['attrs'], attrName: string) {
-		if (!attrs.length) return;
+		if (!attrs.length) {
+			return;
+		}
 		codes.push(' ');
 		codes.push(attrName);
 		codes.push('=');
@@ -201,7 +203,9 @@ export function baseParse(pugCode: string) {
 				let prevLine = getLineText(pugTextDocument, currentLine);
 				while (prevLine.trim() === '') {
 					ends.push(pugTextDocument.offsetAt({ line: currentLine + 1, character: 0 }) - 1);
-					if (currentLine <= 0) break;
+					if (currentLine <= 0) {
+						break;
+					}
 					currentLine--;
 					prevLine = getLineText(pugTextDocument, currentLine);
 				}
@@ -229,12 +233,15 @@ export function baseParse(pugCode: string) {
 						|| prevToken.type === 'indent'
 						|| prevToken.type === 'outdent'
 						|| prevToken.type === ':'
-					) break;
+					) {
+						break;
+					}
 
 					tagStart = prevToken;
 
-					if (prevToken.type === 'tag')
+					if (prevToken.type === 'tag') {
 						break;
+					}
 				}
 
 				let prevToken: pugLex.Token = token;

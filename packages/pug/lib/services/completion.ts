@@ -34,8 +34,9 @@ export function register(htmlLs: html.LanguageService) {
 		}
 
 		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
-		if (!htmlPos)
+		if (!htmlPos) {
 			return;
+		}
 
 		const htmlComplete = documentContext ? await htmlLs.doComplete2(
 			pugDoc.htmlTextDocument,

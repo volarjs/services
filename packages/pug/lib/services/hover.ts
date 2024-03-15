@@ -6,8 +6,9 @@ export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position, options?: html.HoverSettings | undefined) => {
 
 		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
-		if (!htmlPos)
+		if (!htmlPos) {
 			return;
+		}
 
 		const htmlResult = htmlLs.doHover(
 			pugDoc.map.embeddedDocument,
@@ -15,7 +16,9 @@ export function register(htmlLs: html.LanguageService) {
 			pugDoc.htmlDocument,
 			options,
 		);
-		if (!htmlResult) return;
+		if (!htmlResult) {
+			return;
+		}
 
 		return transformHover(htmlResult, htmlRange => pugDoc.map.getSourceRange(htmlRange));
 	};

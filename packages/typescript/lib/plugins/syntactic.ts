@@ -52,8 +52,9 @@ export function create(
 
 				provideFoldingRanges(document) {
 
-					if (!isTsDocument(document))
+					if (!isTsDocument(document)) {
 						return;
+					}
 
 					const { languageService, fileName } = getLanguageService(ts, document);
 					const outliningSpans = safeCall(() => languageService.getOutliningSpans(fileName));
@@ -65,12 +66,15 @@ export function create(
 
 				provideDocumentSymbols(document) {
 
-					if (!isTsDocument(document))
+					if (!isTsDocument(document)) {
 						return;
+					}
 
 					const { languageService, fileName } = getLanguageService(ts, document);
 					const barItems = safeCall(() => languageService.getNavigationTree(fileName));
-					if (!barItems) return [];
+					if (!barItems) {
+						return [];
+					}
 
 					// The root represents the file. Ignore this when showing in the UI
 					return barItems.childItems
@@ -81,11 +85,13 @@ export function create(
 
 				async provideDocumentFormattingEdits(document, range, options, codeOptions) {
 
-					if (!isTsDocument(document))
+					if (!isTsDocument(document)) {
 						return;
+					}
 
-					if (!await isFormattingEnabled(document, context))
+					if (!await isFormattingEnabled(document, context)) {
 						return;
+					}
 
 					const tsOptions = await getFormatCodeSettings(context, document, options);
 					if (codeOptions) {
@@ -108,11 +114,13 @@ export function create(
 
 				async provideOnTypeFormattingEdits(document, position, key, options, codeOptions) {
 
-					if (!isTsDocument(document))
+					if (!isTsDocument(document)) {
 						return;
+					}
 
-					if (!await isFormattingEnabled(document, context))
+					if (!await isFormattingEnabled(document, context)) {
 						return;
+					}
 
 					const tsOptions = await getFormatCodeSettings(context, document, options);
 					if (codeOptions) {

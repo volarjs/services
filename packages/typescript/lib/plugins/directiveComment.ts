@@ -43,8 +43,9 @@ export function create(): vscode.ServicePlugin {
 
 				provideCompletionItems(document, position) {
 
-					if (!isTsDocument(document))
+					if (!isTsDocument(document)) {
 						return;
+					}
 
 					const prefix = document.getText({
 						start: { line: position.line, character: 0 },

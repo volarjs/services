@@ -38,8 +38,9 @@ export function create(): ServicePlugin {
 				async provideCompletionItems(textDocument, position) {
 
 					const syntax = emmet.getEmmetMode(textDocument.languageId === 'vue' ? 'html' : textDocument.languageId);
-					if (!syntax)
+					if (!syntax) {
 						return;
+					}
 
 					// fix https://github.com/vuejs/language-tools/issues/1329
 					if (syntax === 'html') {
@@ -57,8 +58,9 @@ export function create(): ServicePlugin {
 					}
 
 					// monkey fix https://github.com/johnsoncodehk/volar/issues/1105
-					if (syntax === 'jsx')
+					if (syntax === 'jsx') {
 						return;
+					}
 
 					const emmetConfig = await getEmmetConfig(syntax);
 

@@ -55,9 +55,9 @@ export interface Provide {
 }
 
 export interface CompletionItemData {
-	uri: string,
-	fileName: string,
-	offset: number,
+	uri: string;
+	fileName: string;
+	offset: number;
 	originalItem: {
 		name: ts.CompletionEntry['name'],
 		source: ts.CompletionEntry['source'],
@@ -131,7 +131,7 @@ export function create(
 
 				updateSourceScriptFileNames();
 
-				context.env.onDidChangeWatchedFiles?.((params) => {
+				context.env.onDidChangeWatchedFiles?.(params => {
 					const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
 					if (someFileCreateOrDeiete) {
 						updateSourceScriptFileNames();
@@ -226,11 +226,13 @@ export function create(
 
 				async provideCompletionItems(document, position, completeContext, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
-					if (!await isSuggestionsEnabled(document, context))
+					if (!await isSuggestionsEnabled(document, context)) {
 						return;
+					}
 
 					return await worker(token, async () => {
 
@@ -363,8 +365,9 @@ export function create(
 
 				provideRenameRange(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -382,8 +385,9 @@ export function create(
 
 				provideRenameEdits(document, position, newName, token) {
 
-					if (!isSemanticDocument(document, true))
+					if (!isSemanticDocument(document, true)) {
 						return;
+					}
 
 					return worker(token, async () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -439,8 +443,9 @@ export function create(
 
 				provideCodeActions(document, range, context, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						return getCodeActions(document, range, context);
@@ -455,8 +460,9 @@ export function create(
 
 				provideInlayHints(document, range, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, async () => {
 						const preferences = await getUserPreferences(ctx, document);
@@ -477,8 +483,9 @@ export function create(
 
 				provideCallHierarchyItems(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -522,8 +529,9 @@ export function create(
 
 				provideDefinition(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -538,8 +546,9 @@ export function create(
 
 				provideTypeDefinition(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -562,8 +571,9 @@ export function create(
 
 				provideHover(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -578,8 +588,9 @@ export function create(
 
 				provideImplementation(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -594,8 +605,9 @@ export function create(
 
 				provideReferences(document, position, referenceContext, token) {
 
-					if (!isSemanticDocument(document, true))
+					if (!isSemanticDocument(document, true)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -625,8 +637,9 @@ export function create(
 
 				provideFileReferences(document, token) {
 
-					if (!isSemanticDocument(document, true))
+					if (!isSemanticDocument(document, true)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -640,8 +653,9 @@ export function create(
 
 				provideDocumentHighlights(document, position, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const fileName = ctx.uriToFileName(document.uri);
@@ -662,8 +676,9 @@ export function create(
 
 				provideDocumentSemanticTokens(document, range, legend, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						return getDocumentSemanticTokens(document, range, legend);
@@ -704,8 +719,9 @@ export function create(
 
 				provideSelectionRanges(document, positions, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						return positions
@@ -724,8 +740,9 @@ export function create(
 
 				provideSignatureHelp(document, position, context, token) {
 
-					if (!isSemanticDocument(document))
+					if (!isSemanticDocument(document)) {
 						return;
+					}
 
 					return worker(token, () => {
 						const options: ts.SignatureHelpItemsOptions = {};
@@ -786,11 +803,13 @@ export function create(
 
 			async function provideDiagnosticsWorker(document: TextDocument, token: CancellationToken, mode: 'syntactic' | 'semantic') {
 
-				if (!isSemanticDocument(document))
+				if (!isSemanticDocument(document)) {
 					return;
+				}
 
-				if (!await isValidationEnabled(document, context))
+				if (!await isValidationEnabled(document, context)) {
 					return;
+				}
 
 				return await worker(token, () => {
 					const fileName = ctx.uriToFileName(document.uri);

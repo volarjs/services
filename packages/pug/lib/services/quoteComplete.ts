@@ -5,7 +5,9 @@ export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position, options?: html.CompletionConfiguration | undefined) => {
 
 		const htmlStart = pugDoc.map.getGeneratedPosition(pos);
-		if (!htmlStart) return;
+		if (!htmlStart) {
+			return;
+		}
 
 		const text = htmlLs.doQuoteComplete(
 			pugDoc.htmlTextDocument,

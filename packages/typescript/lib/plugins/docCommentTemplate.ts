@@ -19,17 +19,20 @@ export function create(ts: typeof import('typescript')): vscode.ServicePlugin {
 
 				provideCompletionItems(document, position) {
 
-					if (!isTsDocument(document))
+					if (!isTsDocument(document)) {
 						return;
+					}
 
-					if (!isPotentiallyValidDocCompletionPosition(document, position))
+					if (!isPotentiallyValidDocCompletionPosition(document, position)) {
 						return;
+					}
 
 					const { languageService, fileName } = getLanguageService(ts, document);
 					const offset = document.offsetAt(position);
 					const docCommentTemplate = languageService.getDocCommentTemplateAtPosition(fileName, offset);
-					if (!docCommentTemplate)
+					if (!docCommentTemplate) {
 						return;
+					}
 
 					let insertText: string;
 
@@ -95,7 +98,7 @@ function templateToSnippet(template: string): string {
 	let snippetIndex = 1;
 	template = template.replace(/\$/g, '\\$');
 	template = template.replace(/^[ \t]*(?=(\/|[ ]\*))/gm, '');
-	template = template.replace(/^(\/\*\*\s*\*[ ]*)$/m, (x) => x + `\$0`);
+	template = template.replace(/^(\/\*\*\s*\*[ ]*)$/m, x => x + `\$0`);
 	template = template.replace(/\* @param([ ]\{\S+\})?\s+(\S+)[ \t]*$/gm, (_param, type, post) => {
 		let out = '* @param ';
 		if (type === ' {any}' || type === ' {*}') {

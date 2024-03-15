@@ -6,8 +6,9 @@ export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position) => {
 
 		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
-		if (!htmlPos)
+		if (!htmlPos) {
 			return;
+		}
 
 		const htmlResult = htmlLs.findDocumentHighlights(
 			pugDoc.map.embeddedDocument,

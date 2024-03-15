@@ -41,7 +41,7 @@ export function create({
 				},
 
 				provideCompletionItems(document, position, _) {
-					return worker(document, (pugDocument) => {
+					return worker(document, pugDocument => {
 						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */);
 					});
 				},
@@ -68,7 +68,7 @@ export function create({
 				},
 
 				provideHover(document, position) {
-					return worker(document, async (pugDocument) => {
+					return worker(document, async pugDocument => {
 
 						const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
 
@@ -77,19 +77,19 @@ export function create({
 				},
 
 				provideDocumentHighlights(document, position) {
-					return worker(document, (pugDocument) => {
+					return worker(document, pugDocument => {
 						return pugLs.findDocumentHighlights(pugDocument, position);
 					});
 				},
 
 				provideDocumentLinks(document) {
-					return worker(document, (pugDocument) => {
+					return worker(document, pugDocument => {
 						return pugLs.findDocumentLinks(pugDocument, htmlService.provide['html/documentContext']());
 					});
 				},
 
 				provideDocumentSymbols(document, token) {
-					return worker(document, async (pugDoc) => {
+					return worker(document, async pugDoc => {
 
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.embeddedDocument, token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
@@ -102,19 +102,19 @@ export function create({
 				},
 
 				provideFoldingRanges(document) {
-					return worker(document, (pugDocument) => {
+					return worker(document, pugDocument => {
 						return pugLs.getFoldingRanges(pugDocument);
 					});
 				},
 
 				provideSelectionRanges(document, positions) {
-					return worker(document, (pugDocument) => {
+					return worker(document, pugDocument => {
 						return pugLs.getSelectionRanges(pugDocument, positions);
 					});
 				},
 
 				async provideAutoInsertionEdit(document, position, lastChange) {
-					return worker(document, async (pugDocument) => {
+					return worker(document, async pugDocument => {
 
 						const lastCharacter = lastChange.text[lastChange.text.length - 1];
 						const rangeLengthIsZero = lastChange.range.start.line === lastChange.range.end.line
@@ -140,16 +140,18 @@ export function create({
 			function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T) {
 
 				const pugDocument = getPugDocument(document);
-				if (!pugDocument)
+				if (!pugDocument) {
 					return;
+				}
 
 				return callback(pugDocument);
 			}
 
 			function getPugDocument(document: TextDocument) {
 
-				if (!matchDocument(documentSelector, document))
+				if (!matchDocument(documentSelector, document)) {
 					return;
+				}
 
 				const cache = pugDocuments.get(document);
 				if (cache) {

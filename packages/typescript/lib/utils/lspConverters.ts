@@ -19,8 +19,12 @@ export function convertDiagnostic(
 	getTextDocument: (uri: string) => TextDocument,
 ): vscode.Diagnostic | undefined {
 
-	if (diag.start === undefined) return;
-	if (diag.length === undefined) return;
+	if (diag.start === undefined) {
+		return;
+	}
+	if (diag.length === undefined) {
+		return;
+	}
 
 	const diagnostic: vscode.Diagnostic = {
 		range: {
@@ -39,11 +43,15 @@ export function convertDiagnostic(
 			.filter((v): v is NonNullable<typeof v> => !!v);
 	}
 	if (diag.reportsUnnecessary) {
-		if (diagnostic.tags === undefined) diagnostic.tags = [];
+		if (diagnostic.tags === undefined) {
+			diagnostic.tags = [];
+		}
 		diagnostic.tags.push(1 satisfies typeof vscode.DiagnosticTag.Unnecessary);
 	}
 	if (diag.reportsDeprecated) {
-		if (diagnostic.tags === undefined) diagnostic.tags = [];
+		if (diagnostic.tags === undefined) {
+			diagnostic.tags = [];
+		}
 		diagnostic.tags.push(2 satisfies typeof vscode.DiagnosticTag.Deprecated);
 	}
 
@@ -56,14 +64,20 @@ function convertDiagnosticRelatedInformation(
 	getTextDocument: (uri: string) => TextDocument,
 ): vscode.DiagnosticRelatedInformation | undefined {
 
-	if (diag.start === undefined) return;
-	if (diag.length === undefined) return;
+	if (diag.start === undefined) {
+		return;
+	}
+	if (diag.length === undefined) {
+		return;
+	}
 
 	let document: TextDocument | undefined;
 	if (diag.file) {
 		document = getTextDocument(fileNameToUri(diag.file.fileName));
 	}
-	if (!document) return;
+	if (!document) {
+		return;
+	}
 
 	const diagnostic: vscode.DiagnosticRelatedInformation = {
 		location: {
@@ -206,7 +220,7 @@ export function convertCompletionInfo<T>(
 
 		let range: vscode.Range | ReturnType<typeof getRangeFromReplacementSpan> = getRangeFromReplacementSpan(tsEntry, document);
 		item.commitCharacters = getCommitCharacters(tsEntry, {
-			isNewIdentifierLocation: completionContext!.isNewIdentifierLocation,
+			isNewIdentifierLocation: completionContext.isNewIdentifierLocation,
 			isInValidCommitCharacterContext: isInValidCommitCharacterContext(document, position),
 			enableCallCompletions: true, // TODO: suggest.completeFunctionCalls
 		});
@@ -266,8 +280,9 @@ export function convertCompletionInfo<T>(
 
 		if (gte_300) {
 
-			if (!completionContext)
+			if (!completionContext) {
 				return;
+			}
 
 			const isMemberCompletion = completionContext.isMemberCompletion;
 			if (isMemberCompletion) {
@@ -640,10 +655,12 @@ export function convertRenameLocations(
 			workspaceEdit.changes[uri] = [];
 		}
 		let _newText = newText;
-		if (location.prefixText)
+		if (location.prefixText) {
 			_newText = location.prefixText + _newText;
-		if (location.suffixText)
+		}
+		if (location.suffixText) {
 			_newText = _newText + location.suffixText;
+		}
 		workspaceEdit.changes[uri].push({
 			newText: _newText,
 			range: convertTextSpan(location.textSpan, doc),

@@ -16,17 +16,20 @@ export function create({
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
 
-					if (!matchDocument(documentSelector, document))
+					if (!matchDocument(documentSelector, document)) {
 						return;
+					}
 
-					if (!await isFormattingEnabled(document, context))
+					if (!await isFormattingEnabled(document, context)) {
 						return;
+					}
 
 					const config = await getFormatterConfig(document, options, context);
 
 					// don't set when options.insertSpaces is false to avoid sass-formatter internal judge bug
-					if (config.insertSpaces)
+					if (config.insertSpaces) {
 						config.tabSize = options.tabSize;
+					}
 
 					return [{
 						newText: SassFormatter.Format(document.getText(), config),

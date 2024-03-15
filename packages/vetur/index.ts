@@ -61,8 +61,9 @@ export function create(): ServicePlugin {
 					return htmlWorker(document, () => {
 
 						const packageJsonPath = getPackageJsonPath(document);
-						if (!packageJsonPath)
+						if (!packageJsonPath) {
 							return;
+						}
 
 						const dtmlDataProviders = getHtmlDataProviders(packageJsonPath);
 						const components = new Set(dtmlDataProviders.map(provider => provider.getId() === 'html5' ? [] : provider.provideTags().map(tag => tag.name)).flat());
@@ -80,8 +81,9 @@ export function create(): ServicePlugin {
 							const tokenOffset = scanner.getTokenOffset();
 
 							// TODO: fix source map perf and break in while condition
-							if (tokenOffset > offsetRange.end)
+							if (tokenOffset > offsetRange.end) {
 								break;
+							}
 
 							if (tokenOffset >= offsetRange.start && (token === html.TokenType.StartTag || token === html.TokenType.EndTag)) {
 
@@ -108,12 +110,14 @@ export function create(): ServicePlugin {
 			function htmlWorker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
 
 				const htmlDocument = getHtmlDocument(document);
-				if (!htmlDocument)
+				if (!htmlDocument) {
 					return;
+				}
 
 				const packageJsonPath = getPackageJsonPath(document);
-				if (!packageJsonPath)
+				if (!packageJsonPath) {
 					return;
+				}
 
 				htmlLs.setDataProviders(
 					false,
@@ -260,8 +264,9 @@ export function create(): ServicePlugin {
 
 			function getHtmlDocument(document: TextDocument) {
 
-				if (document.languageId !== 'html')
+				if (document.languageId !== 'html') {
 					return;
+				}
 
 				let htmlDocument = htmlDocuments.get(document);
 

@@ -20,16 +20,19 @@ export function create({
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
 
-					if (!matchDocument(documentSelector, document))
+					if (!matchDocument(documentSelector, document)) {
 						return;
+					}
 
-					if (!await isFormattingEnabled(document, context))
+					if (!await isFormattingEnabled(document, context)) {
 						return;
+					}
 
 					const pugCode = document.getText(range);
 					// fix https://github.com/johnsoncodehk/volar/issues/304
-					if (pugCode.trim() === '')
+					if (pugCode.trim() === '') {
 						return;
+					}
 
 					const pugBeautify = require('@johnsoncodehk/pug-beautify');
 					const prefixesLength = pugCode.length - pugCode.trimStart().length;

@@ -52,51 +52,53 @@ function getParameterListParts(
 	let parenCount = 0;
 	let braceCount = 0;
 
-	outer: for (let i = 0; i < displayParts.length; ++i) {
-		const part = displayParts[i];
-		switch (part.kind) {
-			case PConst.DisplayPartKind.methodName:
-			case PConst.DisplayPartKind.functionName:
-			case PConst.DisplayPartKind.text:
-			case PConst.DisplayPartKind.propertyName:
-				if (parenCount === 0 && braceCount === 0) {
-					isInMethod = true;
-				}
-				break;
-
-			case PConst.DisplayPartKind.parameterName:
-				if (parenCount === 1 && braceCount === 0 && isInMethod) {
-					// Only take top level paren names
-					const next = displayParts[i + 1];
-					// Skip optional parameters
-					const nameIsFollowedByOptionalIndicator = next && next.text === '?';
-					// Skip this parameter
-					const nameIsThis = part.text === 'this';
-					if (!nameIsFollowedByOptionalIndicator && !nameIsThis) {
-						parts.push(part);
+	outer: {
+		for (let i = 0; i < displayParts.length; ++i) {
+			const part = displayParts[i];
+			switch (part.kind) {
+				case PConst.DisplayPartKind.methodName:
+				case PConst.DisplayPartKind.functionName:
+				case PConst.DisplayPartKind.text:
+				case PConst.DisplayPartKind.propertyName:
+					if (parenCount === 0 && braceCount === 0) {
+						isInMethod = true;
 					}
-					hasOptionalParameters = hasOptionalParameters || nameIsFollowedByOptionalIndicator;
-				}
-				break;
+					break;
 
-			case PConst.DisplayPartKind.punctuation:
-				if (part.text === '(') {
-					++parenCount;
-				} else if (part.text === ')') {
-					--parenCount;
-					if (parenCount <= 0 && isInMethod) {
+				case PConst.DisplayPartKind.parameterName:
+					if (parenCount === 1 && braceCount === 0 && isInMethod) {
+						// Only take top level paren names
+						const next = displayParts[i + 1];
+						// Skip optional parameters
+						const nameIsFollowedByOptionalIndicator = next && next.text === '?';
+						// Skip this parameter
+						const nameIsThis = part.text === 'this';
+						if (!nameIsFollowedByOptionalIndicator && !nameIsThis) {
+							parts.push(part);
+						}
+						hasOptionalParameters = hasOptionalParameters || nameIsFollowedByOptionalIndicator;
+					}
+					break;
+
+				case PConst.DisplayPartKind.punctuation:
+					if (part.text === '(') {
+						++parenCount;
+					} else if (part.text === ')') {
+						--parenCount;
+						if (parenCount <= 0 && isInMethod) {
+							break outer;
+						}
+					} else if (part.text === '...' && parenCount === 1) {
+						// Found rest parmeter. Do not fill in any further arguments
+						hasOptionalParameters = true;
 						break outer;
+					} else if (part.text === '{') {
+						++braceCount;
+					} else if (part.text === '}') {
+						--braceCount;
 					}
-				} else if (part.text === '...' && parenCount === 1) {
-					// Found rest parmeter. Do not fill in any further arguments
-					hasOptionalParameters = true;
-					break outer;
-				} else if (part.text === '{') {
-					++braceCount;
-				} else if (part.text === '}') {
-					--braceCount;
-				}
-				break;
+					break;
+			}
 		}
 	}
 

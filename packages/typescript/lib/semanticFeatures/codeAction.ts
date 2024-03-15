@@ -10,25 +10,25 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { convertFileTextChanges } from '../utils/lspConverters';
 
 export interface FixAllData {
-	type: 'fixAll',
-	uri: string,
-	fileName: string,
-	fixIds: {}[],
+	type: 'fixAll';
+	uri: string;
+	fileName: string;
+	fixIds: {}[];
 }
 
 export interface RefactorData {
-	type: 'refactor',
-	uri: string,
-	fileName: string,
-	refactorName: string,
-	actionName: string,
-	range: { pos: number, end: number; },
+	type: 'refactor';
+	uri: string;
+	fileName: string;
+	refactorName: string;
+	actionName: string;
+	range: { pos: number, end: number; };
 }
 
 export interface OrganizeImportsData {
-	type: 'organizeImports',
-	uri: string,
-	fileName: string,
+	type: 'organizeImports';
+	uri: string;
+	fileName: string;
 }
 
 export type Data = FixAllData | RefactorData | OrganizeImportsData;
@@ -225,8 +225,9 @@ export function register(ctx: SharedContext) {
 							}
 						}
 
-						if (matchNums === a.length)
+						if (matchNums === a.length) {
 							return only;
+						}
 					}
 				}
 			}

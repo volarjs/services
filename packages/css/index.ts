@@ -354,8 +354,9 @@ export function create({
 			async function worker<T>(document: TextDocument, callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T) {
 
 				const cssLs = getCssLs(document);
-				if (!cssLs)
+				if (!cssLs) {
 					return;
+				}
 
 				await (initializing ??= initialize());
 

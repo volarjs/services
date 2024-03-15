@@ -48,7 +48,7 @@ export function create({
 		create(context): ServicePluginInstance<Provide> {
 
 			const ls = yaml.getLanguageService({
-				schemaRequestService: async (uri) => await context.env.fs?.readFile(uri) ?? '',
+				schemaRequestService: async uri => await context.env.fs?.readFile(uri) ?? '',
 				telemetry: {
 					send: noop,
 					sendError: noop,
