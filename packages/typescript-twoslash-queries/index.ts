@@ -13,7 +13,7 @@ export function create(ts: typeof import('typescript')): ServicePlugin {
 						const inlayHints: InlayHint[] = [];
 
 						for (const pointer of document.getText(range).matchAll(/^\s*\/\/\s*\^\?/gm)) {
-							const pointerOffset = pointer.index! + pointer[0].indexOf('^?') + document.offsetAt(range.start);
+							const pointerOffset = pointer.index + pointer[0].indexOf('^?') + document.offsetAt(range.start);
 							const pointerPosition = document.positionAt(pointerOffset);
 							const hoverOffset = document.offsetAt({
 								line: pointerPosition.line - 1,
