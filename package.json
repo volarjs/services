@@ -6,7 +6,7 @@
 		"watch": "tsc -b -w",
 		"prerelease": "npm run build",
 		"release": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
-		"postrelease": "lerna exec --no-bail --no-private --no-sort --stream -- '[ -n \"$(npm v . dist-tags.latest)\" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.latest) volar-2.1'",
+		"postrelease": "lerna exec --no-bail --no-private --no-sort --stream -- '[ -n \"$(npm v . dist-tags.latest)\" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.latest) volar-2.2'",
 		"release:next": "npm run release -- --dist-tag next",
 		"lint": "tsl --projects **/tsconfig.json",
 		"lint:fix": "npm run lint -- --fix"
