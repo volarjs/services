@@ -1,4 +1,4 @@
-import type { SemanticToken, ServicePluginInstance, ServicePlugin } from '@volar/language-service';
+import type { SemanticToken, LanguageServicePluginInstance, LanguageServicePlugin } from '@volar/language-service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vls from 'vls';
@@ -6,12 +6,12 @@ import type { TextDocument } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
 import { getGlobalSnippetDir } from './lib/userSnippetDir';
 
-export function create(): ServicePlugin {
+export function create(): LanguageServicePlugin {
 	return {
 		name: 'vetur',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 
 			const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 			const uriToPackageJsonPath = new Map<string, string | undefined>();

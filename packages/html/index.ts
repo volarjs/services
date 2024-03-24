@@ -1,4 +1,4 @@
-import type { Disposable, DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -91,21 +91,21 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
 	getDocumentContext?(context: ServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<html.HTMLFormatConfiguration>;
-	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): Result<html.CompletionConfiguration | undefined>;
-	getHoverSettings?(document: TextDocument, context: ServiceContext): Result<html.HoverSettings | undefined>;
-	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
+	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): ProviderResult<html.CompletionConfiguration | undefined>;
+	getHoverSettings?(document: TextDocument, context: ServiceContext): ProviderResult<html.HoverSettings | undefined>;
+	getCustomData?(context: ServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
-} = {}): ServicePlugin {
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'html',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
 		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
 			const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 			const fileSystemProvider: html.FileSystemProvider = {

@@ -28,7 +28,7 @@
 		"vscode-html-languageservice": "^5.1.0"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.1.0"
+		"@volar/language-service": "~2.2.0-alpha.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

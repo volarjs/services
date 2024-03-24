@@ -1,4 +1,4 @@
-import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
 import { SassFormatter, SassFormatterConfig } from 'sass-formatter';
 
 export function create({
@@ -7,12 +7,12 @@ export function create({
 	getFormatterConfig = (_document, options) => options,
 }: {
 	documentSelector?: DocumentSelector;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormatterConfig?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<Partial<SassFormatterConfig>>;
-} = {}): ServicePlugin {
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	getFormatterConfig?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<Partial<SassFormatterConfig>>;
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'sass-formatter',
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
 

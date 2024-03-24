@@ -33,11 +33,11 @@ const directives: Directive[] = [
 	}
 ];
 
-export function create(): vscode.ServicePlugin {
+export function create(): vscode.LanguageServicePlugin {
 	return {
 		name: 'typescript-directive-comment',
 		triggerCharacters: ['@'],
-		create(): vscode.ServicePluginInstance {
+		create(): vscode.LanguageServicePluginInstance {
 
 			return {
 

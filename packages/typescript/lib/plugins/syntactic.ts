@@ -1,8 +1,8 @@
 import type {
-	Result,
+	ProviderResult,
 	ServiceContext,
-	ServicePlugin,
-	ServicePluginInstance
+	LanguageServicePlugin,
+	LanguageServicePluginInstance
 } from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
@@ -24,15 +24,15 @@ export function create(
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
 		},
 	}: {
-		isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-		isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+		isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+		isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
 	} = {},
-): ServicePlugin {
+): LanguageServicePlugin {
 	return {
 		name: 'typescript-syntactic',
 		// https://github.com/microsoft/vscode/blob/ce119308e8fd4cd3f992d42b297588e7abe33a0c/extensions/typescript-language-features/src/languageFeatures/formatting.ts#L99
 		autoFormatTriggerCharacters: [';', '}', '\n'],
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 
 			return {
 

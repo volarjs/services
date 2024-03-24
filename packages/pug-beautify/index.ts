@@ -1,4 +1,4 @@
-import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
 
 export function create({
 	documentSelector = ['jade'],
@@ -11,12 +11,12 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<{}>;
-} = {}): ServicePlugin {
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<{}>;
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'pug-beautify',
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
 

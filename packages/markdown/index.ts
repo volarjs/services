@@ -1,4 +1,4 @@
-import type { DocumentSelector, FileChangeType, FileType, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { DocumentSelector, FileChangeType, FileType, LocationLink, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import { forEachEmbeddedCode } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -26,12 +26,12 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
-	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): Result<DiagnosticOptions | undefined>;
-} = {}): ServicePlugin {
+	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): ProviderResult<DiagnosticOptions | undefined>;
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'markdown',
 		triggerCharacters: ['.', '/', '#'],
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
 			let lastProjectVersion: string | undefined;
 
@@ -157,18 +157,19 @@ export function create({
 
 				for (const fileName of languageServiceHost.getScriptFileNames()) {
 					const uri = context.env.typescript!.fileNameToUri(fileName);
-					const [_, sourceFile] = context.documents.getVirtualCodeByUri(uri);
-					if (sourceFile?.generated) {
-						for (const virtualCode of forEachEmbeddedCode(sourceFile.generated.code)) {
+					const decoded = context.decodeEmbeddedDocumentUri(uri);
+					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+					if (sourceScript?.generated) {
+						for (const virtualCode of forEachEmbeddedCode(sourceScript.generated.root)) {
 							if (matchDocument(documentSelector, virtualCode)) {
-								const uri = context.documents.getVirtualCodeUri(sourceFile.id, virtualCode.id);
+								const uri = context.encodeEmbeddedDocumentUri(sourceScript.id, virtualCode.id);
 								const document = context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 								newVersions.set(document.uri, document);
 							}
 						}
 					}
-					else if (sourceFile) {
-						const document = context.documents.get(fileName, sourceFile.languageId, sourceFile.snapshot);
+					else if (sourceScript) {
+						const document = context.documents.get(fileName, sourceScript.languageId, sourceScript.snapshot);
 						if (document && matchDocument(documentSelector, document)) {
 							newVersions.set(document.uri, document);
 						}
@@ -340,14 +341,16 @@ export function create({
 
 			function getTextDocument(uri: string, includeVirtualFile: boolean) {
 				if (includeVirtualFile) {
-					const virtualCode = context.documents.getVirtualCodeByUri(uri)[0];
+					const decoded = context.decodeEmbeddedDocumentUri(uri);
+					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+					const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 					if (virtualCode) {
 						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 					}
 				}
-				const sourceFile = context.language.files.get(uri);
-				if (sourceFile) {
-					return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
+				const sourceScript = context.language.scripts.get(uri);
+				if (sourceScript) {
+					return context.documents.get(uri, sourceScript.languageId, sourceScript.snapshot);
 				}
 			}
 		},

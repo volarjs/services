@@ -1,4 +1,4 @@
-import type { Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 import * as yaml from 'yaml-language-server';
@@ -39,13 +39,13 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	getWorkspaceContextService?(context: ServiceContext): yaml.WorkspaceContextService;
-	getLanguageSettings?(context: ServiceContext): Result<yaml.LanguageSettings>;
+	getLanguageSettings?(context: ServiceContext): ProviderResult<yaml.LanguageSettings>;
 	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
-} = {}): ServicePlugin {
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'yaml',
 		triggerCharacters: [' ', ':'],
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
 			const ls = yaml.getLanguageService({
 				schemaRequestService: async uri => await context.env.fs?.readFile(uri) ?? '',

@@ -1,4 +1,4 @@
-import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import { transformDocumentSymbol } from '@volar/language-service';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
@@ -16,9 +16,9 @@ export function create({
 	onDidChangeCustomData,
 }: {
 	documentSelector?: DocumentSelector;
-	getCustomData?(context: ServiceContext): Result<html.IHTMLDataProvider[]>;
+	getCustomData?(context: ServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
-} = {}): ServicePlugin {
+} = {}): LanguageServicePlugin {
 	const _htmlService = createHtmlService({
 		getCustomData,
 		onDidChangeCustomData,
@@ -26,7 +26,7 @@ export function create({
 	return {
 		..._htmlService,
 		name: 'pug',
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();

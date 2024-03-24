@@ -1,4 +1,4 @@
-import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
 import type { Options } from 'prettier';
 import { URI } from 'vscode-uri';
 
@@ -6,7 +6,7 @@ export function create(
 	/**
 	 * Prettier instance or getter to use.
 	 */
-	prettierInstanceOrGetter: typeof import('prettier') | ((context: ServiceContext) => Result<typeof import('prettier') | undefined>),
+	prettierInstanceOrGetter: typeof import('prettier') | ((context: ServiceContext) => ProviderResult<typeof import('prettier') | undefined>),
 	{
 		html,
 		documentSelector = ['html', 'css', 'scss', 'typescript', 'javascript'],
@@ -48,15 +48,15 @@ export function create(
 		 * ['html', 'css', 'scss', 'typescript', 'javascript']
 		 */
 		documentSelector?: DocumentSelector;
-		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: ServiceContext): Result<boolean>;
-		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: ServiceContext): Result<Options>;
+		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: ServiceContext): ProviderResult<Options>;
 	} = {},
-): ServicePlugin {
+): LanguageServicePlugin {
 	return {
 		name: 'prettier',
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 
-			let prettierInstanceOrPromise: Result<typeof import('prettier') | undefined>;
+			let prettierInstanceOrPromise: ProviderResult<typeof import('prettier') | undefined>;
 
 			return {
 				async provideDocumentFormattingEdits(document, _, formatOptions) {

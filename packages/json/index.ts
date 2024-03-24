@@ -1,4 +1,4 @@
-import type { ServicePlugin, ServicePluginInstance, DocumentSelector, ServiceContext, Disposable, Result, FormattingOptions } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance, DocumentSelector, ServiceContext, Disposable, ProviderResult, FormattingOptions } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -70,17 +70,17 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	getWorkspaceContextService?(context: ServiceContext): json.WorkspaceContextService;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<json.FormattingOptions>;
-	getLanguageSettings?(context: ServiceContext): Result<json.LanguageSettings>;
-	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): Result<json.DocumentLanguageSettings | undefined>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<json.FormattingOptions>;
+	getLanguageSettings?(context: ServiceContext): ProviderResult<json.LanguageSettings>;
+	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): ProviderResult<json.DocumentLanguageSettings | undefined>;
 	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
-} = {}): ServicePlugin {
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'json',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
 		triggerCharacters: ['"', ':'],
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
 			const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 			const jsonLs = json.getLanguageService({

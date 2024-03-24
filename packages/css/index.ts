@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, Result, ServiceContext, ServicePlugin, ServicePluginInstance } from '@volar/language-service';
+import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -77,17 +77,17 @@ export function create({
 	lessDocumentSelector?: DocumentSelector,
 	useDefaultDataProvider?: boolean;
 	getDocumentContext?(context: ServiceContext): css.DocumentContext;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<css.CSSFormatConfiguration>;
-	getLanguageSettings?(document: TextDocument, context: ServiceContext): Result<css.LanguageSettings | undefined>;
-	getCustomData?(context: ServiceContext): Result<css.ICSSDataProvider[]>;
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<css.CSSFormatConfiguration>;
+	getLanguageSettings?(document: TextDocument, context: ServiceContext): ProviderResult<css.LanguageSettings | undefined>;
+	getCustomData?(context: ServiceContext): ProviderResult<css.ICSSDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
-} = {}): ServicePlugin {
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'css',
 		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
 		triggerCharacters: ['/', '-', ':'],
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
 			const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
 			const fileSystemProvider: css.FileSystemProvider = {

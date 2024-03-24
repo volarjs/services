@@ -1,5 +1,5 @@
 import * as prettyhtml from '@starptech/prettyhtml';
-import type { DocumentSelector, FormattingOptions, Result, ServiceContext, ServicePlugin, ServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
 
 export type PrettyhtmlFormattingOptions = Parameters<typeof prettyhtml>[1];
 
@@ -14,12 +14,12 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): Result<PrettyhtmlFormattingOptions>;
-} = {}): ServicePlugin {
+	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<PrettyhtmlFormattingOptions>;
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'prettyhtml',
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
 

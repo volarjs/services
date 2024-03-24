@@ -6,10 +6,10 @@ import type {
 	InsertTextFormat,
 	Location,
 	ParameterInformation,
-	Result,
+	ProviderResult,
 	ServiceContext,
-	ServicePlugin,
-	ServicePluginInstance,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
 	SignatureHelpTriggerKind,
 	SignatureInformation,
 	VirtualCode,
@@ -87,20 +87,21 @@ export function create(
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
 		},
 	}: {
-		isValidationEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
-		isSuggestionsEnabled?(document: TextDocument, context: ServiceContext): Result<boolean>;
+		isValidationEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+		isSuggestionsEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
 	} = {},
-): ServicePlugin {
+): LanguageServicePlugin {
 	return {
 		name: 'typescript-semantic',
 		triggerCharacters: getBasicTriggerCharacters(ts.version),
 		signatureHelpTriggerCharacters: ['(', ',', '<'],
 		signatureHelpRetriggerCharacters: [')'],
-		create(context): ServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 			if (!context.language.typescript) {
 				return {};
 			}
-			const { sys, languageServiceHost } = context.language.typescript;
+			const { projectHost, languageServiceHost } = context.language.typescript;
+			const sys: ts.System | undefined = projectHost;
 			const created = tsWithImportCache.createLanguageService(
 				ts,
 				sys,
@@ -148,14 +149,14 @@ export function create(
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
 						const uri = context.env.typescript!.fileNameToUri(fileName);
-						const sourceFile = context.language.files.get(uri);
-						if (sourceFile?.generated) {
-							const tsCode = sourceFile.generated.languagePlugin.typescript?.getScript(sourceFile.generated.code);
+						const sourceScript = context.language.scripts.get(uri);
+						if (sourceScript?.generated) {
+							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
 							if (tsCode) {
 								sourceScriptNames.add(normalizeFileName(fileName));
 							}
 						}
-						else if (sourceFile) {
+						else if (sourceScript) {
 							sourceScriptNames.add(normalizeFileName(fileName));
 						}
 					}
@@ -174,34 +175,38 @@ export function create(
 					return context.env.typescript!.uriToFileName(uri);
 				},
 				fileNameToUri(fileName) {
-
 					const uri = context.env.typescript!.fileNameToUri(fileName);
-					const sourceFile = context.language.files.get(uri);
-					const extraScript = context.language.typescript!.getExtraScript(fileName);
+					const sourceScript = context.language.scripts.get(uri);
+					const extraServiceScript = context.language.typescript!.getExtraServiceScript(fileName);
 
-					let virtualCode = extraScript?.code;
+					let virtualCode = extraServiceScript?.code;
 
-					if (!virtualCode && sourceFile?.generated?.languagePlugin.typescript) {
-						const mainScript = sourceFile.generated.languagePlugin.typescript.getScript(sourceFile.generated.code);
-						if (mainScript) {
-							virtualCode = mainScript.code;
+					if (!virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
+						const serviceScript = sourceScript.generated.languagePlugin.typescript.getServiceScript(sourceScript.generated.root);
+						if (serviceScript) {
+							virtualCode = serviceScript.code;
 						}
 					}
-					if (virtualCode) {
-						const sourceFile = context.language.files.getByVirtualCode(virtualCode);
-						return context.documents.getVirtualCodeUri(sourceFile.id, virtualCode.id);
+					if (sourceScript && virtualCode) {
+						return context.encodeEmbeddedDocumentUri(sourceScript.id, virtualCode.id);
 					}
 
 					return uri;
 				},
 				getTextDocument(uri) {
-					const virtualCode = context.documents.getVirtualCodeByUri(uri)[0];
-					if (virtualCode) {
-						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
+					const decoded = context.decodeEmbeddedDocumentUri(uri);
+					if (decoded) {
+						const sourceScript = context.language.scripts.get(decoded[0]);
+						const virtualCode = sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+						if (virtualCode) {
+							return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
+						}
 					}
-					const sourceFile = context.language.files.get(uri);
-					if (sourceFile) {
-						return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
+					else {
+						const sourceFile = context.language.scripts.get(uri);
+						if (sourceFile) {
+							return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
+						}
 					}
 					throw new Error(`getTextDocument: uri not found: ${uri}`);
 				},
@@ -863,7 +868,7 @@ export function create(
 			async function worker<T>(token: CancellationToken, fn: () => T): Promise<Awaited<T> | undefined> {
 				let result: Awaited<T> | undefined;
 				let oldSysVersion: number | undefined;
-				let newSysVersion = await sys.sync?.();
+				let newSysVersion = await projectHost.syncSystem?.();
 				do {
 					oldSysVersion = newSysVersion;
 					try {
@@ -872,7 +877,7 @@ export function create(
 						console.warn(err);
 						break;
 					}
-					newSysVersion = await sys.sync?.();
+					newSysVersion = await projectHost.syncSystem?.();
 				} while (newSysVersion !== oldSysVersion && !token.isCancellationRequested);
 				return result;
 			}
@@ -881,17 +886,19 @@ export function create(
 				fileName: string;
 				code: VirtualCode;
 			} | undefined {
-				const [virtualCode, sourceFile] = context.documents.getVirtualCodeByUri(uri);
-				if (virtualCode && sourceFile.generated?.languagePlugin.typescript) {
-					const { getScript, getExtraScripts } = sourceFile.generated?.languagePlugin.typescript;
-					const sourceFileName = context.env.typescript!.uriToFileName(sourceFile.id);
-					if (getScript(sourceFile.generated.code)?.code === virtualCode) {
+				const decoded = context.decodeEmbeddedDocumentUri(uri);
+				const sourceScript = decoded && context.language.scripts.get(decoded[0]);
+				const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+				if (virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
+					const { getServiceScript, getExtraServiceScripts } = sourceScript.generated?.languagePlugin.typescript;
+					const sourceFileName = context.env.typescript!.uriToFileName(sourceScript.id);
+					if (getServiceScript(sourceScript.generated.root)?.code === virtualCode) {
 						return {
 							fileName: sourceFileName,
 							code: virtualCode,
 						};
 					}
-					for (const extraScript of getExtraScripts?.(sourceFileName, sourceFile.generated.code) ?? []) {
+					for (const extraScript of getExtraServiceScripts?.(sourceFileName, sourceScript.generated.root) ?? []) {
 						if (extraScript.code === virtualCode) {
 							return extraScript;
 						}

@@ -9,11 +9,11 @@ const localize = nls.loadMessageBundle(); // TODO: not working
 
 const defaultJsDoc = `/**\n * $0\n */`;
 
-export function create(ts: typeof import('typescript')): vscode.ServicePlugin {
+export function create(ts: typeof import('typescript')): vscode.LanguageServicePlugin {
 	return {
 		name: 'typescript-doc-comment-template',
 		triggerCharacters: ['*'],
-		create(): vscode.ServicePluginInstance {
+		create(): vscode.LanguageServicePluginInstance {
 
 			return {
 

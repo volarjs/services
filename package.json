@@ -15,7 +15,7 @@
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/exec": "latest",
 		"@lerna-lite/publish": "latest",
-		"@volar/language-service": "~2.1.0",
+		"@volar/language-service": "~2.2.0-alpha.0",
 		"@volar/tsl-config": "latest",
 		"tsl": "latest",
 		"typescript": "latest",

@@ -1,8 +1,8 @@
-import type { ServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin } from '@volar/language-service';
 
 console.warn('volar-service-pug: this module is not yet supported for web.');
 
-export function create(): ServicePlugin {
+export function create(): LanguageServicePlugin {
 	return {
 		name: 'pug (stub)',
 		create() {

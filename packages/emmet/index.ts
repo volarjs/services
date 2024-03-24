@@ -1,4 +1,4 @@
-import type { ServicePluginInstance, ServicePlugin, TextDocument } from '@volar/language-service';
+import type { LanguageServicePluginInstance, LanguageServicePlugin, TextDocument } from '@volar/language-service';
 import * as emmet from '@vscode/emmet-helper';
 import * as html from 'vscode-html-languageservice';
 
@@ -24,12 +24,12 @@ function getHtmlDocument(document: TextDocument) {
 	return doc;
 }
 
-export function create(): ServicePlugin {
+export function create(): LanguageServicePlugin {
 	return {
 		name: 'emmet',
 		// https://docs.emmet.io/abbreviations/syntax/
 		triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
-		create(context): ServicePluginInstance {
+		create(context): LanguageServicePluginInstance {
 
 			return {
 
