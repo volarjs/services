@@ -2,8 +2,8 @@ import type * as vscode from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import * as nls from 'vscode-nls';
 import { isTsDocument } from '../shared';
-import { getLanguageService } from '../syntacticLanguageService';
 import { getLineText } from '../utils/lspConverters';
+import { getLanguageServiceByDocument } from './syntactic';
 
 const localize = nls.loadMessageBundle(); // TODO: not working
 
@@ -13,7 +13,7 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 	return {
 		name: 'typescript-doc-comment-template',
 		triggerCharacters: ['*'],
-		create(): vscode.LanguageServicePluginInstance {
+		create(context): vscode.LanguageServicePluginInstance {
 
 			return {
 
@@ -27,7 +27,7 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 						return;
 					}
 
-					const { languageService, fileName } = getLanguageService(ts, document);
+					const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
 					const offset = document.offsetAt(position);
 					const docCommentTemplate = languageService.getDocCommentTemplateAtPosition(fileName, offset);
 					if (!docCommentTemplate) {

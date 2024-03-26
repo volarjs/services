@@ -1,12 +1,10 @@
 import type * as ts from 'typescript';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 let currentProjectVersion = -1;
-let currentDocument: TextDocument | undefined;
-let currentDocumentVersion: number | undefined;
 let currentFileName = '';
 let currentSnapshot: ts.IScriptSnapshot | undefined;
 let languageService: ts.LanguageService | undefined;
+let syntaxOnlyLanguageService: ts.LanguageService | undefined;
 
 const host: ts.LanguageServiceHost = {
 	getProjectVersion: () => currentProjectVersion.toString(),
@@ -20,21 +18,34 @@ const host: ts.LanguageServiceHost = {
 	fileExists: fileName => fileName === currentFileName,
 };
 
-export function getLanguageService(ts: typeof import('typescript'), document: TextDocument) {
-	if (currentDocument !== document || currentDocumentVersion !== document.version) {
-		currentDocument = document;
+export function getLanguageService(
+	ts: typeof import('typescript'),
+	snapshot: ts.IScriptSnapshot,
+	languageId: string,
+	syntaxOnly: boolean,
+) {
+	if (currentSnapshot !== snapshot) {
+		currentSnapshot = snapshot;
 		currentFileName = '/tmp.' + (
-			document.languageId === 'javascript' ? 'js' :
-				document.languageId === 'typescriptreact' ? 'tsx' :
-					document.languageId === 'javascriptreact' ? 'jsx' :
+			languageId === 'javascript' ? 'js' :
+				languageId === 'typescriptreact' ? 'tsx' :
+					languageId === 'javascriptreact' ? 'jsx' :
 						'ts'
 		);
-		currentSnapshot = ts.ScriptSnapshot.fromString(document.getText());
 		currentProjectVersion++;
 	}
-	languageService ??= ts.createLanguageService(host, undefined, 2 satisfies ts.LanguageServiceMode.Syntactic);
-	return {
-		languageService,
-		fileName: currentFileName,
-	};
+	if (syntaxOnly) {
+		syntaxOnlyLanguageService ??= ts.createLanguageService(host, undefined, ts.LanguageServiceMode.Syntactic);
+		return {
+			languageService: syntaxOnlyLanguageService,
+			fileName: currentFileName,
+		};
+	}
+	else {
+		languageService ??= ts.createLanguageService(host);
+		return {
+			languageService,
+			fileName: currentFileName,
+		};
+	}
 }

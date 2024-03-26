@@ -42,7 +42,7 @@ export function create(
 						&& lastChange.text.endsWith('>')
 						&& await isAutoClosingTagsEnabled(document, context)
 					) {
-						const { languageService, fileName } = getLanguageService(ts, document);
+						const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
 						const close = languageService.getJsxClosingTagAtPosition(fileName, document.offsetAt(position));
 						if (close) {
 							return '$0' + close.newText;
@@ -56,7 +56,7 @@ export function create(
 						return;
 					}
 
-					const { languageService, fileName } = getLanguageService(ts, document);
+					const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
 					const outliningSpans = safeCall(() => languageService.getOutliningSpans(fileName));
 					if (!outliningSpans) {
 						return [];
@@ -70,7 +70,7 @@ export function create(
 						return;
 					}
 
-					const { languageService, fileName } = getLanguageService(ts, document);
+					const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
 					const barItems = safeCall(() => languageService.getNavigationTree(fileName));
 					if (!barItems) {
 						return [];
@@ -97,7 +97,7 @@ export function create(
 					if (codeOptions) {
 						tsOptions.baseIndentSize = codeOptions.initialIndentLevel * options.tabSize;
 					}
-					const { languageService, fileName } = getLanguageService(ts, document);
+					const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
 					const scriptEdits = range
 						? safeCall(() => languageService.getFormattingEditsForRange(
 							fileName,
@@ -126,7 +126,7 @@ export function create(
 					if (codeOptions) {
 						tsOptions.baseIndentSize = codeOptions.initialIndentLevel * options.tabSize;
 					}
-					const { languageService, fileName } = getLanguageService(ts, document);
+					const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
 					const scriptEdits = safeCall(() => languageService.getFormattingEditsAfterKeystroke(fileName, document.offsetAt(position), key, tsOptions));
 					if (!scriptEdits) {
 						return [];
@@ -136,4 +136,23 @@ export function create(
 			};
 		},
 	};
+}
+
+export function getLanguageServiceByDocument(context: ServiceContext, ts: typeof import('typescript'), document: TextDocument) {
+	const decoded = context.decodeEmbeddedDocumentUri(document.uri);
+	if (decoded) {
+		const embeddedCode = context.language.scripts
+			.get(decoded[0])?.generated?.embeddedCodes
+			.get(decoded[1]);
+		if (embeddedCode) {
+			return getLanguageService(ts, embeddedCode.snapshot, document.languageId, true);
+		}
+	}
+	else {
+		const sourceScript = context.language.scripts.get(document.uri);
+		if (sourceScript) {
+			return getLanguageService(ts, sourceScript.snapshot, document.languageId, true);
+		}
+	}
+	throw new Error(`No language service for ${document.uri}`);
 }
