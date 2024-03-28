@@ -13,7 +13,7 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 	return {
 		name: 'typescript-doc-comment-template',
 		triggerCharacters: ['*'],
-		create(context): vscode.LanguageServicePluginInstance {
+		create(): vscode.LanguageServicePluginInstance {
 
 			return {
 
@@ -27,7 +27,7 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 						return;
 					}
 
-					const { languageService, fileName } = getLanguageServiceByDocument(context, ts, document);
+					const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
 					const offset = document.offsetAt(position);
 					const docCommentTemplate = languageService.getDocCommentTemplateAtPosition(fileName, offset);
 					if (!docCommentTemplate) {
