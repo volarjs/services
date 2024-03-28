@@ -10,6 +10,10 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
 					if (isTsDocument(document.languageId)) {
 
 						const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
+						if (!languageService) {
+							return;
+						}
+
 						const inlayHints: InlayHint[] = [];
 
 						for (const pointer of document.getText(range).matchAll(/^\s*\/\/\s*\^\?/gm)) {
