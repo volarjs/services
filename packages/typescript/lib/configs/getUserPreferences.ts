@@ -2,13 +2,16 @@ import * as path from 'path-browserify';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
-import type { SharedContext } from '../semanticFeatures/types';
+import type { ServiceContext } from '@volar/language-service';
 
 export async function getUserPreferences(
-	ctx: SharedContext,
+	ctx: ServiceContext,
 	document: TextDocument,
 ): Promise<ts.UserPreferences> {
-
+	let currentDirectory = '';
+	if (ctx.language.typescript) {
+		currentDirectory = ctx.language.typescript.languageServiceHost.getCurrentDirectory();
+	}
 	const config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document)) ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
@@ -27,7 +30,7 @@ export async function getUserPreferences(
 		includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ?? true,
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
-		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, ctx.languageServiceHost.getCurrentDirectory()),
+		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, currentDirectory),
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,
