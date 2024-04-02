@@ -27,7 +27,7 @@
 		"sass-formatter": "^0.7.8"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.2.0-alpha.1"
+		"@volar/language-service": "~2.2.0-alpha.4"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
