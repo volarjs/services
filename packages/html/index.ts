@@ -323,35 +323,33 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertionEdit(document, position, lastChange) {
+				async provideAutoInsertionEdit(document, selection, change) {
+					// selection must at end of change
+					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
+						return;
+					}
 					return worker(document, async htmlDocument => {
-
-						const lastCharacter = lastChange.text[lastChange.text.length - 1];
-						const rangeLengthIsZero = lastChange.range.start.line === lastChange.range.end.line
-							&& lastChange.range.start.character === lastChange.range.end.character;
-
-						if (rangeLengthIsZero && lastCharacter === '=') {
+						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
 							const enabled = await isAutoCreateQuotesEnabled(document, context);
 
 							if (enabled) {
 
 								const completionConfiguration = await getCompletionConfiguration(document, context);
-								const text = htmlLs.doQuoteComplete(document, position, htmlDocument, completionConfiguration);
+								const text = htmlLs.doQuoteComplete(document, selection, htmlDocument, completionConfiguration);
 
 								if (text) {
 									return text;
 								}
 							}
 						}
-
-						if (rangeLengthIsZero && (lastCharacter === '>' || lastCharacter === '/')) {
+						if (change.rangeLength === 0 && (change.text.endsWith('>') || change.text.endsWith('/'))) {
 
 							const enabled = await isAutoClosingTagsEnabled(document, context);
 
 							if (enabled) {
 
-								const text = htmlLs.doTagComplete(document, position, htmlDocument);
+								const text = htmlLs.doTagComplete(document, selection, htmlDocument);
 
 								if (text) {
 									return text;

@@ -36,14 +36,18 @@ export function create(
 
 			return {
 
-				async provideAutoInsertionEdit(document, position, lastChange) {
+				async provideAutoInsertionEdit(document, selection, change) {
+					// selection must at end of change
+					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
+						return;
+					}
 					if (
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
-						&& lastChange.text.endsWith('>')
+						&& change.text.endsWith('>')
 						&& await isAutoClosingTagsEnabled(document, context)
 					) {
 						const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
-						const close = languageService.getJsxClosingTagAtPosition(fileName, document.offsetAt(position));
+						const close = languageService.getJsxClosingTagAtPosition(fileName, document.offsetAt(selection));
 						if (close) {
 							return '$0' + close.newText;
 						}

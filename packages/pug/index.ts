@@ -113,20 +113,19 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertionEdit(document, position, lastChange) {
+				async provideAutoInsertionEdit(document, selection, change) {
+					// selection must at end of change
+					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
+						return;
+					}
 					return worker(document, async pugDocument => {
-
-						const lastCharacter = lastChange.text[lastChange.text.length - 1];
-						const rangeLengthIsZero = lastChange.range.start.line === lastChange.range.end.line
-							&& lastChange.range.start.character === lastChange.range.end.character;
-
-						if (rangeLengthIsZero && lastCharacter === '=') {
+						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
 							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
 
 							if (enabled) {
 
-								const text = pugLs.doQuoteComplete(pugDocument, position, await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion'));
+								const text = pugLs.doQuoteComplete(pugDocument, selection, await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion'));
 
 								if (text) {
 									return text;
