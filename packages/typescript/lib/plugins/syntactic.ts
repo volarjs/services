@@ -12,7 +12,39 @@ import {
 	convertOutliningSpan,
 	convertTextChange
 } from '../utils/lspConverters';
-import { getLanguageService } from '../syntacticLanguageService';
+import { createSyntaxOnlyService } from '../syntaxOnlyService';
+import type * as ts from 'typescript';
+
+const snapshots = new WeakMap<TextDocument, [number, ts.IScriptSnapshot]>();
+
+let created: ReturnType<typeof createSyntaxOnlyService> | undefined;
+
+export function getLanguageServiceByDocument(ts: typeof import('typescript'), document: TextDocument) {
+	if (!created) {
+		created = createSyntaxOnlyService(ts, true);
+	}
+	let cache = snapshots.get(document);
+	if (!cache || cache[0] !== document.version) {
+		const snapshot = ts.ScriptSnapshot.fromString(document.getText());
+		cache = [document.version, snapshot];
+		snapshots.set(document, cache);
+		created.updateFile(
+			document.uri,
+			cache[1],
+			document.languageId === 'javascript'
+				? ts.ScriptKind.JS
+				: document.languageId === 'javascriptreact'
+					? ts.ScriptKind.JSX
+					: document.languageId === 'typescriptreact'
+						? ts.ScriptKind.TSX
+						: ts.ScriptKind.TS
+		);
+	}
+	return {
+		languageService: created.languageService,
+		fileName: document.uri,
+	};
+}
 
 export function create(
 	ts: typeof import('typescript'),
@@ -140,18 +172,4 @@ export function create(
 			};
 		},
 	};
-}
-
-import type * as ts from 'typescript';
-
-const snapshots = new WeakMap<TextDocument, [number, ts.IScriptSnapshot]>();
-
-export function getLanguageServiceByDocument(ts: typeof import('typescript'), document: TextDocument) {
-	let cache = snapshots.get(document);
-	if (!cache || cache[0] !== document.version) {
-		const snapshot = ts.ScriptSnapshot.fromString(document.getText());
-		cache = [document.version, snapshot];
-		snapshots.set(document, cache);
-	}
-	return getLanguageService(ts, cache[1], document.languageId, true);
 }
