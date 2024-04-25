@@ -12,9 +12,9 @@ export function createSyntaxOnlyService(ts: typeof import('typescript'), syntaxO
 	const host: ts.LanguageServiceHost = {
 		getProjectVersion: () => currentProjectVersion.toString(),
 		getScriptFileNames: () => fileNames,
-		getScriptVersion: () => currentProjectVersion.toString(),
 		getScriptSnapshot: fileName => scriptInfos.get(fileName)!.snapshot,
 		getScriptKind: fileName => scriptInfos.get(fileName)!.kind,
+		getScriptVersion: fileName => scriptInfos.get(fileName)!.version.toString(),
 		getCompilationSettings: () => ({}),
 		getCurrentDirectory: () => '',
 		getDefaultLibFileName: () => '',
