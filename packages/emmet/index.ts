@@ -24,7 +24,11 @@ function getHtmlDocument(document: TextDocument) {
 	return doc;
 }
 
-export function create(): LanguageServicePlugin {
+export function create({
+	mappedModes = {},
+}: {
+	mappedModes?: Record<string, string>;
+}): LanguageServicePlugin {
 	return {
 		name: 'emmet',
 		// https://docs.emmet.io/abbreviations/syntax/
@@ -37,7 +41,7 @@ export function create(): LanguageServicePlugin {
 
 				async provideCompletionItems(textDocument, position) {
 
-					const syntax = emmet.getEmmetMode(textDocument.languageId === 'vue' ? 'html' : textDocument.languageId);
+					const syntax = emmet.getEmmetMode(mappedModes[textDocument.languageId] ?? textDocument.languageId);
 					if (!syntax) {
 						return;
 					}
