@@ -28,7 +28,7 @@ export function create({
 	mappedModes = {},
 }: {
 	mappedModes?: Record<string, string>;
-}): LanguageServicePlugin {
+} = {}): LanguageServicePlugin {
 	return {
 		name: 'emmet',
 		// https://docs.emmet.io/abbreviations/syntax/
