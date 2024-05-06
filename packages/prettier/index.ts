@@ -10,8 +10,9 @@ export function create(
 	{
 		html,
 		documentSelector = ['html', 'css', 'scss', 'typescript', 'javascript'],
-		isFormattingEnabled = async (prettier, document) => {
-			const uri = URI.parse(document.uri);
+		isFormattingEnabled = async (prettier, document, context) => {
+			const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
+			const uri = URI.parse(documentUri);
 			if (uri.scheme === 'file') {
 				const fileInfo = await prettier.getFileInfo(uri.fsPath, { ignorePath: '.prettierignore', resolveConfig: false });
 				if (fileInfo.ignored) {
@@ -21,11 +22,16 @@ export function create(
 			return true;
 		},
 		getFormattingOptions = async (prettier, document, formatOptions, context) => {
-			const filepath = URI.parse(document.uri).fsPath;
-			const configOptions = await prettier.resolveConfig(filepath);
-			const editorOptions = await context.env.getConfiguration<Options>?.('prettier', document.uri);
+			const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
+			const uri = URI.parse(documentUri);
+			const configOptions = uri.scheme === 'file'
+				? await prettier.resolveConfig(uri.fsPath)
+				: null;
+			const editorOptions = await context.env.getConfiguration<Options>?.('prettier', documentUri);
 			return {
-				filepath,
+				filepath: uri.scheme === 'file'
+					? uri.fsPath
+					: undefined,
 				tabWidth: formatOptions.tabSize,
 				useTabs: !formatOptions.insertSpaces,
 				...editorOptions,
