@@ -16,7 +16,7 @@ export function convertDiagnostic(
 	diag: ts.Diagnostic,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): vscode.Diagnostic | undefined {
 
 	if (diag.start === undefined) {
@@ -61,7 +61,7 @@ export function convertDiagnostic(
 function convertDiagnosticRelatedInformation(
 	diag: ts.Diagnostic,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): vscode.DiagnosticRelatedInformation | undefined {
 
 	if (diag.start === undefined) {
@@ -129,7 +129,7 @@ export function applyCompletionEntryDetails(
 	data: ts.CompletionEntryDetails,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ) {
 	const { sourceDisplay } = data;
 	if (sourceDisplay) {
@@ -613,7 +613,7 @@ export function convertSelectionRange(range: ts.SelectionRange, document: TextDo
 export function convertFileTextChanges(
 	changes: readonly ts.FileTextChanges[],
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 	for (const change of changes) {
@@ -642,7 +642,7 @@ export function convertRenameLocations(
 	newText: string,
 	locations: readonly ts.RenameLocation[],
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 	for (const location of locations) {
@@ -676,7 +676,7 @@ export function convertQuickInfo(
 	info: ts.QuickInfo,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): vscode.Hover {
 	const parts: string[] = [];
 	const displayString = ts.displayPartsToString(info.displayParts);
@@ -820,7 +820,7 @@ function adjustFoldingEnd(start: vscode.Position, end: vscode.Position, document
 
 // formatting
 
-export function convertTextChange(edit: ts.TextChange, document: TextDocument): vscode.TextEdit {
+export function convertTextChange(edit: ts.TextChange, document: TextDocument | undefined): vscode.TextEdit {
 	return {
 		range: convertTextSpan(edit.span, document),
 		newText: edit.newText,
@@ -922,7 +922,13 @@ export function convertDocumentSpantoLocationLink(documentSpan: ts.DocumentSpan,
 	};
 }
 
-export function convertTextSpan(textSpan: ts.TextSpan, document: TextDocument): vscode.Range {
+export function convertTextSpan(textSpan: ts.TextSpan, document: TextDocument | undefined): vscode.Range {
+	if (!document) {
+		return {
+			start: { line: 0, character: 0 },
+			end: { line: 0, character: 0 },
+		};
+	}
 	return {
 		start: document.positionAt(textSpan.start),
 		end: document.positionAt(textSpan.start + textSpan.length),

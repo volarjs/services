@@ -208,7 +208,6 @@ export function create(
 							return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
 						}
 					}
-					throw new Error(`getTextDocument: uri not found: ${uri}`);
 				},
 			};
 			const getCodeActions = codeActions.register(ctx);
@@ -278,7 +277,7 @@ export function create(
 							return item;
 						}
 						const { fileName, offset } = data;
-						const document = ctx.getTextDocument(data.uri);
+						const document = ctx.getTextDocument(data.uri)!;
 						const [formatOptions, preferences] = await Promise.all([
 							getFormatCodeSettings(ctx, document),
 							getUserPreferences(ctx, document),
@@ -506,7 +505,7 @@ export function create(
 
 				async provideCallHierarchyIncomingCalls(item, token) {
 					return await worker(token, () => {
-						const document = ctx.getTextDocument(item.uri);
+						const document = ctx.getTextDocument(item.uri)!;
 						const fileName = ctx.uriToFileName(item.uri);
 						const offset = document.offsetAt(item.selectionRange.start);
 						const calls = safeCall(() => ctx.languageService.provideCallHierarchyIncomingCalls(fileName, offset));
@@ -520,7 +519,7 @@ export function create(
 
 				async provideCallHierarchyOutgoingCalls(item, token) {
 					return await worker(token, () => {
-						const document = ctx.getTextDocument(item.uri);
+						const document = ctx.getTextDocument(item.uri)!;
 						const fileName = ctx.uriToFileName(item.uri);
 						const offset = document.offsetAt(item.selectionRange.start);
 						const calls = safeCall(() => ctx.languageService.provideCallHierarchyOutgoingCalls(fileName, offset));
@@ -698,14 +697,14 @@ export function create(
 						}
 						return items
 							.filter(item => item.containerName || item.kind !== 'alias')
-							.map(item => convertNavigateToItem(item, ctx.getTextDocument(ctx.fileNameToUri(item.fileName))))
+							.map(item => convertNavigateToItem(item, ctx.getTextDocument(ctx.fileNameToUri(item.fileName))!))
 							.filter(notEmpty);
 					});
 				},
 
 				provideFileRenameEdits(oldUri, newUri, token) {
 					return worker(token, async () => {
-						const document = ctx.getTextDocument(oldUri);
+						const document = ctx.getTextDocument(oldUri)!;
 						const [formatOptions, preferences] = await Promise.all([
 							getFormatCodeSettings(ctx, document),
 							getUserPreferences(ctx, document),

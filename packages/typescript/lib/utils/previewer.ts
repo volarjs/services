@@ -27,7 +27,7 @@ function processInlineTags(text: string): string {
 function getTagBodyText(
 	tag: ts.server.protocol.JSDocTagInfo,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string | undefined {
 	if (!tag.text) {
 		return undefined;
@@ -70,7 +70,7 @@ function getTagBodyText(
 function getTagDocumentation(
 	tag: ts.server.protocol.JSDocTagInfo,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string | undefined {
 	switch (tag.name) {
 		case 'augments':
@@ -101,7 +101,7 @@ function getTagDocumentation(
 export function plainWithLinks(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string {
 	return processInlineTags(convertLinkTags(parts, fileNameToUri, getTextDocument));
 }
@@ -112,7 +112,7 @@ export function plainWithLinks(
 function convertLinkTags(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string {
 	if (!parts) {
 		return '';
@@ -138,19 +138,34 @@ function convertLinkTags(
 							textSpan: { start: number, length: number; },
 						};
 						const fileDoc = getTextDocument(fileNameToUri(_target.fileName));
-						const start = fileDoc.positionAt(_target.textSpan.start);
-						const end = fileDoc.positionAt(_target.textSpan.start + _target.textSpan.length);
-						target = {
-							file: _target.fileName,
-							start: {
-								line: start.line + 1,
-								offset: start.character + 1,
-							},
-							end: {
-								line: end.line + 1,
-								offset: end.character + 1,
-							},
-						};
+						if (fileDoc) {
+							const start = fileDoc.positionAt(_target.textSpan.start);
+							const end = fileDoc.positionAt(_target.textSpan.start + _target.textSpan.length);
+							target = {
+								file: _target.fileName,
+								start: {
+									line: start.line + 1,
+									offset: start.character + 1,
+								},
+								end: {
+									line: end.line + 1,
+									offset: end.character + 1,
+								},
+							};
+						}
+						else {
+							target = {
+								file: _target.fileName,
+								start: {
+									line: 1,
+									offset: 1,
+								},
+								end: {
+									line: 1,
+									offset: 1,
+								},
+							};
+						}
 					}
 
 					if (target) {
@@ -192,7 +207,7 @@ function convertLinkTags(
 export function tagsMarkdownPreview(
 	tags: readonly ts.JSDocTagInfo[],
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string {
 	return tags.map(tag => getTagDocumentation(tag, fileNameToUri, getTextDocument)).join('  \n\n');
 }
@@ -201,7 +216,7 @@ export function markdownDocumentation(
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string {
 	return addMarkdownDocumentation('', documentation, tags, fileNameToUri, getTextDocument);
 }
@@ -211,7 +226,7 @@ export function addMarkdownDocumentation(
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument,
+	getTextDocument: (uri: string) => TextDocument | undefined,
 ): string {
 	if (documentation) {
 		out += plainWithLinks(documentation, fileNameToUri, getTextDocument);
