@@ -298,6 +298,12 @@ export function create({
 					}
 				},
 
+				provideHover(document, position, token) {
+					if (prepare(document)) {
+						return ls.getHover(document, position, token);
+					}
+				},
+
 				provideReferences(document, position, referenceContext, token) {
 					if (prepare(document)) {
 						return ls.getReferences(
