@@ -13,7 +13,8 @@ import type {
 	SignatureHelpTriggerKind,
 	SignatureInformation,
 	VirtualCode,
-	WorkspaceEdit
+	WorkspaceEdit,
+	FormattingOptions
 } from '@volar/language-service';
 import * as path from 'path-browserify';
 import * as semver from 'semver';
@@ -217,6 +218,8 @@ export function create(
 			/* typescript-language-features is hardcode true */
 			const renameInfoOptions = { allowRenameOfImportPath: true };
 
+			let formattingOptions: FormattingOptions | undefined;
+
 			return {
 
 				provide: {
@@ -226,6 +229,16 @@ export function create(
 
 				dispose() {
 					languageService.dispose();
+				},
+
+				provideDocumentFormattingEdits(_document, _range, options) {
+					formattingOptions = options;
+					return undefined;
+				},
+
+				provideOnTypeFormattingEdits(_document, _position, _key, options) {
+					formattingOptions = options;
+					return undefined;
 				},
 
 				async provideCompletionItems(document, position, completeContext, token) {
@@ -279,7 +292,7 @@ export function create(
 						const { fileName, offset } = data;
 						const document = ctx.getTextDocument(data.uri)!;
 						const [formatOptions, preferences] = await Promise.all([
-							getFormatCodeSettings(ctx, document),
+							getFormatCodeSettings(ctx, document, formattingOptions),
 							getUserPreferences(ctx, document),
 						]);
 						const details = safeCall(() => ctx.languageService.getCompletionEntryDetails(fileName, offset, data.originalItem.name, formatOptions, data.originalItem.source, preferences, data.originalItem.data));
@@ -402,7 +415,7 @@ export function create(
 						}
 						if (renameInfo.fileToRename) {
 							const [formatOptions, preferences] = await Promise.all([
-								getFormatCodeSettings(ctx, document),
+								getFormatCodeSettings(ctx, document, formattingOptions),
 								getUserPreferences(ctx, document),
 							]);
 							return renameFile(renameInfo.fileToRename, newName, formatOptions, preferences);
@@ -452,13 +465,13 @@ export function create(
 					}
 
 					return worker(token, () => {
-						return getCodeActions(document, range, context);
+						return getCodeActions(document, range, context, formattingOptions);
 					});
 				},
 
 				async resolveCodeAction(codeAction, token) {
 					return await worker(token, () => {
-						return doCodeActionResolve(codeAction);
+						return doCodeActionResolve(codeAction, formattingOptions);
 					}) ?? codeAction;
 				},
 
@@ -706,7 +719,7 @@ export function create(
 					return worker(token, async () => {
 						const document = ctx.getTextDocument(oldUri)!;
 						const [formatOptions, preferences] = await Promise.all([
-							getFormatCodeSettings(ctx, document),
+							getFormatCodeSettings(ctx, document, formattingOptions),
 							getUserPreferences(ctx, document),
 						]);
 

@@ -43,9 +43,9 @@ export function register(ctx: SharedContext) {
 		resolveEditSupport = true;
 	}
 
-	return async (document: TextDocument, range: vscode.Range, context: vscode.CodeActionContext) => {
+	return async (document: TextDocument, range: vscode.Range, context: vscode.CodeActionContext, formattingOptions: vscode.FormattingOptions | undefined) => {
 		const [formatOptions, preferences] = await Promise.all([
-			getFormatCodeSettings(ctx, document),
+			getFormatCodeSettings(ctx, document, formattingOptions),
 			getUserPreferences(ctx, document),
 		]);
 
