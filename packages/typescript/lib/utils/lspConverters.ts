@@ -621,17 +621,32 @@ export function convertFileTextChanges(
 			workspaceEdit.documentChanges = [];
 		}
 		const uri = fileNameToUri(change.fileName);
-		const doc = getTextDocument(uri);
 		if (change.isNewFile) {
 			workspaceEdit.documentChanges.push({ kind: 'create', uri });
+			workspaceEdit.documentChanges.push({
+				textDocument: {
+					uri,
+					version: null, // fix https://github.com/johnsoncodehk/volar/issues/2025
+				},
+				edits: change.textChanges.map(edit => ({
+					newText: edit.newText,
+					range: {
+						start: { line: 0, character: edit.span.start },
+						end: { line: 0, character: edit.span.start + edit.span.length },
+					},
+				})),
+			});
 		}
-		workspaceEdit.documentChanges.push({
-			textDocument: {
-				uri,
-				version: null, // fix https://github.com/johnsoncodehk/volar/issues/2025
-			},
-			edits: change.textChanges.map(edit => convertTextChange(edit, doc)),
-		});
+		else {
+			const doc = getTextDocument(uri);
+			workspaceEdit.documentChanges.push({
+				textDocument: {
+					uri,
+					version: null, // fix https://github.com/johnsoncodehk/volar/issues/2025
+				},
+				edits: change.textChanges.map(edit => convertTextChange(edit, doc)),
+			});
+		}
 	}
 	return workspaceEdit;
 }
