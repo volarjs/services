@@ -33,10 +33,28 @@ export interface OrganizeImportsData {
 
 export type Data = FixAllData | RefactorData | OrganizeImportsData;
 
+const renameCommandRefactors = new Set([
+	'refactor.rewrite.property.generateAccessors',
+	'refactor.extract.type',
+	'refactor.extract.interface',
+	'refactor.extract.typedef',
+	'refactor.extract.constant',
+	'refactor.extract.function',
+]);
+
 export function register(ctx: SharedContext) {
 
 	let resolveCommandSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('command');
 	let resolveEditSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('edit');
+	let loged = false;
+
+	const wranUnsupportResolve = () => {
+		if (loged) {
+			return;
+		}
+		loged = true;
+		console.warn('[volar-service-typescript] The language client lacks support for the command/edit properties in the resolve code action. Therefore, the code action resolve is pre-calculated.');
+	};
 
 	if (!ctx.env.clientCapabilities) {
 		resolveCommandSupport = true;
@@ -115,6 +133,7 @@ export function register(ctx: SharedContext) {
 				action.data = data;
 			}
 			else {
+				wranUnsupportResolve();
 				resolveOrganizeImportsCodeAction(ctx, action, data, formatOptions, preferences);
 			}
 			result.push(action);
@@ -140,6 +159,7 @@ export function register(ctx: SharedContext) {
 				action.data = data;
 			}
 			else {
+				wranUnsupportResolve();
 				resolveFixAllCodeAction(ctx, action, data, formatOptions, preferences);
 			}
 			result.push(action);
@@ -169,6 +189,7 @@ export function register(ctx: SharedContext) {
 				action.data = data;
 			}
 			else {
+				wranUnsupportResolve();
 				resolveFixAllCodeAction(ctx, action, data, formatOptions, preferences);
 			}
 			result.push(action);
@@ -195,6 +216,7 @@ export function register(ctx: SharedContext) {
 				action.data = data;
 			}
 			else {
+				wranUnsupportResolve();
 				resolveFixAllCodeAction(ctx, action, data, formatOptions, preferences);
 			}
 			result.push(action);
@@ -257,6 +279,7 @@ export function register(ctx: SharedContext) {
 					fixAll.data = data;
 				}
 				else {
+					wranUnsupportResolve();
 					resolveFixAllCodeAction(ctx, fixAll, data, formatOptions, preferences);
 				}
 				fixAll.diagnostics = diagnostics;
@@ -285,10 +308,15 @@ export function register(ctx: SharedContext) {
 					refactorName: refactor.name,
 					actionName: action.name,
 				};
-				if (resolveCommandSupport && resolveEditSupport) {
+				const hasCommand = renameCommandRefactors.has(action.kind!);
+				if (hasCommand && resolveCommandSupport && resolveEditSupport) {
+					codeAction.data = data;
+				}
+				else if (!hasCommand && resolveEditSupport) {
 					codeAction.data = data;
 				}
 				else if (!codeAction.disabled) {
+					wranUnsupportResolve();
 					resolveRefactorCodeAction(ctx, codeAction, data, document, formatOptions, preferences);
 				}
 				codeActions.push(codeAction);
