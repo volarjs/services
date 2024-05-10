@@ -288,7 +288,7 @@ export function register(ctx: SharedContext) {
 				if (resolveCommandSupport && resolveEditSupport) {
 					codeAction.data = data;
 				}
-				else if (!codeAction.disabled && document) {
+				else if (!codeAction.disabled) {
 					resolveRefactorCodeAction(ctx, codeAction, data, document, formatOptions, preferences);
 				}
 				codeActions.push(codeAction);

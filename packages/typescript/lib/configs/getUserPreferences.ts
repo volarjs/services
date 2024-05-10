@@ -12,6 +12,7 @@ export async function getUserPreferences(
 	if (ctx.language.typescript) {
 		currentDirectory = ctx.language.typescript.languageServiceHost.getCurrentDirectory();
 	}
+	const documentUri = ctx.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
 	const config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document)) ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
@@ -20,7 +21,7 @@ export async function getUserPreferences(
 		importModuleSpecifierPreference: getImportModuleSpecifierPreference(preferencesConfig),
 		importModuleSpecifierEnding: getImportModuleSpecifierEndingPreference(preferencesConfig),
 		jsxAttributeCompletionStyle: getJsxAttributeCompletionStyle(preferencesConfig),
-		allowTextChangesInNewFiles: document.uri.startsWith('file://'),
+		allowTextChangesInNewFiles: documentUri.startsWith('file://'),
 		providePrefixAndSuffixTextForRename: (preferencesConfig.renameShorthandProperties ?? true) === false ? false : (preferencesConfig.useAliasesForRenames ?? true),
 		allowRenameOfImportPath: true,
 		includeAutomaticOptionalChainCompletions: config.suggest?.includeAutomaticOptionalChainCompletions ?? true,
