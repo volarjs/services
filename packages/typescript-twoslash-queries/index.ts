@@ -10,7 +10,8 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
 					if (isTsDocument(document.languageId)) {
 
 						const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
-						if (!languageService) {
+						const fileName = context.inject<Provide, 'typescript/documentFileName'>('typescript/documentFileName', document.uri);
+						if (!languageService || !fileName) {
 							return;
 						}
 
@@ -24,7 +25,6 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
 								character: pointerPosition.character,
 							});
 
-							const fileName = context.env.typescript!.uriToFileName(document.uri);
 							const quickInfo = languageService.getQuickInfoAtPosition(fileName, hoverOffset);
 							if (quickInfo) {
 								inlayHints.push({

@@ -53,6 +53,8 @@ import type { SharedContext } from '../semanticFeatures/types';
 export interface Provide {
 	'typescript/languageService': () => ts.LanguageService;
 	'typescript/languageServiceHost': () => ts.LanguageServiceHost;
+	'typescript/documentFileName': (uri: string) => string;
+	'typescript/documentUri': (fileName: string) => string;
 }
 
 export interface CompletionItemData {
@@ -225,6 +227,8 @@ export function create(
 				provide: {
 					'typescript/languageService': () => languageService,
 					'typescript/languageServiceHost': () => languageServiceHost,
+					'typescript/documentFileName': uri => ctx.uriToFileName(uri),
+					'typescript/documentUri': fileName => ctx.fileNameToUri(fileName),
 				},
 
 				dispose() {
