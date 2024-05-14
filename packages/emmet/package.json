@@ -24,8 +24,12 @@
 		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
-		"@vscode/emmet-helper": "^2.9.2",
-		"vscode-html-languageservice": "npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462"
+		"@emmetio/css-parser": "^0.4.0",
+		"@emmetio/html-matcher": "^1.3.0",
+		"@vscode/emmet-helper": "^2.9.2"
+	},
+	"devDependencies": {
+		"@types/node": "latest"
 	},
 	"peerDependencies": {
 		"@volar/language-service": "~2.2.0"
