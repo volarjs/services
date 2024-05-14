@@ -17,9 +17,13 @@ export interface JSONSchemaSettings {
 
 export function create({
 	documentSelector = ['json', 'jsonc'],
-	getWorkspaceContextService = () => {
+	getWorkspaceContextService = context => {
 		return {
 			resolveRelativePath(relativePath, resource) {
+				const decoded = context.decodeEmbeddedDocumentUri(resource);
+				if (decoded) {
+					resource = decoded[0];
+				}
 				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
 				return Utils.resolvePath(URI.parse(base), relativePath).toString();
 			},

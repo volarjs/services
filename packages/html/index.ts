@@ -16,6 +16,10 @@ export function create({
 	getDocumentContext = context => {
 		return {
 			resolveReference(ref, base) {
+				const decoded = context.decodeEmbeddedDocumentUri(base);
+				if (decoded) {
+					base = decoded[0];
+				}
 				if (ref.match(/^\w[\w\d+.-]*:/)) {
 					// starts with a schema
 					return ref;
@@ -111,7 +115,7 @@ export function create({
 			const fileSystemProvider: html.FileSystemProvider = {
 				stat: async uri => await context.env.fs?.stat(uri)
 					?? { type: html.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
-				readDirectory: async uri => context.env.fs?.readDirectory(uri) ?? [],
+				readDirectory: async uri => await context.env.fs?.readDirectory(uri) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
 			const htmlLs = html.getLanguageService({

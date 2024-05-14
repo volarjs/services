@@ -16,6 +16,10 @@ export function create({
 	getDocumentContext = context => {
 		return {
 			resolveReference(ref, base) {
+				const decoded = context.decodeEmbeddedDocumentUri(base);
+				if (decoded) {
+					base = decoded[0];
+				}
 				if (ref.match(/^\w[\w\d+.-]*:/)) {
 					// starts with a schema
 					return ref;
