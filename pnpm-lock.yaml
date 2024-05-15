@@ -10,13 +10,13 @@ importers:
     devDependencies:
       '@lerna-lite/cli':
         specifier: latest
-        version: 3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(@lerna-lite/version@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
+        version: 3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(@lerna-lite/version@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
       '@lerna-lite/exec':
         specifier: latest
-        version: 3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5)
+        version: 3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5)
       '@lerna-lite/publish':
         specifier: latest
-        version: 3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5)
+        version: 3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5)
       '@volar/language-service':
         specifier: ~2.2.3
         version: 2.2.3
@@ -50,7 +50,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.11
+        version: 20.12.12
 
   packages/emmet:
     dependencies:
@@ -88,7 +88,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.11
+        version: 20.12.12
 
   packages/json:
     dependencies:
@@ -142,7 +142,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.11
+        version: 20.12.12
       prettier:
         specifier: ^3.0.3
         version: 3.2.5
@@ -168,7 +168,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       volar-service-html:
-        specifier: 0.0.44
+        specifier: 0.0.45
         version: link:../html
       vscode-html-languageservice:
         specifier: npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462
@@ -179,7 +179,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.11
+        version: 20.12.12
 
   packages/pug-beautify:
     dependencies:
@@ -192,7 +192,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.11
+        version: 20.12.12
 
   packages/sass-formatter:
     dependencies:
@@ -238,7 +238,7 @@ importers:
         version: 2.2.3
     devDependencies:
       volar-service-typescript:
-        specifier: 0.0.44
+        specifier: 0.0.45
         version: link:../typescript
 
   packages/vetur:
@@ -255,7 +255,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.11
+        version: 20.12.12
 
   packages/yaml:
     dependencies:
@@ -501,8 +501,8 @@ packages:
   '@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462':
     resolution: {integrity: sha512-etqLfpSJ5zaw76KUNF603be6d6QsiQPmaHr9FKEp4zhLZJzWCCMH6Icak7MtLUFLZLMpL761mZNImi/joBo1ZA==}
 
-  '@lerna-lite/cli@3.3.3':
-    resolution: {integrity: sha512-RKV4M2gYGBu4luaBruIdoN1COaIUMFBaDpZuatxtEIyR5VSYYUbS7RpPQh7FKmiA7hwBnpikrBQt446cgnSPpg==}
+  '@lerna-lite/cli@3.4.0':
+    resolution: {integrity: sha512-8T7WsUFhCIO9sm+cY7IfkngHZVEKi1Jcu1+vVExnInO9ONEaaX+XBclDwfQXR5U3wrJR43jSq45C9djYigJ/7w==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -526,32 +526,32 @@ packages:
       '@lerna-lite/watch':
         optional: true
 
-  '@lerna-lite/core@3.3.3':
-    resolution: {integrity: sha512-khsEfwZUUp7c+iQ9Q/0dbWxiQeT26PMRsTkoR1Qw1Gai33i3R7v2qCNYGDSO0Xi36VPj6QdNmEizZfGBScHnyA==}
+  '@lerna-lite/core@3.4.0':
+    resolution: {integrity: sha512-IFN8wojsl77zKQ5pe0DEW8BYr4qdbyNJCZEa9E9mE3Gh+N7JeB7doGlTqg1pu5eigaSh/UP4SeHvV2jq3Cm4Tg==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  '@lerna-lite/exec@3.3.3':
-    resolution: {integrity: sha512-RkFFqfjU5kNH7ivB1/4exbrtVCh+vECdWQJutqqtJcgLyGqIwUKRAxOiQN8yAAI8/s5PDRXd9Wvh99eLIOhwPg==}
+  '@lerna-lite/exec@3.4.0':
+    resolution: {integrity: sha512-WbnxKIKCYx/VjvIbkl6Y0KCesL3chj0qcOqSF72uzxVUw1pZgLrnHFFLt5wZ/HgEMsc24AIEnO9R1yxGxygC0w==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  '@lerna-lite/filter-packages@3.3.3':
-    resolution: {integrity: sha512-GBI9cSzfttOeUobO/qeIMH2lZBUL8BBVocV76O2aOi2+Bu4ETSf0ZfdaUuQYbaZFQN7UxL3JfsAVaN6z6wunIQ==}
+  '@lerna-lite/filter-packages@3.4.0':
+    resolution: {integrity: sha512-/oYcdZd7nuFUoAh4c6AMfkeKliL3KKR0bEazAOmG2WyWLXuZ1Jt+Thi7V5ZsyIp3bVzsUa6ZifdwITkks8FxSQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  '@lerna-lite/init@3.3.3':
-    resolution: {integrity: sha512-zjOcnQLcWbPuLyvjnuUHlHRLOiYbxw2zx8c//SwXWZ4TzWANDijVO3I88+IwEMfOO78X3ROsd75IaiQoTiTrOQ==}
+  '@lerna-lite/init@3.4.0':
+    resolution: {integrity: sha512-5lKL0Ab5vsk8PVNEUby6IVlgA3OxC+9pRH/jWhDMdgDKci9apCuTGoKMhVY8ixsbKvg9+ObRs3eIuMlxs4mvWw==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  '@lerna-lite/profiler@3.3.3':
-    resolution: {integrity: sha512-gsYZjRUji68JZ67C3yN2J+uNjjJjpkOqIej1ZwrQxOgA7Sj3ufUvUqIgDdm9nZ0NbPWONy+zj+MDH5hF2lFciQ==}
+  '@lerna-lite/profiler@3.4.0':
+    resolution: {integrity: sha512-rYGXxzkIwFzkyieljRX4sOZIEwZHylkP7bcnca82HPiBUa4Vtpaxu8pYBsF67wyViPtAMBhVuDi9GOJ0xhnRjg==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  '@lerna-lite/publish@3.3.3':
-    resolution: {integrity: sha512-u1TF53hNptzm2C4IWb98bjZ/kt43VNDxlo1TPmQtXCHbg5OGE7WdkMSBQS546yRqSnZSbDXvKCDzSdOnTgmsXw==}
+  '@lerna-lite/publish@3.4.0':
+    resolution: {integrity: sha512-BiWDdV1vKhdxumXX4uSrhauvD7qV8TpImAYFyR3XxKEOv8SQt4O5ZlAIKG8yH1i365zIsS6DOPfBdamMFKB9hw==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
-  '@lerna-lite/version@3.3.3':
-    resolution: {integrity: sha512-0cpBbjkRwEClu4AxqG19sw0WN+YMLU1hLTXO3Id1xsDVTVtRecuuxbVllF7WYGftrc9f/zWMTtra7ndTHcKBMA==}
+  '@lerna-lite/version@3.4.0':
+    resolution: {integrity: sha512-LQ265fmNCkJ9s1ndM4idttMB7PhO2ndKdxUciXe6+0PJLIkEOmWJ5v3fVHyDiOMtzFGC4LgCw4HISGgEU5ELLA==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
   '@ljharb/through@2.3.13':
@@ -599,16 +599,12 @@ packages:
     resolution: {integrity: sha512-xhfYPXoV5Dy4UkY0D+v2KkwvnDfiA/8Mt3sWCGI/hM03NsYIH8ZaG6QzS9x7pje5vHZBZJ2v6VRFVTWACnqcmQ==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
-  '@npmcli/redact@1.1.0':
-    resolution: {integrity: sha512-PfnWuOkQgu7gCbnSsAisaX7hKOdZ4wSAhAzH3/ph5dSGau52kCRrMMGbiSQLwyTZpgldkZ49b0brkOr1AzGBHQ==}
-    engines: {node: ^16.14.0 || >=18.0.0}
-
   '@npmcli/redact@2.0.0':
     resolution: {integrity: sha512-SEjCPAVHWYUIQR+Yn03kJmrJjZDtJLYpj300m3HV9OTRZNpC5YpbMsM3eTkECyT4aWj8lDr9WeY6TWefpubtYQ==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
-  '@npmcli/run-script@7.0.4':
-    resolution: {integrity: sha512-9ApYM/3+rBt9V80aYg6tZfzj3UWdiYyCt7gJUD1VJKvWF5nwKDSICXbYIQbspFTq6TOpbsEtIC0LArB8d9PFmg==}
+  '@npmcli/run-script@8.1.0':
+    resolution: {integrity: sha512-y7efHHwghQfk28G2z3tlZ67pLG0XdfYbcVG26r7YIXALRsrVQcTq4/tdenSmdOrEsNahIYA/eh8aEVROWGFUDg==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
   '@octokit/auth-token@4.0.0':
@@ -771,9 +767,6 @@ packages:
 
   '@types/mdurl@1.0.5':
     resolution: {integrity: sha512-6L6VymKTzYSrEf4Nev4Xa1LCHKrlTlYCBMTlQKFuddo1CvQcE52I0mwfOJayueUC7MJuXOeHTcIU683lzd0cUA==}
-
-  '@types/node@20.12.11':
-    resolution: {integrity: sha512-vDg9PZ/zi+Nqp6boSOT7plNuthRugEKixDv5sFTIpkE89MmNtEArAShI4mxuX2+UrLEe9pxC1vm2cjm9YlWbJw==}
 
   '@types/node@20.12.12':
     resolution: {integrity: sha512-eWLDGF/FOSPtAvEqeRAQ4C8LSA7M1I7i0ky1I8U7kD1J5ITyW3AsRhQrKVoWf5pFKZ2kILsEGJhsI9r93PYnOw==}
@@ -1603,6 +1596,11 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
+  glob@10.3.15:
+    resolution: {integrity: sha512-0c6RlJt1TICLyvJYIApxb8GsXoai0KUP7AxKKAtsYXdgJR1mGEUa7DgwShbdk1nly0PYoZj01xd4hzbq3fsjpw==}
+    engines: {node: '>=16 || 14 >=14.18'}
+    hasBin: true
+
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
 
@@ -1791,8 +1789,8 @@ packages:
   ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
 
-  inquirer@9.2.20:
-    resolution: {integrity: sha512-SFwJJPS+Ms75NV+wzFBHjirG4z3tzvis31h+9NyH1tqjIu2c7vCavlXILZ73q/nPYy8/aw4W+DNzLH5MjfYXiA==}
+  inquirer@9.2.21:
+    resolution: {integrity: sha512-c/dwDruM1FtzeISV+xMHm+JZTmhpmgWPEZI2bU3+Fwu5MhbAX0zMHHxj5warNfttE5NUID3aijrFUpDc2yBvcA==}
     engines: {node: '>=18'}
 
   ip-address@9.0.5:
@@ -2114,9 +2112,9 @@ packages:
     resolution: {integrity: sha512-2w31R7SJtieJJnQtGc7RVL2StM2vGYVfqUOvUDxH6bC6aJTxPxTF0GnIgCyu7tjockiUWAYQRbxa7vKn34s5sQ==}
     engines: {node: '>=4'}
 
-  make-dir@4.0.0:
-    resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
-    engines: {node: '>=10'}
+  make-dir@5.0.0:
+    resolution: {integrity: sha512-G0yBotnlWVonPClw+tq+xi4K7DZC9n96HjGTBDdHkstAVsDkfZhi1sTvZypXLpyQTbISBkDtK0E5XlUqDsShQg==}
+    engines: {node: '>=18'}
 
   make-fetch-happen@13.0.1:
     resolution: {integrity: sha512-cKTUFc/rbKUd/9meOvgrpJ2WrNzymt6jfRDdwg5UCnVzv9dTpEj9JS5m3wtziXVCjluIXyL8pcaukYqezIzZQA==}
@@ -2341,10 +2339,6 @@ packages:
   npm-prefix@1.2.0:
     resolution: {integrity: sha512-EkGZ7jtA2onsULFpnZ/P5S0DPy8w9qH1TVytPhY54s+dmtLXBmp1evt8W9nfg5JEay24K3bX9WWTIHR8WQcOJA==}
 
-  npm-registry-fetch@16.2.1:
-    resolution: {integrity: sha512-8l+7jxhim55S85fjiDGJ1rZXBWGtRLi1OSb4Z3BPLObPuIaeKRlPRiYMSHU4/81ck3t71Z+UwDDl47gcpmfQQA==}
-    engines: {node: ^16.14.0 || >=18.0.0}
-
   npm-registry-fetch@17.0.1:
     resolution: {integrity: sha512-fLu9MTdZTlJAHUek/VLklE6EpIiP3VZpTiuN7OOMCt2Sd67NCpSEetMaxHHEZiZxllp8ZLsUpvbEszqTFEc+wA==}
     engines: {node: ^16.14.0 || >=18.0.0}
@@ -2471,8 +2465,8 @@ packages:
     resolution: {integrity: sha512-k3bdm2n25tkyxcjSKzB5x8kfVxlMdgsbPr0GkZcwHsLpba6cBjqCt1KlcChKEvxHIcTB1FVMuwoijZ26xex5MQ==}
     engines: {node: '>=8'}
 
-  pacote@17.0.7:
-    resolution: {integrity: sha512-sgvnoUMlkv9xHwDUKjKQFXVyUi8dtJGKp3vg6sYy+TxbDic5RjZCHF3ygv0EJgNRZ2GfRONjlKPUfokJ9lDpwQ==}
+  pacote@18.0.6:
+    resolution: {integrity: sha512-+eK3G27SMwsB8kLIuj4h1FUhHtwiEUo21Tw8wNjmvdlpOEr613edv+8FUsTj/4F/VN5ywGE19X18N7CC2EJk6A==}
     engines: {node: ^16.14.0 || >=18.0.0}
     hasBin: true
 
@@ -2663,10 +2657,6 @@ packages:
   rc@1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
-
-  read-package-json-fast@3.0.2:
-    resolution: {integrity: sha512-0J+Msgym3vrLOUB3hzQCuZHII0xkNGCtz/HJH9xZshwv9DbDwkw1KaE3gx/e2J5rpEY5rtOy6cyhKOPrkP7FZw==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
 
   read-package-json@7.0.1:
     resolution: {integrity: sha512-8PcDiZ8DXUjLf687Ol4BR8Bpm2umR7vhoZOzNRt+uxD9GpBh/K+CAAALVIiYFknmvlmyg7hM7BSNUXPaCCqd0Q==}
@@ -3624,10 +3614,10 @@ snapshots:
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.0.8
 
-  '@lerna-lite/cli@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(@lerna-lite/version@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)':
+  '@lerna-lite/cli@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(@lerna-lite/version@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
-      '@lerna-lite/init': 3.3.3(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
+      '@lerna-lite/init': 3.4.0(typescript@5.4.5)
       dedent: 1.5.3
       dotenv: 16.4.5
       import-local: 3.1.0
@@ -3635,18 +3625,18 @@ snapshots:
       npmlog: 7.0.1
       yargs: 17.7.2
     optionalDependencies:
-      '@lerna-lite/exec': 3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5)
-      '@lerna-lite/publish': 3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5)
-      '@lerna-lite/version': 3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5)
+      '@lerna-lite/exec': 3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5)
+      '@lerna-lite/publish': 3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5)
+      '@lerna-lite/version': 3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5)
     transitivePeerDependencies:
       - babel-plugin-macros
       - bluebird
       - supports-color
       - typescript
 
-  '@lerna-lite/core@3.3.3(typescript@5.4.5)':
+  '@lerna-lite/core@3.4.0(typescript@5.4.5)':
     dependencies:
-      '@npmcli/run-script': 7.0.4
+      '@npmcli/run-script': 8.1.0
       chalk: 5.3.0
       clone-deep: 4.0.1
       config-chain: 1.1.13
@@ -3656,7 +3646,7 @@ snapshots:
       fs-extra: 11.2.0
       glob-parent: 6.0.2
       globby: 14.0.1
-      inquirer: 9.2.20
+      inquirer: 9.2.21
       is-ci: 3.0.1
       json5: 2.2.3
       load-json-file: 7.0.1
@@ -3678,12 +3668,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5)':
+  '@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/cli': 3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(@lerna-lite/version@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
-      '@lerna-lite/filter-packages': 3.3.3(typescript@5.4.5)
-      '@lerna-lite/profiler': 3.3.3(typescript@5.4.5)
+      '@lerna-lite/cli': 3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(@lerna-lite/version@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
+      '@lerna-lite/filter-packages': 3.4.0(typescript@5.4.5)
+      '@lerna-lite/profiler': 3.4.0(typescript@5.4.5)
       chalk: 5.3.0
       dotenv: 16.4.5
       npmlog: 7.0.1
@@ -3699,9 +3689,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/filter-packages@3.3.3(typescript@5.4.5)':
+  '@lerna-lite/filter-packages@3.4.0(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
       multimatch: 7.0.0
       npmlog: 7.0.1
     transitivePeerDependencies:
@@ -3710,9 +3700,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/init@3.3.3(typescript@5.4.5)':
+  '@lerna-lite/init@3.4.0(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
       fs-extra: 11.2.0
       p-map: 7.0.2
       write-json-file: 5.0.0
@@ -3722,9 +3712,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/profiler@3.3.3(typescript@5.4.5)':
+  '@lerna-lite/profiler@3.4.0(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
       fs-extra: 11.2.0
       npmlog: 7.0.1
       upath: 2.0.1
@@ -3734,27 +3724,27 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5)':
+  '@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/cli': 3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(@lerna-lite/version@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
-      '@lerna-lite/version': 3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5)
+      '@lerna-lite/cli': 3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(@lerna-lite/version@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
+      '@lerna-lite/version': 3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5)
       byte-size: 8.1.1
       chalk: 5.3.0
       columnify: 1.6.0
       fs-extra: 11.2.0
-      glob: 10.3.14
+      glob: 10.3.15
       has-unicode: 2.0.1
       libnpmaccess: 8.0.5
       libnpmpublish: 9.0.7
       normalize-path: 3.0.0
       npm-package-arg: 11.0.2
       npm-packlist: 5.1.3
-      npm-registry-fetch: 16.2.1
+      npm-registry-fetch: 17.0.1
       npmlog: 7.0.1
       p-map: 7.0.2
       p-pipe: 4.0.0
-      pacote: 17.0.7
+      pacote: 18.0.6
       pify: 6.1.0
       read-package-json: 7.0.1
       semver: 7.6.2
@@ -3771,10 +3761,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/version@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5)':
+  '@lerna-lite/version@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5)':
     dependencies:
-      '@lerna-lite/cli': 3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(@lerna-lite/version@3.3.3(@lerna-lite/exec@3.3.3(@lerna-lite/publish@3.3.3)(typescript@5.4.5))(@lerna-lite/publish@3.3.3(@lerna-lite/exec@3.3.3)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
-      '@lerna-lite/core': 3.3.3(typescript@5.4.5)
+      '@lerna-lite/cli': 3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(@lerna-lite/version@3.4.0(@lerna-lite/exec@3.4.0(@lerna-lite/publish@3.4.0)(typescript@5.4.5))(@lerna-lite/publish@3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5))(typescript@5.4.5))(typescript@5.4.5)
+      '@lerna-lite/core': 3.4.0(typescript@5.4.5)
       '@octokit/plugin-enterprise-rest': 6.0.1
       '@octokit/rest': 20.1.1
       chalk: 5.3.0
@@ -3790,7 +3780,7 @@ snapshots:
       graceful-fs: 4.2.11
       is-stream: 4.0.1
       load-json-file: 7.0.1
-      make-dir: 4.0.0
+      make-dir: 5.0.0
       minimatch: 9.0.4
       new-github-release-url: 2.0.0
       node-fetch: 3.3.2
@@ -3869,7 +3859,7 @@ snapshots:
   '@npmcli/package-json@5.1.0':
     dependencies:
       '@npmcli/git': 5.0.7
-      glob: 10.3.14
+      glob: 10.3.15
       hosted-git-info: 7.0.2
       json-parse-even-better-errors: 3.0.2
       normalize-package-data: 6.0.1
@@ -3882,16 +3872,15 @@ snapshots:
     dependencies:
       which: 4.0.0
 
-  '@npmcli/redact@1.1.0': {}
-
   '@npmcli/redact@2.0.0': {}
 
-  '@npmcli/run-script@7.0.4':
+  '@npmcli/run-script@8.1.0':
     dependencies:
       '@npmcli/node-gyp': 3.0.0
       '@npmcli/package-json': 5.1.0
       '@npmcli/promise-spawn': 7.0.2
       node-gyp: 10.1.0
+      proc-log: 4.2.0
       which: 4.0.0
     transitivePeerDependencies:
       - bluebird
@@ -4135,10 +4124,6 @@ snapshots:
 
   '@types/mdurl@1.0.5': {}
 
-  '@types/node@20.12.11':
-    dependencies:
-      undici-types: 5.26.5
-
   '@types/node@20.12.12':
     dependencies:
       undici-types: 5.26.5
@@ -4345,7 +4330,7 @@ snapshots:
     dependencies:
       '@npmcli/fs': 3.1.1
       fs-minipass: 3.0.3
-      glob: 10.3.14
+      glob: 10.3.15
       lru-cache: 10.2.2
       minipass: 7.1.1
       minipass-collect: 2.0.1
@@ -5037,6 +5022,14 @@ snapshots:
       minipass: 7.1.1
       path-scurry: 1.11.0
 
+  glob@10.3.15:
+    dependencies:
+      foreground-child: 3.1.1
+      jackspeak: 2.3.6
+      minimatch: 9.0.4
+      minipass: 7.1.1
+      path-scurry: 1.11.0
+
   glob@7.2.3:
     dependencies:
       fs.realpath: 1.0.0
@@ -5229,7 +5222,7 @@ snapshots:
 
   ini@1.3.8: {}
 
-  inquirer@9.2.20:
+  inquirer@9.2.21:
     dependencies:
       '@inquirer/figures': 1.0.1
       '@ljharb/through': 2.3.13
@@ -5524,9 +5517,7 @@ snapshots:
     dependencies:
       pify: 3.0.0
 
-  make-dir@4.0.0:
-    dependencies:
-      semver: 7.6.2
+  make-dir@5.0.0: {}
 
   make-fetch-happen@13.0.1:
     dependencies:
@@ -5776,19 +5767,6 @@ snapshots:
       shellsubstitute: 1.2.0
       untildify: 2.1.0
 
-  npm-registry-fetch@16.2.1:
-    dependencies:
-      '@npmcli/redact': 1.1.0
-      make-fetch-happen: 13.0.1
-      minipass: 7.1.1
-      minipass-fetch: 3.0.5
-      minipass-json-stream: 1.0.1
-      minizlib: 2.1.2
-      npm-package-arg: 11.0.2
-      proc-log: 4.2.0
-    transitivePeerDependencies:
-      - supports-color
-
   npm-registry-fetch@17.0.1:
     dependencies:
       '@npmcli/redact': 2.0.0
@@ -5924,23 +5902,22 @@ snapshots:
       registry-url: 5.1.0
       semver: 6.3.1
 
-  pacote@17.0.7:
+  pacote@18.0.6:
     dependencies:
       '@npmcli/git': 5.0.7
       '@npmcli/installed-package-contents': 2.1.0
+      '@npmcli/package-json': 5.1.0
       '@npmcli/promise-spawn': 7.0.2
-      '@npmcli/run-script': 7.0.4
+      '@npmcli/run-script': 8.1.0
       cacache: 18.0.3
       fs-minipass: 3.0.3
       minipass: 7.1.1
       npm-package-arg: 11.0.2
       npm-packlist: 8.0.2
       npm-pick-manifest: 9.0.1
-      npm-registry-fetch: 16.2.1
+      npm-registry-fetch: 17.0.1
       proc-log: 4.2.0
       promise-retry: 2.0.1
-      read-package-json: 7.0.1
-      read-package-json-fast: 3.0.2
       sigstore: 2.3.0
       ssri: 10.0.6
       tar: 6.2.1
@@ -6101,14 +6078,9 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  read-package-json-fast@3.0.2:
-    dependencies:
-      json-parse-even-better-errors: 3.0.2
-      npm-normalize-package-bin: 3.0.1
-
   read-package-json@7.0.1:
     dependencies:
-      glob: 10.3.14
+      glob: 10.3.15
       json-parse-even-better-errors: 3.0.2
       normalize-package-data: 6.0.1
       npm-normalize-package-bin: 3.0.1
