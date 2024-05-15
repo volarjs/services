@@ -32,7 +32,7 @@
 		"@types/node": "latest"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.2.0"
+		"@volar/language-service": "~2.2.3"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
