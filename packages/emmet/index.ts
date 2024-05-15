@@ -194,7 +194,7 @@ export function create({
 						return undefined;
 					}
 
-					const config = await getEmmetConfiguration(context, syntax!);
+					const config = await getEmmetConfiguration(context, syntax);
 					const result = helper.doComplete(document, position, syntax, config);
 
 					// https://github.com/microsoft/vscode/issues/86941
