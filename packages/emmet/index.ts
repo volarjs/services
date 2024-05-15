@@ -14,7 +14,8 @@ export function create({
 		name: 'emmet',
 		// https://docs.emmet.io/abbreviations/syntax/
 		triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
-		create(context): vscode.LanguageServicePluginInstance {
+		// @ts-expect-error Need to update @volar/language-service
+		create(context, languageService): vscode.LanguageServicePluginInstance {
 
 			let lastCompletionType: string | undefined;
 
@@ -181,10 +182,10 @@ export function create({
 					if (abbreviation.startsWith('this.') || /\[[^\]=]*\]/.test(abbreviation)) {
 						isNoisePromise = Promise.resolve(true);
 					} else {
-						// TODO
-						// isNoisePromise = vscode.commands.executeCommand<vscode.SymbolInformation[] | undefined>('vscode.executeDocumentSymbolProvider', document.uri).then(symbols => {
-						// 	return !!symbols && symbols.some(x => abbreviation === x.name || (abbreviation.startsWith(x.name + '.') && !/>|\*|\+/.test(abbreviation)));
-						// });
+						const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
+						isNoisePromise = languageService.findDocumentSymbols(documentUri).then(symbols => {
+							return !!symbols && symbols.some(x => abbreviation === x.name || (abbreviation.startsWith(x.name + '.') && !/>|\*|\+/.test(abbreviation)));
+						});
 					}
 				}
 
