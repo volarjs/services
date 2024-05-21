@@ -52,7 +52,7 @@ export function create({
 
 			async function provideCompletionItemsInternal(document: vscode.TextDocument, position: vscode.Position, completionContext: vscode.CompletionContext) {
 
-				const emmetConfig: any = await context.env.getConfiguration?.<helper.VSCodeEmmetConfig>('emmet') ?? {};
+				const emmetConfig = await context.env.getConfiguration?.<helper.VSCodeEmmetConfig>('emmet') ?? {};
 				const excludedLanguages = emmetConfig['excludeLanguages'] ?? [];
 				if (excludedLanguages.includes(document.languageId)) {
 					return;
