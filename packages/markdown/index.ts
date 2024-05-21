@@ -1,10 +1,9 @@
-import type { DocumentSelector, FileChangeType, FileType, LocationLink, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
-import { forEachEmbeddedCode } from '@volar/language-service';
+import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type ServiceContext } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, IWorkspace } from 'vscode-markdown-languageservice';
+import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';
 import { LogLevel, createLanguageService, githubSlugifier } from 'vscode-markdown-languageservice';
-import { URI } from 'vscode-uri';
+import { URI, Utils } from 'vscode-uri';
 import MarkdownIt = require('markdown-it');
 
 export interface Provide {
@@ -13,201 +12,62 @@ export interface Provide {
 
 const md = new MarkdownIt();
 
-function assert(condition: unknown, message: string): asserts condition {
-	if (!condition) {
-		throw new Error(message);
-	}
-}
-
 export function create({
 	documentSelector = ['markdown'],
+	fileExtensions = [
+		'md',
+		'mkd',
+		'mdwn',
+		'mdown',
+		'markdown',
+		'markdn',
+		'mdtxt',
+		'mdtext',
+		'workbook',
+	],
 	getDiagnosticOptions = async (_document, context) => {
 		return await context.env.getConfiguration?.('markdown.validate');
 	},
 }: {
 	documentSelector?: DocumentSelector;
+	fileExtensions?: string[];
 	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): ProviderResult<DiagnosticOptions | undefined>;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'markdown',
 		triggerCharacters: ['.', '/', '#'],
 		create(context): LanguageServicePluginInstance<Provide> {
-
-			let lastProjectVersion: string | undefined;
-
-			const { fs, onDidChangeWatchedFiles } = context.env;
-			assert(fs, 'context.env.fs must be defined');
-			assert(
-				onDidChangeWatchedFiles,
-				'context.env.fs.onDidChangeWatchedFiles must be defined'
-			);
-
 			const logger: ILogger = {
 				level: LogLevel.Off,
-
 				log(_logLevel, message) {
 					context.env.console?.log(message);
 				}
 			};
-
 			const parser: IMdParser = {
 				slugifier: githubSlugifier,
-
 				async tokenize(document) {
 					return md.parse(document.getText(), {});
 				}
 			};
-
-			const onDidChangeMarkdownDocument = new Emitter<TextDocument>();
-			const onDidCreateMarkdownDocument = new Emitter<TextDocument>();
-			const onDidDeleteMarkdownDocument = new Emitter<URI>();
-
-			const fileWatcher = onDidChangeWatchedFiles(event => {
-				for (const change of event.changes) {
-					switch (change.type) {
-						case 2 satisfies typeof FileChangeType.Changed: {
-							const document = getTextDocument(change.uri, false);
-							if (document) {
-								onDidChangeMarkdownDocument.fire(document);
-							}
-							break;
-						}
-						case 1 satisfies typeof FileChangeType.Created: {
-							const document = getTextDocument(change.uri, false);
-							if (document) {
-								onDidCreateMarkdownDocument.fire(document);
-							}
-							break;
-						}
-						case 3 satisfies typeof FileChangeType.Deleted: {
-							onDidDeleteMarkdownDocument.fire(URI.parse(change.uri));
-							break;
-						}
-					}
-				}
-			});
-
-			const workspace: IWorkspace = {
-				async getAllMarkdownDocuments() {
-					sync();
-					return syncedVersions.values();
-				},
-
-				getContainingDocument() {
-					return undefined;
-				},
-
-				hasMarkdownDocument(resource) {
-					const document = getTextDocument(resource.toString(), true);
-					return Boolean(document && matchDocument(documentSelector, document));
-				},
-
-				onDidChangeMarkdownDocument: onDidChangeMarkdownDocument.event,
-
-				onDidCreateMarkdownDocument: onDidCreateMarkdownDocument.event,
-
-				onDidDeleteMarkdownDocument: onDidDeleteMarkdownDocument.event,
-
-				async openMarkdownDocument(resource) {
-					return getTextDocument(resource.toString(), true);
-				},
-
-				async readDirectory(resource) {
-					const directory = await fs.readDirectory(resource.toString());
-					return directory.map(([fileName, fileType]) => [
-						fileName,
-						{ isDirectory: fileType === 2 satisfies FileType.Directory }
-					]);
-				},
-
-				async stat(resource) {
-					const stat = await fs.stat(resource.toString());
-					if (stat) {
-						return { isDirectory: stat.type === 2 satisfies FileType.Directory };
-					}
-				},
-
-				workspaceFolders: [URI.parse(context.env.workspaceFolder)],
-			};
-
+			const workspace = getMarkdownWorkspace();
 			const ls = createLanguageService({
 				logger,
 				parser,
-				workspace
+				workspace: workspace.workspace,
 			});
-
-			const syncedVersions = new Map<string, TextDocument>();
-
-			const sync = () => {
-
-				if (!context.language.typescript) {
-					return;
+			const firedDocumentChanges = new Map<string, number>();
+			const fsSourceScripts = new Map<string, SourceScript | undefined>();
+			const fileWatcher = context.env.onDidChangeWatchedFiles?.(event => {
+				for (const change of event.changes) {
+					fsSourceScripts.delete(change.uri);
 				}
-
-				const { languageServiceHost } = context.language.typescript;
-				const newProjectVersion = languageServiceHost.getProjectVersion?.();
-				const shouldUpdate = newProjectVersion === undefined || newProjectVersion !== lastProjectVersion;
-				if (!shouldUpdate) {
-					return;
-				}
-				lastProjectVersion = newProjectVersion;
-
-				const oldVersions = new Set(syncedVersions.keys());
-				const newVersions = new Map<string, TextDocument>();
-
-				for (const fileName of languageServiceHost.getScriptFileNames()) {
-					const uri = context.env.typescript!.fileNameToUri(fileName);
-					const decoded = context.decodeEmbeddedDocumentUri(uri);
-					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
-					if (sourceScript?.generated) {
-						for (const virtualCode of forEachEmbeddedCode(sourceScript.generated.root)) {
-							if (matchDocument(documentSelector, virtualCode)) {
-								const uri = context.encodeEmbeddedDocumentUri(sourceScript.id, virtualCode.id);
-								const document = context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
-								newVersions.set(document.uri, document);
-							}
-						}
-					}
-					else if (sourceScript) {
-						const document = context.documents.get(fileName, sourceScript.languageId, sourceScript.snapshot);
-						if (document && matchDocument(documentSelector, document)) {
-							newVersions.set(document.uri, document);
-						}
-					}
-				}
-
-				for (const [uri, document] of Array.from(newVersions)) {
-					const old = syncedVersions.get(uri);
-					syncedVersions.set(uri, document);
-					if (old) {
-						onDidChangeMarkdownDocument.fire(document);
-					} else {
-						onDidCreateMarkdownDocument.fire(document);
-					}
-				}
-
-				for (const uri of Array.from(oldVersions)) {
-					if (!newVersions.has(uri)) {
-						syncedVersions.delete(uri);
-						onDidDeleteMarkdownDocument.fire(URI.parse(uri));
-					}
-				}
-			};
-			const prepare = (document: TextDocument) => {
-				if (!matchDocument(documentSelector, document)) {
-					return false;
-				}
-				sync();
-				return true;
-			};
+			});
 
 			return {
 				dispose() {
 					ls.dispose();
-					fileWatcher.dispose();
-					onDidDeleteMarkdownDocument.dispose();
-					onDidCreateMarkdownDocument.dispose();
-					onDidChangeMarkdownDocument.dispose();
+					workspace.dispose();
+					fileWatcher?.dispose();
 				},
 
 				provide: {
@@ -270,9 +130,9 @@ export function create({
 					}
 				},
 
-				provideDocumentLinks(document, token) {
+				async provideDocumentLinks(document, token) {
 					if (prepare(document)) {
-						return ls.getDocumentLinks(document, token);
+						return await ls.getDocumentLinks(document, token);
 					}
 				},
 
@@ -334,29 +194,187 @@ export function create({
 				},
 
 				provideWorkspaceSymbols(query, token) {
-					sync();
 					return ls.getWorkspaceSymbols(query, token);
 				},
 
 				async resolveDocumentLink(link, token) {
-					const result = await ls.resolveDocumentLink(link, token);
-
-					return result || link;
+					return await ls.resolveDocumentLink(link, token) ?? link;
 				}
 			};
 
-			function getTextDocument(uri: string, includeVirtualFile: boolean) {
-				if (includeVirtualFile) {
-					const decoded = context.decodeEmbeddedDocumentUri(uri);
-					const sourceScript = decoded && context.language.scripts.get(decoded[0]);
-					const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+			function prepare(document: TextDocument) {
+				if (matchDocument(documentSelector, document)) {
+					if (firedDocumentChanges.get(document.uri) !== document.version) {
+						firedDocumentChanges.set(document.uri, document.version);
+						workspace.onDidChangeMarkdownDocument.fire(document);
+					}
+					return true;
+				}
+				return false;
+			}
+
+			function getMarkdownWorkspace() {
+				const onDidChangeMarkdownDocument = new Emitter<TextDocument>();
+				const onDidCreateMarkdownDocument = new Emitter<TextDocument>();
+				const onDidDeleteMarkdownDocument = new Emitter<URI>();
+				const { fs, onDidChangeWatchedFiles } = context.env;
+				const fileWatcher = onDidChangeWatchedFiles?.(event => {
+					for (const change of event.changes) {
+						switch (change.type) {
+							case 2 satisfies typeof FileChangeType.Changed: {
+								const document = getTextDocument(change.uri);
+								if (document) {
+									onDidChangeMarkdownDocument.fire(document);
+								}
+								break;
+							}
+							case 1 satisfies typeof FileChangeType.Created: {
+								const document = getTextDocument(change.uri);
+								if (document) {
+									onDidCreateMarkdownDocument.fire(document);
+								}
+								break;
+							}
+							case 3 satisfies typeof FileChangeType.Deleted: {
+								onDidDeleteMarkdownDocument.fire(URI.parse(change.uri));
+								break;
+							}
+						}
+					}
+				});
+				const workspace: IWorkspace = {
+					async getAllMarkdownDocuments() {
+						// TODO: Add opened files (such as untitled files)
+						// const openTextDocumentResults = this.documents.all()
+						// 	.filter(doc => this.isRelevantMarkdownDocument(doc));
+
+						return await findMarkdownFilesInWorkspace(URI.parse(context.env.workspaceFolder));
+					},
+
+					getContainingDocument() {
+						return undefined;
+					},
+
+					hasMarkdownDocument(resource) {
+						const document = getTextDocument(resource.toString());
+						return Boolean(document && matchDocument(documentSelector, document));
+					},
+
+					onDidChangeMarkdownDocument: onDidChangeMarkdownDocument.event,
+
+					onDidCreateMarkdownDocument: onDidCreateMarkdownDocument.event,
+
+					onDidDeleteMarkdownDocument: onDidDeleteMarkdownDocument.event,
+
+					async openMarkdownDocument(resource) {
+						return getTextDocument(resource.toString());
+					},
+
+					async readDirectory(resource) {
+						const directory = await fs?.readDirectory(resource.toString()) ?? [];
+						return directory
+							.filter(file => file[1] !== 0 satisfies FileType.Unknown)
+							.map(([fileName, fileType]) => [
+								fileName,
+								{ isDirectory: fileType === 2 satisfies FileType.Directory }
+							]);
+					},
+
+					async stat(resource) {
+						const stat = await fs?.stat(resource.toString());
+						if (stat?.type === 0 satisfies FileType.Unknown) {
+							return;
+						}
+						return { isDirectory: stat?.type === 2 satisfies FileType.Directory };
+					},
+
+					workspaceFolders: [URI.parse(context.env.workspaceFolder)],
+				};
+
+				return {
+					workspace,
+					onDidChangeMarkdownDocument,
+					onDidCreateMarkdownDocument,
+					onDidDeleteMarkdownDocument,
+					dispose() {
+						fileWatcher?.dispose();
+						onDidDeleteMarkdownDocument.dispose();
+						onDidCreateMarkdownDocument.dispose();
+						onDidChangeMarkdownDocument.dispose();
+					},
+				};
+			}
+
+			async function findMarkdownFilesInWorkspace(folder: URI) {
+				const { fs } = context.env;
+				const files = await fs?.readDirectory(folder.toString()) ?? [];
+				const docs: ITextDocument[] = [];
+				await Promise.all(
+					files.map(async ([fileName, fileType]) => {
+						if (fileType === 2 satisfies FileType.Directory && fileName !== 'node_modules') {
+							for (const doc of await findMarkdownFilesInWorkspace(Utils.joinPath(folder, fileName))) {
+								docs.push(doc);
+							}
+						}
+						else if (fileExtensions.some(ext => fileName.endsWith('.' + ext))) {
+							const fileUri = Utils.joinPath(folder, fileName);
+							let sourceScript = context.language.scripts.get(fileUri.toString());
+							if (!sourceScript) {
+								if (!fsSourceScripts.has(fileUri.toString())) {
+									fsSourceScripts.set(fileUri.toString(), undefined);
+									const fileContent = await fs?.readFile(fileUri.toString());
+									if (fileContent !== undefined) {
+										fsSourceScripts.set(fileUri.toString(), context.language.scripts.set(fileUri.toString(), {
+											getText(start, end) {
+												return fileContent.substring(start, end);
+											},
+											getLength() {
+												return fileContent.length;
+											},
+											getChangeRange() {
+												return undefined;
+											},
+										}));
+										context.language.scripts.delete(fileUri.toString());
+									}
+								}
+								sourceScript = fsSourceScripts.get(fileUri.toString());
+							}
+							if (sourceScript?.generated) {
+								for (const virtualCode of forEachEmbeddedCode(sourceScript.generated.root)) {
+									if (matchDocument(documentSelector, virtualCode)) {
+										const uri = context.encodeEmbeddedDocumentUri(sourceScript.id, virtualCode.id);
+										const doc = context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
+										docs.push(doc);
+									}
+								}
+							}
+							else if (sourceScript) {
+								const doc = context.documents.get(fileName, sourceScript.languageId, sourceScript.snapshot);
+								if (doc && matchDocument(documentSelector, doc)) {
+									docs.push(doc);
+								}
+							}
+						}
+					}),
+				);
+				return docs;
+			}
+
+			function getTextDocument(uri: string) {
+				const decoded = context.decodeEmbeddedDocumentUri(uri);
+				if (decoded) {
+					const sourceScript = context.language.scripts.get(decoded[0]);
+					const virtualCode = sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 					if (virtualCode) {
 						return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
 					}
 				}
-				const sourceScript = context.language.scripts.get(uri);
-				if (sourceScript) {
-					return context.documents.get(uri, sourceScript.languageId, sourceScript.snapshot);
+				else {
+					const sourceScript = context.language.scripts.get(uri);
+					if (sourceScript) {
+						return context.documents.get(uri, sourceScript.languageId, sourceScript.snapshot);
+					}
 				}
 			}
 		},
