@@ -168,7 +168,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       volar-service-html:
-        specifier: 0.0.46
+        specifier: 0.0.47
         version: link:../html
       vscode-html-languageservice:
         specifier: npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462
@@ -238,7 +238,7 @@ importers:
         version: 2.2.3
     devDependencies:
       volar-service-typescript:
-        specifier: 0.0.46
+        specifier: 0.0.47
         version: link:../typescript
 
   packages/vetur:
@@ -1782,6 +1782,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
