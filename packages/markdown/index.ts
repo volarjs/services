@@ -251,8 +251,14 @@ export function create({
 						return await findMarkdownFilesInWorkspace(URI.parse(context.env.workspaceFolder));
 					},
 
-					getContainingDocument() {
-						return undefined;
+					getContainingDocument(resource) {
+						const decoded = context.decodeEmbeddedDocumentUri(resource.toString());
+						if (decoded) {
+							return {
+								uri: URI.parse(decoded[0]),
+								children: [],
+							};
+						}
 					},
 
 					hasMarkdownDocument(resource) {
