@@ -1,13 +1,14 @@
 import type * as vscode from '@volar/language-service';
 import type * as ts from 'typescript';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
-import type { SharedContext } from './types';
 import * as fixNames from '../utils/fixNames';
-import { resolveFixAllCodeAction, resolveOrganizeImportsCodeAction, resolveRefactorCodeAction } from './codeActionResolve';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { convertFileTextChanges } from '../utils/lspConverters';
+import { resolveFixAllCodeAction, resolveOrganizeImportsCodeAction, resolveRefactorCodeAction } from './codeActionResolve';
+import type { SharedContext } from './types';
 
 export interface FixAllData {
 	type: 'fixAll';
@@ -61,13 +62,13 @@ export function register(ctx: SharedContext) {
 		resolveEditSupport = true;
 	}
 
-	return async (document: TextDocument, range: vscode.Range, context: vscode.CodeActionContext, formattingOptions: vscode.FormattingOptions | undefined) => {
+	return async (uri: URI, document: TextDocument, range: vscode.Range, context: vscode.CodeActionContext, formattingOptions: vscode.FormattingOptions | undefined) => {
 		const [formatOptions, preferences] = await Promise.all([
 			getFormatCodeSettings(ctx, document, formattingOptions),
 			getUserPreferences(ctx, document),
 		]);
 
-		const fileName = ctx.uriToFileName(document.uri);
+		const fileName = ctx.uriToFileName(uri);
 		const start = document.offsetAt(range.start);
 		const end = document.offsetAt(range.end);
 		let result: vscode.CodeAction[] = [];

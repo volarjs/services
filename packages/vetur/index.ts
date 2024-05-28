@@ -1,17 +1,29 @@
-import type { SemanticToken, LanguageServicePluginInstance, LanguageServicePlugin } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance, SemanticToken } from '@volar/language-service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vls from 'vls';
 import type { TextDocument } from 'vscode-html-languageservice';
 import * as html from 'vscode-html-languageservice';
+import { URI } from 'vscode-uri';
 import { getGlobalSnippetDir } from './lib/userSnippetDir';
 
 export function create(): LanguageServicePlugin {
 	return {
 		name: 'vetur',
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-		triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
-		create(context): LanguageServicePluginInstance {
+		capabilities: {
+			completionProvider: {
+				// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+				triggerCharacters: ['.', ':', '<', '"', '=', '/', /* vue event shorthand */'@'],
+			},
+			hoverProvider: true,
+			semanticTokensProvider: {
+				legend: {
+					tokenTypes: ['function'],
+					tokenModifiers: [],
+				},
+			},
+		},
+		create(): LanguageServicePluginInstance {
 
 			const htmlDocuments = new WeakMap<TextDocument, html.HTMLDocument>();
 			const uriToPackageJsonPath = new Map<string, string | undefined>();
@@ -57,7 +69,7 @@ export function create(): LanguageServicePlugin {
 					});
 				},
 
-				provideDocumentSemanticTokens(document, range) {
+				provideDocumentSemanticTokens(document, range, legend) {
 					return htmlWorker(document, () => {
 
 						const packageJsonPath = getPackageJsonPath(document);
@@ -95,7 +107,7 @@ export function create(): LanguageServicePlugin {
 									const tokenPosition = document.positionAt(tokenOffset);
 
 									if (components.has(tokenText)) {
-										result.push([tokenPosition.line, tokenPosition.character, tokenLength, 10/* 10: function, 12: component */, 0]);
+										result.push([tokenPosition.line, tokenPosition.character, tokenLength, legend.tokenTypes.indexOf('function'), 0]);
 									}
 								}
 							}
@@ -139,21 +151,26 @@ export function create(): LanguageServicePlugin {
 
 				if (!packageJsonPath) {
 
-					let lastDirname = context.env.typescript!.uriToFileName(document.uri);
+					const uri = URI.parse(document.uri);
 
-					while (true) {
+					if (uri.scheme === 'file') {
 
-						const dirname = path.dirname(lastDirname);
-						if (dirname === lastDirname) {
-							break;
+						let lastDirname = uri.fsPath.replace(/\\/g, '/');
+
+						while (true) {
+
+							const dirname = path.dirname(lastDirname);
+							if (dirname === lastDirname) {
+								break;
+							}
+
+							if (fs.existsSync(dirname + '/package.json')) {
+								packageJsonPath = dirname + '/package.json';
+								break;
+							}
+
+							lastDirname = dirname;
 						}
-
-						if (fs.existsSync(dirname + '/package.json')) {
-							packageJsonPath = dirname + '/package.json';
-							break;
-						}
-
-						lastDirname = dirname;
 					}
 
 					uriToPackageJsonPath.set(document.uri, packageJsonPath);

@@ -1,4 +1,4 @@
-import type { Disposable, DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -16,22 +16,22 @@ export function create({
 	getDocumentContext = context => {
 		return {
 			resolveReference(ref, base) {
-				const decoded = context.decodeEmbeddedDocumentUri(base);
+				let baseUri = URI.parse(base);
+				const decoded = context.decodeEmbeddedDocumentUri(baseUri);
 				if (decoded) {
-					base = decoded[0];
+					baseUri = decoded[0];
 				}
 				if (ref.match(/^\w[\w\d+.-]*:/)) {
 					// starts with a schema
 					return ref;
 				}
-				if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-					let folderUri = context.env.workspaceFolder;
+				if (ref[0] === '/' && context.env.workspaceFolders.length) { // resolve absolute path against the current workspace folder
+					let folderUri = context.env.workspaceFolders[0].toString();
 					if (!folderUri.endsWith('/')) {
 						folderUri += '/';
 					}
 					return folderUri + ref.substring(1);
 				}
-				const baseUri = URI.parse(base);
 				const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
 				return Utils.resolvePath(baseUriDir, ref).toString(true);
 			},
@@ -39,12 +39,6 @@ export function create({
 	},
 	isFormattingEnabled = async (_document, context) => {
 		return await context.env.getConfiguration?.('html.format.enable') ?? true;
-	},
-	isAutoCreateQuotesEnabled = async (_document, context) => {
-		return await context.env.getConfiguration?.('html.autoCreateQuotes') ?? true;
-	},
-	isAutoClosingTagsEnabled = async (_document, context) => {
-		return await context.env.getConfiguration?.('html.autoClosingTags') ?? true;
 	},
 	getFormattingOptions = async (_document, options, context) => {
 		const formatSettings: html.FormattingOptions = {
@@ -70,15 +64,18 @@ export function create({
 		const customData: string[] = await context.env.getConfiguration?.('html.customData') ?? [];
 		const newData: html.IHTMLDataProvider[] = [];
 		for (const customDataPath of customData) {
-			const uri = Utils.resolvePath(URI.parse(context.env.workspaceFolder), customDataPath);
-			const json = await context.env.fs?.readFile?.(uri.toString());
-			if (json) {
-				try {
-					const data = JSON.parse(json);
-					newData.push(html.newHTMLDataProvider(customDataPath, data));
-				}
-				catch (error) {
-					console.error(error);
+			for (const workspaceFolder of context.env.workspaceFolders) {
+				const uri = Utils.resolvePath(workspaceFolder, customDataPath);
+				const json = await context.env.fs?.readFile?.(uri);
+				if (json) {
+					try {
+						const data = JSON.parse(json);
+						newData.push(html.newHTMLDataProvider(customDataPath, data));
+					}
+					catch (error) {
+						console.error(error);
+					}
+					break;
 				}
 			}
 		}
@@ -95,27 +92,54 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-	isAutoCreateQuotesEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-	isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-	getDocumentContext?(context: ServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
-	getCompletionConfiguration?(document: TextDocument, context: ServiceContext): ProviderResult<html.CompletionConfiguration | undefined>;
-	getHoverSettings?(document: TextDocument, context: ServiceContext): ProviderResult<html.HoverSettings | undefined>;
-	getCustomData?(context: ServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
-	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
+	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+	isAutoCreateQuotesEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+	isAutoClosingTagsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+	getDocumentContext?(context: LanguageServiceContext): html.DocumentContext;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
+	getCompletionConfiguration?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.CompletionConfiguration | undefined>;
+	getHoverSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.HoverSettings | undefined>;
+	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
+	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
+	const configurationSections = {
+		autoCreateQuotes: 'html.autoCreateQuotes',
+		autoClosingTags: 'html.autoClosingTags',
+	};
 	return {
 		name: 'html',
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
-		triggerCharacters: ['.', ':', '<', '"', '=', '/'],
+		capabilities: {
+			completionProvider: {
+				// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/html-language-features/server/src/htmlServer.ts#L183
+				triggerCharacters: ['.', ':', '<', '"', '=', '/'],
+			},
+			renameProvider: {
+				prepareProvider: true,
+			},
+			hoverProvider: true,
+			documentHighlightProvider: true,
+			documentLinkProvider: {},
+			documentSymbolProvider: true,
+			foldingRangeProvider: true,
+			selectionRangeProvider: true,
+			documentFormattingProvider: true,
+			linkedEditingRangeProvider: true,
+			autoInsertionProvider: {
+				triggerCharacters: ['=', '>', '/'],
+				configurationSections: [
+					configurationSections.autoCreateQuotes,
+					configurationSections.autoClosingTags,
+					configurationSections.autoClosingTags,
+				],
+			},
+		},
 		create(context): LanguageServicePluginInstance<Provide> {
 
 			const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 			const fileSystemProvider: html.FileSystemProvider = {
-				stat: async uri => await context.env.fs?.stat(uri)
+				stat: async uri => await context.env.fs?.stat(URI.parse(uri))
 					?? { type: html.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
-				readDirectory: async uri => await context.env.fs?.readDirectory(uri) ?? [],
+				readDirectory: async uri => await context.env.fs?.readDirectory(URI.parse(uri)) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
 			const htmlLs = html.getLanguageService({
@@ -327,7 +351,7 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertionEdit(document, selection, change) {
+				async provideAutoInsertSnippet(document, selection, change) {
 					// selection must at end of change
 					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
 						return;
@@ -335,7 +359,7 @@ export function create({
 					return worker(document, async htmlDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
-							const enabled = await isAutoCreateQuotesEnabled(document, context);
+							const enabled = await context.env.getConfiguration?.('html.autoCreateQuotes') ?? true;
 
 							if (enabled) {
 
@@ -349,7 +373,7 @@ export function create({
 						}
 						if (change.rangeLength === 0 && (change.text.endsWith('>') || change.text.endsWith('/'))) {
 
-							const enabled = await isAutoClosingTagsEnabled(document, context);
+							const enabled = await context.env.getConfiguration?.('html.autoClosingTags') ?? true;
 
 							if (enabled) {
 

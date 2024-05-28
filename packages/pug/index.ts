@@ -1,4 +1,4 @@
-import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import { transformDocumentSymbol } from '@volar/language-service';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
@@ -16,8 +16,8 @@ export function create({
 	onDidChangeCustomData,
 }: {
 	documentSelector?: DocumentSelector;
-	getCustomData?(context: ServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
-	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
+	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
+	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
 	const _htmlService = createHtmlService({
 		getCustomData,
@@ -26,9 +26,23 @@ export function create({
 	return {
 		..._htmlService,
 		name: 'pug',
-		create(context): LanguageServicePluginInstance<Provide> {
+		capabilities: {
+			completionProvider: {},
+			diagnosticProvider: true,
+			hoverProvider: true,
+			documentHighlightProvider: true,
+			documentLinkProvider: {},
+			documentSymbolProvider: true,
+			foldingRangeProvider: true,
+			selectionRangeProvider: true,
+			autoInsertionProvider: {
+				triggerCharacters: ['='],
+				configurationSections: ['html.autoCreateQuotes'],
+			},
+		},
+		create(context, languageService): LanguageServicePluginInstance<Provide> {
 
-			const htmlService = _htmlService.create(context);
+			const htmlService = _htmlService.create(context, languageService);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
 
@@ -113,7 +127,7 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertionEdit(document, selection, change) {
+				async provideAutoInsertSnippet(document, selection, change) {
 					// selection must at end of change
 					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
 						return;

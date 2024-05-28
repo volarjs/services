@@ -2,17 +2,19 @@ import * as path from 'path-browserify';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
-import type { ServiceContext } from '@volar/language-service';
+import type { LanguageServiceContext } from '@volar/language-service';
+import { URI } from 'vscode-uri';
 
 export async function getUserPreferences(
-	ctx: ServiceContext,
+	ctx: LanguageServiceContext,
 	document: TextDocument,
 ): Promise<ts.UserPreferences> {
 	let currentDirectory = '';
 	if (ctx.language.typescript) {
 		currentDirectory = ctx.language.typescript.languageServiceHost.getCurrentDirectory();
 	}
-	const documentUri = ctx.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
+	const uri = URI.parse(document.uri);
+	const documentUri = ctx.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;
 	const config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document)) ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
@@ -21,7 +23,7 @@ export async function getUserPreferences(
 		importModuleSpecifierPreference: getImportModuleSpecifierPreference(preferencesConfig),
 		importModuleSpecifierEnding: getImportModuleSpecifierEndingPreference(preferencesConfig),
 		jsxAttributeCompletionStyle: getJsxAttributeCompletionStyle(preferencesConfig),
-		allowTextChangesInNewFiles: documentUri.startsWith('file://'),
+		allowTextChangesInNewFiles: documentUri.scheme === 'file',
 		providePrefixAndSuffixTextForRename: (preferencesConfig.renameShorthandProperties ?? true) === false ? false : (preferencesConfig.useAliasesForRenames ?? true),
 		allowRenameOfImportPath: true,
 		includeAutomaticOptionalChainCompletions: config.suggest?.includeAutomaticOptionalChainCompletions ?? true,

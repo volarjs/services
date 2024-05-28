@@ -1,4 +1,4 @@
-import type { Disposable, DocumentSelector, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 import * as yaml from 'yaml-language-server';
@@ -17,12 +17,13 @@ export function create({
 	getWorkspaceContextService = context => {
 		return {
 			resolveRelativePath(relativePath, resource) {
-				const decoded = context.decodeEmbeddedDocumentUri(resource);
-				if (decoded) {
-					resource = decoded[0];
-				}
 				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
-				return Utils.resolvePath(URI.parse(base), relativePath).toString();
+				let baseUri = URI.parse(base);
+				const decoded = context.decodeEmbeddedDocumentUri(baseUri);
+				if (decoded) {
+					baseUri = decoded[0];
+				}
+				return Utils.resolvePath(baseUri, relativePath).toString();
 			},
 		};
 	},
@@ -42,17 +43,32 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
-	getWorkspaceContextService?(context: ServiceContext): yaml.WorkspaceContextService;
-	getLanguageSettings?(context: ServiceContext): ProviderResult<yaml.LanguageSettings>;
-	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
+	getWorkspaceContextService?(context: LanguageServiceContext): yaml.WorkspaceContextService;
+	getLanguageSettings?(context: LanguageServiceContext): ProviderResult<yaml.LanguageSettings>;
+	onDidChangeLanguageSettings?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'yaml',
-		triggerCharacters: [' ', ':'],
+		capabilities: {
+			codeActionProvider: {},
+			codeLensProvider: {
+				resolveProvider: true,
+			},
+			completionProvider: {
+				triggerCharacters: [' ', ':'],
+			},
+			definitionProvider: true,
+			diagnosticProvider: true,
+			documentSymbolProvider: true,
+			hoverProvider: true,
+			documentLinkProvider: {},
+			foldingRangeProvider: true,
+			selectionRangeProvider: true,
+		},
 		create(context): LanguageServicePluginInstance<Provide> {
 
 			const ls = yaml.getLanguageService({
-				schemaRequestService: async uri => await context.env.fs?.readFile(uri) ?? '',
+				schemaRequestService: async uri => await context.env.fs?.readFile(URI.parse(uri)) ?? '',
 				telemetry: {
 					send: noop,
 					sendError: noop,

@@ -1,6 +1,6 @@
 import type {
 	ProviderResult,
-	ServiceContext,
+	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance
 } from '@volar/language-service';
@@ -52,23 +52,31 @@ export function create(
 		isFormattingEnabled = async (document, context) => {
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
 		},
-		isAutoClosingTagsEnabled = async (document, context) => {
-			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true;
-		},
 	}: {
-		isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-		isAutoClosingTagsEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+		isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+		isAutoClosingTagsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	} = {},
 ): LanguageServicePlugin {
 	return {
 		name: 'typescript-syntactic',
-		// https://github.com/microsoft/vscode/blob/ce119308e8fd4cd3f992d42b297588e7abe33a0c/extensions/typescript-language-features/src/languageFeatures/formatting.ts#L99
-		autoFormatTriggerCharacters: [';', '}', '\n'],
+		capabilities: {
+			autoInsertionProvider: {
+				triggerCharacters: ['>', '>'],
+				configurationSections: ['javascript.autoClosingTags', 'typescript.autoClosingTags'],
+			},
+			foldingRangeProvider: true,
+			documentSymbolProvider: true,
+			documentFormattingProvider: true,
+			documentOnTypeFormattingProvider: {
+				// https://github.com/microsoft/vscode/blob/ce119308e8fd4cd3f992d42b297588e7abe33a0c/extensions/typescript-language-features/src/languageFeatures/formatting.ts#L99
+				triggerCharacters: [';', '}', '\n'],
+			},
+		},
 		create(context): LanguageServicePluginInstance {
 
 			return {
 
-				async provideAutoInsertionEdit(document, selection, change) {
+				async provideAutoInsertSnippet(document, selection, change) {
 					// selection must at end of change
 					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
 						return;
@@ -76,7 +84,7 @@ export function create(
 					if (
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 						&& change.text.endsWith('>')
-						&& await isAutoClosingTagsEnabled(document, context)
+						&& (await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true)
 					) {
 						const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
 						const close = languageService.getJsxClosingTagAtPosition(fileName, document.offsetAt(selection));

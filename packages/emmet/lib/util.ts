@@ -45,7 +45,7 @@ export function isStyleSheet(syntax: string): boolean {
 	return stylesheetSyntaxes.includes(syntax);
 }
 
-export async function getMappingForIncludedLanguages(context: vscode.ServiceContext): Promise<Record<string, string>> {
+export async function getMappingForIncludedLanguages(context: vscode.LanguageServiceContext): Promise<Record<string, string>> {
 	// Explicitly map languages that have built-in grammar in VS Code to their parent language
 	// to get emmet completion support
 	// For other languages, users will have to use `emmet.includeLanguages` or
@@ -372,7 +372,7 @@ function setupCdataNodeSubtree(documentText: string, cdataNode: HtmlFlatNode): s
 	return cdataBody;
 }
 
-export async function getEmmetConfiguration(context: vscode.ServiceContext, syntax: string) {
+export async function getEmmetConfiguration(context: vscode.LanguageServiceContext, syntax: string) {
 	const emmetConfig = await context.env.getConfiguration<any>?.('emmet') ?? {};
 	const syntaxProfiles = Object.assign({}, emmetConfig['syntaxProfiles'] || {});
 	const preferences = Object.assign({}, emmetConfig['preferences'] || {});

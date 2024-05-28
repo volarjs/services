@@ -36,7 +36,11 @@ const directives: Directive[] = [
 export function create(): vscode.LanguageServicePlugin {
 	return {
 		name: 'typescript-directive-comment',
-		triggerCharacters: ['@'],
+		capabilities: {
+			completionProvider: {
+				triggerCharacters: ['@'],
+			},
+		},
 		create(): vscode.LanguageServicePluginInstance {
 
 			return {

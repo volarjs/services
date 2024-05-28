@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -16,22 +16,22 @@ export function create({
 	getDocumentContext = context => {
 		return {
 			resolveReference(ref, base) {
-				const decoded = context.decodeEmbeddedDocumentUri(base);
+				let baseUri = URI.parse(base);
+				const decoded = context.decodeEmbeddedDocumentUri(baseUri);
 				if (decoded) {
-					base = decoded[0];
+					baseUri = decoded[0];
 				}
 				if (ref.match(/^\w[\w\d+.-]*:/)) {
 					// starts with a schema
 					return ref;
 				}
-				if (ref[0] === '/') { // resolve absolute path against the current workspace folder
-					let folderUri = context.env.workspaceFolder;
+				if (ref[0] === '/' && context.env.workspaceFolders.length) { // resolve absolute path against the current workspace folder
+					let folderUri = context.env.workspaceFolders[0].toString();
 					if (!folderUri.endsWith('/')) {
 						folderUri += '/';
 					}
 					return folderUri + ref.substring(1);
 				}
-				const baseUri = URI.parse(base);
 				const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
 				return Utils.resolvePath(baseUriDir, ref).toString(true);
 			},
@@ -53,15 +53,18 @@ export function create({
 		const customData: string[] = await context.env.getConfiguration?.('css.customData') ?? [];
 		const newData: css.ICSSDataProvider[] = [];
 		for (const customDataPath of customData) {
-			const uri = Utils.resolvePath(URI.parse(context.env.workspaceFolder), customDataPath);
-			const json = await context.env.fs?.readFile?.(uri.toString());
-			if (json) {
-				try {
-					const data = JSON.parse(json);
-					newData.push(css.newCSSDataProvider(data));
-				}
-				catch (error) {
-					console.error(error);
+			for (const workspaceFolder of context.env.workspaceFolders) {
+				const uri = Utils.resolvePath(workspaceFolder, customDataPath);
+				const json = await context.env.fs?.readFile?.(uri);
+				if (json) {
+					try {
+						const data = JSON.parse(json);
+						newData.push(css.newCSSDataProvider(data));
+					}
+					catch (error) {
+						console.error(error);
+					}
+					break;
 				}
 			}
 		}
@@ -80,24 +83,43 @@ export function create({
 	scssDocumentSelector?: DocumentSelector,
 	lessDocumentSelector?: DocumentSelector,
 	useDefaultDataProvider?: boolean;
-	getDocumentContext?(context: ServiceContext): css.DocumentContext;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<css.CSSFormatConfiguration>;
-	getLanguageSettings?(document: TextDocument, context: ServiceContext): ProviderResult<css.LanguageSettings | undefined>;
-	getCustomData?(context: ServiceContext): ProviderResult<css.ICSSDataProvider[]>;
-	onDidChangeCustomData?(listener: () => void, context: ServiceContext): Disposable;
+	getDocumentContext?(context: LanguageServiceContext): css.DocumentContext;
+	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<css.CSSFormatConfiguration>;
+	getLanguageSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<css.LanguageSettings | undefined>;
+	getCustomData?(context: LanguageServiceContext): ProviderResult<css.ICSSDataProvider[]>;
+	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'css',
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
-		triggerCharacters: ['/', '-', ':'],
+		capabilities: {
+			completionProvider: {
+				// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/css-language-features/server/src/cssServer.ts#L97
+				triggerCharacters: ['/', '-', ':'],
+			},
+			renameProvider: {
+				prepareProvider: true,
+			},
+			codeActionProvider: {},
+			definitionProvider: true,
+			diagnosticProvider: true,
+			hoverProvider: true,
+			referencesProvider: true,
+			documentHighlightProvider: true,
+			documentLinkProvider: {},
+			documentSymbolProvider: true,
+			colorProvider: true,
+			foldingRangeProvider: true,
+			selectionRangeProvider: true,
+			documentFormattingProvider: true,
+		},
 		create(context): LanguageServicePluginInstance<Provide> {
 
 			const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
 			const fileSystemProvider: css.FileSystemProvider = {
-				stat: async uri => await context.env.fs?.stat(uri)
+				stat: async uri => await context.env.fs?.stat(URI.parse(uri))
 					?? { type: css.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
-				readDirectory: async uri => await context.env.fs?.readDirectory(uri) ?? [],
+				readDirectory: async uri => await context.env.fs?.readDirectory(URI.parse(uri)) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
 			const disposable = onDidChangeCustomData(() => initializing = undefined, context);

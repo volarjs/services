@@ -5,6 +5,7 @@
 
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { URI } from 'vscode-uri';
 
 function replaceLinks(text: string): string {
 	return text
@@ -26,8 +27,8 @@ function processInlineTags(text: string): string {
 
 function getTagBodyText(
 	tag: ts.server.protocol.JSDocTagInfo,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string | undefined {
 	if (!tag.text) {
 		return undefined;
@@ -69,8 +70,8 @@ function getTagBodyText(
 
 function getTagDocumentation(
 	tag: ts.server.protocol.JSDocTagInfo,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string | undefined {
 	switch (tag.name) {
 		case 'augments':
@@ -100,8 +101,8 @@ function getTagDocumentation(
 
 export function plainWithLinks(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	return processInlineTags(convertLinkTags(parts, fileNameToUri, getTextDocument));
 }
@@ -111,8 +112,8 @@ export function plainWithLinks(
  */
 function convertLinkTags(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string | undefined,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	if (!parts) {
 		return '';
@@ -206,8 +207,8 @@ function convertLinkTags(
 
 export function tagsMarkdownPreview(
 	tags: readonly ts.JSDocTagInfo[],
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	return tags.map(tag => getTagDocumentation(tag, fileNameToUri, getTextDocument)).join('  \n\n');
 }
@@ -215,8 +216,8 @@ export function tagsMarkdownPreview(
 export function markdownDocumentation(
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	return addMarkdownDocumentation('', documentation, tags, fileNameToUri, getTextDocument);
 }
@@ -225,8 +226,8 @@ export function addMarkdownDocumentation(
 	out: string,
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	if (documentation) {
 		out += plainWithLinks(documentation, fileNameToUri, getTextDocument);
