@@ -171,7 +171,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       volar-service-html:
-        specifier: 0.0.47
+        specifier: 0.0.48
         version: link:../html
       vscode-html-languageservice:
         specifier: npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462
@@ -247,7 +247,7 @@ importers:
         version: 3.0.8
     devDependencies:
       volar-service-typescript:
-        specifier: 0.0.47
+        specifier: 0.0.48
         version: link:../typescript
 
   packages/vetur:
