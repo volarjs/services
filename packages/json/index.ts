@@ -1,4 +1,4 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance, DocumentSelector, ServiceContext, Disposable, ProviderResult, FormattingOptions } from '@volar/language-service';
+import type { LanguageServicePlugin, LanguageServicePluginInstance, DocumentSelector, LanguageServiceContext, Disposable, ProviderResult, FormattingOptions } from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -20,12 +20,13 @@ export function create({
 	getWorkspaceContextService = context => {
 		return {
 			resolveRelativePath(relativePath, resource) {
-				const decoded = context.decodeEmbeddedDocumentUri(resource);
-				if (decoded) {
-					resource = decoded[0];
-				}
 				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
-				return Utils.resolvePath(URI.parse(base), relativePath).toString();
+				let baseUri = URI.parse(base);
+				const decoded = context.decodeEmbeddedDocumentUri(baseUri);
+				if (decoded) {
+					baseUri = decoded[0];
+				}
+				return Utils.resolvePath(baseUri, relativePath).toString();
 			},
 		};
 	},
@@ -73,22 +74,36 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
-	getWorkspaceContextService?(context: ServiceContext): json.WorkspaceContextService;
-	isFormattingEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: ServiceContext): ProviderResult<json.FormattingOptions>;
-	getLanguageSettings?(context: ServiceContext): ProviderResult<json.LanguageSettings>;
-	getDocumentLanguageSettings?(document: TextDocument, context: ServiceContext): ProviderResult<json.DocumentLanguageSettings | undefined>;
-	onDidChangeLanguageSettings?(listener: () => void, context: ServiceContext): Disposable;
+	getWorkspaceContextService?(context: LanguageServiceContext): json.WorkspaceContextService;
+	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<json.FormattingOptions>;
+	getLanguageSettings?(context: LanguageServiceContext): ProviderResult<json.LanguageSettings>;
+	getDocumentLanguageSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<json.DocumentLanguageSettings | undefined>;
+	onDidChangeLanguageSettings?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'json',
-		// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
-		triggerCharacters: ['"', ':'],
+		capabilities: {
+			completionProvider: {
+				// https://github.com/microsoft/vscode/blob/09850876e652688fb142e2e19fd00fd38c0bc4ba/extensions/json-language-features/server/src/jsonServer.ts#L150
+				triggerCharacters: ['"', ':'],
+				resolveProvider: true,
+			},
+			definitionProvider: true,
+			diagnosticProvider: true,
+			hoverProvider: true,
+			documentLinkProvider: {},
+			documentSymbolProvider: true,
+			colorProvider: true,
+			foldingRangeProvider: true,
+			selectionRangeProvider: true,
+			documentFormattingProvider: true,
+		},
 		create(context): LanguageServicePluginInstance<Provide> {
 
 			const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 			const jsonLs = json.getLanguageService({
-				schemaRequestService: async uri => await context.env.fs?.readFile(uri) ?? '',
+				schemaRequestService: async uri => await context.env.fs?.readFile(URI.parse(uri)) ?? '',
 				workspaceContext: getWorkspaceContextService(context),
 				clientCapabilities: context.env.clientCapabilities,
 			});

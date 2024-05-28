@@ -7,12 +7,13 @@ import { safeCall } from '../shared';
 import type { SharedContext } from './types';
 import type { Data, FixAllData, RefactorData } from './codeAction';
 import { convertFileTextChanges } from '../utils/lspConverters';
+import { URI } from 'vscode-uri';
 
 export function register(ctx: SharedContext) {
 	return async (codeAction: vscode.CodeAction, formattingOptions: vscode.FormattingOptions | undefined) => {
 
 		const data: Data = codeAction.data;
-		const document = ctx.getTextDocument(data.uri)!;
+		const document = ctx.getTextDocument(URI.parse(data.uri))!;
 		const [formatOptions, preferences] = await Promise.all([
 			getFormatCodeSettings(ctx, document, formattingOptions),
 			getUserPreferences(ctx, document),

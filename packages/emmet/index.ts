@@ -1,9 +1,10 @@
 import type * as vscode from '@volar/language-service';
 import type * as helper from '@vscode/emmet-helper';
 import type { Node, Stylesheet } from 'EmmetFlatNode';
+import { URI } from 'vscode-uri';
+import { getSyntaxFromArgs, isValidLocationForEmmetAbbreviation } from './lib/abbreviationActions';
 import { getRootNode } from './lib/parseDocument';
 import { allowedMimeTypesInScriptTag, getEmbeddedCssNodeIfAny, getEmmetConfiguration, getEmmetHelper, getEmmetMode, getFlatNode, getHtmlFlatNode, isStyleSheet, parsePartialStylesheet } from './lib/util';
-import { getSyntaxFromArgs, isValidLocationForEmmetAbbreviation } from './lib/abbreviationActions';
 
 export function create({
 	mappedLanguages = {},
@@ -12,9 +13,12 @@ export function create({
 } = {}): vscode.LanguageServicePlugin {
 	return {
 		name: 'emmet',
-		// https://docs.emmet.io/abbreviations/syntax/
-		triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
-		// @ts-expect-error Need to update @volar/language-service
+		capabilities: {
+			completionProvider: {
+				// https://docs.emmet.io/abbreviations/syntax/
+				triggerCharacters: '>+^*()#.[]$@-{}'.split(''),
+			},
+		},
 		create(context, languageService): vscode.LanguageServicePluginInstance {
 
 			let lastCompletionType: string | undefined;
@@ -182,7 +186,8 @@ export function create({
 					if (abbreviation.startsWith('this.') || /\[[^\]=]*\]/.test(abbreviation)) {
 						isNoisePromise = Promise.resolve(true);
 					} else {
-						const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
+						const uri = URI.parse(document.uri);
+						const documentUri = context.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;
 						isNoisePromise = languageService.findDocumentSymbols(documentUri).then(symbols => {
 							return !!symbols && symbols.some(x => abbreviation === x.name || (abbreviation.startsWith(x.name + '.') && !/>|\*|\+/.test(abbreviation)));
 						});

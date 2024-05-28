@@ -1,4 +1,4 @@
-import type { DocumentSelector, FormattingOptions, ProviderResult, ServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
+import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
 import type { Options } from 'prettier';
 import { URI } from 'vscode-uri';
 
@@ -6,13 +6,13 @@ export function create(
 	/**
 	 * Prettier instance or getter to use.
 	 */
-	prettierInstanceOrGetter: typeof import('prettier') | ((context: ServiceContext) => ProviderResult<typeof import('prettier') | undefined>),
+	prettierInstanceOrGetter: typeof import('prettier') | ((context: LanguageServiceContext) => ProviderResult<typeof import('prettier') | undefined>),
 	{
 		html,
 		documentSelector = ['html', 'css', 'scss', 'typescript', 'javascript'],
 		isFormattingEnabled = async (prettier, document, context) => {
-			const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
-			const uri = URI.parse(documentUri);
+			const parsed = URI.parse(document.uri);
+			const uri = context.decodeEmbeddedDocumentUri(parsed)?.[0] ?? parsed;
 			if (uri.scheme === 'file') {
 				const fileInfo = await prettier.getFileInfo(uri.fsPath, { ignorePath: '.prettierignore', resolveConfig: false });
 				if (fileInfo.ignored) {
@@ -22,12 +22,12 @@ export function create(
 			return true;
 		},
 		getFormattingOptions = async (prettier, document, formatOptions, context) => {
-			const documentUri = context.decodeEmbeddedDocumentUri(document.uri)?.[0] ?? document.uri;
-			const uri = URI.parse(documentUri);
+			const parsed = URI.parse(document.uri);
+			const uri = context.decodeEmbeddedDocumentUri(parsed)?.[0] ?? parsed;
 			const configOptions = uri.scheme === 'file'
 				? await prettier.resolveConfig(uri.fsPath)
 				: null;
-			const editorOptions = await context.env.getConfiguration<Options>?.('prettier', documentUri);
+			const editorOptions = await context.env.getConfiguration<Options>?.('prettier', uri.toString());
 			return {
 				filepath: uri.scheme === 'file'
 					? uri.fsPath
@@ -54,12 +54,15 @@ export function create(
 		 * ['html', 'css', 'scss', 'typescript', 'javascript']
 		 */
 		documentSelector?: DocumentSelector;
-		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: ServiceContext): ProviderResult<Options>;
+		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: LanguageServiceContext): ProviderResult<Options>;
 	} = {},
 ): LanguageServicePlugin {
 	return {
 		name: 'prettier',
+		capabilities: {
+			documentFormattingProvider: true,
+		},
 		create(context): LanguageServicePluginInstance {
 
 			let prettierInstanceOrPromise: ProviderResult<typeof import('prettier') | undefined>;

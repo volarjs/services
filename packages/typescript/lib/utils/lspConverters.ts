@@ -1,22 +1,23 @@
 import type * as vscode from '@volar/language-service';
 import * as path from 'path-browserify';
+import * as semver from 'semver';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { URI } from 'vscode-uri';
 import * as PConst from '../protocol.const';
-import { notEmpty } from '../shared';
 import type { SharedContext } from '../semanticFeatures/types';
+import { notEmpty } from '../shared';
 import { parseKindModifier } from '../utils/modifiers';
 import * as previewer from '../utils/previewer';
 import * as typeConverters from '../utils/typeConverters';
-import * as semver from 'semver';
 
 // diagnostics
 
 export function convertDiagnostic(
 	diag: ts.Diagnostic,
 	document: TextDocument,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): vscode.Diagnostic | undefined {
 
 	if (diag.start === undefined) {
@@ -60,8 +61,8 @@ export function convertDiagnostic(
 
 function convertDiagnosticRelatedInformation(
 	diag: ts.Diagnostic,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): vscode.DiagnosticRelatedInformation | undefined {
 
 	if (diag.start === undefined) {
@@ -128,8 +129,8 @@ export function applyCompletionEntryDetails(
 	item: vscode.CompletionItem,
 	data: ts.CompletionEntryDetails,
 	document: TextDocument,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ) {
 	const { sourceDisplay } = data;
 	if (sourceDisplay) {
@@ -612,8 +613,8 @@ export function convertSelectionRange(range: ts.SelectionRange, document: TextDo
 
 export function convertFileTextChanges(
 	changes: readonly ts.FileTextChanges[],
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 	for (const change of changes) {
@@ -622,10 +623,10 @@ export function convertFileTextChanges(
 		}
 		const uri = fileNameToUri(change.fileName);
 		if (change.isNewFile) {
-			workspaceEdit.documentChanges.push({ kind: 'create', uri });
+			workspaceEdit.documentChanges.push({ kind: 'create', uri: uri.toString() });
 			workspaceEdit.documentChanges.push({
 				textDocument: {
-					uri,
+					uri: uri.toString(),
 					version: null, // fix https://github.com/johnsoncodehk/volar/issues/2025
 				},
 				edits: change.textChanges.map(edit => ({
@@ -641,7 +642,7 @@ export function convertFileTextChanges(
 			const doc = getTextDocument(uri);
 			workspaceEdit.documentChanges.push({
 				textDocument: {
-					uri,
+					uri: uri.toString(),
 					version: null, // fix https://github.com/johnsoncodehk/volar/issues/2025
 				},
 				edits: change.textChanges.map(edit => convertTextChange(edit, doc)),
@@ -656,8 +657,8 @@ export function convertFileTextChanges(
 export function convertRenameLocations(
 	newText: string,
 	locations: readonly ts.RenameLocation[],
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 	for (const location of locations) {
@@ -666,8 +667,8 @@ export function convertRenameLocations(
 		}
 		const uri = fileNameToUri(location.fileName);
 		const doc = getTextDocument(uri);
-		if (!workspaceEdit.changes[uri]) {
-			workspaceEdit.changes[uri] = [];
+		if (!workspaceEdit.changes[uri.toString()]) {
+			workspaceEdit.changes[uri.toString()] = [];
 		}
 		let _newText = newText;
 		if (location.prefixText) {
@@ -676,7 +677,7 @@ export function convertRenameLocations(
 		if (location.suffixText) {
 			_newText = _newText + location.suffixText;
 		}
-		workspaceEdit.changes[uri].push({
+		workspaceEdit.changes[uri.toString()].push({
 			newText: _newText,
 			range: convertTextSpan(location.textSpan, doc),
 		});
@@ -690,8 +691,8 @@ export function convertQuickInfo(
 	ts: typeof import('typescript'),
 	info: ts.QuickInfo,
 	document: TextDocument,
-	fileNameToUri: (fileName: string) => string,
-	getTextDocument: (uri: string) => TextDocument | undefined,
+	fileNameToUri: (fileName: string) => URI,
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): vscode.Hover {
 	const parts: string[] = [];
 	const displayString = ts.displayPartsToString(info.displayParts);
@@ -875,7 +876,7 @@ export function convertCallHierarchyItem(item: ts.CallHierarchyItem, ctx: Shared
 		kind: typeConverters.SymbolKind.fromProtocolScriptElementKind(item.kind),
 		name,
 		detail,
-		uri,
+		uri: uri.toString(),
 		range: convertTextSpan(item.span, document),
 		selectionRange: convertTextSpan(item.selectionSpan, document),
 	};
@@ -898,7 +899,7 @@ export function convertDocumentSpanToLocation(documentSpan: ts.DocumentSpan, ctx
 	const document = ctx.getTextDocument(uri);
 	const range = convertTextSpan(documentSpan.textSpan, document);
 	return {
-		uri,
+		uri: uri.toString(),
 		range,
 	};
 }
@@ -930,7 +931,7 @@ export function convertDocumentSpantoLocationLink(documentSpan: ts.DocumentSpan,
 		? convertTextSpan(documentSpan.originalTextSpan, document)
 		: undefined;
 	return {
-		targetUri,
+		targetUri: targetUri.toString(),
 		targetRange,
 		targetSelectionRange,
 		originSelectionRange,

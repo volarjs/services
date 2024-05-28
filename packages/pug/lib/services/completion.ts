@@ -1,7 +1,7 @@
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
-import { ServiceContext, transformCompletionList } from '@volar/language-service';
+import { LanguageServiceContext, transformCompletionList } from '@volar/language-service';
 
 export function register(htmlLs: html.LanguageService) {
 
@@ -12,7 +12,7 @@ export function register(htmlLs: html.LanguageService) {
 	return async (
 		pugDoc: PugDocument,
 		pos: html.Position,
-		serviceContext: ServiceContext,
+		serviceContext: LanguageServiceContext,
 		documentContext: html.DocumentContext | undefined,
 		options?: html.CompletionConfiguration | undefined
 	) => {

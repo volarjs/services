@@ -12,7 +12,11 @@ const defaultJsDoc = `/**\n * $0\n */`;
 export function create(ts: typeof import('typescript')): vscode.LanguageServicePlugin {
 	return {
 		name: 'typescript-doc-comment-template',
-		triggerCharacters: ['*'],
+		capabilities: {
+			completionProvider: {
+				triggerCharacters: ['*'],
+			},
+		},
 		create(): vscode.LanguageServicePluginInstance {
 
 			return {

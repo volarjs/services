@@ -19,7 +19,7 @@ const hexColorRegex = /^#[\da-fA-F]{0,6}$/;
  * @param position position to validate
  * @param abbreviationRange The range of the abbreviation for which given position is being validated
  */
-export async function isValidLocationForEmmetAbbreviation(context: vscode.ServiceContext, document: vscode.TextDocument, rootNode: Node | undefined, currentNode: Node | undefined, syntax: string, offset: number, abbreviationRange: vscode.Range): Promise<boolean> {
+export async function isValidLocationForEmmetAbbreviation(context: vscode.LanguageServiceContext, document: vscode.TextDocument, rootNode: Node | undefined, currentNode: Node | undefined, syntax: string, offset: number, abbreviationRange: vscode.Range): Promise<boolean> {
 	if (isStyleSheet(syntax)) {
 		const stylesheet = <Stylesheet>rootNode;
 		if (stylesheet && (stylesheet.comments || []).some(x => offset >= x.start && offset <= x.end)) {
@@ -203,7 +203,7 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Servic
 	return valid;
 }
 
-export async function getSyntaxFromArgs(context: vscode.ServiceContext, args: { [x: string]: string; }): Promise<string | undefined> {
+export async function getSyntaxFromArgs(context: vscode.LanguageServiceContext, args: { [x: string]: string; }): Promise<string | undefined> {
 	const mappedModes = await getMappingForIncludedLanguages(context);
 	const language: string = args['language'];
 	const parentMode: string = args['parentMode'];

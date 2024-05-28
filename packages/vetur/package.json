@@ -25,10 +25,11 @@
 	},
 	"dependencies": {
 		"vls": "^0.8.5",
-		"vscode-html-languageservice": "npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462"
+		"vscode-html-languageservice": "npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462",
+		"vscode-uri": "^3.0.8"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.2.3"
+		"@volar/language-service": "~2.3.0-alpha.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

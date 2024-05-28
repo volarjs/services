@@ -7,14 +7,15 @@ import type {
 	Location,
 	ParameterInformation,
 	ProviderResult,
-	ServiceContext,
+	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
 	SignatureHelpTriggerKind,
 	SignatureInformation,
 	VirtualCode,
 	WorkspaceEdit,
-	FormattingOptions
+	FormattingOptions,
+	CodeActionKind,
 } from '@volar/language-service';
 import * as path from 'path-browserify';
 import * as semver from 'semver';
@@ -49,12 +50,13 @@ import * as codeActions from '../semanticFeatures/codeAction';
 import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
 import * as semanticTokens from '../semanticFeatures/semanticTokens';
 import type { SharedContext } from '../semanticFeatures/types';
+import { URI } from 'vscode-uri';
 
 export interface Provide {
 	'typescript/languageService': () => ts.LanguageService;
 	'typescript/languageServiceHost': () => ts.LanguageServiceHost;
-	'typescript/documentFileName': (uri: string) => string;
-	'typescript/documentUri': (fileName: string) => string;
+	'typescript/documentFileName': (uri: URI) => string;
+	'typescript/documentUri': (fileName: string) => URI;
 }
 
 export interface CompletionItemData {
@@ -90,21 +92,99 @@ export function create(
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
 		},
 	}: {
-		isValidationEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
-		isSuggestionsEnabled?(document: TextDocument, context: ServiceContext): ProviderResult<boolean>;
+		isValidationEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
+		isSuggestionsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	} = {},
 ): LanguageServicePlugin {
 	return {
 		name: 'typescript-semantic',
-		triggerCharacters: getBasicTriggerCharacters(ts.version),
-		signatureHelpTriggerCharacters: ['(', ',', '<'],
-		signatureHelpRetriggerCharacters: [')'],
+		capabilities: {
+			completionProvider: {
+				triggerCharacters: getBasicTriggerCharacters(ts.version),
+				resolveProvider: true,
+			},
+			renameProvider: {
+				prepareProvider: true,
+			},
+			codeActionProvider: {
+				codeActionKinds: [
+					'' satisfies typeof CodeActionKind.Empty,
+					'quickfix' satisfies typeof CodeActionKind.QuickFix,
+					'refactor' satisfies typeof CodeActionKind.Refactor,
+					'refactor.extract' satisfies typeof CodeActionKind.RefactorExtract,
+					'refactor.inline' satisfies typeof CodeActionKind.RefactorInline,
+					'refactor.rewrite' satisfies typeof CodeActionKind.RefactorRewrite,
+					'source' satisfies typeof CodeActionKind.Source,
+					'source.fixAll' satisfies typeof CodeActionKind.SourceFixAll,
+					'source.organizeImports' satisfies typeof CodeActionKind.SourceOrganizeImports,
+				],
+				resolveProvider: true,
+			},
+			inlayHintProvider: {},
+			callHierarchyProvider: true,
+			definitionProvider: true,
+			typeDefinitionProvider: true,
+			diagnosticProvider: true,
+			hoverProvider: true,
+			implementationProvider: true,
+			referencesProvider: true,
+			// fileReferencesProvider: true,
+			documentHighlightProvider: true,
+			semanticTokensProvider: {
+				// https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide#standard-token-types-and-modifiers
+				legend: {
+					tokenTypes: [
+						'namespace',
+						'class',
+						'enum',
+						'interface',
+						'struct',
+						'typeParameter',
+						'type',
+						'parameter',
+						'variable',
+						'property',
+						'enumMember',
+						'decorator',
+						'event',
+						'function',
+						'method',
+						'macro',
+						'label',
+						'comment',
+						'string',
+						'keyword',
+						'number',
+						'regexp',
+						'operator',
+					],
+					tokenModifiers: [
+						'declaration',
+						'definition',
+						'readonly',
+						'static',
+						'deprecated',
+						'abstract',
+						'async',
+						'modification',
+						'documentation',
+						'defaultLibrary',
+					],
+				},
+			},
+			workspaceSymbolProvider: true,
+			// fileRenameEdits: true,
+			selectionRangeProvider: true,
+			signatureHelpProvider: {
+				triggerCharacters: ['(', ',', '<'],
+				retriggerCharacters: [')'],
+			},
+		},
 		create(context): LanguageServicePluginInstance<Provide> {
 			if (!context.language.typescript) {
 				return {};
 			}
-			const { projectHost, languageServiceHost } = context.language.typescript;
-			const sys: ts.System | undefined = projectHost;
+			const { sys, languageServiceHost, asFileName, asScriptId } = context.language.typescript;
 			const created = tsWithImportCache.createLanguageService(
 				ts,
 				sys,
@@ -141,7 +221,7 @@ export function create(
 						updateSourceScriptFileNames();
 					}
 					for (const change of params.changes) {
-						const fileName = context.env.typescript!.uriToFileName(change.uri);
+						const fileName = asFileName(URI.parse(change.uri));
 						if (sourceScriptNames.has(normalizeFileName(fileName))) {
 							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 						}
@@ -151,7 +231,7 @@ export function create(
 				function updateSourceScriptFileNames() {
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const uri = context.env.typescript!.fileNameToUri(fileName);
+						const uri = asScriptId(fileName);
 						const sourceScript = context.language.scripts.get(uri);
 						if (sourceScript?.generated) {
 							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
@@ -175,10 +255,10 @@ export function create(
 					if (virtualScript) {
 						return virtualScript.fileName;
 					}
-					return context.env.typescript!.uriToFileName(uri);
+					return asFileName(uri);
 				},
 				fileNameToUri(fileName) {
-					const uri = context.env.typescript!.fileNameToUri(fileName);
+					const uri = asScriptId(fileName);
 					const sourceScript = context.language.scripts.get(uri);
 					const extraServiceScript = context.language.typescript!.getExtraServiceScript(fileName);
 
@@ -247,7 +327,9 @@ export function create(
 
 				async provideCompletionItems(document, position, completeContext, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
@@ -258,7 +340,7 @@ export function create(
 					return await worker(token, async () => {
 
 						const preferences = await getUserPreferences(ctx, document);
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const info = safeCall(() => ctx.languageService.getCompletionsAtPosition(fileName, offset, {
 							...preferences,
@@ -294,7 +376,8 @@ export function create(
 							return item;
 						}
 						const { fileName, offset } = data;
-						const document = ctx.getTextDocument(data.uri)!;
+						const uri = URI.parse(data.uri);
+						const document = ctx.getTextDocument(uri)!;
 						const [formatOptions, preferences] = await Promise.all([
 							getFormatCodeSettings(ctx, document, formattingOptions),
 							getUserPreferences(ctx, document),
@@ -386,12 +469,14 @@ export function create(
 
 				provideRenameRange(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const renameInfo = safeCall(() => ctx.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
 						if (!renameInfo) {
@@ -406,12 +491,14 @@ export function create(
 
 				provideRenameEdits(document, position, newName, token) {
 
-					if (!isSemanticDocument(document, true)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document, true)) {
 						return;
 					}
 
 					return worker(token, async () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const renameInfo = safeCall(() => ctx.languageService.getRenameInfo(fileName, offset, renameInfoOptions));
 						if (!renameInfo?.canRename) {
@@ -454,8 +541,8 @@ export function create(
 							}
 							edits.documentChanges.push({
 								kind: 'rename',
-								oldUri: ctx.fileNameToUri(fileToRename),
-								newUri: ctx.fileNameToUri(newFilePath),
+								oldUri: ctx.fileNameToUri(fileToRename).toString(),
+								newUri: ctx.fileNameToUri(newFilePath).toString(),
 							});
 							return edits;
 						}
@@ -464,12 +551,14 @@ export function create(
 
 				provideCodeActions(document, range, context, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						return getCodeActions(document, range, context, formattingOptions);
+						return getCodeActions(uri, document, range, context, formattingOptions);
 					});
 				},
 
@@ -481,13 +570,15 @@ export function create(
 
 				provideInlayHints(document, range, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, async () => {
 						const preferences = await getUserPreferences(ctx, document);
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const start = document.offsetAt(range.start);
 						const end = document.offsetAt(range.end);
 						const inlayHints = safeCall(() =>
@@ -504,12 +595,14 @@ export function create(
 
 				provideCallHierarchyItems(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const calls = safeCall(() => ctx.languageService.prepareCallHierarchy(fileName, offset));
 						if (!calls) {
@@ -522,8 +615,9 @@ export function create(
 
 				async provideCallHierarchyIncomingCalls(item, token) {
 					return await worker(token, () => {
-						const document = ctx.getTextDocument(item.uri)!;
-						const fileName = ctx.uriToFileName(item.uri);
+						const uri = URI.parse(item.uri);
+						const document = ctx.getTextDocument(uri)!;
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(item.selectionRange.start);
 						const calls = safeCall(() => ctx.languageService.provideCallHierarchyIncomingCalls(fileName, offset));
 						if (!calls) {
@@ -536,8 +630,9 @@ export function create(
 
 				async provideCallHierarchyOutgoingCalls(item, token) {
 					return await worker(token, () => {
-						const document = ctx.getTextDocument(item.uri)!;
-						const fileName = ctx.uriToFileName(item.uri);
+						const uri = URI.parse(item.uri);
+						const document = ctx.getTextDocument(uri)!;
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(item.selectionRange.start);
 						const calls = safeCall(() => ctx.languageService.provideCallHierarchyOutgoingCalls(fileName, offset));
 						if (!calls) {
@@ -550,12 +645,14 @@ export function create(
 
 				provideDefinition(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const info = safeCall(() => ctx.languageService.getDefinitionAndBoundSpan(fileName, offset));
 						if (!info) {
@@ -567,12 +664,14 @@ export function create(
 
 				provideTypeDefinition(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const entries = safeCall(() => ctx.languageService.getTypeDefinitionAtPosition(fileName, offset));
 						if (!entries) {
@@ -592,12 +691,14 @@ export function create(
 
 				provideHover(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const info = safeCall(() => ctx.languageService.getQuickInfoAtPosition(fileName, offset));
 						if (!info) {
@@ -609,12 +710,14 @@ export function create(
 
 				provideImplementation(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const entries = safeCall(() => ctx.languageService.getImplementationAtPosition(fileName, offset));
 						if (!entries) {
@@ -626,12 +729,14 @@ export function create(
 
 				provideReferences(document, position, referenceContext, token) {
 
-					if (!isSemanticDocument(document, true)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document, true)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const references = safeCall(() => ctx.languageService.findReferences(fileName, offset));
 						if (!references) {
@@ -658,12 +763,14 @@ export function create(
 
 				provideFileReferences(document, token) {
 
-					if (!isSemanticDocument(document, true)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document, true)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const entries = safeCall(() => ctx.languageService.getFileReferences(fileName));
 						if (!entries) {
 							return [];
@@ -674,12 +781,14 @@ export function create(
 
 				provideDocumentHighlights(document, position, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const highlights = safeCall(() => ctx.languageService.getDocumentHighlights(fileName, offset, [fileName]));
 						if (!highlights) {
@@ -697,12 +806,14 @@ export function create(
 
 				provideDocumentSemanticTokens(document, range, legend, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
-						return getDocumentSemanticTokens(document, range, legend);
+						return getDocumentSemanticTokens(uri, document, range, legend);
 					});
 				},
 
@@ -740,14 +851,16 @@ export function create(
 
 				provideSelectionRanges(document, positions, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
 					return worker(token, () => {
 						return positions
 							.map(position => {
-								const fileName = ctx.uriToFileName(document.uri);
+								const fileName = ctx.uriToFileName(uri);
 								const offset = document.offsetAt(position);
 								const range = safeCall(() => ctx.languageService.getSmartSelectionRange(fileName, offset));
 								if (!range) {
@@ -761,7 +874,9 @@ export function create(
 
 				provideSignatureHelp(document, position, context, token) {
 
-					if (!isSemanticDocument(document)) {
+					const uri = URI.parse(document.uri);
+
+					if (!isSemanticDocument(uri, document)) {
 						return;
 					}
 
@@ -785,7 +900,7 @@ export function create(
 							};
 						}
 
-						const fileName = ctx.uriToFileName(document.uri);
+						const fileName = ctx.uriToFileName(uri);
 						const offset = document.offsetAt(position);
 						const helpItems = safeCall(() => ctx.languageService.getSignatureHelpItems(fileName, offset, options));
 						if (!helpItems) {
@@ -824,7 +939,9 @@ export function create(
 
 			async function provideDiagnosticsWorker(document: TextDocument, token: CancellationToken, mode: 'syntactic' | 'semantic') {
 
-				if (!isSemanticDocument(document)) {
+				const uri = URI.parse(document.uri);
+
+				if (!isSemanticDocument(uri, document)) {
 					return;
 				}
 
@@ -833,7 +950,7 @@ export function create(
 				}
 
 				return await worker(token, () => {
-					const fileName = ctx.uriToFileName(document.uri);
+					const fileName = ctx.uriToFileName(uri);
 					const program = ctx.languageService.getProgram();
 					const sourceFile = program?.getSourceFile(fileName);
 					if (!program || !sourceFile) {
@@ -870,8 +987,8 @@ export function create(
 				return !!(compilerOptions.declaration || compilerOptions.composite);
 			}
 
-			function isSemanticDocument(document: TextDocument, withJson = false) {
-				const virtualScript = getVirtualScriptByUri(document.uri);
+			function isSemanticDocument(uri: URI, document: TextDocument, withJson = false) {
+				const virtualScript = getVirtualScriptByUri(uri);
 				if (virtualScript) {
 					return true;
 				}
@@ -884,7 +1001,7 @@ export function create(
 			async function worker<T>(token: CancellationToken, fn: () => T): Promise<Awaited<T> | undefined> {
 				let result: Awaited<T> | undefined;
 				let oldSysVersion: number | undefined;
-				let newSysVersion = await projectHost.syncSystem?.();
+				let newSysVersion = await sys.sync?.();
 				do {
 					oldSysVersion = newSysVersion;
 					try {
@@ -893,12 +1010,12 @@ export function create(
 						console.warn(err);
 						break;
 					}
-					newSysVersion = await projectHost.syncSystem?.();
+					newSysVersion = await sys.sync?.();
 				} while (newSysVersion !== oldSysVersion && !token.isCancellationRequested);
 				return result;
 			}
 
-			function getVirtualScriptByUri(uri: string): {
+			function getVirtualScriptByUri(uri: URI): {
 				fileName: string;
 				code: VirtualCode;
 			} | undefined {
@@ -907,7 +1024,7 @@ export function create(
 				const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 				if (virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
 					const { getServiceScript, getExtraServiceScripts } = sourceScript.generated?.languagePlugin.typescript;
-					const sourceFileName = context.env.typescript!.uriToFileName(sourceScript.id);
+					const sourceFileName = asFileName(sourceScript.id);
 					if (getServiceScript(sourceScript.generated.root)?.code === virtualCode) {
 						return {
 							fileName: sourceFileName,

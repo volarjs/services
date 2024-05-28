@@ -1,4 +1,4 @@
-import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type ServiceContext } from '@volar/language-service';
+import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';
@@ -31,11 +31,32 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	fileExtensions?: string[];
-	getDiagnosticOptions?(document: TextDocument, context: ServiceContext): ProviderResult<DiagnosticOptions | undefined>;
+	getDiagnosticOptions?(document: TextDocument, context: LanguageServiceContext): ProviderResult<DiagnosticOptions | undefined>;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'markdown',
-		triggerCharacters: ['.', '/', '#'],
+		capabilities: {
+			codeActionProvider: {},
+			completionProvider: {
+				triggerCharacters: ['.', '/', '#'],
+			},
+			definitionProvider: true,
+			diagnosticProvider: true,
+			documentHighlightProvider: true,
+			documentLinkProvider: {
+				resolveProvider: true,
+			},
+			documentSymbolProvider: true,
+			// fileReferencesProvider: true
+			foldingRangeProvider: true,
+			hoverProvider: true,
+			referencesProvider: true,
+			renameProvider: {
+				prepareProvider: true,
+			},
+			selectionRangeProvider: true,
+			workspaceSymbolProvider: true,
+		},
 		create(context): LanguageServicePluginInstance<Provide> {
 			const logger: ILogger = {
 				level: LogLevel.Off,
@@ -56,7 +77,7 @@ export function create({
 				workspace: workspace.workspace,
 			});
 			const firedDocumentChanges = new Map<string, number>();
-			const fsSourceScripts = new Map<string, SourceScript | undefined>();
+			const fsSourceScripts = new Map<string, SourceScript<URI> | undefined>();
 			const fileWatcher = context.env.onDidChangeWatchedFiles?.(event => {
 				for (const change of event.changes) {
 					fsSourceScripts.delete(change.uri);
@@ -222,14 +243,14 @@ export function create({
 					for (const change of event.changes) {
 						switch (change.type) {
 							case 2 satisfies typeof FileChangeType.Changed: {
-								const document = getTextDocument(change.uri);
+								const document = getTextDocument(URI.parse(change.uri));
 								if (document) {
 									onDidChangeMarkdownDocument.fire(document);
 								}
 								break;
 							}
 							case 1 satisfies typeof FileChangeType.Created: {
-								const document = getTextDocument(change.uri);
+								const document = getTextDocument(URI.parse(change.uri));
 								if (document) {
 									onDidCreateMarkdownDocument.fire(document);
 								}
@@ -248,21 +269,21 @@ export function create({
 						// const openTextDocumentResults = this.documents.all()
 						// 	.filter(doc => this.isRelevantMarkdownDocument(doc));
 
-						return await findMarkdownFilesInWorkspace(URI.parse(context.env.workspaceFolder));
+						return (await Promise.all(context.env.workspaceFolders.map(findMarkdownFilesInWorkspace))).flat();
 					},
 
 					getContainingDocument(resource) {
-						const decoded = context.decodeEmbeddedDocumentUri(resource.toString());
+						const decoded = context.decodeEmbeddedDocumentUri(resource);
 						if (decoded) {
 							return {
-								uri: URI.parse(decoded[0]),
+								uri: decoded[0],
 								children: [],
 							};
 						}
 					},
 
 					hasMarkdownDocument(resource) {
-						const document = getTextDocument(resource.toString());
+						const document = getTextDocument(resource);
 						return Boolean(document && matchDocument(documentSelector, document));
 					},
 
@@ -273,11 +294,11 @@ export function create({
 					onDidDeleteMarkdownDocument: onDidDeleteMarkdownDocument.event,
 
 					async openMarkdownDocument(resource) {
-						return getTextDocument(resource.toString());
+						return getTextDocument(resource);
 					},
 
 					async readDirectory(resource) {
-						const directory = await fs?.readDirectory(resource.toString()) ?? [];
+						const directory = await fs?.readDirectory(resource) ?? [];
 						return directory
 							.filter(file => file[1] !== 0 satisfies FileType.Unknown)
 							.map(([fileName, fileType]) => [
@@ -287,14 +308,14 @@ export function create({
 					},
 
 					async stat(resource) {
-						const stat = await fs?.stat(resource.toString());
+						const stat = await fs?.stat(resource);
 						if (stat?.type === 0 satisfies FileType.Unknown) {
 							return;
 						}
 						return { isDirectory: stat?.type === 2 satisfies FileType.Directory };
 					},
 
-					workspaceFolders: [URI.parse(context.env.workspaceFolder)],
+					workspaceFolders: context.env.workspaceFolders,
 				};
 
 				return {
@@ -313,7 +334,7 @@ export function create({
 
 			async function findMarkdownFilesInWorkspace(folder: URI) {
 				const { fs } = context.env;
-				const files = await fs?.readDirectory(folder.toString()) ?? [];
+				const files = await fs?.readDirectory(folder) ?? [];
 				const docs: ITextDocument[] = [];
 				await Promise.all(
 					files.map(async ([fileName, fileType]) => {
@@ -324,13 +345,13 @@ export function create({
 						}
 						else if (fileExtensions.some(ext => fileName.endsWith('.' + ext))) {
 							const fileUri = Utils.joinPath(folder, fileName);
-							let sourceScript = context.language.scripts.get(fileUri.toString());
+							let sourceScript = context.language.scripts.get(fileUri);
 							if (!sourceScript) {
 								if (!fsSourceScripts.has(fileUri.toString())) {
 									fsSourceScripts.set(fileUri.toString(), undefined);
-									const fileContent = await fs?.readFile(fileUri.toString());
+									const fileContent = await fs?.readFile(fileUri);
 									if (fileContent !== undefined) {
-										fsSourceScripts.set(fileUri.toString(), context.language.scripts.set(fileUri.toString(), {
+										fsSourceScripts.set(fileUri.toString(), context.language.scripts.set(fileUri, {
 											getText(start, end) {
 												return fileContent.substring(start, end);
 											},
@@ -341,7 +362,7 @@ export function create({
 												return undefined;
 											},
 										}));
-										context.language.scripts.delete(fileUri.toString());
+										context.language.scripts.delete(fileUri);
 									}
 								}
 								sourceScript = fsSourceScripts.get(fileUri.toString());
@@ -356,7 +377,7 @@ export function create({
 								}
 							}
 							else if (sourceScript) {
-								const doc = context.documents.get(fileName, sourceScript.languageId, sourceScript.snapshot);
+								const doc = context.documents.get(sourceScript.id, sourceScript.languageId, sourceScript.snapshot);
 								if (doc && matchDocument(documentSelector, doc)) {
 									docs.push(doc);
 								}
@@ -367,7 +388,7 @@ export function create({
 				return docs;
 			}
 
-			function getTextDocument(uri: string) {
+			function getTextDocument(uri: URI) {
 				const decoded = context.decodeEmbeddedDocumentUri(uri);
 				if (decoded) {
 					const sourceScript = context.language.scripts.get(decoded[0]);
