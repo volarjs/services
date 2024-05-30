@@ -27,7 +27,7 @@
 		"@starptech/prettyhtml": "^0.10.0"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.3.0-alpha.0"
+		"@volar/language-service": "~2.3.0-alpha.1"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
