@@ -21,10 +21,16 @@ export function register(htmlLs: html.LanguageService) {
 				return htmlScanner.scan();
 			},
 			getTokenOffset: () => {
-				return pugDoc.map.map.getSourceOffset(htmlScanner.getTokenOffset())?.[0] ?? -1;
+				for (const [offset] of pugDoc.map.map.getSourceOffsets(htmlScanner.getTokenOffset())) {
+					return offset;
+				}
+				return -1;
 			},
 			getTokenEnd: () => {
-				return pugDoc.map.map.getSourceOffset(htmlScanner.getTokenEnd())?.[0] ?? -1;
+				for (const [offset] of pugDoc.map.map.getSourceOffsets(htmlScanner.getTokenEnd())) {
+					return offset;
+				}
+				return -1;
 			},
 			getTokenText: htmlScanner.getTokenText,
 			getTokenLength: htmlScanner.getTokenLength,
