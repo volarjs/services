@@ -184,7 +184,7 @@ export function create(
 			if (!context.language.typescript) {
 				return {};
 			}
-			const { sys, languageServiceHost, asFileName, asScriptId } = context.language.typescript;
+			const { sys, languageServiceHost, asFileName, asScriptId, getExtraServiceScript } = context.language.typescript;
 			const created = tsWithImportCache.createLanguageService(
 				ts,
 				sys,
@@ -192,6 +192,57 @@ export function create(
 				proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory())),
 			);
 			const { languageService } = created;
+			const ctx: SharedContext = {
+				...context,
+				languageServiceHost,
+				languageService,
+				uriToFileName(uri) {
+					const virtualScript = getVirtualScriptByUri(uri);
+					if (virtualScript) {
+						return virtualScript.fileName;
+					}
+					return asFileName(uri);
+				},
+				fileNameToUri(fileName) {
+					const extraServiceScript = getExtraServiceScript(fileName);
+					if (extraServiceScript) {
+						return context.encodeEmbeddedDocumentUri(extraServiceScript[0].id, extraServiceScript[1].code.id);
+					}
+
+					const uri = asScriptId(fileName);
+					const sourceScript = context.language.scripts.get(uri);
+					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
+					if (sourceScript && serviceScript) {
+						return context.encodeEmbeddedDocumentUri(sourceScript.id, serviceScript.code.id);
+					}
+
+					return uri;
+				},
+				getTextDocument(uri) {
+					const decoded = context.decodeEmbeddedDocumentUri(uri);
+					if (decoded) {
+						const sourceScript = context.language.scripts.get(decoded[0]);
+						const virtualCode = sourceScript?.generated?.embeddedCodes.get(decoded[1]);
+						if (virtualCode) {
+							return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
+						}
+					}
+					else {
+						const sourceFile = context.language.scripts.get(uri);
+						if (sourceFile) {
+							return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
+						}
+					}
+				},
+			};
+			const getCodeActions = codeActions.register(ctx);
+			const doCodeActionResolve = codeActionResolve.register(ctx);
+			const getDocumentSemanticTokens = semanticTokens.register(ts, ctx);
+
+			/* typescript-language-features is hardcode true */
+			const renameInfoOptions = { allowRenameOfImportPath: true };
+
+			let formattingOptions: FormattingOptions | undefined;
 
 			if (created.setPreferences && context.env.getConfiguration) {
 
@@ -231,7 +282,7 @@ export function create(
 				function updateSourceScriptFileNames() {
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const uri = asScriptId(fileName);
+						const uri = ctx.fileNameToUri(fileName);
 						const sourceScript = context.language.scripts.get(uri);
 						if (sourceScript?.generated) {
 							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
@@ -245,62 +296,6 @@ export function create(
 					}
 				}
 			}
-
-			const ctx: SharedContext = {
-				...context,
-				languageServiceHost,
-				languageService,
-				uriToFileName(uri) {
-					const virtualScript = getVirtualScriptByUri(uri);
-					if (virtualScript) {
-						return virtualScript.fileName;
-					}
-					return asFileName(uri);
-				},
-				fileNameToUri(fileName) {
-					const uri = asScriptId(fileName);
-					const sourceScript = context.language.scripts.get(uri);
-					const extraServiceScript = context.language.typescript!.getExtraServiceScript(fileName);
-
-					let virtualCode = extraServiceScript?.code;
-
-					if (!virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
-						const serviceScript = sourceScript.generated.languagePlugin.typescript.getServiceScript(sourceScript.generated.root);
-						if (serviceScript) {
-							virtualCode = serviceScript.code;
-						}
-					}
-					if (sourceScript && virtualCode) {
-						return context.encodeEmbeddedDocumentUri(sourceScript.id, virtualCode.id);
-					}
-
-					return uri;
-				},
-				getTextDocument(uri) {
-					const decoded = context.decodeEmbeddedDocumentUri(uri);
-					if (decoded) {
-						const sourceScript = context.language.scripts.get(decoded[0]);
-						const virtualCode = sourceScript?.generated?.embeddedCodes.get(decoded[1]);
-						if (virtualCode) {
-							return context.documents.get(uri, virtualCode.languageId, virtualCode.snapshot);
-						}
-					}
-					else {
-						const sourceFile = context.language.scripts.get(uri);
-						if (sourceFile) {
-							return context.documents.get(uri, sourceFile.languageId, sourceFile.snapshot);
-						}
-					}
-				},
-			};
-			const getCodeActions = codeActions.register(ctx);
-			const doCodeActionResolve = codeActionResolve.register(ctx);
-			const getDocumentSemanticTokens = semanticTokens.register(ts, ctx);
-
-			/* typescript-language-features is hardcode true */
-			const renameInfoOptions = { allowRenameOfImportPath: true };
-
-			let formattingOptions: FormattingOptions | undefined;
 
 			return {
 
