@@ -50,7 +50,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
 
   packages/emmet:
     dependencies:
@@ -72,7 +72,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
 
   packages/html:
     dependencies:
@@ -91,7 +91,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
 
   packages/json:
     dependencies:
@@ -145,7 +145,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
       prettier:
         specifier: ^3.0.3
         version: 3.2.5
@@ -171,7 +171,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       volar-service-html:
-        specifier: 0.0.48
+        specifier: 0.0.49
         version: link:../html
       vscode-html-languageservice:
         specifier: npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462
@@ -182,7 +182,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
 
   packages/pug-beautify:
     dependencies:
@@ -195,7 +195,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
 
   packages/sass-formatter:
     dependencies:
@@ -247,7 +247,7 @@ importers:
         version: 3.0.8
     devDependencies:
       volar-service-typescript:
-        specifier: 0.0.48
+        specifier: 0.0.49
         version: link:../typescript
 
   packages/vetur:
@@ -267,7 +267,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.12
+        version: 20.12.13
 
   packages/yaml:
     dependencies:
@@ -780,8 +780,8 @@ packages:
   '@types/mdurl@1.0.5':
     resolution: {integrity: sha512-6L6VymKTzYSrEf4Nev4Xa1LCHKrlTlYCBMTlQKFuddo1CvQcE52I0mwfOJayueUC7MJuXOeHTcIU683lzd0cUA==}
 
-  '@types/node@20.12.12':
-    resolution: {integrity: sha512-eWLDGF/FOSPtAvEqeRAQ4C8LSA7M1I7i0ky1I8U7kD1J5ITyW3AsRhQrKVoWf5pFKZ2kILsEGJhsI9r93PYnOw==}
+  '@types/node@20.12.13':
+    resolution: {integrity: sha512-gBGeanV41c1L171rR7wjbMiEpEI/l5XFQdLLfhr/REwpgDy/4U8y89+i8kRiLzDyZdOkXh+cRaTetUnCYutoXA==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -1615,10 +1615,12 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   global-dirs@0.1.1:
     resolution: {integrity: sha512-NknMLn7F2J7aflwFOlGdNIuCDpN3VGoSoB+aap3KABFWbHVn1TCgFC+np23J8W2BiZbjfEw3BFBycSMv1AFblg==}
@@ -2769,6 +2771,7 @@ packages:
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   run-async@3.0.0:
@@ -4126,7 +4129,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.12.12
+      '@types/node': 20.12.13
 
   '@types/linkify-it@3.0.5': {}
 
@@ -4137,7 +4140,7 @@ snapshots:
 
   '@types/mdurl@1.0.5': {}
 
-  '@types/node@20.12.12':
+  '@types/node@20.12.13':
     dependencies:
       undici-types: 5.26.5
 
@@ -4147,7 +4150,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.12.12
+      '@types/node': 20.12.13
 
   '@types/semver@7.5.8': {}
 
@@ -4161,7 +4164,7 @@ snapshots:
 
   '@types/vfile@3.0.2':
     dependencies:
-      '@types/node': 20.12.12
+      '@types/node': 20.12.13
       '@types/unist': 2.0.10
       '@types/vfile-message': 2.0.0
 
