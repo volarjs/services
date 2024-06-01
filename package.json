@@ -10,16 +10,17 @@
 		"release:next": "npm run release:base -- --dist-tag next",
 		"postrelease": "lerna exec --no-bail --no-private --no-sort --stream -- '[ -n \"$(npm v . dist-tags.latest)\" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.latest) volar-2.3'",
 		"postrelease:next": "lerna exec --no-bail --no-private --no-sort --stream -- '[ -n \"$(npm v . dist-tags.next)\" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.next) volar-2.3'",
-		"lint": "tsl --projects **/tsconfig.json",
+		"lint": "tsslint --projects '**/tsconfig.json'",
 		"lint:fix": "npm run lint -- --fix"
 	},
 	"devDependencies": {
 		"@lerna-lite/cli": "latest",
 		"@lerna-lite/exec": "latest",
 		"@lerna-lite/publish": "latest",
+		"@tsslint/cli": "latest",
+		"@tsslint/config": "latest",
 		"@volar/language-service": "~2.3.0-alpha.1",
-		"@volar/tsl-config": "latest",
-		"tsl": "latest",
+		"@volar/tsslint-config": "latest",
 		"typescript": "latest",
 		"vscode-languageserver-protocol": "^3.17.5"
 	}
