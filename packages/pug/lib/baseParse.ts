@@ -255,7 +255,7 @@ export function baseParse(pugCode: string) {
 					if (attrToken.type === 'attribute') {
 						let attrText = pugCode.substring(
 							getDocOffset(attrToken.loc.start.line, attrToken.loc.start.column),
-							getDocOffset(attrToken.loc.end.line, attrToken.loc.end.column),
+							getDocOffset(attrToken.loc.end.line, attrToken.loc.end.column)
 						);
 						if (typeof attrToken.val === 'string' && attrText.indexOf('=') >= 0) {
 							let valText = attrToken.val;
@@ -288,7 +288,7 @@ export function baseParse(pugCode: string) {
 				function addPrevSpace(currentToken: pugLex.Token) {
 					text += pugCode.substring(
 						getDocOffset(prevToken.loc.end.line, prevToken.loc.end.column),
-						getDocOffset(currentToken.loc.start.line, currentToken.loc.start.column),
+						getDocOffset(currentToken.loc.start.line, currentToken.loc.start.column)
 					).replace(/,/g, '\n');
 				}
 			}

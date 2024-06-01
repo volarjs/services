@@ -13,12 +13,12 @@ export function register(htmlLs: html.LanguageService) {
 		const htmlResult = htmlLs.findDocumentHighlights(
 			pugDoc.map.embeddedDocument,
 			htmlPos,
-			pugDoc.htmlDocument,
+			pugDoc.htmlDocument
 		);
 
 		return transformLocations(
 			htmlResult,
-			htmlRange => pugDoc.map.getSourceRange(htmlRange),
+			htmlRange => pugDoc.map.getSourceRange(htmlRange)
 		);
 	};
 }

@@ -7,12 +7,12 @@ export function register(htmlLs: html.LanguageService) {
 
 		const htmlResult = htmlLs.findDocumentLinks(
 			pugDoc.map.embeddedDocument,
-			docContext,
+			docContext
 		);
 
 		return transformLocations(
 			htmlResult,
-			htmlRange => pugDoc.map.getSourceRange(htmlRange),
+			htmlRange => pugDoc.map.getSourceRange(htmlRange)
 		);
 	};
 }

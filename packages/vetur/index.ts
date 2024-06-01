@@ -133,7 +133,7 @@ export function create(): LanguageServicePlugin {
 
 				htmlLs.setDataProviders(
 					false,
-					getHtmlDataProviders(packageJsonPath),
+					getHtmlDataProviders(packageJsonPath)
 				);
 
 				return callback(htmlDocument);

@@ -25,7 +25,7 @@ export function register(htmlLs: html.LanguageService) {
 				docForEmptyLineCompletion,
 				posForEmptyLine,
 				htmlDocForEmptyLineCompletion,
-				options,
+				options
 			);
 			for (const item of htmlComplete.items) {
 				item.textEdit = undefined;
@@ -43,19 +43,19 @@ export function register(htmlLs: html.LanguageService) {
 			htmlPos,
 			pugDoc.htmlDocument,
 			documentContext,
-			options,
+			options
 		) : htmlLs.doComplete(
 			pugDoc.htmlTextDocument,
 			htmlPos,
 			pugDoc.htmlDocument,
-			options,
+			options
 		);
 
 		return transformCompletionList(
 			htmlComplete,
 			htmlRange => pugDoc.map.getSourceRange(htmlRange),
 			pugDoc.map.embeddedDocument,
-			serviceContext,
+			serviceContext
 		);
 	};
 }

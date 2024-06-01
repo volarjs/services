@@ -383,7 +383,7 @@ export function create({
 								}
 							}
 						}
-					}),
+					})
 				);
 				return docs;
 			}

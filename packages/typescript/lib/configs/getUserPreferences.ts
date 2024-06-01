@@ -7,7 +7,7 @@ import { URI } from 'vscode-uri';
 
 export async function getUserPreferences(
 	ctx: LanguageServiceContext,
-	document: TextDocument,
+	document: TextDocument
 ): Promise<ts.UserPreferences> {
 	let currentDirectory = '';
 	if (ctx.language.typescript) {

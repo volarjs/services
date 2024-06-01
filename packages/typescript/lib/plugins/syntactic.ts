@@ -55,7 +55,7 @@ export function create(
 	}: {
 		isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		isAutoClosingTagsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	} = {},
+	} = {}
 ): LanguageServicePlugin {
 	return {
 		name: 'typescript-syntactic',
@@ -147,7 +147,7 @@ export function create(
 							fileName,
 							document.offsetAt(range.start),
 							document.offsetAt(range.end),
-							tsOptions,
+							tsOptions
 						))
 						: safeCall(() => languageService.getFormattingEditsForDocument(fileName, tsOptions));
 					if (!scriptEdits) {

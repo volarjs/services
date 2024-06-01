@@ -11,7 +11,7 @@ export function register(htmlLs: html.LanguageService) {
 
 		const htmlResult = htmlLs.getSelectionRanges(
 			pugDoc.map.embeddedDocument,
-			htmlPosArr,
+			htmlPosArr
 		);
 
 		return transformLocations(htmlResult, htmlRange => pugDoc.map.getSourceRange(htmlRange));

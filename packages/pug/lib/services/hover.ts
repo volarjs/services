@@ -14,7 +14,7 @@ export function register(htmlLs: html.LanguageService) {
 			pugDoc.map.embeddedDocument,
 			htmlPos,
 			pugDoc.htmlDocument,
-			options,
+			options
 		);
 		if (!htmlResult) {
 			return;

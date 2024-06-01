@@ -56,7 +56,7 @@ export function create({
 
 				provideCompletionItems(document, position, _) {
 					return worker(document, pugDocument => {
-						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */);
+						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
 					});
 				},
 
@@ -108,7 +108,7 @@ export function create({
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.embeddedDocument, token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
 							htmlSymbol,
-							range => pugDoc.map.getSourceRange(range),
+							range => pugDoc.map.getSourceRange(range)
 						)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
 
 						return pugResult;

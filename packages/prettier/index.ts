@@ -56,7 +56,7 @@ export function create(
 		documentSelector?: DocumentSelector;
 		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: LanguageServiceContext): ProviderResult<Options>;
-	} = {},
+	} = {}
 ): LanguageServicePlugin {
 	return {
 		name: 'prettier',

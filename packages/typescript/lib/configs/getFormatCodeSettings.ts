@@ -6,7 +6,7 @@ import { getConfigTitle } from '../shared';
 export async function getFormatCodeSettings(
 	ctx: LanguageServiceContext,
 	document: TextDocument,
-	options: FormattingOptions | undefined,
+	options: FormattingOptions | undefined
 ): Promise<ts.FormatCodeSettings> {
 	const config = await ctx.env.getConfiguration?.<any>(getConfigTitle(document) + '.format') ?? {};
 	return {

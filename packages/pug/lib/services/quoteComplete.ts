@@ -13,7 +13,7 @@ export function register(htmlLs: html.LanguageService) {
 			pugDoc.htmlTextDocument,
 			htmlStart,
 			pugDoc.htmlDocument,
-			options,
+			options
 		);
 
 		return text;

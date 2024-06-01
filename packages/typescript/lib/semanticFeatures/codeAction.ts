@@ -82,7 +82,7 @@ export function register(ctx: SharedContext) {
 					document.offsetAt(error.range.end),
 					[Number(error.code)],
 					formatOptions,
-					preferences,
+					preferences
 				)) ?? [];
 				for (const codeFix of codeFixes) {
 					result = result.concat(convertCodeFixAction(codeFix, [error], onlyQuickFix ?? '' satisfies typeof vscode.CodeActionKind.Empty));
@@ -98,7 +98,7 @@ export function register(ctx: SharedContext) {
 						{ pos: start, end: end },
 						preferences,
 						undefined,
-						only,
+						only
 					)) ?? [];
 					for (const refactor of refactors) {
 						result = result.concat(convertApplicableRefactorInfo(refactor));
@@ -112,7 +112,7 @@ export function register(ctx: SharedContext) {
 				{ pos: start, end: end },
 				preferences,
 				undefined,
-				undefined,
+				undefined
 			)) ?? [];
 			for (const refactor of refactors) {
 				result = result.concat(convertApplicableRefactorInfo(refactor));

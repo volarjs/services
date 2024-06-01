@@ -17,7 +17,7 @@ export function convertDiagnostic(
 	diag: ts.Diagnostic,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ): vscode.Diagnostic | undefined {
 
 	if (diag.start === undefined) {
@@ -62,7 +62,7 @@ export function convertDiagnostic(
 function convertDiagnosticRelatedInformation(
 	diag: ts.Diagnostic,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ): vscode.DiagnosticRelatedInformation | undefined {
 
 	if (diag.start === undefined) {
@@ -130,7 +130,7 @@ export function applyCompletionEntryDetails(
 	data: ts.CompletionEntryDetails,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ) {
 	const { sourceDisplay } = data;
 	if (sourceDisplay) {
@@ -172,7 +172,7 @@ export function convertCompletionInfo<T>(
 	completionContext: ts.CompletionInfo,
 	document: TextDocument,
 	position: vscode.Position,
-	createData: (tsEntry: ts.CompletionEntry) => T,
+	createData: (tsEntry: ts.CompletionEntry) => T
 ): vscode.CompletionList {
 	const lt_320 = semver.lt(ts.version, '3.2.0');
 	const gte_300 = semver.gte(ts.version, '3.0.0');
@@ -391,7 +391,7 @@ export function convertCompletionInfo<T>(
 
 	function isInValidCommitCharacterContext(
 		document: TextDocument,
-		position: vscode.Position,
+		position: vscode.Position
 	): boolean {
 		if (lt_320) {
 			// Workaround for https://github.com/microsoft/TypeScript/issues/27742
@@ -529,7 +529,7 @@ export function getLineText(document: TextDocument, line: number) {
 
 export function convertNavigateToItem(
 	item: ts.NavigateToItem,
-	document: TextDocument,
+	document: TextDocument
 ) {
 	const info: vscode.WorkspaceSymbol = {
 		name: getLabel(item),
@@ -614,7 +614,7 @@ export function convertSelectionRange(range: ts.SelectionRange, document: TextDo
 export function convertFileTextChanges(
 	changes: readonly ts.FileTextChanges[],
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 	for (const change of changes) {
@@ -658,7 +658,7 @@ export function convertRenameLocations(
 	newText: string,
 	locations: readonly ts.RenameLocation[],
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ) {
 	const workspaceEdit: vscode.WorkspaceEdit = {};
 	for (const location of locations) {
@@ -692,7 +692,7 @@ export function convertQuickInfo(
 	info: ts.QuickInfo,
 	document: TextDocument,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined,
+	getTextDocument: (uri: URI) => TextDocument | undefined
 ): vscode.Hover {
 	const parts: string[] = [];
 	const displayString = ts.displayPartsToString(info.displayParts);
@@ -700,7 +700,7 @@ export function convertQuickInfo(
 		info.documentation ?? [],
 		info.tags,
 		fileNameToUri,
-		getTextDocument,
+		getTextDocument
 	);
 	if (displayString) {
 		parts.push(['```typescript', displayString, '```'].join('\n'));
