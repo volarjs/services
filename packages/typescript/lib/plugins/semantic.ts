@@ -206,7 +206,8 @@ export function create(
 				fileNameToUri(fileName) {
 					const extraServiceScript = getExtraServiceScript(fileName);
 					if (extraServiceScript) {
-						return context.encodeEmbeddedDocumentUri(extraServiceScript[0].id, extraServiceScript[1].code.id);
+						const sourceScript = context.language.scripts.fromVirtualCode(extraServiceScript.code);
+						return context.encodeEmbeddedDocumentUri(sourceScript.id, extraServiceScript.code.id);
 					}
 
 					const uri = asScriptId(fileName);

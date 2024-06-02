@@ -29,7 +29,7 @@
 		"vscode-uri": "^3.0.8"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.3.0-alpha.1"
+		"@volar/language-service": "~2.3.0-alpha.5"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
