@@ -12,10 +12,16 @@ export interface Provide {
 
 export function create({
 	documentSelector = ['jade'],
+	configurationSections = {
+		autoCreateQuotes: 'html.autoCreateQuotes',
+	},
 	getCustomData,
 	onDidChangeCustomData,
 }: {
 	documentSelector?: DocumentSelector;
+	configurationSections?: {
+		autoCreateQuotes: string;
+	};
 	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
@@ -37,7 +43,7 @@ export function create({
 			selectionRangeProvider: true,
 			autoInsertionProvider: {
 				triggerCharacters: ['='],
-				configurationSections: ['html.autoCreateQuotes'],
+				configurationSections: [configurationSections.autoCreateQuotes],
 			},
 		},
 		create(context, languageService): LanguageServicePluginInstance<Provide> {
@@ -135,7 +141,7 @@ export function create({
 					return worker(document, async pugDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
-							const enabled = (await context.env.getConfiguration?.<boolean>('html.autoCreateQuotes')) ?? true;
+							const enabled = (await context.env.getConfiguration?.<boolean>(configurationSections.autoCreateQuotes)) ?? true;
 
 							if (enabled) {
 

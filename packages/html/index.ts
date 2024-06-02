@@ -12,6 +12,10 @@ export interface Provide {
 
 export function create({
 	documentSelector = ['html'],
+	configurationSections = {
+		autoCreateQuotes: 'html.autoCreateQuotes',
+		autoClosingTags: 'html.autoClosingTags',
+	},
 	useDefaultDataProvider = true,
 	getDocumentContext = context => {
 		return {
@@ -91,6 +95,10 @@ export function create({
 	},
 }: {
 	documentSelector?: DocumentSelector;
+	configurationSections?: {
+		autoCreateQuotes: string;
+		autoClosingTags: string;
+	};
 	useDefaultDataProvider?: boolean;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	isAutoCreateQuotesEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
@@ -102,10 +110,6 @@ export function create({
 	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
-	const configurationSections = {
-		autoCreateQuotes: 'html.autoCreateQuotes',
-		autoClosingTags: 'html.autoClosingTags',
-	};
 	return {
 		name: 'html',
 		capabilities: {
@@ -359,7 +363,7 @@ export function create({
 					return worker(document, async htmlDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
-							const enabled = await context.env.getConfiguration?.('html.autoCreateQuotes') ?? true;
+							const enabled = await context.env.getConfiguration?.(configurationSections.autoCreateQuotes) ?? true;
 
 							if (enabled) {
 
@@ -373,7 +377,7 @@ export function create({
 						}
 						if (change.rangeLength === 0 && (change.text.endsWith('>') || change.text.endsWith('/'))) {
 
-							const enabled = await context.env.getConfiguration?.('html.autoClosingTags') ?? true;
+							const enabled = await context.env.getConfiguration?.(configurationSections.autoClosingTags) ?? true;
 
 							if (enabled) {
 
