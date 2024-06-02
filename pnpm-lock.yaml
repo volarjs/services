@@ -19,16 +19,16 @@ importers:
         version: 3.4.0(@lerna-lite/exec@3.4.0)(typescript@5.4.5)
       '@tsslint/cli':
         specifier: latest
-        version: 0.0.11(typescript@5.4.5)
+        version: 0.0.12(typescript@5.4.5)
       '@tsslint/config':
         specifier: latest
-        version: 0.0.11
+        version: 0.0.12
       '@volar/language-service':
         specifier: ~2.3.0-alpha.5
         version: 2.3.0-alpha.5
       '@volar/tsslint-config':
         specifier: latest
-        version: 0.0.0-20240602(@tsslint/config@0.0.11)
+        version: 0.0.0-20240602(@tsslint/config@0.0.12)
       typescript:
         specifier: latest
         version: 5.4.5
@@ -53,7 +53,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
 
   packages/emmet:
     dependencies:
@@ -75,7 +75,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
 
   packages/html:
     dependencies:
@@ -94,7 +94,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
 
   packages/json:
     dependencies:
@@ -148,7 +148,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
       prettier:
         specifier: ^3.0.3
         version: 3.2.5
@@ -174,7 +174,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       volar-service-html:
-        specifier: 0.0.49
+        specifier: 0.0.50
         version: link:../html
       vscode-html-languageservice:
         specifier: npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462
@@ -185,7 +185,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
 
   packages/pug-beautify:
     dependencies:
@@ -198,7 +198,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
 
   packages/sass-formatter:
     dependencies:
@@ -250,7 +250,7 @@ importers:
         version: 3.0.8
     devDependencies:
       volar-service-typescript:
-        specifier: 0.0.49
+        specifier: 0.0.50
         version: link:../typescript
 
   packages/vetur:
@@ -270,7 +270,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: latest
-        version: 20.12.13
+        version: 20.13.0
 
   packages/yaml:
     dependencies:
@@ -751,17 +751,17 @@ packages:
     resolution: {integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==}
     engines: {node: '>=6'}
 
-  '@tsslint/cli@0.0.11':
-    resolution: {integrity: sha512-4qC7S+yGtdUIVHOz2L7Y62E5tN3D7uV6h9XW53Xypb0Hmpi28nm0JH3ZdeUyN8sW02znLAyx53KbWlAQGmHNQQ==}
+  '@tsslint/cli@0.0.12':
+    resolution: {integrity: sha512-Tk93hP6eoPYHoQMGqrmrTas8gfX5CLSqaX9KZBUkx9A3U9/9B2KowOe1bo2vZjXZCIvFKa/8dovr61nmsvFylg==}
     hasBin: true
     peerDependencies:
       typescript: '*'
 
-  '@tsslint/config@0.0.11':
-    resolution: {integrity: sha512-pcq9CpwL2W4IiiTT2MpdMJeHInXvOLmIANjAh80tJaxV75S8z1pi7IUIkzgFxTLOUIRskWq1Xn0BlTD76t8l1Q==}
+  '@tsslint/config@0.0.12':
+    resolution: {integrity: sha512-SCgNA7y4tCvRVGZrb0kTd/XkEyhs11zu4awC9CzFLyzj6DKlJR82oOqPQo6xKM0xEuyl6h2rysF2LJwFPL3PHA==}
 
-  '@tsslint/core@0.0.11':
-    resolution: {integrity: sha512-MLGN6HrdvoQIgaPMw4d+Ky7e92Os/9OzOhSi0kY/J+KHw+bADQDFgZA24QC9DGUWhy30k3Kpw1FooqGyCNyByA==}
+  '@tsslint/core@0.0.12':
+    resolution: {integrity: sha512-UkNNGzoX0Kd2FlVO2qzGXd4ZZzBuz34WVrWR+gBTJMo2K1fDV/sSjgNF7tjdeikJg/tgcKk4O6xkBbzdrchESQ==}
 
   '@tufjs/canonical-json@2.0.0':
     resolution: {integrity: sha512-yVtV8zsdo8qFHe+/3kw81dSLyF7D576A5cCFCi4X7B39tWT7SekaEFUnvnWJHz+9qO7qJTah1JbrDjWKqFtdWA==}
@@ -783,8 +783,8 @@ packages:
   '@types/mdurl@1.0.5':
     resolution: {integrity: sha512-6L6VymKTzYSrEf4Nev4Xa1LCHKrlTlYCBMTlQKFuddo1CvQcE52I0mwfOJayueUC7MJuXOeHTcIU683lzd0cUA==}
 
-  '@types/node@20.12.13':
-    resolution: {integrity: sha512-gBGeanV41c1L171rR7wjbMiEpEI/l5XFQdLLfhr/REwpgDy/4U8y89+i8kRiLzDyZdOkXh+cRaTetUnCYutoXA==}
+  '@types/node@20.13.0':
+    resolution: {integrity: sha512-FM6AOb3khNkNIXPnHFDYaHerSv8uN22C91z098AnGccVu+Pcdhi+pNUFDi0iLmPIsVE0JBD0KVS7mzUYt4nRzQ==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -918,6 +918,7 @@ packages:
   are-we-there-yet@4.0.2:
     resolution: {integrity: sha512-ncSWAawFhKMJDTdoAeOV+jyW1VCMj5QIAwULIBV0SSR7B/RLPPEQiknKcg/RIIZlUQrxELpsxMiTUoAQ4sIUyg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    deprecated: This package is no longer supported.
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -1553,6 +1554,7 @@ packages:
   gauge@5.0.2:
     resolution: {integrity: sha512-pMaFftXPtiGIHCJHdcUUx9Rby/rFT/Kkt3fIIGCs+9PMDIljSyRiqraTlxNtBReJRDfUefpa263RQ3vnp5G/LQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    deprecated: This package is no longer supported.
 
   get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
@@ -2372,6 +2374,7 @@ packages:
   npmlog@7.0.1:
     resolution: {integrity: sha512-uJ0YFk/mCQpLBt+bxN88AKd+gyqZvZDbtiNxk6Waqcj2aPRyfVx8ITawkyQynxUagInjdYT1+qj4NfA5KJJUxg==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    deprecated: This package is no longer supported.
 
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
@@ -2679,6 +2682,7 @@ packages:
   read-package-json@7.0.1:
     resolution: {integrity: sha512-8PcDiZ8DXUjLf687Ol4BR8Bpm2umR7vhoZOzNRt+uxD9GpBh/K+CAAALVIiYFknmvlmyg7hM7BSNUXPaCCqd0Q==}
     engines: {node: ^16.14.0 || >=18.0.0}
+    deprecated: This package is no longer supported. Please use @npmcli/package-json instead.
 
   read-pkg-up@10.1.0:
     resolution: {integrity: sha512-aNtBq4jR8NawpKJQldrQcSW9y/d+KWH4v24HWkHljOZ7H0av+YTGANBzRh9A5pw7v/bLVsLVPpOhJ7gHNVy8lA==}
@@ -4102,19 +4106,19 @@ snapshots:
     dependencies:
       defer-to-connect: 1.1.3
 
-  '@tsslint/cli@0.0.11(typescript@5.4.5)':
+  '@tsslint/cli@0.0.12(typescript@5.4.5)':
     dependencies:
       '@clack/prompts': 0.7.0
-      '@tsslint/config': 0.0.11
-      '@tsslint/core': 0.0.11
+      '@tsslint/config': 0.0.12
+      '@tsslint/core': 0.0.12
       glob: 10.3.15
       typescript: 5.4.5
 
-  '@tsslint/config@0.0.11':
+  '@tsslint/config@0.0.12':
     dependencies:
       esbuild: 0.19.12
 
-  '@tsslint/core@0.0.11':
+  '@tsslint/core@0.0.12':
     dependencies:
       error-stack-parser: 2.1.4
       source-map-support: 0.5.21
@@ -4128,7 +4132,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.12.13
+      '@types/node': 20.13.0
 
   '@types/linkify-it@3.0.5': {}
 
@@ -4139,7 +4143,7 @@ snapshots:
 
   '@types/mdurl@1.0.5': {}
 
-  '@types/node@20.12.13':
+  '@types/node@20.13.0':
     dependencies:
       undici-types: 5.26.5
 
@@ -4149,7 +4153,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.12.13
+      '@types/node': 20.13.0
 
   '@types/semver@7.5.8': {}
 
@@ -4163,7 +4167,7 @@ snapshots:
 
   '@types/vfile@3.0.2':
     dependencies:
-      '@types/node': 20.12.13
+      '@types/node': 20.13.0
       '@types/unist': 2.0.10
       '@types/vfile-message': 2.0.0
 
@@ -4184,9 +4188,9 @@ snapshots:
     dependencies:
       muggle-string: 0.4.1
 
-  '@volar/tsslint-config@0.0.0-20240602(@tsslint/config@0.0.11)':
+  '@volar/tsslint-config@0.0.0-20240602(@tsslint/config@0.0.12)':
     dependencies:
-      '@tsslint/config': 0.0.11
+      '@tsslint/config': 0.0.12
 
   '@vscode/emmet-helper@2.9.3':
     dependencies:
