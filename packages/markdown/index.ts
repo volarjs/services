@@ -67,7 +67,7 @@ export function create({
 			const parser: IMdParser = {
 				slugifier: githubSlugifier,
 				async tokenize(document) {
-					return md.parse(document.getText(), {});
+					return await md.parse(document.getText(), {});
 				}
 			};
 			const workspace = getMarkdownWorkspace();
@@ -294,7 +294,7 @@ export function create({
 					onDidDeleteMarkdownDocument: onDidDeleteMarkdownDocument.event,
 
 					async openMarkdownDocument(resource) {
-						return getTextDocument(resource);
+						return await getTextDocument(resource);
 					},
 
 					async readDirectory(resource) {

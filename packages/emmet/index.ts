@@ -27,7 +27,7 @@ export function create({
 
 				isAdditionalCompletion: true,
 
-				async provideCompletionItems(document, position, completionContext) {
+				provideCompletionItems(document, position, completionContext) {
 					const completionResult = provideCompletionItemsInternal(document, position, completionContext);
 					if (!completionResult) {
 						lastCompletionType = undefined;

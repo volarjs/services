@@ -677,11 +677,11 @@ export function create(
 					});
 				},
 
-				async provideDiagnostics(document, token) {
+				provideDiagnostics(document, token) {
 					return provideDiagnosticsWorker(document, token, 'syntactic');
 				},
 
-				async provideSemanticDiagnostics(document, token) {
+				provideSemanticDiagnostics(document, token) {
 					return provideDiagnosticsWorker(document, token, 'semantic');
 				},
 
