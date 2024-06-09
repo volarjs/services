@@ -19,8 +19,7 @@
 		"@lerna-lite/publish": "latest",
 		"@tsslint/cli": "latest",
 		"@tsslint/config": "latest",
-		"@volar/language-service": "~2.3.0-alpha.5",
-		"typescript": "latest",
-		"vscode-languageserver-protocol": "^3.17.5"
+		"@volar/language-service": "~2.3.0",
+		"typescript": "latest"
 	}
 }

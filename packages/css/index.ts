@@ -102,7 +102,7 @@ export function create({
 			},
 			codeActionProvider: {},
 			definitionProvider: true,
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			hoverProvider: true,
 			referencesProvider: true,
 			documentHighlightProvider: true,

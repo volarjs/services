@@ -90,7 +90,7 @@ export function create({
 				resolveProvider: true,
 			},
 			definitionProvider: true,
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			hoverProvider: true,
 			documentLinkProvider: {},
 			documentSymbolProvider: true,

@@ -41,7 +41,7 @@ export function create({
 				triggerCharacters: ['.', '/', '#'],
 			},
 			definitionProvider: true,
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			documentHighlightProvider: true,
 			documentLinkProvider: {
 				resolveProvider: true,

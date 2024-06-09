@@ -58,7 +58,7 @@ export function create({
 				triggerCharacters: [' ', ':'],
 			},
 			definitionProvider: true,
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			documentSymbolProvider: true,
 			hoverProvider: true,
 			documentLinkProvider: {},

@@ -34,7 +34,7 @@ export function create({
 		name: 'pug',
 		capabilities: {
 			completionProvider: {},
-			diagnosticProvider: true,
+			diagnosticProvider: {},
 			hoverProvider: true,
 			documentHighlightProvider: true,
 			documentLinkProvider: {},
@@ -46,9 +46,9 @@ export function create({
 				configurationSections: [configurationSections.autoCreateQuotes],
 			},
 		},
-		create(context, languageService): LanguageServicePluginInstance<Provide> {
+		create(context): LanguageServicePluginInstance<Provide> {
 
-			const htmlService = _htmlService.create(context, languageService);
+			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
 

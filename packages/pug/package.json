@@ -24,11 +24,11 @@
 		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
-		"@volar/language-service": "~2.3.0-alpha.5",
+		"@volar/language-service": "~2.3.0",
 		"pug-lexer": "^5.0.1",
 		"pug-parser": "^6.0.0",
 		"volar-service-html": "0.0.50",
-		"vscode-html-languageservice": "npm:@johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462",
+		"vscode-html-languageservice": "^5.2.0",
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"devDependencies": {
