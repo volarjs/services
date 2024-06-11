@@ -275,7 +275,7 @@ importers:
         specifier: ^3.0.8
         version: 3.0.8
       yaml-language-server:
-        specifier: 1.15.0
+        specifier: ~1.15.0
         version: 1.15.0
     devDependencies:
       vscode-languageserver-textdocument:
