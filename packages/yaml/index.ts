@@ -59,6 +59,9 @@ export function create({
 			},
 			definitionProvider: true,
 			diagnosticProvider: {},
+			documentOnTypeFormattingProvider: {
+				triggerCharacters: ['\n']
+			},
 			documentSymbolProvider: true,
 			hoverProvider: true,
 			documentLinkProvider: {},
@@ -146,6 +149,12 @@ export function create({
 				provideFoldingRanges(document) {
 					return worker(document, () => {
 						return ls.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange ?? {});
+					});
+				},
+
+				provideOnTypeFormattingEdits(document, position, key, options) {
+					return worker(document, () => {
+						return ls.doDocumentOnTypeFormatting(document, { ch: key, options, position, textDocument: document });
 					});
 				},
 
