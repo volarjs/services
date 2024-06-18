@@ -161,6 +161,9 @@ importers:
       '@volar/language-service':
         specifier: ~2.3.0
         version: 2.3.0
+      muggle-string:
+        specifier: ^0.4.1
+        version: 0.4.1
       pug-lexer:
         specifier: ^5.0.1
         version: 5.0.1

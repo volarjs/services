@@ -1,6 +1,7 @@
-import { Segment, buildMappings, toString } from '@volar/language-service';
+import { Segment, toString } from 'muggle-string';
 import * as pugLex from 'pug-lexer';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { buildMappings } from './buildMappings';
 
 const pugParser = require('pug-parser');
 
