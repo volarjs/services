@@ -24,7 +24,7 @@ import * as tsWithImportCache from 'typescript-auto-import-cache';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
-import { getConfigTitle, isJsonDocument, isTsDocument, notEmpty, safeCall } from '../shared';
+import { getConfigTitle, isJsonDocument, isTsDocument, safeCall } from '../shared';
 import {
 	applyCompletionEntryDetails,
 	convertCallHierarchyIncomingCall,
@@ -822,7 +822,7 @@ export function create(
 						return items
 							.filter(item => item.containerName || item.kind !== 'alias')
 							.map(item => convertNavigateToItem(item, ctx.getTextDocument(ctx.fileNameToUri(item.fileName))!))
-							.filter(notEmpty);
+							.filter(item => !!item);
 					});
 				},
 
@@ -864,7 +864,7 @@ export function create(
 								}
 								return convertSelectionRange(range, document);
 							})
-							.filter(notEmpty);
+							.filter(position => !!position);
 					});
 				},
 
@@ -964,7 +964,7 @@ export function create(
 
 						return [...syntacticDiagnostics, ...suggestionDiagnostics]
 							.map(diagnostic => convertDiagnostic(diagnostic, document, ctx.fileNameToUri, ctx.getTextDocument))
-							.filter(notEmpty);
+							.filter(diagnostic => !!diagnostic);
 					}
 					else if (mode === 'semantic') {
 						const semanticDiagnostics = safeCall(() => program.getSemanticDiagnostics(sourceFile, token)) ?? [];
@@ -974,7 +974,7 @@ export function create(
 
 						return [...semanticDiagnostics, ...declarationDiagnostics]
 							.map(diagnostic => convertDiagnostic(diagnostic, document, ctx.fileNameToUri, ctx.getTextDocument))
-							.filter(notEmpty);
+							.filter(diagnostic => !!diagnostic);
 					}
 				});
 			}

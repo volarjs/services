@@ -6,7 +6,6 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { URI } from 'vscode-uri';
 import * as PConst from '../protocol.const';
 import type { SharedContext } from '../semanticFeatures/types';
-import { notEmpty } from '../shared';
 import { parseKindModifier } from '../utils/modifiers';
 import * as previewer from '../utils/previewer';
 import * as typeConverters from '../utils/typeConverters';
@@ -852,7 +851,7 @@ export function convertCallHierarchyIncomingCall(item: ts.CallHierarchyIncomingC
 		from: convertCallHierarchyItem(item.from, ctx),
 		fromRanges: item.fromSpans
 			.map(span => convertTextSpan(span, document))
-			.filter(notEmpty),
+			.filter(span => !!span),
 	};
 }
 
@@ -861,7 +860,7 @@ export function convertCallHierarchyOutgoingCall(item: ts.CallHierarchyOutgoingC
 		to: convertCallHierarchyItem(item.to, ctx),
 		fromRanges: item.fromSpans
 			.map(span => convertTextSpan(span, fromDocument))
-			.filter(notEmpty),
+			.filter(span => !!span),
 	};
 }
 
@@ -917,7 +916,7 @@ export function convertDefinitionInfoAndBoundSpan(info: ts.DefinitionInfoAndBoun
 				return link;
 			}
 		})
-		.filter(notEmpty);
+		.filter(entry => !!entry);
 }
 
 export function convertDocumentSpantoLocationLink(documentSpan: ts.DocumentSpan, ctx: SharedContext): vscode.LocationLink {
