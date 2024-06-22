@@ -23,7 +23,7 @@ export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 		tokenModifiersTable[TokenModifier.declaration] = 1 << legend.tokenModifiers.indexOf('declaration');
 		tokenModifiersTable[TokenModifier.readonly] = 1 << legend.tokenModifiers.indexOf('readonly');
 		tokenModifiersTable[TokenModifier.static] = 1 << legend.tokenModifiers.indexOf('static');
-		tokenModifiersTable[TokenModifier.local] = 1 << legend.tokenModifiers.indexOf('local'); // missing in server tokenModifiers
+		tokenModifiersTable[TokenModifier.local] = 1 << legend.tokenModifiers.indexOf('local');
 		tokenModifiersTable[TokenModifier.defaultLibrary] = 1 << legend.tokenModifiers.indexOf('defaultLibrary');
 		tokenModifiersTable = tokenModifiersTable.map(mod => Math.max(mod, 0));
 
@@ -146,7 +146,7 @@ tokenModifiers[TokenModifier.async] = 'async';
 tokenModifiers[TokenModifier.declaration] = 'declaration';
 tokenModifiers[TokenModifier.readonly] = 'readonly';
 tokenModifiers[TokenModifier.static] = 'static';
-tokenModifiers[TokenModifier.local] = 'local'; // missing in server tokenModifiers
+tokenModifiers[TokenModifier.local] = 'local';
 tokenModifiers[TokenModifier.defaultLibrary] = 'defaultLibrary';
 
 // mapping for the original ExperimentalProtocol.ClassificationType from TypeScript (only used when plugin is not available)
