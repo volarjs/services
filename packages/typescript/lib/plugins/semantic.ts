@@ -268,7 +268,9 @@ export function create(
 				function updateSourceScriptFileNames() {
 					sourceScriptNames.clear();
 					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const uri = ctx.fileNameToUri(fileName);
+						const maybeEmbeddedUri = ctx.fileNameToUri(fileName);
+						const decoded = context.decodeEmbeddedDocumentUri(maybeEmbeddedUri);
+						const uri = decoded ? decoded[0] : maybeEmbeddedUri;
 						const sourceScript = context.language.scripts.get(uri);
 						if (sourceScript?.generated) {
 							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
