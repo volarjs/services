@@ -2,6 +2,7 @@ import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
 import { LanguageServiceContext, transformCompletionList } from '@volar/language-service';
+import { getGeneratedPositions, getSourceRange } from '@volar/language-service/lib/utils/featureWorkers';
 
 export function register(htmlLs: html.LanguageService) {
 
@@ -33,29 +34,26 @@ export function register(htmlLs: html.LanguageService) {
 			return htmlComplete;
 		}
 
-		const htmlPos = pugDoc.map.getGeneratedPosition(pos);
-		if (!htmlPos) {
-			return;
+		for (const htmlPos of getGeneratedPositions(pugDoc.docs, pos)) {
+			const htmlComplete = documentContext ? await htmlLs.doComplete2(
+				pugDoc.docs[1],
+				htmlPos,
+				pugDoc.htmlDocument,
+				documentContext,
+				options
+			) : htmlLs.doComplete(
+				pugDoc.docs[1],
+				htmlPos,
+				pugDoc.htmlDocument,
+				options
+			);
+
+			return transformCompletionList(
+				htmlComplete,
+				htmlRange => getSourceRange(pugDoc.docs, htmlRange),
+				pugDoc.docs[1],
+				serviceContext
+			);
 		}
-
-		const htmlComplete = documentContext ? await htmlLs.doComplete2(
-			pugDoc.htmlTextDocument,
-			htmlPos,
-			pugDoc.htmlDocument,
-			documentContext,
-			options
-		) : htmlLs.doComplete(
-			pugDoc.htmlTextDocument,
-			htmlPos,
-			pugDoc.htmlDocument,
-			options
-		);
-
-		return transformCompletionList(
-			htmlComplete,
-			htmlRange => pugDoc.map.getSourceRange(htmlRange),
-			pugDoc.map.embeddedDocument,
-			serviceContext
-		);
 	};
 }

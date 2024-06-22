@@ -1,5 +1,6 @@
-import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, ProviderResult } from '@volar/language-service';
 import { transformDocumentSymbol } from '@volar/language-service';
+import { getSourceRange } from '@volar/language-service/lib/utils/featureWorkers';
 import { create as createHtmlService } from 'volar-service-html';
 import type * as html from 'vscode-html-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
@@ -111,10 +112,10 @@ export function create({
 				provideDocumentSymbols(document, token) {
 					return worker(document, async pugDoc => {
 
-						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.map.embeddedDocument, token) ?? [];
+						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.docs[1], token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
 							htmlSymbol,
-							range => pugDoc.map.getSourceRange(range)
+							range => getSourceRange(pugDoc.docs, range)
 						)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
 
 						return pugResult;

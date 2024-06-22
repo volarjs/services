@@ -1,4 +1,5 @@
-import { SourceMap, SourceMapWithDocuments } from '@volar/language-service';
+import { defaultMapperFactory } from '@volar/language-service';
+import type { DocumentsAndMap } from '@volar/language-service/lib/utils/featureWorkers';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { baseParse } from './baseParse';
@@ -11,18 +12,17 @@ export function register(htmlLs: html.LanguageService) {
 
 		const parsed = baseParse(pugCode);
 		const htmlTextDocument = TextDocument.create('foo.html', 'html', 0, parsed.htmlCode);
-		const sourceMap = new SourceMapWithDocuments(
+		const htmlDocument = htmlLs.parseHTMLDocument(htmlTextDocument);
+		const docs: DocumentsAndMap = [
 			parsed.pugTextDocument,
 			htmlTextDocument,
-			new SourceMap(parsed.mappings),
-		);
-		const htmlDocument = htmlLs.parseHTMLDocument(htmlTextDocument);
+			defaultMapperFactory(parsed.mappings),
+		];
 
 		return {
 			...parsed,
-			htmlTextDocument,
 			htmlDocument,
-			map: sourceMap,
+			docs,
 		};
 	};
 }
