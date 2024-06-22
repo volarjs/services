@@ -4,6 +4,7 @@
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b -w",
+		"test": "vitest run",
 		"prerelease": "npm run build",
 		"release:base": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
 		"release": "npm run release:base",
@@ -20,6 +21,7 @@
 		"@tsslint/cli": "latest",
 		"@tsslint/config": "latest",
 		"@volar/language-service": "~2.3.1",
-		"typescript": "latest"
+		"typescript": "latest",
+		"vitest": "latest"
 	}
 }

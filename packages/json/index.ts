@@ -15,18 +15,45 @@ export interface JSONSchemaSettings {
 	folderUri?: string;
 }
 
+export function resolveReference(ref: string, baseUri: URI, workspaceFolders: URI[]) {
+	if (ref.match(/^\w[\w\d+.-]*:/)) {
+		// starts with a schema
+		return ref;
+	}
+	if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+		const folderUri = getRootFolder();
+		if (folderUri) {
+			return folderUri + ref.substr(1);
+		}
+	}
+	const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+	return Utils.resolvePath(baseUriDir, ref).toString(true);
+
+	function getRootFolder(): string | undefined {
+		for (const folder of workspaceFolders) {
+			let folderURI = folder.toString();
+			if (!folderURI.endsWith('/')) {
+				folderURI = folderURI + '/';
+			}
+			if (baseUri.toString().startsWith(folderURI)) {
+				return folderURI;
+			}
+		}
+	}
+}
+
 export function create({
 	documentSelector = ['json', 'jsonc'],
 	getWorkspaceContextService = context => {
 		return {
-			resolveRelativePath(relativePath, resource) {
+			resolveRelativePath(ref, resource) {
 				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
 				let baseUri = URI.parse(base);
 				const decoded = context.decodeEmbeddedDocumentUri(baseUri);
 				if (decoded) {
 					baseUri = decoded[0];
 				}
-				return Utils.resolvePath(baseUri, relativePath).toString();
+				return resolveReference(ref, baseUri, context.env.workspaceFolders);
 			},
 		};
 	},

@@ -8,6 +8,33 @@ export interface Provide {
 	'css/languageService': (document: TextDocument) => css.LanguageService | undefined;
 }
 
+export function resolveReference(ref: string, baseUri: URI, workspaceFolders: URI[]) {
+	if (ref.match(/^\w[\w\d+.-]*:/)) {
+		// starts with a schema
+		return ref;
+	}
+	if (ref[0] === '/') { // resolve absolute path against the current workspace folder
+		const folderUri = getRootFolder();
+		if (folderUri) {
+			return folderUri + ref.substr(1);
+		}
+	}
+	const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
+	return Utils.resolvePath(baseUriDir, ref).toString(true);
+
+	function getRootFolder(): string | undefined {
+		for (const folder of workspaceFolders) {
+			let folderURI = folder.toString();
+			if (!folderURI.endsWith('/')) {
+				folderURI = folderURI + '/';
+			}
+			if (baseUri.toString().startsWith(folderURI)) {
+				return folderURI;
+			}
+		}
+	}
+}
+
 export function create({
 	cssDocumentSelector = ['css'],
 	scssDocumentSelector = ['scss'],
@@ -21,19 +48,7 @@ export function create({
 				if (decoded) {
 					baseUri = decoded[0];
 				}
-				if (ref.match(/^\w[\w\d+.-]*:/)) {
-					// starts with a schema
-					return ref;
-				}
-				if (ref[0] === '/' && context.env.workspaceFolders.length) { // resolve absolute path against the current workspace folder
-					let folderUri = context.env.workspaceFolders[0].toString();
-					if (!folderUri.endsWith('/')) {
-						folderUri += '/';
-					}
-					return folderUri + ref.substring(1);
-				}
-				const baseUriDir = baseUri.path.endsWith('/') ? baseUri : Utils.dirname(baseUri);
-				return Utils.resolvePath(baseUriDir, ref).toString(true);
+				return resolveReference(ref, baseUri, context.env.workspaceFolders);
 			},
 		};
 	},
