@@ -27,11 +27,15 @@ export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 		tokenModifiersTable[TokenModifier.defaultLibrary] = 1 << legend.tokenModifiers.indexOf('defaultLibrary');
 		tokenModifiersTable = tokenModifiersTable.map(mod => Math.max(mod, 0));
 
+		const end = start + length;
 		const tokenSpan = response.spans;
 		const tokens: [number, number, number, number, number][] = [];
 		let i = 0;
 		while (i < tokenSpan.length) {
 			const offset = tokenSpan[i++];
+			if (offset >= end) {
+				break;
+			}
 			const length = tokenSpan[i++];
 			const tsClassification = tokenSpan[i++];
 
