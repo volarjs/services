@@ -1,29 +1,34 @@
 import type {
 	CancellationToken,
+	CodeActionKind,
 	CompletionItemKind,
 	DocumentHighlight,
 	FileChangeType,
+	FormattingOptions,
 	InsertTextFormat,
-	Location,
-	ParameterInformation,
-	ProviderResult,
 	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
+	Location,
+	ParameterInformation,
+	ProviderResult,
 	SignatureHelpTriggerKind,
 	SignatureInformation,
 	VirtualCode,
 	WorkspaceEdit,
-	FormattingOptions,
-	CodeActionKind,
 } from '@volar/language-service';
 import * as path from 'path-browserify';
 import * as semver from 'semver';
 import type * as ts from 'typescript';
 import * as tsWithImportCache from 'typescript-auto-import-cache';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
+import * as codeActions from '../semanticFeatures/codeAction';
+import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
+import * as semanticTokens from '../semanticFeatures/semanticTokens';
+import type { SharedContext } from '../semanticFeatures/types';
 import { getConfigTitle, isJsonDocument, isTsDocument, safeCall } from '../shared';
 import {
 	applyCompletionEntryDetails,
@@ -41,16 +46,10 @@ import {
 	convertNavigateToItem,
 	convertQuickInfo,
 	convertRenameLocations,
-	convertSelectionRange,
 	convertTextSpan,
 	getLineText
 } from '../utils/lspConverters';
 import { snippetForFunctionCall } from '../utils/snippetForFunctionCall';
-import * as codeActions from '../semanticFeatures/codeAction';
-import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
-import * as semanticTokens from '../semanticFeatures/semanticTokens';
-import type { SharedContext } from '../semanticFeatures/types';
-import { URI } from 'vscode-uri';
 
 export interface Provide {
 	'typescript/languageService': () => ts.LanguageService;
@@ -159,7 +158,6 @@ export function create(
 			},
 			workspaceSymbolProvider: true,
 			// fileRenameEdits: true,
-			selectionRangeProvider: true,
 			signatureHelpProvider: {
 				triggerCharacters: ['(', ',', '<'],
 				retriggerCharacters: [')'],
@@ -829,29 +827,6 @@ export function create(
 						}
 
 						return convertFileTextChanges(response, ctx.fileNameToUri, ctx.getTextDocument);
-					});
-				},
-
-				provideSelectionRanges(document, positions, token) {
-
-					const uri = URI.parse(document.uri);
-
-					if (!isSemanticDocument(uri, document)) {
-						return;
-					}
-
-					return worker(token, () => {
-						return positions
-							.map(position => {
-								const fileName = ctx.uriToFileName(uri);
-								const offset = document.offsetAt(position);
-								const range = safeCall(() => ctx.languageService.getSmartSelectionRange(fileName, offset));
-								if (!range) {
-									return;
-								}
-								return convertSelectionRange(range, document);
-							})
-							.filter(position => !!position);
 					});
 				},
 

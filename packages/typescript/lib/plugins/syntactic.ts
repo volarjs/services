@@ -1,19 +1,20 @@
 import type {
-	ProviderResult,
 	LanguageServiceContext,
 	LanguageServicePlugin,
-	LanguageServicePluginInstance
+	LanguageServicePluginInstance,
+	ProviderResult
 } from '@volar/language-service';
+import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getConfigTitle, isTsDocument, safeCall } from '../shared';
+import { createSyntaxOnlyService } from '../syntaxOnlyService';
 import {
 	convertNavTree,
 	convertOutliningSpan,
+	convertSelectionRange,
 	convertTextChange
 } from '../utils/lspConverters';
-import { createSyntaxOnlyService } from '../syntaxOnlyService';
-import type * as ts from 'typescript';
 
 const snapshots = new WeakMap<TextDocument, [number, ts.IScriptSnapshot]>();
 
@@ -65,6 +66,7 @@ export function create(
 				configurationSections: ['javascript.autoClosingTags', 'typescript.autoClosingTags'],
 			},
 			foldingRangeProvider: true,
+			selectionRangeProvider: true,
 			documentSymbolProvider: true,
 			documentFormattingProvider: true,
 			documentOnTypeFormattingProvider: {
@@ -106,6 +108,27 @@ export function create(
 						return [];
 					}
 					return outliningSpans.map(span => convertOutliningSpan(span, document));
+				},
+
+				provideSelectionRanges(document, positions) {
+
+					if (!isTsDocument(document)) {
+						return;
+					}
+
+					const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
+					const ranges = positions
+						.map(position => {
+							const offset = document.offsetAt(position);
+							const range = safeCall(() => languageService.getSmartSelectionRange(fileName, offset));
+							if (!range) {
+								return;
+							}
+							return convertSelectionRange(range, document);
+						});
+					if (ranges.every(range => !!range)) {
+						return ranges;
+					}
 				},
 
 				provideDocumentSymbols(document) {
