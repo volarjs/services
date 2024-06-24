@@ -24,7 +24,7 @@
 		"url": "https://github.com/johnsoncodehk"
 	},
 	"dependencies": {
-		"vscode-json-languageservice": "^5.3.7",
+		"vscode-json-languageservice": "^5.4.0",
 		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {

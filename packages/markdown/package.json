@@ -24,13 +24,13 @@
 		"url": "https://github.com/remcohaszing"
 	},
 	"dependencies": {
-		"markdown-it": "^13.0.2",
-		"vscode-jsonrpc": "^8.2.0",
-		"vscode-markdown-languageservice": "~0.5.0-alpha.1",
+		"markdown-it": "^14.1.0",
+		"vscode-jsonrpc": "^8.2.1",
+		"vscode-markdown-languageservice": "~0.5.0-alpha.6",
 		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {
-		"@types/markdown-it": "^13.0.4",
+		"@types/markdown-it": "^14.1.1",
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
