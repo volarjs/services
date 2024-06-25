@@ -59,7 +59,6 @@ export function create({
 			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
 
 			return {
-				...htmlService,
 				provide: {
 					'pug/pugDocument': getPugDocument,
 					'pug/languageService': () => pugLs,
