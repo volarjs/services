@@ -56,15 +56,23 @@ export function create({
 
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
-			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
+			const htmlLs: html.LanguageService = htmlService.provide['html/languageService']();
+			const pugLs = pug.getLanguageService(htmlLs);
+			const disposable = onDidChangeCustomData?.(() => initializing = undefined, context);
+
+			let initializing: Promise<void> | undefined;
 
 			return {
+				dispose() {
+					htmlService.dispose?.();
+					disposable?.dispose();
+				},
 				provide: {
 					'pug/pugDocument': getPugDocument,
 					'pug/languageService': () => pugLs,
 				},
 
-				provideCompletionItems(document, position, _) {
+				provideCompletionItems(document, position) {
 					return worker(document, pugDocument => {
 						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
 					});
@@ -160,12 +168,24 @@ export function create({
 				},
 			};
 
-			function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T) {
+			async function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T): Promise<Awaited<T> | undefined> {
+
 				const pugDocument = getPugDocument(document);
 				if (!pugDocument) {
 					return;
 				}
-				return callback(pugDocument);
+
+				await (initializing ??= initialize());
+
+				return await callback(pugDocument);
+			}
+
+			async function initialize() {
+				if (!getCustomData) {
+					return;
+				}
+				const customData = await getCustomData(context);
+				htmlLs.setDataProviders(useDefaultDataProvider, customData);
 			}
 
 			function getPugDocument(document: TextDocument) {
