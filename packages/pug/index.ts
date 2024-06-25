@@ -63,8 +63,8 @@ export function create({
 			return {
 				...htmlService,
 				dispose() {
-						htmlService.dispose?.();
-						disposable?.dispose();
+					htmlService.dispose?.();
+					disposable?.dispose();
 				},
 				provide: {
 					'pug/pugDocument': getPugDocument,
@@ -72,7 +72,7 @@ export function create({
 				},
 
 				async provideCompletionItems(document, position, _) {
-					return worker(document, pugDocument => {
+					return await worker(document, pugDocument => {
 						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
 					});
 				},
@@ -99,7 +99,7 @@ export function create({
 				},
 
 				async provideHover(document, position) {
-					return worker(document, async pugDocument => {
+					return await worker(document, async pugDocument => {
 
 						const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
 
@@ -120,7 +120,7 @@ export function create({
 				},
 
 				async provideDocumentSymbols(document, token) {
-					return worker(document, async pugDoc => {
+					return await worker(document, async pugDoc => {
 
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.docs[1], token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
@@ -149,7 +149,7 @@ export function create({
 					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
 						return;
 					}
-					return worker(document, async pugDocument => {
+					return await worker(document, async pugDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
 							const enabled = (await context.env.getConfiguration?.<boolean>(configurationSections.autoCreateQuotes)) ?? true;
@@ -179,7 +179,9 @@ export function create({
 				return callback(pugDocument);
 			}
 			async function initialize() {
-				if(!getCustomData) return;
+				if (!getCustomData) {
+					return;
+				}
 				const customData = await getCustomData(context);
 				htmlService.provide['html/languageService']().setDataProviders(useDefaultDataProvider, customData);
 			}
