@@ -29,6 +29,7 @@ export function create({
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
 	const _htmlService = createHtmlService({
+		useDefaultDataProvider,
 		getCustomData,
 		onDidChangeCustomData,
 	});
@@ -56,23 +57,16 @@ export function create({
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
-			const disposable = onDidChangeCustomData?.(() => initializing = undefined, context);
-
-			let initializing: Promise<void> | undefined;
 
 			return {
 				...htmlService,
-				dispose() {
-					htmlService.dispose?.();
-					disposable?.dispose();
-				},
 				provide: {
 					'pug/pugDocument': getPugDocument,
 					'pug/languageService': () => pugLs,
 				},
 
-				async provideCompletionItems(document, position, _) {
-					return await worker(document, pugDocument => {
+				provideCompletionItems(document, position, _) {
+					return worker(document, pugDocument => {
 						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
 					});
 				},
@@ -98,8 +92,8 @@ export function create({
 					});
 				},
 
-				async provideHover(document, position) {
-					return await worker(document, async pugDocument => {
+				provideHover(document, position) {
+					return worker(document, async pugDocument => {
 
 						const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
 
@@ -119,8 +113,8 @@ export function create({
 					});
 				},
 
-				async provideDocumentSymbols(document, token) {
-					return await worker(document, async pugDoc => {
+				provideDocumentSymbols(document, token) {
+					return worker(document, async pugDoc => {
 
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.docs[1], token) ?? [];
 						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
@@ -144,12 +138,12 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertSnippet(document, selection, change) {
+				provideAutoInsertSnippet(document, selection, change) {
 					// selection must at end of change
 					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
 						return;
 					}
-					return await worker(document, async pugDocument => {
+					return worker(document, async pugDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
 
 							const enabled = (await context.env.getConfiguration?.<boolean>(configurationSections.autoCreateQuotes)) ?? true;
@@ -167,24 +161,14 @@ export function create({
 				},
 			};
 
-			async function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T) {
-
+			function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T) {
 				const pugDocument = getPugDocument(document);
 				if (!pugDocument) {
 					return;
 				}
-
-				await (initializing ??= initialize());
-
 				return callback(pugDocument);
 			}
-			async function initialize() {
-				if (!getCustomData) {
-					return;
-				}
-				const customData = await getCustomData(context);
-				htmlService.provide['html/languageService']().setDataProviders(useDefaultDataProvider, customData);
-			}
+
 			function getPugDocument(document: TextDocument) {
 
 				if (!matchDocument(documentSelector, document)) {
