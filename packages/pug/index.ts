@@ -16,6 +16,7 @@ export function create({
 	configurationSections = {
 		autoCreateQuotes: 'html.autoCreateQuotes',
 	},
+	useDefaultDataProvider = true,
 	getCustomData,
 	onDidChangeCustomData,
 }: {
@@ -23,6 +24,7 @@ export function create({
 	configurationSections?: {
 		autoCreateQuotes: string;
 	};
+	useDefaultDataProvider?: boolean;
 	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
@@ -34,7 +36,9 @@ export function create({
 		..._htmlService,
 		name: 'pug',
 		capabilities: {
-			completionProvider: {},
+			completionProvider: {
+				triggerCharacters: ['.', ':'],
+			},
 			diagnosticProvider: {},
 			hoverProvider: true,
 			documentHighlightProvider: true,
@@ -52,16 +56,22 @@ export function create({
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const pugLs = pug.getLanguageService(htmlService.provide['html/languageService']());
+			const disposable = onDidChangeCustomData?.(() => initializing = undefined, context);
+
+			let initializing: Promise<void> | undefined;
 
 			return {
 				...htmlService,
-
+				dispose() {
+						htmlService.dispose?.();
+						disposable?.dispose();
+				},
 				provide: {
 					'pug/pugDocument': getPugDocument,
 					'pug/languageService': () => pugLs,
 				},
 
-				provideCompletionItems(document, position, _) {
+				async provideCompletionItems(document, position, _) {
 					return worker(document, pugDocument => {
 						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
 					});
@@ -88,7 +98,7 @@ export function create({
 					});
 				},
 
-				provideHover(document, position) {
+				async provideHover(document, position) {
 					return worker(document, async pugDocument => {
 
 						const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
@@ -109,7 +119,7 @@ export function create({
 					});
 				},
 
-				provideDocumentSymbols(document, token) {
+				async provideDocumentSymbols(document, token) {
 					return worker(document, async pugDoc => {
 
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.docs[1], token) ?? [];
@@ -157,16 +167,22 @@ export function create({
 				},
 			};
 
-			function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T) {
+			async function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T) {
 
 				const pugDocument = getPugDocument(document);
 				if (!pugDocument) {
 					return;
 				}
 
+				await (initializing ??= initialize());
+
 				return callback(pugDocument);
 			}
-
+			async function initialize() {
+				if(!getCustomData) return;
+				const customData = await getCustomData(context);
+				htmlService.provide['html/languageService']().setDataProviders(useDefaultDataProvider, customData);
+			}
 			function getPugDocument(document: TextDocument) {
 
 				if (!matchDocument(documentSelector, document)) {
