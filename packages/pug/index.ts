@@ -34,7 +34,6 @@ export function create({
 		onDidChangeCustomData,
 	});
 	return {
-		..._htmlService,
 		name: 'pug',
 		capabilities: {
 			completionProvider: {
