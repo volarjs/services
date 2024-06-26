@@ -1,4 +1,4 @@
-import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext } from '@volar/language-service';
+import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext, CodeAction } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';
@@ -11,6 +11,11 @@ export interface Provide {
 }
 
 const md = new MarkdownIt();
+const organizeLinkDefKind = 'source.organizeLinkDefinitions';
+
+interface OrganizeLinkActionData {
+	readonly uri: string;
+}
 
 export function create({
 	documentSelector = ['markdown'],
@@ -36,7 +41,14 @@ export function create({
 	return {
 		name: 'markdown',
 		capabilities: {
-			codeActionProvider: {},
+			codeActionProvider: {
+				resolveProvider: true,
+				codeActionKinds: [
+					organizeLinkDefKind,
+					'quickfix',
+					'refactor',
+				],
+			},
 			completionProvider: {
 				triggerCharacters: ['.', '/', '#'],
 			},
@@ -71,7 +83,7 @@ export function create({
 				}
 			};
 			const workspace = getMarkdownWorkspace();
-			const ls = createLanguageService({
+			const mdLs = createLanguageService({
 				logger,
 				parser,
 				workspace: workspace.workspace,
@@ -83,27 +95,58 @@ export function create({
 					fsSourceScripts.delete(change.uri);
 				}
 			});
+			const codeActionDocuments = new Map<string, WeakRef<TextDocument>>();
 
 			return {
 				dispose() {
-					ls.dispose();
+					mdLs.dispose();
 					workspace.dispose();
 					fileWatcher?.dispose();
 				},
 
 				provide: {
-					'markdown/languageService': () => ls
+					'markdown/languageService': () => mdLs
 				},
 
 				provideCodeActions(document, range, context, token) {
 					if (prepare(document)) {
-						return ls.getCodeActions(document, range, context, token);
+						if (context.only?.some(kind => kind === 'source' || kind.startsWith('source.'))) {
+							const action: CodeAction = {
+								title: 'Organize link definitions',
+								kind: organizeLinkDefKind,
+								data: { uri: document.uri } satisfies OrganizeLinkActionData,
+							};
+							codeActionDocuments.set(action.title, new WeakRef(document));
+							return [action];
+						}
+
+						return mdLs.getCodeActions(document, range, context, token);
 					}
+				},
+
+				async resolveCodeAction(codeAction, token) {
+					if (codeAction.kind === organizeLinkDefKind) {
+						const data = codeAction.data as OrganizeLinkActionData;
+						const document = codeActionDocuments.get(codeAction.title)?.deref();
+						if (!document) {
+							return codeAction;
+						}
+
+						const edits = await mdLs.organizeLinkDefinitions(document, { removeUnused: true }, token);
+						codeAction.edit = {
+							changes: {
+								[data.uri]: edits,
+							},
+						};
+						return codeAction;
+					}
+
+					return codeAction;
 				},
 
 				async provideCompletionItems(document, position, _context, token) {
 					if (prepare(document)) {
-						const items = await ls.getCompletionItems(
+						const items = await mdLs.getCompletionItems(
 							document,
 							position,
 							{},
@@ -118,7 +161,7 @@ export function create({
 
 				async provideDefinition(document, position, token) {
 					if (prepare(document)) {
-						let locations = await ls.getDefinition(document, position, token);
+						let locations = await mdLs.getDefinition(document, position, token);
 
 						if (!locations) {
 							return;
@@ -140,26 +183,26 @@ export function create({
 					if (prepare(document)) {
 						const configuration = await getDiagnosticOptions(document, context);
 						if (configuration) {
-							return ls.computeDiagnostics(document, configuration, token);
+							return mdLs.computeDiagnostics(document, configuration, token);
 						}
 					}
 				},
 
 				provideDocumentHighlights(document, position, token) {
 					if (prepare(document)) {
-						return ls.getDocumentHighlights(document, position, token);
+						return mdLs.getDocumentHighlights(document, position, token);
 					}
 				},
 
 				async provideDocumentLinks(document, token) {
 					if (prepare(document)) {
-						return await ls.getDocumentLinks(document, token);
+						return await mdLs.getDocumentLinks(document, token);
 					}
 				},
 
 				provideDocumentSymbols(document, token) {
 					if (prepare(document)) {
-						return ls.getDocumentSymbols(
+						return mdLs.getDocumentSymbols(
 							document,
 							{ includeLinkDefinitions: true },
 							token
@@ -169,25 +212,25 @@ export function create({
 
 				provideFileReferences(document, token) {
 					if (prepare(document)) {
-						return ls.getFileReferences(URI.parse(document.uri), token);
+						return mdLs.getFileReferences(URI.parse(document.uri), token);
 					}
 				},
 
 				provideFoldingRanges(document, token) {
 					if (prepare(document)) {
-						return ls.getFoldingRanges(document, token);
+						return mdLs.getFoldingRanges(document, token);
 					}
 				},
 
 				provideHover(document, position, token) {
 					if (prepare(document)) {
-						return ls.getHover(document, position, token);
+						return mdLs.getHover(document, position, token);
 					}
 				},
 
 				provideReferences(document, position, referenceContext, token) {
 					if (prepare(document)) {
-						return ls.getReferences(
+						return mdLs.getReferences(
 							document,
 							position,
 							referenceContext,
@@ -198,33 +241,33 @@ export function create({
 
 				provideRenameEdits(document, position, newName, token) {
 					if (prepare(document)) {
-						return ls.getRenameEdit(document, position, newName, token);
+						return mdLs.getRenameEdit(document, position, newName, token);
 					}
 				},
 
 				provideRenameRange(document, position, token) {
 					if (prepare(document)) {
-						return ls.prepareRename(document, position, token);
+						return mdLs.prepareRename(document, position, token);
 					}
 				},
 
 				async provideFileRenameEdits(oldUri, newUri, token) {
-					const result = await ls.getRenameFilesInWorkspaceEdit([{ oldUri, newUri }], token);
+					const result = await mdLs.getRenameFilesInWorkspaceEdit([{ oldUri, newUri }], token);
 					return result?.edit;
 				},
 
 				provideSelectionRanges(document, positions, token) {
 					if (prepare(document)) {
-						return ls.getSelectionRanges(document, positions, token);
+						return mdLs.getSelectionRanges(document, positions, token);
 					}
 				},
 
 				provideWorkspaceSymbols(query, token) {
-					return ls.getWorkspaceSymbols(query, token);
+					return mdLs.getWorkspaceSymbols(query, token);
 				},
 
 				async resolveDocumentLink(link, token) {
-					return await ls.resolveDocumentLink(link, token) ?? link;
+					return await mdLs.resolveDocumentLink(link, token) ?? link;
 				}
 			};
 
