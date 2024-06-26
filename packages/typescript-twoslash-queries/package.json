@@ -30,7 +30,7 @@
 		"volar-service-typescript": "0.0.54"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.3.1"
+		"@volar/language-service": "~2.4.0-alpha.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

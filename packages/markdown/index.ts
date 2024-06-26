@@ -59,15 +59,16 @@ export function create({
 				resolveProvider: true,
 			},
 			documentSymbolProvider: true,
-			// fileReferencesProvider: true
 			foldingRangeProvider: true,
 			hoverProvider: true,
 			referencesProvider: true,
+			fileReferencesProvider: true,
 			renameProvider: {
 				prepareProvider: true,
 			},
+			fileRenameProvider: true,
 			selectionRangeProvider: true,
-			workspaceSymbolProvider: true,
+			workspaceSymbolProvider: {},
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
 			const logger: ILogger = {

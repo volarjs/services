@@ -105,6 +105,7 @@ export function create(
 			renameProvider: {
 				prepareProvider: true,
 			},
+			fileRenameProvider: true,
 			codeActionProvider: {
 				codeActionKinds: [
 					'' satisfies typeof CodeActionKind.Empty,
@@ -127,7 +128,7 @@ export function create(
 			hoverProvider: true,
 			implementationProvider: true,
 			referencesProvider: true,
-			// fileReferencesProvider: true,
+			fileReferencesProvider: true,
 			documentHighlightProvider: true,
 			semanticTokensProvider: {
 				// https://code.visualstudio.com/api/language-extensions/semantic-highlight-guide#standard-token-types-and-modifiers
@@ -156,8 +157,7 @@ export function create(
 					],
 				},
 			},
-			workspaceSymbolProvider: true,
-			// fileRenameEdits: true,
+			workspaceSymbolProvider: {},
 			signatureHelpProvider: {
 				triggerCharacters: ['(', ',', '<'],
 				retriggerCharacters: [')'],

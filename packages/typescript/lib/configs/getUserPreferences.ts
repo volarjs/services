@@ -4,6 +4,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getConfigTitle } from '../shared';
 import type { LanguageServiceContext } from '@volar/language-service';
 import { URI } from 'vscode-uri';
+import type * as _ from '@volar/typescript';
 
 export async function getUserPreferences(
 	ctx: LanguageServiceContext,
