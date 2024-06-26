@@ -208,6 +208,11 @@ export function create({
 					}
 				},
 
+				async provideFileRenameEdits(oldUri, newUri, token) {
+					const result = await ls.getRenameFilesInWorkspaceEdit([{ oldUri, newUri }], token);
+					return result?.edit;
+				},
+
 				provideSelectionRanges(document, positions, token) {
 					if (prepare(document)) {
 						return ls.getSelectionRanges(document, positions, token);
