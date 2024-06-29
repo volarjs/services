@@ -164,10 +164,11 @@ export function create(
 			},
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-			if (!context.language.typescript) {
+			if (!context.project.typescript) {
+				console.warn(`[volar] typescript-semantic requires typescript project.`);
 				return {};
 			}
-			const { sys, languageServiceHost, asFileName, asScriptId, getExtraServiceScript } = context.language.typescript;
+			const { sys, languageServiceHost, asFileName, asUri, getExtraServiceScript } = context.project.typescript;
 			const created = tsWithImportCache.createLanguageService(
 				ts,
 				sys,
@@ -193,7 +194,7 @@ export function create(
 						return context.encodeEmbeddedDocumentUri(sourceScript.id, extraServiceScript.code.id);
 					}
 
-					const uri = asScriptId(fileName);
+					const uri = asUri(fileName);
 					const sourceScript = context.language.scripts.get(uri);
 					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
 					if (sourceScript && serviceScript) {
@@ -916,7 +917,7 @@ export function create(
 					}
 					const token: ts.CancellationToken = {
 						isCancellationRequested() {
-							return ctx.language.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
+							return ctx.project.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
 						},
 						throwIfCancellationRequested() { },
 					};

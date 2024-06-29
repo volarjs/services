@@ -11,8 +11,8 @@ export async function getUserPreferences(
 	document: TextDocument
 ): Promise<ts.UserPreferences> {
 	let currentDirectory = '';
-	if (ctx.language.typescript) {
-		currentDirectory = ctx.language.typescript.languageServiceHost.getCurrentDirectory();
+	if (ctx.project.typescript) {
+		currentDirectory = ctx.project.typescript.languageServiceHost.getCurrentDirectory();
 	}
 	const uri = URI.parse(document.uri);
 	const documentUri = ctx.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;
