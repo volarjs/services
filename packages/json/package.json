@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-json",
-	"version": "0.0.55",
+	"version": "0.0.56",
 	"description": "Integrate vscode-json-languageservice into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/json",
 	"bugs": "https://github.com/volarjs/services/issues",
