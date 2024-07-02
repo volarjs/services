@@ -997,14 +997,33 @@ export function create(
 			async function isCancellationRequestedWhileSync(token: CancellationToken) {
 				if (sys.sync) {
 					let oldSysVersion: number | undefined;
-					let newSysVersion = await sys.sync();
+					let newSysVersion = sys.version;
 					do {
 						oldSysVersion = newSysVersion;
-						languageService.getProgram(); // trigger sync
-						newSysVersion = await sys.sync();
+						languageService.getProgram(); // trigger file requests
+						newSysVersion = await aggressiveSync(sys.sync);
 					} while (newSysVersion !== oldSysVersion && !token.isCancellationRequested);
 				}
 				return token.isCancellationRequested;
+			}
+
+			async function aggressiveSync(fn: () => Promise<number>) {
+				const promise = fn();
+				let newVersion: number | undefined;
+				let syncing = true;
+				promise.then(version => {
+					newVersion = version;
+					syncing = false;
+				});
+				while (syncing) {
+					languageService.getProgram(); // trigger file requests before old requests are completed
+					await Promise.race([promise, sleep(10)]);
+				}
+				return newVersion;
+			}
+
+			function sleep(ms: number) {
+				return new Promise(resolve => setTimeout(resolve, ms));
 			}
 
 			function getVirtualScriptByUri(uri: URI): {
