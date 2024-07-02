@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-prettier",
-	"version": "0.0.57",
+	"version": "0.0.58",
 	"description": "Integrate Prettier into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/prettier",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -32,7 +32,7 @@
 		"prettier": "^3.3.2"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.4.0-alpha.11",
+		"@volar/language-service": "~2.4.0-alpha.12",
 		"prettier": "^2.2 || ^3.0"
 	},
 	"peerDependenciesMeta": {

@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-yaml",
-	"version": "0.0.57",
+	"version": "0.0.58",
 	"description": "Integrate yaml-language-server into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/yaml",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -31,7 +31,7 @@
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.4.0-alpha.11"
+		"@volar/language-service": "~2.4.0-alpha.12"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

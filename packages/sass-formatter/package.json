@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-sass-formatter",
-	"version": "0.0.57",
+	"version": "0.0.58",
 	"description": "Integrate sass-formatter into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/sass-formatter",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -27,7 +27,7 @@
 		"sass-formatter": "^0.7.9"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.4.0-alpha.11"
+		"@volar/language-service": "~2.4.0-alpha.12"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

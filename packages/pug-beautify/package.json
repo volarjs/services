@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-pug-beautify",
-	"version": "0.0.57",
+	"version": "0.0.58",
 	"description": "Integrate pug-beautify into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/pug-beautify",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -27,7 +27,7 @@
 		"@johnsoncodehk/pug-beautify": "^0.2.2"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.4.0-alpha.11"
+		"@volar/language-service": "~2.4.0-alpha.12"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
