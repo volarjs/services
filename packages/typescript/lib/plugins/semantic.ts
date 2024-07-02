@@ -168,7 +168,7 @@ export function create(
 				console.warn(`[volar] typescript-semantic requires typescript project.`);
 				return {};
 			}
-			const { sys, languageServiceHost, asFileName, asUri, getExtraServiceScript } = context.project.typescript;
+			const { sys, languageServiceHost, uriConverter, getExtraServiceScript } = context.project.typescript;
 			const created = tsWithImportCache.createLanguageService(
 				ts,
 				sys,
@@ -185,7 +185,7 @@ export function create(
 					if (virtualScript) {
 						return virtualScript.fileName;
 					}
-					return asFileName(uri);
+					return uriConverter.asFileName(uri);
 				},
 				fileNameToUri(fileName) {
 					const extraServiceScript = getExtraServiceScript(fileName);
@@ -194,7 +194,7 @@ export function create(
 						return context.encodeEmbeddedDocumentUri(sourceScript.id, extraServiceScript.code.id);
 					}
 
-					const uri = asUri(fileName);
+					const uri = uriConverter.asUri(fileName);
 					const sourceScript = context.language.scripts.get(uri);
 					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
 					if (sourceScript && serviceScript) {
@@ -257,7 +257,7 @@ export function create(
 						updateSourceScriptFileNames();
 					}
 					for (const change of params.changes) {
-						const fileName = asFileName(URI.parse(change.uri));
+						const fileName = uriConverter.asFileName(URI.parse(change.uri));
 						if (sourceScriptNames.has(normalizeFileName(fileName))) {
 							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 						}
@@ -1016,7 +1016,7 @@ export function create(
 				const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 				if (virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
 					const { getServiceScript, getExtraServiceScripts } = sourceScript.generated?.languagePlugin.typescript;
-					const sourceFileName = asFileName(sourceScript.id);
+					const sourceFileName = uriConverter.asFileName(sourceScript.id);
 					if (getServiceScript(sourceScript.generated.root)?.code === virtualCode) {
 						return {
 							fileName: sourceFileName,

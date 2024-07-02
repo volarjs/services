@@ -20,8 +20,13 @@
 		"@lerna-lite/publish": "latest",
 		"@tsslint/cli": "latest",
 		"@tsslint/config": "latest",
-		"@volar/language-service": "~2.4.0-alpha.1",
+		"@volar/language-service": "~2.4.0-alpha.11",
 		"typescript": "latest",
 		"vitest": "latest"
+	},
+	"pnpm": {
+		"overrides": {
+			"inquirer": "9.2.23"
+		}
 	}
 }

@@ -32,7 +32,7 @@
 		"prettier": "^3.3.2"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.4.0-alpha.1",
+		"@volar/language-service": "~2.4.0-alpha.11",
 		"prettier": "^2.2 || ^3.0"
 	},
 	"peerDependenciesMeta": {
