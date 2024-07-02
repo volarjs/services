@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-prettier",
-	"version": "0.0.58",
+	"version": "0.0.59",
 	"description": "Integrate Prettier into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/prettier",
 	"bugs": "https://github.com/volarjs/services/issues",
