@@ -59,6 +59,7 @@ export function create({
 			},
 			definitionProvider: true,
 			diagnosticProvider: {},
+			documentFormattingProvider: true,
 			documentOnTypeFormattingProvider: {
 				triggerCharacters: ['\n']
 			},
@@ -149,6 +150,12 @@ export function create({
 				provideFoldingRanges(document) {
 					return worker(document, () => {
 						return ls.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange ?? {});
+					});
+				},
+
+				provideDocumentFormattingEdits(document) {
+					return worker(document, () => {
+						return ls.doFormat(document);
 					});
 				},
 
