@@ -41,11 +41,13 @@ export function create({
 	onDidChangeLanguageSettings = () => {
 		return { dispose() { } };
 	},
+	onLanguageServiceCreated = noop
 }: {
 	documentSelector?: DocumentSelector;
 	getWorkspaceContextService?(context: LanguageServiceContext): yaml.WorkspaceContextService;
 	getLanguageSettings?(context: LanguageServiceContext): ProviderResult<yaml.LanguageSettings>;
 	onDidChangeLanguageSettings?(listener: () => void, context: LanguageServiceContext): Disposable;
+	onLanguageServiceCreated?(ls: yaml.LanguageService, context: LanguageServiceContext): void;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'yaml',
@@ -81,9 +83,12 @@ export function create({
 				clientCapabilities: context.env?.clientCapabilities,
 				workspaceContext: getWorkspaceContextService(context),
 			});
-			const disposable = onDidChangeLanguageSettings(() => initializing = undefined, context);
 
 			let initializing: Promise<void> | undefined;
+
+			onLanguageServiceCreated(ls, context);
+
+			const disposable = onDidChangeLanguageSettings(() => initializing = undefined, context);
 
 			return {
 				dispose() {
