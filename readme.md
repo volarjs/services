@@ -1,3 +1,7 @@
+## ⚠️ "Vue - Official" Extension Compatibility Note
+
+Please note that services in this repository are designed to work with the Volar Language Features (Volar) extension (version < 2), which supports the use of volar.config.js to load custom plugins. Services in this repository are not compatible with the new "Vue - Official" plugin.
+
 # Services
 
 |                             | Backend                                                                                                                                                       | AST Provide | IntelliSense | Diagnostic | Formatting |
