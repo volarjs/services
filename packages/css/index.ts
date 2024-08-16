@@ -117,7 +117,10 @@ export function create({
 			},
 			codeActionProvider: {},
 			definitionProvider: true,
-			diagnosticProvider: {},
+			diagnosticProvider: {
+				interFileDependencies: false,
+				workspaceDiagnostics: false,
+			},
 			hoverProvider: true,
 			referencesProvider: true,
 			documentHighlightProvider: true,

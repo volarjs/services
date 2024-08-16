@@ -117,7 +117,10 @@ export function create({
 				resolveProvider: true,
 			},
 			definitionProvider: true,
-			diagnosticProvider: {},
+			diagnosticProvider: {
+				interFileDependencies: false,
+				workspaceDiagnostics: false,
+			},
 			hoverProvider: true,
 			documentLinkProvider: {},
 			documentSymbolProvider: true,
