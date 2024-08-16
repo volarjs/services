@@ -20,7 +20,8 @@
 		"@lerna-lite/publish": "latest",
 		"@tsslint/cli": "latest",
 		"@tsslint/config": "latest",
-		"@volar/language-service": "~2.4.0-alpha.12",
+		"@volar/language-service": "https://pkg.pr.new/volarjs/volar.js/@volar/language-service@5a17cea",
+		"pkg-pr-new": "latest",
 		"typescript": "latest",
 		"vitest": "latest"
 	},

@@ -124,7 +124,10 @@ export function create(
 			callHierarchyProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
-			diagnosticProvider: {},
+			diagnosticProvider: {
+				interFileDependencies: true,
+				workspaceDiagnostics: false,
+			},
 			hoverProvider: true,
 			implementationProvider: true,
 			referencesProvider: true,
@@ -682,12 +685,11 @@ export function create(
 					return entries.map(entry => convertDocumentSpantoLocationLink(entry, ctx));
 				},
 
-				provideDiagnostics(document, token) {
-					return provideDiagnosticsWorker(document, token, 'syntactic');
-				},
-
-				provideSemanticDiagnostics(document, token) {
-					return provideDiagnosticsWorker(document, token, 'semantic');
+				async provideDiagnostics(document, token) {
+					return [
+						...await provideDiagnosticsWorker(document, token, 'syntactic') ?? [],
+						...await provideDiagnosticsWorker(document, token, 'semantic') ?? [],
+					];
 				},
 
 				async provideHover(document, position, token) {

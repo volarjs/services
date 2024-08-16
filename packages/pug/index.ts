@@ -39,7 +39,10 @@ export function create({
 			completionProvider: {
 				triggerCharacters: ['.', ':'],
 			},
-			diagnosticProvider: {},
+			diagnosticProvider: {
+				interFileDependencies: false,
+				workspaceDiagnostics: false,
+			},
 			hoverProvider: true,
 			documentHighlightProvider: true,
 			documentLinkProvider: {},

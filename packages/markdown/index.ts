@@ -53,7 +53,10 @@ export function create({
 				triggerCharacters: ['.', '/', '#'],
 			},
 			definitionProvider: true,
-			diagnosticProvider: {},
+			diagnosticProvider: {
+				interFileDependencies: false,
+				workspaceDiagnostics: false,
+			},
 			documentHighlightProvider: true,
 			documentLinkProvider: {
 				resolveProvider: true,
