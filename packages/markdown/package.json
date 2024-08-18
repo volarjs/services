@@ -34,7 +34,7 @@
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "https://pkg.pr.new/volarjs/volar.js/@volar/language-service@5a17cea"
+		"@volar/language-service": "~2.4.0-alpha.19"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {

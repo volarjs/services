@@ -105,7 +105,7 @@ export function create(
 			renameProvider: {
 				prepareProvider: true,
 			},
-			fileRenameProvider: true,
+			fileRenameEditsProvider: true,
 			codeActionProvider: {
 				codeActionKinds: [
 					'' satisfies typeof CodeActionKind.Empty,

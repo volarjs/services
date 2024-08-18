@@ -69,7 +69,7 @@ export function create({
 			renameProvider: {
 				prepareProvider: true,
 			},
-			fileRenameProvider: true,
+			fileRenameEditsProvider: true,
 			selectionRangeProvider: true,
 			workspaceSymbolProvider: {},
 		},
