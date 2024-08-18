@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-html",
-	"version": "0.0.60",
+	"version": "0.0.61",
 	"description": "Integrate vscode-languageservice-html into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/html",
 	"bugs": "https://github.com/volarjs/services/issues",
@@ -32,7 +32,7 @@
 		"@types/node": "latest"
 	},
 	"peerDependencies": {
-		"@volar/language-service": "~2.4.0-alpha.19"
+		"@volar/language-service": "~2.4.0"
 	},
 	"peerDependenciesMeta": {
 		"@volar/language-service": {
