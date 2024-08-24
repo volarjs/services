@@ -84,6 +84,7 @@ function getDocumentRegistry(ts: typeof import('typescript'), useCaseSensitiveFi
 export function create(
 	ts: typeof import('typescript'),
 	{
+		disableAutoImportCache = false,
 		isValidationEnabled = async (document, context) => {
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
 		},
@@ -91,6 +92,7 @@ export function create(
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
 		},
 	}: {
+		disableAutoImportCache?: boolean;
 		isValidationEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		isSuggestionsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	} = {}
@@ -172,13 +174,23 @@ export function create(
 				return {};
 			}
 			const { sys, languageServiceHost, uriConverter, getExtraServiceScript } = context.project.typescript;
-			const created = tsWithImportCache.createLanguageService(
-				ts,
-				sys,
-				languageServiceHost,
-				proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()))
-			);
-			const { languageService } = created;
+			let languageService: ts.LanguageService;
+			let created: ReturnType<typeof tsWithImportCache.createLanguageService> | undefined;
+			if (disableAutoImportCache) {
+				languageService = ts.createLanguageService(
+					languageServiceHost,
+					getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory())
+				);
+			}
+			else {
+				created = tsWithImportCache.createLanguageService(
+					ts,
+					sys,
+					languageServiceHost,
+					proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()))
+				);
+				languageService = created.languageService;
+			}
 			const ctx: SharedContext = {
 				...context,
 				languageServiceHost,
@@ -232,7 +244,7 @@ export function create(
 
 			let formattingOptions: FormattingOptions | undefined;
 
-			if (created.setPreferences && context.env.getConfiguration) {
+			if (created?.setPreferences && context.env.getConfiguration) {
 
 				updatePreferences();
 				context.env.onDidChangeConfiguration?.(updatePreferences);
@@ -240,12 +252,12 @@ export function create(
 				async function updatePreferences() {
 					const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
 					if (preferences) {
-						created.setPreferences?.(preferences);
+						created!.setPreferences?.(preferences);
 					}
 				}
 			}
 
-			if (created.projectUpdated) {
+			if (created?.projectUpdated) {
 
 				const sourceScriptNames = new Set<string>();
 				const normalizeFileName = sys.useCaseSensitiveFileNames
