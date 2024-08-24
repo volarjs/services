@@ -84,6 +84,7 @@ function getDocumentRegistry(ts: typeof import('typescript'), useCaseSensitiveFi
 export function create(
 	ts: typeof import('typescript'),
 	{
+		disableAutoImportCache = false,
 		isValidationEnabled = async (document, context) => {
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
 		},
@@ -91,6 +92,7 @@ export function create(
 			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
 		},
 	}: {
+		disableAutoImportCache?: boolean;
 		isValidationEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		isSuggestionsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	} = {}
@@ -172,13 +174,75 @@ export function create(
 				return {};
 			}
 			const { sys, languageServiceHost, uriConverter, getExtraServiceScript } = context.project.typescript;
-			const created = tsWithImportCache.createLanguageService(
-				ts,
-				sys,
-				languageServiceHost,
-				proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()))
-			);
-			const { languageService } = created;
+			let languageService: ts.LanguageService;
+			if (disableAutoImportCache) {
+				languageService = ts.createLanguageService(
+					languageServiceHost,
+					getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory())
+				);
+			}
+			else {
+				const created = tsWithImportCache.createLanguageService(
+					ts,
+					sys,
+					languageServiceHost,
+					proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()))
+				);
+				if (created.setPreferences && context.env.getConfiguration) {
+
+					updatePreferences();
+					context.env.onDidChangeConfiguration?.(updatePreferences);
+
+					async function updatePreferences() {
+						const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
+						if (preferences) {
+							created.setPreferences?.(preferences);
+						}
+					}
+				}
+				if (created.projectUpdated) {
+
+					const sourceScriptNames = new Set<string>();
+					const normalizeFileName = sys.useCaseSensitiveFileNames
+						? (id: string) => id
+						: (id: string) => id.toLowerCase();
+
+					updateSourceScriptFileNames();
+
+					context.env.onDidChangeWatchedFiles?.(params => {
+						const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
+						if (someFileCreateOrDeiete) {
+							updateSourceScriptFileNames();
+						}
+						for (const change of params.changes) {
+							const fileName = uriConverter.asFileName(URI.parse(change.uri));
+							if (sourceScriptNames.has(normalizeFileName(fileName))) {
+								created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
+							}
+						}
+					});
+
+					function updateSourceScriptFileNames() {
+						sourceScriptNames.clear();
+						for (const fileName of languageServiceHost.getScriptFileNames()) {
+							const maybeEmbeddedUri = ctx.fileNameToUri(fileName);
+							const decoded = context.decodeEmbeddedDocumentUri(maybeEmbeddedUri);
+							const uri = decoded ? decoded[0] : maybeEmbeddedUri;
+							const sourceScript = context.language.scripts.get(uri);
+							if (sourceScript?.generated) {
+								const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
+								if (tsCode) {
+									sourceScriptNames.add(normalizeFileName(fileName));
+								}
+							}
+							else if (sourceScript) {
+								sourceScriptNames.add(normalizeFileName(fileName));
+							}
+						}
+					}
+				}
+				languageService = created.languageService;
+			}
 			const ctx: SharedContext = {
 				...context,
 				languageServiceHost,
@@ -231,61 +295,6 @@ export function create(
 			const renameInfoOptions = { allowRenameOfImportPath: true };
 
 			let formattingOptions: FormattingOptions | undefined;
-
-			if (created.setPreferences && context.env.getConfiguration) {
-
-				updatePreferences();
-				context.env.onDidChangeConfiguration?.(updatePreferences);
-
-				async function updatePreferences() {
-					const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
-					if (preferences) {
-						created.setPreferences?.(preferences);
-					}
-				}
-			}
-
-			if (created.projectUpdated) {
-
-				const sourceScriptNames = new Set<string>();
-				const normalizeFileName = sys.useCaseSensitiveFileNames
-					? (id: string) => id
-					: (id: string) => id.toLowerCase();
-
-				updateSourceScriptFileNames();
-
-				context.env.onDidChangeWatchedFiles?.(params => {
-					const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
-					if (someFileCreateOrDeiete) {
-						updateSourceScriptFileNames();
-					}
-					for (const change of params.changes) {
-						const fileName = uriConverter.asFileName(URI.parse(change.uri));
-						if (sourceScriptNames.has(normalizeFileName(fileName))) {
-							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
-						}
-					}
-				});
-
-				function updateSourceScriptFileNames() {
-					sourceScriptNames.clear();
-					for (const fileName of languageServiceHost.getScriptFileNames()) {
-						const maybeEmbeddedUri = ctx.fileNameToUri(fileName);
-						const decoded = context.decodeEmbeddedDocumentUri(maybeEmbeddedUri);
-						const uri = decoded ? decoded[0] : maybeEmbeddedUri;
-						const sourceScript = context.language.scripts.get(uri);
-						if (sourceScript?.generated) {
-							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
-							if (tsCode) {
-								sourceScriptNames.add(normalizeFileName(fileName));
-							}
-						}
-						else if (sourceScript) {
-							sourceScriptNames.add(normalizeFileName(fileName));
-						}
-					}
-				}
-			}
 
 			return {
 
