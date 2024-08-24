@@ -244,57 +244,56 @@ export function create(
 
 			let formattingOptions: FormattingOptions | undefined;
 
-			if (created) {
-				if (created.setPreferences && context.env.getConfiguration) {
+			if (created?.setPreferences && context.env.getConfiguration) {
 
-					updatePreferences();
-					context.env.onDidChangeConfiguration?.(updatePreferences);
+				updatePreferences();
+				context.env.onDidChangeConfiguration?.(updatePreferences);
 
-					async function updatePreferences() {
-						const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
-						if (preferences) {
-							created!.setPreferences?.(preferences);
-						}
+				async function updatePreferences() {
+					const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
+					if (preferences) {
+						created!.setPreferences?.(preferences);
 					}
 				}
-				if (created.projectUpdated) {
+			}
 
-					const sourceScriptNames = new Set<string>();
-					const normalizeFileName = sys.useCaseSensitiveFileNames
-						? (id: string) => id
-						: (id: string) => id.toLowerCase();
+			if (created?.projectUpdated) {
 
-					updateSourceScriptFileNames();
+				const sourceScriptNames = new Set<string>();
+				const normalizeFileName = sys.useCaseSensitiveFileNames
+					? (id: string) => id
+					: (id: string) => id.toLowerCase();
 
-					context.env.onDidChangeWatchedFiles?.(params => {
-						const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
-						if (someFileCreateOrDeiete) {
-							updateSourceScriptFileNames();
+				updateSourceScriptFileNames();
+
+				context.env.onDidChangeWatchedFiles?.(params => {
+					const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
+					if (someFileCreateOrDeiete) {
+						updateSourceScriptFileNames();
+					}
+					for (const change of params.changes) {
+						const fileName = uriConverter.asFileName(URI.parse(change.uri));
+						if (sourceScriptNames.has(normalizeFileName(fileName))) {
+							created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
 						}
-						for (const change of params.changes) {
-							const fileName = uriConverter.asFileName(URI.parse(change.uri));
-							if (sourceScriptNames.has(normalizeFileName(fileName))) {
-								created.projectUpdated?.(languageServiceHost.getCurrentDirectory());
-							}
-						}
-					});
+					}
+				});
 
-					function updateSourceScriptFileNames() {
-						sourceScriptNames.clear();
-						for (const fileName of languageServiceHost.getScriptFileNames()) {
-							const maybeEmbeddedUri = ctx.fileNameToUri(fileName);
-							const decoded = context.decodeEmbeddedDocumentUri(maybeEmbeddedUri);
-							const uri = decoded ? decoded[0] : maybeEmbeddedUri;
-							const sourceScript = context.language.scripts.get(uri);
-							if (sourceScript?.generated) {
-								const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
-								if (tsCode) {
-									sourceScriptNames.add(normalizeFileName(fileName));
-								}
-							}
-							else if (sourceScript) {
+				function updateSourceScriptFileNames() {
+					sourceScriptNames.clear();
+					for (const fileName of languageServiceHost.getScriptFileNames()) {
+						const maybeEmbeddedUri = ctx.fileNameToUri(fileName);
+						const decoded = context.decodeEmbeddedDocumentUri(maybeEmbeddedUri);
+						const uri = decoded ? decoded[0] : maybeEmbeddedUri;
+						const sourceScript = context.language.scripts.get(uri);
+						if (sourceScript?.generated) {
+							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
+							if (tsCode) {
 								sourceScriptNames.add(normalizeFileName(fileName));
 							}
+						}
+						else if (sourceScript) {
+							sourceScriptNames.add(normalizeFileName(fileName));
 						}
 					}
 				}
