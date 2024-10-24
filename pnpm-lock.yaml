@@ -13,7 +13,7 @@ importers:
     devDependencies:
       '@lerna-lite/cli':
         specifier: latest
-        version: 3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4))(typescript@5.5.4)
+        version: 3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(typescript@5.5.4)
       '@lerna-lite/exec':
         specifier: latest
         version: 3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4)
@@ -227,8 +227,8 @@ importers:
         specifier: ^7.6.2
         version: 7.6.2
       typescript-auto-import-cache:
-        specifier: ^0.3.3
-        version: 0.3.3
+        specifier: ^0.3.4
+        version: 0.3.4
       vscode-languageserver-textdocument:
         specifier: ^1.0.11
         version: 1.0.11
@@ -3626,8 +3626,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-auto-import-cache@0.3.3:
-    resolution: {integrity: sha512-ojEC7+Ci1ij9eE6hp8Jl9VUNnsEKzztktP5gtYNRMrTmfXVwA1PITYYAkpxCvvupdSYa/Re51B6KMcv1CTZEUA==}
+  typescript-auto-import-cache@0.3.4:
+    resolution: {integrity: sha512-ztlGq1CB0TX9wKv3DJPRBiT5GJf0Gio1bRzcXElEZMjW1VlyZifiZqk6No3OS1XwNBx+n74dSbH2Bjy+5fN5Xw==}
 
   typescript@4.9.5:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
@@ -4371,7 +4371,7 @@ snapshots:
       string-argv: 0.3.2
       type-detect: 4.0.8
 
-  '@lerna-lite/cli@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4))(typescript@5.5.4)':
+  '@lerna-lite/cli@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(typescript@5.5.4)':
     dependencies:
       '@lerna-lite/core': 3.8.0(typescript@5.5.4)
       '@lerna-lite/init': 3.8.0(typescript@5.5.4)
@@ -4384,7 +4384,7 @@ snapshots:
     optionalDependencies:
       '@lerna-lite/exec': 3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4)
       '@lerna-lite/publish': 3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4)
-      '@lerna-lite/version': 3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4)
+      '@lerna-lite/version': 3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4)
     transitivePeerDependencies:
       - babel-plugin-macros
       - bluebird
@@ -4429,7 +4429,7 @@ snapshots:
 
   '@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4)':
     dependencies:
-      '@lerna-lite/cli': 3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4))(typescript@5.5.4)
+      '@lerna-lite/cli': 3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(typescript@5.5.4)
       '@lerna-lite/core': 3.8.0(typescript@5.5.4)
       '@lerna-lite/filter-packages': 3.8.0(typescript@5.5.4)
       '@lerna-lite/profiler': 3.8.0(typescript@5.5.4)
@@ -4496,10 +4496,10 @@ snapshots:
 
   '@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4)':
     dependencies:
-      '@lerna-lite/cli': 3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4))(typescript@5.5.4)
+      '@lerna-lite/cli': 3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(typescript@5.5.4)
       '@lerna-lite/core': 3.8.0(typescript@5.5.4)
       '@lerna-lite/npmlog': 3.8.0
-      '@lerna-lite/version': 3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4)
+      '@lerna-lite/version': 3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4)
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
       byte-size: 9.0.0
@@ -4531,9 +4531,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4)':
+  '@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4)':
     dependencies:
-      '@lerna-lite/cli': 3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(@lerna-lite/publish@3.8.0(@lerna-lite/exec@3.8.0)(typescript@5.5.4))(typescript@5.5.4))(typescript@5.5.4)
+      '@lerna-lite/cli': 3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(@lerna-lite/version@3.8.0(@lerna-lite/exec@3.8.0)(@lerna-lite/publish@3.8.0)(typescript@5.5.4))(typescript@5.5.4)
       '@lerna-lite/core': 3.8.0(typescript@5.5.4)
       '@lerna-lite/npmlog': 3.8.0
       '@octokit/plugin-enterprise-rest': 6.0.1
@@ -7612,9 +7612,9 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-auto-import-cache@0.3.3:
+  typescript-auto-import-cache@0.3.4:
     dependencies:
-      semver: 7.6.2
+      semver: 7.6.3
 
   typescript@4.9.5: {}
 
