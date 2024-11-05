@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, FormattingOptions, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, LocationLink, ProviderResult } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
