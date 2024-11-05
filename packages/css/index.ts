@@ -1,4 +1,4 @@
-import type { CodeAction, Diagnostic, Disposable, DocumentSelector, FormattingOptions, LocationLink, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type { Disposable, DocumentSelector, FormattingOptions, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, LocationLink, ProviderResult } from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -180,7 +180,7 @@ export function create({
 
 				provideCodeActions(document, range, context) {
 					return worker(document, (stylesheet, cssLs) => {
-						return cssLs.doCodeActions2(document, range, context, stylesheet) as CodeAction[];
+						return cssLs.doCodeActions2(document, range, context, stylesheet);
 					});
 				},
 
@@ -200,7 +200,7 @@ export function create({
 				async provideDiagnostics(document) {
 					return worker(document, async (stylesheet, cssLs) => {
 						const settings = await getLanguageSettings(document, context);
-						return cssLs.doValidation(document, stylesheet, settings) as Diagnostic[];
+						return cssLs.doValidation(document, stylesheet, settings);
 					});
 				},
 

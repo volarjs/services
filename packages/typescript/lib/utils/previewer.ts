@@ -78,7 +78,7 @@ function getTagDocumentation(
 		case 'extends':
 		case 'param':
 		case 'template':
-			const body = (convertLinkTags(tag.text, fileNameToUri, getTextDocument)).split(/^(\S+)\s*-?\s*/);
+			const body = convertLinkTags(tag.text, fileNameToUri, getTextDocument).split(/^(\S+)\s*-?\s*/);
 			if (body?.length === 3) {
 				const param = body[1];
 				const doc = body[2];

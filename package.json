@@ -19,7 +19,6 @@
 		"@lerna-lite/exec": "latest",
 		"@lerna-lite/publish": "latest",
 		"@tsslint/cli": "latest",
-		"@tsslint/config": "latest",
 		"@volar/language-service": "~2.4.0",
 		"pkg-pr-new": "latest",
 		"typescript": "latest",
