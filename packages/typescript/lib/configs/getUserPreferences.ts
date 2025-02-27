@@ -35,6 +35,7 @@ export async function getUserPreferences(
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
 		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, currentDirectory),
+		autoImportSpecifierExcludeRegexes: preferencesConfig.autoImportSpecifierExcludeRegexes,
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,
@@ -71,10 +72,13 @@ function getAutoImportFileExcludePatternsPreference(config: any, workspacePath: 
 		// Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
 		const slashNormalized = p.replace(/\\/g, '/');
 		const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
-		return path.isAbsolute(p) ? p :
-			p.startsWith('*') ? '/' + slashNormalized :
-				isRelative ? path.join(workspacePath, p) :
-					'/**/' + slashNormalized;
+		return path.isAbsolute(p)
+			? p
+			: p.startsWith('*')
+				? '/' + slashNormalized
+				: isRelative
+					? path.join(workspacePath, p)
+					: '/**/' + slashNormalized;
 	});
 }
 
