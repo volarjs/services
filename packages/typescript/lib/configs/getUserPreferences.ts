@@ -72,13 +72,10 @@ function getAutoImportFileExcludePatternsPreference(config: any, workspacePath: 
 		// Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
 		const slashNormalized = p.replace(/\\/g, '/');
 		const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
-		return path.isAbsolute(p)
-			? p
-			: p.startsWith('*')
-				? '/' + slashNormalized
-				: isRelative
-					? path.join(workspacePath, p)
-					: '/**/' + slashNormalized;
+		return path.isAbsolute(p) ? p :
+			p.startsWith('*') ? '/' + slashNormalized :
+				isRelative ? path.join(workspacePath, p) :
+					'/**/' + slashNormalized;
 	});
 }
 
