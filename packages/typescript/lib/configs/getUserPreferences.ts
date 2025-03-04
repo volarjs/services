@@ -35,6 +35,7 @@ export async function getUserPreferences(
 		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
 		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
 		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, currentDirectory),
+		autoImportSpecifierExcludeRegexes: preferencesConfig.autoImportSpecifierExcludeRegexes,
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,
