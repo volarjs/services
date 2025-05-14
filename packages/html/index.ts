@@ -116,8 +116,6 @@ export function create({
 	};
 	useDefaultDataProvider?: boolean;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	isAutoCreateQuotesEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	isAutoClosingTagsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	getDocumentContext?(context: LanguageServiceContext): html.DocumentContext;
 	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
 	getCompletionConfiguration?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.CompletionConfiguration | undefined>;
@@ -370,36 +368,26 @@ export function create({
 					});
 				},
 
-				async provideAutoInsertSnippet(document, selection, change) {
+				async provideAutoInsertSnippet(document, selection, lastChange) {
 					// selection must at end of change
-					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
+					if (document.offsetAt(selection) !== lastChange.rangeOffset + lastChange.text.length) {
 						return;
 					}
 					return worker(document, async htmlDocument => {
-						if (change.rangeLength === 0 && change.text.endsWith('=')) {
-
-							const enabled = await context.env.getConfiguration?.(configurationSections.autoCreateQuotes) ?? true;
-
-							if (enabled) {
-
-								const completionConfiguration = await getCompletionConfiguration(document, context);
-								const text = htmlLs.doQuoteComplete(document, selection, htmlDocument, completionConfiguration);
-
-								if (text) {
-									return text;
+						if (lastChange.rangeLength === 0 && !/\n/.test(lastChange.text)) {
+							if (lastChange.text.endsWith('=')) {
+								const enabled = await context.env.getConfiguration?.(configurationSections.autoCreateQuotes) ?? true;
+								if (enabled) {
+									const completionConfiguration = await getCompletionConfiguration(document, context);
+									const text = htmlLs.doQuoteComplete(document, selection, htmlDocument, completionConfiguration);
+									return text ?? undefined;
 								}
 							}
-						}
-						if (change.rangeLength === 0 && (change.text.endsWith('>') || change.text.endsWith('/'))) {
-
-							const enabled = await context.env.getConfiguration?.(configurationSections.autoClosingTags) ?? true;
-
-							if (enabled) {
-
-								const text = htmlLs.doTagComplete(document, selection, htmlDocument);
-
-								if (text) {
-									return text;
+							if (lastChange.text.endsWith('>') || lastChange.text.endsWith('/')) {
+								const enabled = await context.env.getConfiguration?.(configurationSections.autoClosingTags) ?? true;
+								if (enabled) {
+									const text = htmlLs.doTagComplete(document, selection, htmlDocument);
+									return text ?? undefined;
 								}
 							}
 						}
