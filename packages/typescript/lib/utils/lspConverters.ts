@@ -103,9 +103,8 @@ function convertDiagnosticCategory(input: ts.DiagnosticCategory): vscode.Diagnos
 	return 1 satisfies typeof vscode.DiagnosticSeverity.Error;
 }
 
-function getMessageText(diag: ts.Diagnostic | ts.DiagnosticMessageChain, level = 0) {
-	let messageText = '  '.repeat(level);
-
+function getMessageText(diag: ts.Diagnostic) {
+	let messageText = '';
 	if (typeof diag.messageText === 'string') {
 		messageText += diag.messageText;
 	}
@@ -113,11 +112,21 @@ function getMessageText(diag: ts.Diagnostic | ts.DiagnosticMessageChain, level =
 		messageText += diag.messageText.messageText;
 		if (diag.messageText.next) {
 			for (const info of diag.messageText.next) {
-				messageText += '\n' + getMessageText(info, level + 1);
+				messageText += '\n' + getNextMessageText(info, 1);
 			}
 		}
 	}
+	return messageText;
+}
 
+function getNextMessageText(diag: ts.DiagnosticMessageChain, level = 0) {
+	let messageText = '  '.repeat(level);
+	messageText += diag.messageText;
+	if (diag.next) {
+		for (const info of diag.next) {
+			messageText += '\n' + getNextMessageText(info, level + 1);
+		}
+	}
 	return messageText;
 }
 
