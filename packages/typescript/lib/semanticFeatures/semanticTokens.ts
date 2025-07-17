@@ -1,8 +1,9 @@
 import type * as vscode from '@volar/language-service';
+import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import type { URI } from 'vscode-uri';
 import { safeCall } from '../shared';
 import type { SharedContext } from './types';
-import type { URI } from 'vscode-uri';
 
 export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 	return (uri: URI, document: TextDocument, range: vscode.Range, legend: vscode.SemanticTokensLegend) => {
@@ -18,68 +19,78 @@ export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 			return;
 		}
 
-		let tokenModifiersTable: number[] = [];
-		tokenModifiersTable[TokenModifier.async] = 1 << legend.tokenModifiers.indexOf('async');
-		tokenModifiersTable[TokenModifier.declaration] = 1 << legend.tokenModifiers.indexOf('declaration');
-		tokenModifiersTable[TokenModifier.readonly] = 1 << legend.tokenModifiers.indexOf('readonly');
-		tokenModifiersTable[TokenModifier.static] = 1 << legend.tokenModifiers.indexOf('static');
-		tokenModifiersTable[TokenModifier.local] = 1 << legend.tokenModifiers.indexOf('local');
-		tokenModifiersTable[TokenModifier.defaultLibrary] = 1 << legend.tokenModifiers.indexOf('defaultLibrary');
-		tokenModifiersTable = tokenModifiersTable.map(mod => Math.max(mod, 0));
-
-		const end = start + length;
-		const tokenSpan = response.spans;
-		const tokens: [number, number, number, number, number][] = [];
-		let i = 0;
-		while (i < tokenSpan.length) {
-			const offset = tokenSpan[i++];
-			if (offset >= end) {
-				break;
-			}
-			const length = tokenSpan[i++];
-			const tsClassification = tokenSpan[i++];
-
-			const tokenType = getTokenTypeFromClassification(tsClassification);
-			if (tokenType === undefined) {
-				continue;
-			}
-
-			const tokenModifiers = getTokenModifierFromClassification(tsClassification);
-
-			// we can use the document's range conversion methods because the result is at the same version as the document
-			const startPos = document.positionAt(offset);
-			const endPos = document.positionAt(offset + length);
-			const serverToken = tsTokenTypeToServerTokenType(tokenType);
-			if (serverToken === undefined) {
-				continue;
-			}
-			const serverTokenModifiers = tsTokenModifierToServerTokenModifier(tokenModifiers);
-
-			for (let line = startPos.line; line <= endPos.line; line++) {
-				const startCharacter = (line === startPos.line ? startPos.character : 0);
-				const endCharacter = (line === endPos.line ? endPos.character : docLineLength(document, line));
-				tokens.push([line, startCharacter, endCharacter - startCharacter, serverToken, serverTokenModifiers]);
-			}
-		}
-		return tokens;
-
-		function tsTokenTypeToServerTokenType(tokenType: number) {
-			return legend.tokenTypes.indexOf(tokenTypes[tokenType]);
-		}
-
-		function tsTokenModifierToServerTokenModifier(input: number) {
-			let m = 0;
-			let i = 0;
-			while (input) {
-				if (input & 1) {
-					m |= tokenModifiersTable[i];
-				}
-				input = input >> 1;
-				i++;
-			}
-			return m;
-		}
+		return convertClassificationsToSemanticTokens(document, { start, length }, legend, response);
 	};
+}
+
+export function convertClassificationsToSemanticTokens(
+	document: TextDocument,
+	{ start, length }: ts.TextSpan,
+	legend: vscode.SemanticTokensLegend,
+	response: ts.Classifications
+) {
+	let tokenModifiersTable: number[] = [];
+	tokenModifiersTable[TokenModifier.async] = 1 << legend.tokenModifiers.indexOf('async');
+	tokenModifiersTable[TokenModifier.declaration] = 1 << legend.tokenModifiers.indexOf('declaration');
+	tokenModifiersTable[TokenModifier.readonly] = 1 << legend.tokenModifiers.indexOf('readonly');
+	tokenModifiersTable[TokenModifier.static] = 1 << legend.tokenModifiers.indexOf('static');
+	tokenModifiersTable[TokenModifier.local] = 1 << legend.tokenModifiers.indexOf('local');
+	tokenModifiersTable[TokenModifier.defaultLibrary] = 1 << legend.tokenModifiers.indexOf('defaultLibrary');
+	tokenModifiersTable = tokenModifiersTable.map(mod => Math.max(mod, 0));
+
+	const end = start + length;
+	const tokenSpan = response.spans;
+	const tokens: [number, number, number, number, number][] = [];
+	let i = 0;
+	while (i < tokenSpan.length) {
+		const offset = tokenSpan[i++];
+		if (offset >= end) {
+			break;
+		}
+		const length = tokenSpan[i++];
+		const tsClassification = tokenSpan[i++];
+
+		const tokenType = getTokenTypeFromClassification(tsClassification);
+		if (tokenType === undefined) {
+			continue;
+		}
+
+		const tokenModifiers = getTokenModifierFromClassification(tsClassification);
+
+		// we can use the document's range conversion methods because the result is at the same version as the document
+		const startPos = document.positionAt(offset);
+		const endPos = document.positionAt(offset + length);
+		const serverToken = tsTokenTypeToServerTokenType(tokenType);
+		if (serverToken === undefined) {
+			continue;
+		}
+		const serverTokenModifiers = tsTokenModifierToServerTokenModifier(tokenModifiers);
+
+		for (let line = startPos.line; line <= endPos.line; line++) {
+			const startCharacter = (line === startPos.line ? startPos.character : 0);
+			const endCharacter = (line === endPos.line ? endPos.character : docLineLength(document, line));
+			tokens.push([line, startCharacter, endCharacter - startCharacter, serverToken, serverTokenModifiers]);
+		}
+	}
+
+	return tokens;
+
+	function tsTokenTypeToServerTokenType(tokenType: number) {
+		return legend.tokenTypes.indexOf(tokenTypes[tokenType]);
+	}
+
+	function tsTokenModifierToServerTokenModifier(input: number) {
+		let m = 0;
+		let i = 0;
+		while (input) {
+			if (input & 1) {
+				m |= tokenModifiersTable[i];
+			}
+			input = input >> 1;
+			i++;
+		}
+		return m;
+	}
 }
 
 function docLineLength(document: TextDocument, line: number) {
