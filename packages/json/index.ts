@@ -182,38 +182,38 @@ export function create({
 				},
 
 				provideDocumentLinks(document) {
-					return worker(document, async jsonDocument => {
-						return await jsonLs.findLinks(document, jsonDocument);
+					return worker(document, jsonDocument => {
+						return jsonLs.findLinks(document, jsonDocument);
 					});
 				},
 
 				provideDocumentSymbols(document) {
-					return worker(document, async jsonDocument => {
-						return await jsonLs.findDocumentSymbols2(document, jsonDocument);
+					return worker(document, jsonDocument => {
+						return jsonLs.findDocumentSymbols2(document, jsonDocument);
 					});
 				},
 
 				provideDocumentColors(document) {
-					return worker(document, async jsonDocument => {
-						return await jsonLs.findDocumentColors(document, jsonDocument);
+					return worker(document, jsonDocument => {
+						return jsonLs.findDocumentColors(document, jsonDocument);
 					});
 				},
 
 				provideColorPresentations(document, color, range) {
-					return worker(document, async jsonDocument => {
-						return await jsonLs.getColorPresentations(document, jsonDocument, color, range);
+					return worker(document, jsonDocument => {
+						return jsonLs.getColorPresentations(document, jsonDocument, color, range);
 					});
 				},
 
 				provideFoldingRanges(document) {
-					return worker(document, async () => {
-						return await jsonLs.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange);
+					return worker(document, () => {
+						return jsonLs.getFoldingRanges(document, context.env.clientCapabilities?.textDocument?.foldingRange);
 					});
 				},
 
 				provideSelectionRanges(document, positions) {
-					return worker(document, async jsonDocument => {
-						return await jsonLs.getSelectionRanges(document, positions, jsonDocument);
+					return worker(document, jsonDocument => {
+						return jsonLs.getSelectionRanges(document, positions, jsonDocument);
 					});
 				},
 

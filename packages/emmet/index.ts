@@ -40,7 +40,11 @@ export function create({
 							return completionList;
 						}
 						const item = completionList.items[0];
-						const expandedText = item.documentation ? item.documentation.toString() : '';
+						const expandedText = typeof item.documentation === 'string'
+							? item.documentation
+							: item.documentation
+								? item.documentation.value
+								: '';
 
 						if (expandedText.startsWith('<')) {
 							lastCompletionType = 'html';

@@ -4,7 +4,7 @@ import type * as html from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
-	return (pugDoc: PugDocument, pos: html.Position, options?: html.HoverSettings | undefined) => {
+	return (pugDoc: PugDocument, pos: html.Position, options?: html.HoverSettings) => {
 
 		for (const htmlPos of getGeneratedPositions(pugDoc.docs, pos)) {
 

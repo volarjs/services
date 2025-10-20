@@ -1,7 +1,7 @@
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-html-languageservice';
 import type { PugDocument } from '../pugDocument';
-import { LanguageServiceContext, transformCompletionList } from '@volar/language-service';
+import { type LanguageServiceContext, transformCompletionList } from '@volar/language-service';
 import { getGeneratedPositions, getSourceRange } from '@volar/language-service/lib/utils/featureWorkers';
 
 export function register(htmlLs: html.LanguageService) {
@@ -14,8 +14,8 @@ export function register(htmlLs: html.LanguageService) {
 		pugDoc: PugDocument,
 		pos: html.Position,
 		serviceContext: LanguageServiceContext,
-		documentContext: html.DocumentContext | undefined,
-		options?: html.CompletionConfiguration | undefined
+		documentContext?: html.DocumentContext,
+		options?: html.CompletionConfiguration
 	) => {
 
 		const offset = pugDoc.pugTextDocument.offsetAt(pos);

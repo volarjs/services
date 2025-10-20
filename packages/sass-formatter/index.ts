@@ -1,5 +1,5 @@
 import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
-import { SassFormatter, SassFormatterConfig } from 'sass-formatter';
+import { SassFormatter, type SassFormatterConfig } from 'sass-formatter';
 
 export function create({
 	documentSelector = ['sass'],

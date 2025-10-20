@@ -1,4 +1,4 @@
-import { SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext, CodeAction } from '@volar/language-service';
+import { type SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext, type CodeAction } from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';
@@ -83,7 +83,7 @@ export function create({
 			const parser: IMdParser = {
 				slugifier: githubSlugifier,
 				async tokenize(document) {
-					return await md.parse(document.getText(), {});
+					return md.parse(document.getText(), {});
 				}
 			};
 			const workspace = getMarkdownWorkspace();
@@ -346,7 +346,7 @@ export function create({
 					onDidDeleteMarkdownDocument: onDidDeleteMarkdownDocument.event,
 
 					async openMarkdownDocument(resource) {
-						return await getTextDocument(resource);
+						return getTextDocument(resource);
 					},
 
 					async readDirectory(resource) {

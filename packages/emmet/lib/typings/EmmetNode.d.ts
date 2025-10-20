@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 
 declare module 'EmmetNode' {
-	import { Position } from 'vscode';
+	import type { Position } from 'vscode';
 
 	export interface Node {
 		start: Position;

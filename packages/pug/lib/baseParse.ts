@@ -1,4 +1,4 @@
-import { Segment, toString } from 'muggle-string';
+import { type Segment, toString } from 'muggle-string';
 import * as pugLex from 'pug-lexer';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { buildMappings } from './buildMappings';

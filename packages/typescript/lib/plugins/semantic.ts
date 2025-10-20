@@ -1048,7 +1048,7 @@ export function create(
 				const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 				const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
 				if (virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
-					const { getServiceScript, getExtraServiceScripts } = sourceScript.generated?.languagePlugin.typescript;
+					const { getServiceScript, getExtraServiceScripts } = sourceScript.generated.languagePlugin.typescript;
 					const sourceFileName = uriConverter.asFileName(sourceScript.id);
 					if (getServiceScript(sourceScript.generated.root)?.code === virtualCode) {
 						return {
