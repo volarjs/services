@@ -47,7 +47,7 @@ import {
 	convertQuickInfo,
 	convertRenameLocations,
 	convertTextSpan,
-	getLineText
+	getLineText,
 } from '../utils/lspConverters';
 import { snippetForFunctionCall } from '../utils/snippetForFunctionCall';
 
@@ -63,17 +63,23 @@ export interface CompletionItemData {
 	fileName: string;
 	offset: number;
 	originalItem: {
-		name: ts.CompletionEntry['name'],
-		source: ts.CompletionEntry['source'],
-		data: ts.CompletionEntry['data'],
-		labelDetails: ts.CompletionEntry['labelDetails'],
+		name: ts.CompletionEntry['name'];
+		source: ts.CompletionEntry['source'];
+		data: ts.CompletionEntry['data'];
+		labelDetails: ts.CompletionEntry['labelDetails'];
 	};
 }
 
 const documentRegistries: [boolean, string, ts.DocumentRegistry][] = [];
 
-function getDocumentRegistry(ts: typeof import('typescript'), useCaseSensitiveFileNames: boolean, currentDirectory: string) {
-	let documentRegistry = documentRegistries.find(item => item[0] === useCaseSensitiveFileNames && item[1] === currentDirectory)?.[2];
+function getDocumentRegistry(
+	ts: typeof import('typescript'),
+	useCaseSensitiveFileNames: boolean,
+	currentDirectory: string,
+) {
+	let documentRegistry = documentRegistries.find(item =>
+		item[0] === useCaseSensitiveFileNames && item[1] === currentDirectory
+	)?.[2];
 	if (!documentRegistry) {
 		documentRegistry = ts.createDocumentRegistry(useCaseSensitiveFileNames, currentDirectory);
 		documentRegistries.push([useCaseSensitiveFileNames, currentDirectory, documentRegistry]);
@@ -86,16 +92,16 @@ export function create(
 	{
 		disableAutoImportCache = false,
 		isValidationEnabled = async (document, context) => {
-			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.validate.enable') ?? true;
+			return await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.validate.enable') ?? true;
 		},
 		isSuggestionsEnabled = async (document, context) => {
-			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.enabled') ?? true;
+			return await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.suggest.enabled') ?? true;
 		},
 	}: {
 		disableAutoImportCache?: boolean;
 		isValidationEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		isSuggestionsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	} = {}
+	} = {},
 ): LanguageServicePlugin {
 	return {
 		name: 'typescript-semantic',
@@ -179,7 +185,7 @@ export function create(
 			if (disableAutoImportCache) {
 				languageService = ts.createLanguageService(
 					languageServiceHost,
-					getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory())
+					getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()),
 				);
 			}
 			else {
@@ -187,7 +193,11 @@ export function create(
 					ts,
 					sys,
 					languageServiceHost,
-					proxiedHost => ts.createLanguageService(proxiedHost, getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()))
+					proxiedHost =>
+						ts.createLanguageService(
+							proxiedHost,
+							getDocumentRegistry(ts, sys.useCaseSensitiveFileNames, languageServiceHost.getCurrentDirectory()),
+						),
 				);
 				languageService = created.languageService;
 			}
@@ -211,7 +221,9 @@ export function create(
 
 					const uri = uriConverter.asUri(fileName);
 					const sourceScript = context.language.scripts.get(uri);
-					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
+					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(
+						sourceScript.generated.root,
+					);
 					if (sourceScript && serviceScript) {
 						return context.encodeEmbeddedDocumentUri(sourceScript.id, serviceScript.code.id);
 					}
@@ -245,12 +257,11 @@ export function create(
 			let formattingOptions: FormattingOptions | undefined;
 
 			if (created?.setPreferences && context.env.getConfiguration) {
-
 				updatePreferences();
 				context.env.onDidChangeConfiguration?.(updatePreferences);
 
 				async function updatePreferences() {
-					const preferences = await context.env.getConfiguration?.<ts.UserPreferences>('typescript.preferences');
+					const preferences = await context.env.getConfiguration<ts.UserPreferences>?.('typescript.preferences');
 					if (preferences) {
 						created!.setPreferences?.(preferences);
 					}
@@ -258,7 +269,6 @@ export function create(
 			}
 
 			if (created?.projectUpdated) {
-
 				const sourceScriptNames = new Set<string>();
 				const normalizeFileName = sys.useCaseSensitiveFileNames
 					? (id: string) => id
@@ -267,7 +277,9 @@ export function create(
 				updateSourceScriptFileNames();
 
 				context.env.onDidChangeWatchedFiles?.(params => {
-					const someFileCreateOrDeiete = params.changes.some(change => change.type !== 2 satisfies typeof FileChangeType.Changed);
+					const someFileCreateOrDeiete = params.changes.some(change =>
+						change.type !== 2 satisfies typeof FileChangeType.Changed
+					);
 					if (someFileCreateOrDeiete) {
 						updateSourceScriptFileNames();
 					}
@@ -287,7 +299,9 @@ export function create(
 						const uri = decoded ? decoded[0] : maybeEmbeddedUri;
 						const sourceScript = context.language.scripts.get(uri);
 						if (sourceScript?.generated) {
-							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(sourceScript.generated.root);
+							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(
+								sourceScript.generated.root,
+							);
 							if (tsCode) {
 								sourceScriptNames.add(normalizeFileName(fileName));
 							}
@@ -300,7 +314,6 @@ export function create(
 			}
 
 			return {
-
 				provide: {
 					'typescript/languageService': () => languageService,
 					'typescript/languageServiceHost': () => languageServiceHost,
@@ -323,7 +336,6 @@ export function create(
 				},
 
 				async provideCompletionItems(document, position, completeContext, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -341,11 +353,13 @@ export function create(
 					const preferences = await getUserPreferences(ctx, document);
 					const fileName = ctx.uriToFileName(uri);
 					const offset = document.offsetAt(position);
-					const info = safeCall(() => ctx.languageService.getCompletionsAtPosition(fileName, offset, {
-						...preferences,
-						triggerCharacter: completeContext.triggerCharacter as ts.CompletionsTriggerCharacter,
-						triggerKind: completeContext.triggerKind,
-					}));
+					const info = safeCall(() =>
+						ctx.languageService.getCompletionsAtPosition(fileName, offset, {
+							...preferences,
+							triggerCharacter: completeContext.triggerCharacter as ts.CompletionsTriggerCharacter,
+							triggerKind: completeContext.triggerKind,
+						})
+					);
 					if (info) {
 						return convertCompletionInfo<CompletionItemData>(
 							ts,
@@ -362,7 +376,7 @@ export function create(
 									data: tsEntry.data,
 									labelDetails: tsEntry.labelDetails,
 								},
-							})
+							}),
 						);
 					}
 				},
@@ -382,7 +396,17 @@ export function create(
 						getFormatCodeSettings(ctx, document, formattingOptions),
 						getUserPreferences(ctx, document),
 					]);
-					const details = safeCall(() => ctx.languageService.getCompletionEntryDetails(fileName, offset, data.originalItem.name, formatOptions, data.originalItem.source, preferences, data.originalItem.data));
+					const details = safeCall(() =>
+						ctx.languageService.getCompletionEntryDetails(
+							fileName,
+							offset,
+							data.originalItem.name,
+							formatOptions,
+							data.originalItem.source,
+							preferences,
+							data.originalItem.data,
+						)
+					);
 					if (!details) {
 						return item;
 					}
@@ -396,23 +420,30 @@ export function create(
 						details,
 						document,
 						ctx.fileNameToUri,
-						ctx.getTextDocument
+						ctx.getTextDocument,
 					);
-					const useCodeSnippetsOnMethodSuggest = await ctx.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.suggest.completeFunctionCalls') ?? false;
+					const useCodeSnippetsOnMethodSuggest =
+						await ctx.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.suggest.completeFunctionCalls')
+							?? false;
 					const useCodeSnippet = useCodeSnippetsOnMethodSuggest
 						&& (
 							item.kind === 3 satisfies typeof CompletionItemKind.Function
 							|| item.kind === 2 satisfies typeof CompletionItemKind.Method
 						);
 					if (useCodeSnippet) {
-						const shouldCompleteFunction = isValidFunctionCompletionContext(ctx.languageService, fileName, offset, document);
+						const shouldCompleteFunction = isValidFunctionCompletionContext(
+							ctx.languageService,
+							fileName,
+							offset,
+							document,
+						);
 						if (shouldCompleteFunction) {
 							const { snippet, parameterCount } = snippetForFunctionCall(
 								{
 									insertText: item.insertText ?? item.textEdit?.newText, // insertText is dropped by LSP in some case: https://github.com/microsoft/vscode-languageserver-node/blob/9b742021fb04ad081aa3676a9eecf4fa612084b4/client/src/common/codeConverter.ts#L659-L664
 									label: item.label,
 								},
-								details.displayParts
+								details.displayParts,
 							);
 							if (item.textEdit) {
 								item.textEdit.newText = snippet;
@@ -422,8 +453,8 @@ export function create(
 							}
 							item.insertTextFormat = 2 satisfies typeof InsertTextFormat.Snippet;
 							if (parameterCount > 0) {
-								//Fix for https://github.com/microsoft/vscode/issues/104059
-								//Don't show parameter hints if "editor.parameterHints.enabled": false
+								// Fix for https://github.com/microsoft/vscode/issues/104059
+								// Don't show parameter hints if "editor.parameterHints.enabled": false
 								// if (await getConfiguration('editor.parameterHints.enabled', document.uri)) {
 								// 	item.command = {
 								// 		title: 'triggerParameterHints',
@@ -439,7 +470,7 @@ export function create(
 						client: ts.LanguageService,
 						filepath: string,
 						offset: number,
-						document: TextDocument
+						document: TextDocument,
 					): boolean {
 						// Workaround for https://github.com/microsoft/TypeScript/issues/12677
 						// Don't complete function calls inside of destructive assignments or imports
@@ -454,7 +485,8 @@ export function create(
 										return false;
 								}
 							}
-						} catch {
+						}
+						catch {
 							// Noop
 						}
 
@@ -467,7 +499,6 @@ export function create(
 				},
 
 				async provideRenameRange(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -491,7 +522,6 @@ export function create(
 				},
 
 				async provideRenameEdits(document, position, newName, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document, true)) {
@@ -517,7 +547,13 @@ export function create(
 					}
 
 					const { providePrefixAndSuffixTextForRename } = await getUserPreferences(ctx, document);
-					const entries = ctx.languageService.findRenameLocations(fileName, offset, false, false, providePrefixAndSuffixTextForRename);
+					const entries = ctx.languageService.findRenameLocations(
+						fileName,
+						offset,
+						false,
+						false,
+						providePrefixAndSuffixTextForRename,
+					);
 					if (!entries) {
 						return;
 					}
@@ -527,7 +563,7 @@ export function create(
 						fileToRename: string,
 						newName: string,
 						formatOptions: ts.FormatCodeSettings,
-						preferences: ts.UserPreferences
+						preferences: ts.UserPreferences,
 					): WorkspaceEdit | undefined {
 						// Make sure we preserve file extension if none provided
 						if (!path.extname(newName)) {
@@ -535,7 +571,9 @@ export function create(
 						}
 						const dirname = path.dirname(fileToRename);
 						const newFilePath = path.join(dirname, newName);
-						const response = safeCall(() => ctx.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences));
+						const response = safeCall(() =>
+							ctx.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences)
+						);
 						if (!response) {
 							return;
 						}
@@ -553,7 +591,6 @@ export function create(
 				},
 
 				async provideCodeActions(document, range, context, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -575,7 +612,6 @@ export function create(
 				},
 
 				async provideInlayHints(document, range, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -602,7 +638,6 @@ export function create(
 				},
 
 				async provideCallHierarchyItems(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -656,7 +691,6 @@ export function create(
 				},
 
 				async provideDefinition(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -677,7 +711,6 @@ export function create(
 				},
 
 				async provideTypeDefinition(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -705,7 +738,6 @@ export function create(
 				},
 
 				async provideHover(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -726,7 +758,6 @@ export function create(
 				},
 
 				async provideImplementation(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -747,7 +778,6 @@ export function create(
 				},
 
 				async provideReferences(document, position, referenceContext, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document, true)) {
@@ -783,7 +813,6 @@ export function create(
 				},
 
 				async provideFileReferences(document, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document, true)) {
@@ -803,7 +832,6 @@ export function create(
 				},
 
 				async provideDocumentHighlights(document, position, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -830,7 +858,6 @@ export function create(
 				},
 
 				async provideDocumentSemanticTokens(document, range, legend, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -870,7 +897,9 @@ export function create(
 
 					const fileToRename = ctx.uriToFileName(oldUri);
 					const newFilePath = ctx.uriToFileName(newUri);
-					const response = safeCall(() => ctx.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences));
+					const response = safeCall(() =>
+						ctx.languageService.getEditsForFileRename(fileToRename, newFilePath, formatOptions, preferences)
+					);
 					if (!response?.length) {
 						return;
 					}
@@ -879,7 +908,6 @@ export function create(
 				},
 
 				async provideSignatureHelp(document, position, context, token) {
-
 					const uri = URI.parse(document.uri);
 
 					if (!isSemanticDocument(uri, document)) {
@@ -893,7 +921,7 @@ export function create(
 					const options: ts.SignatureHelpItemsOptions = {};
 					if (context?.triggerKind === 1 satisfies typeof SignatureHelpTriggerKind.Invoked) {
 						options.triggerReason = {
-							kind: 'invoked'
+							kind: 'invoked',
 						};
 					}
 					else if (context?.triggerKind === 2 satisfies typeof SignatureHelpTriggerKind.TriggerCharacter) {
@@ -923,14 +951,14 @@ export function create(
 							const signature: SignatureInformation = {
 								label: '',
 								documentation: undefined,
-								parameters: []
+								parameters: [],
 							};
 							signature.label += ts.displayPartsToString(item.prefixDisplayParts);
 							item.parameters.forEach((p, i, a) => {
 								const label = ts.displayPartsToString(p.displayParts);
 								const parameter: ParameterInformation = {
 									label,
-									documentation: ts.displayPartsToString(p.documentation)
+									documentation: ts.displayPartsToString(p.documentation),
 								};
 								signature.label += label;
 								signature.parameters!.push(parameter);
@@ -945,8 +973,11 @@ export function create(
 				},
 			};
 
-			async function provideDiagnosticsWorker(document: TextDocument, token: CancellationToken, mode: 'syntactic' | 'semantic') {
-
+			async function provideDiagnosticsWorker(
+				document: TextDocument,
+				token: CancellationToken,
+				mode: 'syntactic' | 'semantic',
+			) {
 				const uri = URI.parse(document.uri);
 
 				if (!isSemanticDocument(uri, document)) {
@@ -969,9 +1000,10 @@ export function create(
 				}
 				const tsToken: ts.CancellationToken = {
 					isCancellationRequested() {
-						return ctx.project.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested() ?? false;
+						return ctx.project.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()
+							?? false;
 					},
-					throwIfCancellationRequested() { },
+					throwIfCancellationRequested() {},
 				};
 				if (mode === 'syntactic') {
 					const syntacticDiagnostics = safeCall(() => program.getSyntacticDiagnostics(sourceFile, tsToken)) ?? [];
@@ -1016,7 +1048,8 @@ export function create(
 						oldSysVersion = newSysVersion;
 						languageService.getProgram(); // trigger file requests
 						newSysVersion = await aggressiveSync(sys.sync);
-					} while (newSysVersion !== oldSysVersion && !token.isCancellationRequested);
+					}
+					while (newSysVersion !== oldSysVersion && !token.isCancellationRequested);
 				}
 				return token.isCancellationRequested;
 			}
@@ -1068,8 +1101,7 @@ export function create(
 }
 
 function getBasicTriggerCharacters(tsVersion: string) {
-
-	const triggerCharacters = ['.', '"', '\'', '`', '/', '<'];
+	const triggerCharacters = ['.', '"', "'", '`', '/', '<'];
 
 	// https://github.com/microsoft/vscode/blob/8e65ae28d5fb8b3c931135da1a41edb9c80ae46f/extensions/typescript-language-features/src/languageFeatures/completions.ts#L811-L833
 	if (semver.lt(tsVersion, '3.1.0') || semver.gte(tsVersion, '3.2.0')) {

@@ -1,8 +1,27 @@
-import { type SourceScript, forEachEmbeddedCode, type DocumentSelector, type FileChangeType, type FileType, type LanguageServicePlugin, type LanguageServicePluginInstance, type LocationLink, type ProviderResult, type LanguageServiceContext, type CodeAction } from '@volar/language-service';
+import {
+	type CodeAction,
+	type DocumentSelector,
+	type FileChangeType,
+	type FileType,
+	forEachEmbeddedCode,
+	type LanguageServiceContext,
+	type LanguageServicePlugin,
+	type LanguageServicePluginInstance,
+	type LocationLink,
+	type ProviderResult,
+	type SourceScript,
+} from '@volar/language-service';
 import { Emitter } from 'vscode-jsonrpc';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { DiagnosticOptions, ILogger, IMdLanguageService, IMdParser, ITextDocument, IWorkspace } from 'vscode-markdown-languageservice';
-import { LogLevel, createLanguageService, githubSlugifier } from 'vscode-markdown-languageservice';
+import type {
+	DiagnosticOptions,
+	ILogger,
+	IMdLanguageService,
+	IMdParser,
+	ITextDocument,
+	IWorkspace,
+} from 'vscode-markdown-languageservice';
+import { createLanguageService, githubSlugifier, LogLevel } from 'vscode-markdown-languageservice';
 import { URI, Utils } from 'vscode-uri';
 import MarkdownIt = require('markdown-it');
 
@@ -36,7 +55,10 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	fileExtensions?: string[];
-	getDiagnosticOptions?(document: TextDocument, context: LanguageServiceContext): ProviderResult<DiagnosticOptions | undefined>;
+	getDiagnosticOptions?(
+		document: TextDocument,
+		context: LanguageServiceContext,
+	): ProviderResult<DiagnosticOptions | undefined>;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'markdown',
@@ -78,13 +100,13 @@ export function create({
 				level: LogLevel.Off,
 				log(_logLevel, message) {
 					context.env.console?.log(message);
-				}
+				},
 			};
 			const parser: IMdParser = {
 				slugifier: githubSlugifier,
 				async tokenize(document) {
 					return md.parse(document.getText(), {});
-				}
+				},
 			};
 			const workspace = getMarkdownWorkspace();
 			const mdLs = createLanguageService({
@@ -109,7 +131,7 @@ export function create({
 				},
 
 				provide: {
-					'markdown/languageService': () => mdLs
+					'markdown/languageService': () => mdLs,
 				},
 
 				provideCodeActions(document, range, context, token) {
@@ -154,11 +176,11 @@ export function create({
 							document,
 							position,
 							{},
-							token
+							token,
 						);
 						return {
 							isIncomplete: false,
-							items
+							items,
 						};
 					}
 				},
@@ -209,7 +231,7 @@ export function create({
 						return mdLs.getDocumentSymbols(
 							document,
 							{ includeLinkDefinitions: true },
-							token
+							token,
 						);
 					}
 				},
@@ -238,7 +260,7 @@ export function create({
 							document,
 							position,
 							referenceContext,
-							token
+							token,
 						);
 					}
 				},
@@ -272,7 +294,7 @@ export function create({
 
 				async resolveDocumentLink(link, token) {
 					return await mdLs.resolveDocumentLink(link, token) ?? link;
-				}
+				},
 			};
 
 			function prepare(document: TextDocument) {
@@ -355,7 +377,7 @@ export function create({
 							.filter(file => file[1] !== 0 satisfies FileType.Unknown)
 							.map(([fileName, fileType]) => [
 								fileName,
-								{ isDirectory: fileType === 2 satisfies FileType.Directory }
+								{ isDirectory: fileType === 2 satisfies FileType.Directory },
 							]);
 					},
 
@@ -403,17 +425,20 @@ export function create({
 									fsSourceScripts.set(fileUri.toString(), undefined);
 									const fileContent = await fs?.readFile(fileUri);
 									if (fileContent !== undefined) {
-										fsSourceScripts.set(fileUri.toString(), context.language.scripts.set(fileUri, {
-											getText(start, end) {
-												return fileContent.substring(start, end);
-											},
-											getLength() {
-												return fileContent.length;
-											},
-											getChangeRange() {
-												return undefined;
-											},
-										}));
+										fsSourceScripts.set(
+											fileUri.toString(),
+											context.language.scripts.set(fileUri, {
+												getText(start, end) {
+													return fileContent.substring(start, end);
+												},
+												getLength() {
+													return fileContent.length;
+												},
+												getChangeRange() {
+													return undefined;
+												},
+											}),
+										);
 										context.language.scripts.delete(fileUri);
 									}
 								}
@@ -435,7 +460,7 @@ export function create({
 								}
 							}
 						}
-					})
+					}),
 				);
 				return docs;
 			}
@@ -460,7 +485,7 @@ export function create({
 	};
 }
 
-function matchDocument(selector: DocumentSelector, document: { languageId: string; }) {
+function matchDocument(selector: DocumentSelector, document: { languageId: string }) {
 	for (const sel of selector) {
 		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
 			return true;

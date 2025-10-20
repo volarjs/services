@@ -10,15 +10,18 @@ import type { URI } from 'vscode-uri';
 function replaceLinks(text: string): string {
 	return text
 		// Http(s) links
-		.replace(/\{@(link|linkplain|linkcode) (https?:\/\/[^ |}]+?)(?:[| ]([^{}\n]+?))?\}/gi, (_, tag: string, link: string, text?: string) => {
-			switch (tag) {
-				case 'linkcode':
-					return `[\`${text ? text.trim() : link}\`](${link})`;
+		.replace(
+			/\{@(link|linkplain|linkcode) (https?:\/\/[^ |}]+?)(?:[| ]([^{}\n]+?))?\}/gi,
+			(_, tag: string, link: string, text?: string) => {
+				switch (tag) {
+					case 'linkcode':
+						return `[\`${text ? text.trim() : link}\`](${link})`;
 
-				default:
-					return `[${text ? text.trim() : link}](${link})`;
-			}
-		});
+					default:
+						return `[${text ? text.trim() : link}](${link})`;
+				}
+			},
+		);
 }
 
 function processInlineTags(text: string): string {
@@ -28,7 +31,7 @@ function processInlineTags(text: string): string {
 function getTagBodyText(
 	tag: ts.server.protocol.JSDocTagInfo,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string | undefined {
 	if (!tag.text) {
 		return undefined;
@@ -49,7 +52,8 @@ function getTagBodyText(
 			const captionTagMatches = text.match(/<caption>(.*?)<\/caption>\s*(\r\n|\n)/);
 			if (captionTagMatches && captionTagMatches.index === 0) {
 				return captionTagMatches[1] + '\n\n' + makeCodeblock(text.slice(captionTagMatches[0].length));
-			} else {
+			}
+			else {
 				return makeCodeblock(text);
 			}
 		case 'author':
@@ -58,7 +62,8 @@ function getTagBodyText(
 
 			if (emailMatch === null) {
 				return text;
-			} else {
+			}
+			else {
 				return `${emailMatch[1]} ${emailMatch[2]}`;
 			}
 		case 'default':
@@ -71,7 +76,7 @@ function getTagBodyText(
 function getTagDocumentation(
 	tag: ts.server.protocol.JSDocTagInfo,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string | undefined {
 	switch (tag.name) {
 		case 'augments':
@@ -102,7 +107,7 @@ function getTagDocumentation(
 export function plainWithLinks(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	return processInlineTags(convertLinkTags(parts, fileNameToUri, getTextDocument));
 }
@@ -113,7 +118,7 @@ export function plainWithLinks(
 function convertLinkTags(
 	parts: readonly ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	if (!parts) {
 		return '';
@@ -125,7 +130,7 @@ function convertLinkTags(
 
 	const out: string[] = [];
 
-	let currentLink: { name?: string, target?: ts.server.protocol.FileSpan, text?: string; } | undefined;
+	let currentLink: { name?: string; target?: ts.server.protocol.FileSpan; text?: string } | undefined;
 	for (const part of parts) {
 		switch (part.kind) {
 			case 'link':
@@ -135,8 +140,8 @@ function convertLinkTags(
 
 					if (typeof currentLink.target === 'object' && 'fileName' in currentLink.target) {
 						const _target = currentLink.target as any as {
-							fileName: string,
-							textSpan: { start: number, length: number; },
+							fileName: string;
+							textSpan: { start: number; length: number };
 						};
 						const fileDoc = getTextDocument(fileNameToUri(_target.fileName));
 						if (fileDoc) {
@@ -173,13 +178,15 @@ function convertLinkTags(
 						const link = fileNameToUri(target.file) + '#' + `L${target.start.line},${target.start.offset}`;
 
 						out.push(`[${text}](${link})`);
-					} else {
+					}
+					else {
 						if (text) {
 							out.push(text);
 						}
 					}
 					currentLink = undefined;
-				} else {
+				}
+				else {
 					currentLink = {};
 				}
 				break;
@@ -208,7 +215,7 @@ function convertLinkTags(
 export function tagsMarkdownPreview(
 	tags: readonly ts.JSDocTagInfo[],
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	return tags.map(tag => getTagDocumentation(tag, fileNameToUri, getTextDocument)).join('  \n\n');
 }
@@ -217,7 +224,7 @@ export function markdownDocumentation(
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	return addMarkdownDocumentation('', documentation, tags, fileNameToUri, getTextDocument);
 }
@@ -227,7 +234,7 @@ export function addMarkdownDocumentation(
 	documentation: ts.server.protocol.SymbolDisplayPart[] | string | undefined,
 	tags: ts.JSDocTagInfo[] | undefined,
 	fileNameToUri: (fileName: string) => URI,
-	getTextDocument: (uri: URI) => TextDocument | undefined
+	getTextDocument: (uri: URI) => TextDocument | undefined,
 ): string {
 	if (documentation) {
 		out += plainWithLinks(documentation, fileNameToUri, getTextDocument);

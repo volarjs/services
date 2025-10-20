@@ -5,18 +5,16 @@ import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position) => {
-
 		for (const htmlPos of getGeneratedPositions(pugDoc.docs, pos)) {
-
 			const htmlResult = htmlLs.findDocumentHighlights(
 				pugDoc.docs[1],
 				htmlPos,
-				pugDoc.htmlDocument
+				pugDoc.htmlDocument,
 			);
 
 			return transformLocations(
 				htmlResult,
-				htmlRange => getSourceRange(pugDoc.docs, htmlRange)
+				htmlRange => getSourceRange(pugDoc.docs, htmlRange),
 			);
 		}
 	};

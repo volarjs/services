@@ -18,11 +18,8 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 			},
 		},
 		create(): vscode.LanguageServicePluginInstance {
-
 			return {
-
 				provideCompletionItems(document, position) {
-
 					if (!isTsDocument(document)) {
 						return;
 					}
@@ -45,7 +42,8 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 					// TS 2.7 now returns a single line doc comment, which breaks indentation.
 					if (docCommentTemplate.newText === '/** */') {
 						insertText = defaultJsDoc;
-					} else {
+					}
+					else {
 						insertText = templateToSnippet(docCommentTemplate.newText);
 					}
 
@@ -62,7 +60,6 @@ export function create(ts: typeof import('typescript')): vscode.LanguageServiceP
 }
 
 function createCompletionItem(document: TextDocument, position: vscode.Position, insertText: string) {
-
 	const item: vscode.CompletionItem = { label: '/** */' };
 	item.kind = 1 satisfies typeof vscode.CompletionItemKind.Text;
 	item.detail = localize('typescript.jsDocCompletionItem.documentation', 'JSDoc comment');
@@ -72,7 +69,10 @@ function createCompletionItem(document: TextDocument, position: vscode.Position,
 	const line = getLineText(document, position.line);
 	const prefix = line.slice(0, position.character).match(/\/\**\s*$/);
 	const suffix = line.slice(position.character).match(/^\s*\**\//);
-	const start: vscode.Position = { line: position.line, character: position.character + (prefix ? -prefix[0].length : 0) };
+	const start: vscode.Position = {
+		line: position.line,
+		character: position.character + (prefix ? -prefix[0].length : 0),
+	};
 	const end: vscode.Position = { line: position.line, character: position.character + (suffix ? suffix[0].length : 0) };
 	const range: vscode.Range = { start, end };
 	item.textEdit = { range, newText: insertText };
@@ -82,7 +82,7 @@ function createCompletionItem(document: TextDocument, position: vscode.Position,
 
 function isPotentiallyValidDocCompletionPosition(
 	document: TextDocument,
-	position: vscode.Position
+	position: vscode.Position,
 ): boolean {
 	// Only show the JSdoc completion when the everything before the cursor is whitespace
 	// or could be the opening of a comment
@@ -107,7 +107,8 @@ function templateToSnippet(template: string): string {
 		let out = '* @param ';
 		if (type === ' {any}' || type === ' {*}') {
 			out += `{\$\{${snippetIndex++}:*\}} `;
-		} else if (type) {
+		}
+		else if (type) {
 			out += type + ' ';
 		}
 		out += post + ` \${${snippetIndex++}}`;

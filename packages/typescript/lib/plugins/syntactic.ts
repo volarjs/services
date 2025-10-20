@@ -2,19 +2,14 @@ import type {
 	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
-	ProviderResult
+	ProviderResult,
 } from '@volar/language-service';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getConfigTitle, isTsDocument, safeCall } from '../shared';
 import { createSyntaxOnlyService } from '../syntaxOnlyService';
-import {
-	convertNavTree,
-	convertOutliningSpan,
-	convertSelectionRange,
-	convertTextChange
-} from '../utils/lspConverters';
+import { convertNavTree, convertOutliningSpan, convertSelectionRange, convertTextChange } from '../utils/lspConverters';
 
 const snapshots = new WeakMap<TextDocument, [number, ts.IScriptSnapshot]>();
 
@@ -35,10 +30,10 @@ export function getLanguageServiceByDocument(ts: typeof import('typescript'), do
 			document.languageId === 'javascript'
 				? ts.ScriptKind.JS
 				: document.languageId === 'javascriptreact'
-					? ts.ScriptKind.JSX
-					: document.languageId === 'typescriptreact'
-						? ts.ScriptKind.TSX
-						: ts.ScriptKind.TS
+				? ts.ScriptKind.JSX
+				: document.languageId === 'typescriptreact'
+				? ts.ScriptKind.TSX
+				: ts.ScriptKind.TS,
 		);
 	}
 	return {
@@ -51,12 +46,12 @@ export function create(
 	ts: typeof import('typescript'),
 	{
 		isFormattingEnabled = async (document, context) => {
-			return await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.format.enable') ?? true;
+			return await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.format.enable') ?? true;
 		},
 	}: {
 		isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 		isAutoClosingTagsEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	} = {}
+	} = {},
 ): LanguageServicePlugin {
 	return {
 		name: 'typescript-syntactic',
@@ -75,9 +70,7 @@ export function create(
 			},
 		},
 		create(context): LanguageServicePluginInstance {
-
 			return {
-
 				async provideAutoInsertSnippet(document, selection, change) {
 					// selection must at end of change
 					if (document.offsetAt(selection) !== change.rangeOffset + change.text.length) {
@@ -86,7 +79,7 @@ export function create(
 					if (
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 						&& change.text.endsWith('>')
-						&& (await context.env.getConfiguration?.<boolean>(getConfigTitle(document) + '.autoClosingTags') ?? true)
+						&& (await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.autoClosingTags') ?? true)
 					) {
 						const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
 						const close = languageService.getJsxClosingTagAtPosition(fileName, document.offsetAt(selection));
@@ -97,7 +90,6 @@ export function create(
 				},
 
 				provideFoldingRanges(document) {
-
 					if (!isTsDocument(document)) {
 						return;
 					}
@@ -111,7 +103,6 @@ export function create(
 				},
 
 				provideSelectionRanges(document, positions) {
-
 					if (!isTsDocument(document)) {
 						return;
 					}
@@ -132,7 +123,6 @@ export function create(
 				},
 
 				provideDocumentSymbols(document) {
-
 					if (!isTsDocument(document)) {
 						return;
 					}
@@ -151,7 +141,6 @@ export function create(
 				},
 
 				async provideDocumentFormattingEdits(document, range, options, codeOptions) {
-
 					if (!isTsDocument(document)) {
 						return;
 					}
@@ -166,12 +155,14 @@ export function create(
 					}
 					const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
 					const scriptEdits = range
-						? safeCall(() => languageService.getFormattingEditsForRange(
-							fileName,
-							document.offsetAt(range.start),
-							document.offsetAt(range.end),
-							tsOptions
-						))
+						? safeCall(() =>
+							languageService.getFormattingEditsForRange(
+								fileName,
+								document.offsetAt(range.start),
+								document.offsetAt(range.end),
+								tsOptions,
+							)
+						)
 						: safeCall(() => languageService.getFormattingEditsForDocument(fileName, tsOptions));
 					if (!scriptEdits) {
 						return [];
@@ -180,7 +171,6 @@ export function create(
 				},
 
 				async provideOnTypeFormattingEdits(document, position, key, options, codeOptions) {
-
 					if (!isTsDocument(document)) {
 						return;
 					}
@@ -194,7 +184,9 @@ export function create(
 						tsOptions.baseIndentSize = codeOptions.initialIndentLevel * options.tabSize;
 					}
 					const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
-					const scriptEdits = safeCall(() => languageService.getFormattingEditsAfterKeystroke(fileName, document.offsetAt(position), key, tsOptions));
+					const scriptEdits = safeCall(() =>
+						languageService.getFormattingEditsAfterKeystroke(fileName, document.offsetAt(position), key, tsOptions)
+					);
 					if (!scriptEdits) {
 						return [];
 					}

@@ -135,7 +135,7 @@ export class DocumentStreamReader {
 	 */
 	eatWhile(match: number | Function): boolean {
 		const start = this.pos;
-		while (!this.eof() && this.eat(match)) { }
+		while (!this.eof() && this.eat(match)) {}
 		return this.pos !== start;
 	}
 }

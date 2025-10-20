@@ -3,16 +3,16 @@ import { register as registerParsePugDocument } from './pugDocument';
 import { register as registerCompletion } from './services/completion';
 import { register as registerDocumentHighlight } from './services/documentHighlight';
 import { register as registerDocumentLinks } from './services/documentLinks';
+import { register as registerFoldingRanges } from './services/foldingRanges';
 import { register as registerHover } from './services/hover';
+import { register as registerQuoteComplete } from './services/quoteComplete';
 import { register as registerScanner } from './services/scanner';
 import { register as registerSelectRanges } from './services/selectionRanges';
-import { register as registerFoldingRanges } from './services/foldingRanges';
-import { register as registerQuoteComplete } from './services/quoteComplete';
 
-export { PugDocument } from './pugDocument';
 export * from './baseParse';
+export { PugDocument } from './pugDocument';
 
-export interface LanguageService extends ReturnType<typeof getLanguageService> { }
+export interface LanguageService extends ReturnType<typeof getLanguageService> {}
 
 export function getLanguageService(htmlLs: html.LanguageService) {
 	return {

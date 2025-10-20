@@ -2,9 +2,9 @@ import type * as ts from 'typescript';
 import * as PConst from '../protocol.const';
 
 export function snippetForFunctionCall(
-	item: { insertText?: string; label: string; },
-	displayParts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>
-): { snippet: string; parameterCount: number; } {
+	item: { insertText?: string; label: string },
+	displayParts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>,
+): { snippet: string; parameterCount: number } {
 	if (item.insertText && typeof item.insertText !== 'string') {
 		return { snippet: item.insertText, parameterCount: 0 };
 	}
@@ -20,12 +20,15 @@ export function snippetForFunctionCall(
 	}
 	snippet += ')';
 	snippet += '$' + _tabstop++;
-	return { snippet, parameterCount: parameterListParts.parts.length + (parameterListParts.hasOptionalParameters ? 1 : 0) };
+	return {
+		snippet,
+		parameterCount: parameterListParts.parts.length + (parameterListParts.hasOptionalParameters ? 1 : 0),
+	};
 
 	function appendJoinedPlaceholders(
 		snippet: string,
 		parts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>,
-		joiner: string
+		joiner: string,
 	) {
 		for (let i = 0; i < parts.length; ++i) {
 			const paramterPart = parts[i];
@@ -44,7 +47,7 @@ interface ParamterListParts {
 }
 
 function getParameterListParts(
-	displayParts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>
+	displayParts: ReadonlyArray<ts.server.protocol.SymbolDisplayPart>,
 ): ParamterListParts {
 	const parts: ts.server.protocol.SymbolDisplayPart[] = [];
 	let isInMethod = false;
@@ -83,18 +86,22 @@ function getParameterListParts(
 				case PConst.DisplayPartKind.punctuation:
 					if (part.text === '(') {
 						++parenCount;
-					} else if (part.text === ')') {
+					}
+					else if (part.text === ')') {
 						--parenCount;
 						if (parenCount <= 0 && isInMethod) {
 							break outer;
 						}
-					} else if (part.text === '...' && parenCount === 1) {
+					}
+					else if (part.text === '...' && parenCount === 1) {
 						// Found rest parmeter. Do not fill in any further arguments
 						hasOptionalParameters = true;
 						break outer;
-					} else if (part.text === '{') {
+					}
+					else if (part.text === '{') {
 						++braceCount;
-					} else if (part.text === '}') {
+					}
+					else if (part.text === '}') {
 						--braceCount;
 					}
 					break;

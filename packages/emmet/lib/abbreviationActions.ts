@@ -19,9 +19,17 @@ const hexColorRegex = /^#[\da-fA-F]{0,6}$/;
  * @param position position to validate
  * @param abbreviationRange The range of the abbreviation for which given position is being validated
  */
-export async function isValidLocationForEmmetAbbreviation(context: vscode.LanguageServiceContext, document: vscode.TextDocument, rootNode: Node | undefined, currentNode: Node | undefined, syntax: string, offset: number, abbreviationRange: vscode.Range): Promise<boolean> {
+export async function isValidLocationForEmmetAbbreviation(
+	context: vscode.LanguageServiceContext,
+	document: vscode.TextDocument,
+	rootNode: Node | undefined,
+	currentNode: Node | undefined,
+	syntax: string,
+	offset: number,
+	abbreviationRange: vscode.Range,
+): Promise<boolean> {
 	if (isStyleSheet(syntax)) {
-		const stylesheet = <Stylesheet>rootNode;
+		const stylesheet = <Stylesheet> rootNode;
 		if (stylesheet && (stylesheet.comments || []).some(x => offset >= x.start && offset <= x.end)) {
 			return false;
 		}
@@ -43,24 +51,30 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 		// Other than sass, stylus, we can make use of the terminator tokens to validate position
 		if (syntax !== 'sass' && syntax !== 'stylus' && currentNode.type === 'property') {
 			// Fix for upstream issue https://github.com/emmetio/css-parser/issues/3
-			if (currentNode.parent
+			if (
+				currentNode.parent
 				&& currentNode.parent.type !== 'rule'
-				&& currentNode.parent.type !== 'at-rule') {
+				&& currentNode.parent.type !== 'at-rule'
+			) {
 				return false;
 			}
 
-			const propertyNode = <Property>currentNode;
-			if (propertyNode.terminatorToken
+			const propertyNode = <Property> currentNode;
+			if (
+				propertyNode.terminatorToken
 				&& propertyNode.separator
 				&& offset >= propertyNode.separatorToken.end
 				&& offset <= propertyNode.terminatorToken.start
-				&& !abbreviation.includes(':')) {
+				&& !abbreviation.includes(':')
+			) {
 				return hexColorRegex.test(abbreviation) || abbreviation === '!';
 			}
-			if (!propertyNode.terminatorToken
+			if (
+				!propertyNode.terminatorToken
 				&& propertyNode.separator
 				&& offset >= propertyNode.separatorToken.end
-				&& !abbreviation.includes(':')) {
+				&& !abbreviation.includes(':')
+			) {
 				return hexColorRegex.test(abbreviation) || abbreviation === '!';
 			}
 			if (hexColorRegex.test(abbreviation) || abbreviation === '!') {
@@ -74,7 +88,7 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 			return true;
 		}
 
-		const currentCssNode = <Rule>currentNode;
+		const currentCssNode = <Rule> currentNode;
 
 		// Position is valid if it occurs after the `{` that marks beginning of rule contents
 		if (offset > currentCssNode.contentStartToken.end) {
@@ -84,13 +98,16 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 		// Workaround for https://github.com/microsoft/vscode/30188
 		// The line above the rule selector is considered as part of the selector by the css-parser
 		// But we should assume it is a valid location for css properties under the parent rule
-		if (currentCssNode.parent
+		if (
+			currentCssNode.parent
 			&& (currentCssNode.parent.type === 'rule' || currentCssNode.parent.type === 'at-rule')
-			&& currentCssNode.selectorToken) {
+			&& currentCssNode.selectorToken
+		) {
 			const position = document.positionAt(offset);
 			const tokenStartPos = document.positionAt(currentCssNode.selectorToken.start);
 			const tokenEndPos = document.positionAt(currentCssNode.selectorToken.end);
-			if (position.line !== tokenEndPos.line
+			if (
+				position.line !== tokenEndPos.line
 				&& tokenStartPos.character === abbreviationRange.start.character
 				&& tokenStartPos.line === abbreviationRange.start.line
 			) {
@@ -105,7 +122,7 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 	const endAngle = '>';
 	const escape = '\\';
 	const question = '?';
-	const currentHtmlNode = <HtmlNode>currentNode;
+	const currentHtmlNode = <HtmlNode> currentNode;
 	let start = 0;
 
 	if (currentHtmlNode) {
@@ -117,7 +134,8 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 				return true;
 			}
 
-			const isScriptJavascriptType = !typeValue || typeValue === 'application/javascript' || typeValue === 'text/javascript';
+			const isScriptJavascriptType = !typeValue || typeValue === 'application/javascript'
+				|| typeValue === 'text/javascript';
 			if (isScriptJavascriptType) {
 				return !!await getSyntaxFromArgs(context, { language: 'javascript' });
 			}
@@ -125,8 +143,10 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 		}
 
 		// Fix for https://github.com/microsoft/vscode/issues/28829
-		if (!currentHtmlNode.open || !currentHtmlNode.close ||
-			!(currentHtmlNode.open.end <= offset && offset <= currentHtmlNode.close.start)) {
+		if (
+			!currentHtmlNode.open || !currentHtmlNode.close
+			|| !(currentHtmlNode.open.end <= offset && offset <= currentHtmlNode.close.start)
+		) {
 			return false;
 		}
 
@@ -190,7 +210,8 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 		if (char === endAngle) {
 			if (i >= 0 && textToBackTrack[i] === '=') {
 				continue; // False alarm of cases like =>
-			} else {
+			}
+			else {
 				break;
 			}
 		}
@@ -203,7 +224,10 @@ export async function isValidLocationForEmmetAbbreviation(context: vscode.Langua
 	return valid;
 }
 
-export async function getSyntaxFromArgs(context: vscode.LanguageServiceContext, args: { [x: string]: string; }): Promise<string | undefined> {
+export async function getSyntaxFromArgs(
+	context: vscode.LanguageServiceContext,
+	args: { [x: string]: string },
+): Promise<string | undefined> {
 	const mappedModes = await getMappingForIncludedLanguages(context);
 	const language: string = args['language'];
 	const parentMode: string = args['parentMode'];

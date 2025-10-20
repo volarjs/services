@@ -1,4 +1,11 @@
-import type { Disposable, DocumentSelector, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance } from '@volar/language-service';
+import type {
+	Disposable,
+	DocumentSelector,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	ProviderResult,
+} from '@volar/language-service';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
 import * as yaml from 'yaml-language-server';
@@ -7,7 +14,7 @@ export interface Provide {
 	'yaml/languageService': () => yaml.LanguageService;
 }
 
-function noop(): undefined { }
+function noop(): undefined {}
 
 /**
  * Create a Volar language service for YAML documents.
@@ -39,7 +46,7 @@ export function create({
 		};
 	},
 	onDidChangeLanguageSettings = () => {
-		return { dispose() { } };
+		return { dispose() {} };
 	},
 }: {
 	documentSelector?: DocumentSelector;
@@ -63,7 +70,7 @@ export function create({
 				workspaceDiagnostics: false,
 			},
 			documentOnTypeFormattingProvider: {
-				triggerCharacters: ['\n']
+				triggerCharacters: ['\n'],
 			},
 			documentSymbolProvider: true,
 			hoverProvider: true,
@@ -72,13 +79,12 @@ export function create({
 			selectionRangeProvider: true,
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-
 			const ls = yaml.getLanguageService({
 				schemaRequestService: async uri => await context.env.fs?.readFile(URI.parse(uri)) ?? '',
 				telemetry: {
 					send: noop,
 					sendError: noop,
-					sendTrack: noop
+					sendTrack: noop,
 				},
 				clientCapabilities: context.env?.clientCapabilities,
 				workspaceContext: getWorkspaceContextService(context),
@@ -93,7 +99,7 @@ export function create({
 				},
 
 				provide: {
-					'yaml/languageService': () => ls
+					'yaml/languageService': () => ls,
 				},
 
 				provideCodeActions(document, range, context) {
@@ -101,7 +107,7 @@ export function create({
 						return ls.getCodeAction(document, {
 							context,
 							range,
-							textDocument: document
+							textDocument: document,
 						});
 					});
 				},
@@ -172,7 +178,6 @@ export function create({
 			};
 
 			async function worker<T>(document: TextDocument, callback: () => T): Promise<Awaited<T> | undefined> {
-
 				if (!matchDocument(documentSelector, document)) {
 					return;
 				}

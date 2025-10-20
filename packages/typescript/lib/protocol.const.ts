@@ -36,7 +36,6 @@ export class Kind {
 	public static readonly typeParameter = 'type parameter';
 }
 
-
 export class DiagnosticCategory {
 	public static readonly error = 'error';
 	public static readonly warning = 'warning';

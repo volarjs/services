@@ -1,8 +1,15 @@
-import type { Disposable, DocumentSelector, FormattingOptions, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, ProviderResult } from '@volar/language-service';
+import type {
+	Disposable,
+	DocumentSelector,
+	FormattingOptions,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	ProviderResult,
+} from '@volar/language-service';
 import * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
-
 
 export interface Provide {
 	'html/htmlDocument': (document: TextDocument) => html.HTMLDocument | undefined;
@@ -68,7 +75,8 @@ export function create({
 		// https://github.com/microsoft/vscode/blob/a8f73340be02966c3816a2f23cb7e446a3a7cb9b/extensions/html-language-features/server/src/modes/htmlMode.ts#L47-L51
 		if (formatSettings.contentUnformatted) {
 			formatSettings.contentUnformatted = formatSettings.contentUnformatted + ',script';
-		} else {
+		}
+		else {
 			formatSettings.contentUnformatted = 'script';
 		}
 		return formatSettings;
@@ -117,9 +125,19 @@ export function create({
 	useDefaultDataProvider?: boolean;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	getDocumentContext?(context: LanguageServiceContext): html.DocumentContext;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<html.HTMLFormatConfiguration>;
-	getCompletionConfiguration?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.CompletionConfiguration | undefined>;
-	getHoverSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<html.HoverSettings | undefined>;
+	getFormattingOptions?(
+		document: TextDocument,
+		options: FormattingOptions,
+		context: LanguageServiceContext,
+	): ProviderResult<html.HTMLFormatConfiguration>;
+	getCompletionConfiguration?(
+		document: TextDocument,
+		context: LanguageServiceContext,
+	): ProviderResult<html.CompletionConfiguration | undefined>;
+	getHoverSettings?(
+		document: TextDocument,
+		context: LanguageServiceContext,
+	): ProviderResult<html.HoverSettings | undefined>;
 	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
@@ -151,11 +169,11 @@ export function create({
 			},
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-
 			const htmlDocuments = new WeakMap<TextDocument, [number, html.HTMLDocument]>();
 			const fileSystemProvider: html.FileSystemProvider = {
-				stat: async uri => await context.env.fs?.stat(URI.parse(uri))
-					?? { type: html.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
+				stat: async uri =>
+					await context.env.fs?.stat(URI.parse(uri))
+						?? { type: html.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
 				readDirectory: async uri => await context.env.fs?.readDirectory(URI.parse(uri)) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
@@ -169,7 +187,6 @@ export function create({
 			let initializing: Promise<void> | undefined;
 
 			return {
-
 				dispose() {
 					disposable.dispose();
 				},
@@ -246,7 +263,6 @@ export function create({
 
 				async provideDocumentFormattingEdits(document, formatRange, options, codeOptions) {
 					return worker(document, async () => {
-
 						if (!await isFormattingEnabled(document, context)) {
 							return;
 						}
@@ -284,7 +300,12 @@ export function create({
 									suffixes.unshift('\n</template>');
 								}
 							}
-							formatDocument = TextDocument.create(document.uri, document.languageId, document.version, prefixes.join('') + document.getText() + suffixes.join(''));
+							formatDocument = TextDocument.create(
+								document.uri,
+								document.languageId,
+								document.version,
+								prefixes.join('') + document.getText() + suffixes.join(''),
+							);
 							formatRange = {
 								start: formatDocument.positionAt(0),
 								end: formatDocument.positionAt(formatDocument.getText().length),
@@ -316,7 +337,12 @@ export function create({
 						return edits;
 
 						function ensureNewLines(newText: string) {
-							const verifyDocument = TextDocument.create(document.uri, document.languageId, document.version, '<template>' + newText + '</template>');
+							const verifyDocument = TextDocument.create(
+								document.uri,
+								document.languageId,
+								document.version,
+								'<template>' + newText + '</template>',
+							);
 							const verifyEdits = htmlLs.format(verifyDocument, undefined, formatSettings);
 							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
 							verifyText = verifyText.trim().slice('<template>'.length, -'</template>'.length);
@@ -357,7 +383,6 @@ export function create({
 
 				provideLinkedEditingRanges(document, position) {
 					return worker(document, htmlDocument => {
-
 						const ranges = htmlLs.findLinkedEditingRanges(document, position, htmlDocument);
 
 						if (!ranges) {
@@ -396,7 +421,6 @@ export function create({
 			};
 
 			function getHtmlDocument(document: TextDocument) {
-
 				const cache = htmlDocuments.get(document);
 				if (cache) {
 					const [cacheVersion, cacheDoc] = cache;
@@ -412,7 +436,6 @@ export function create({
 			}
 
 			async function worker<T>(document: TextDocument, callback: (htmlDocument: html.HTMLDocument) => T) {
-
 				if (!matchDocument(documentSelector, document)) {
 					return;
 				}

@@ -7,7 +7,11 @@ import { getUserPreferences } from '../configs/getUserPreferences';
 import { safeCall } from '../shared';
 import * as fixNames from '../utils/fixNames';
 import { convertFileTextChanges } from '../utils/lspConverters';
-import { resolveFixAllCodeAction, resolveOrganizeImportsCodeAction, resolveRefactorCodeAction } from './codeActionResolve';
+import {
+	resolveFixAllCodeAction,
+	resolveOrganizeImportsCodeAction,
+	resolveRefactorCodeAction,
+} from './codeActionResolve';
 import type { SharedContext } from './types';
 
 export interface FixAllData {
@@ -23,7 +27,7 @@ export interface RefactorData {
 	fileName: string;
 	refactorName: string;
 	actionName: string;
-	range: { pos: number, end: number; };
+	range: { pos: number; end: number };
 }
 
 export interface OrganizeImportsData {
@@ -44,9 +48,11 @@ const renameCommandRefactors = new Set([
 ]);
 
 export function register(ctx: SharedContext) {
-
-	let resolveCommandSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('command');
-	let resolveEditSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes('edit');
+	let resolveCommandSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties
+		?.includes('command');
+	let resolveEditSupport = ctx.env.clientCapabilities?.textDocument?.codeAction?.resolveSupport?.properties?.includes(
+		'edit',
+	);
 	let loged = false;
 
 	const wranUnsupportResolve = () => {
@@ -54,7 +60,9 @@ export function register(ctx: SharedContext) {
 			return;
 		}
 		loged = true;
-		console.warn('[volar-service-typescript] The language client lacks support for the command/edit properties in the resolve code action. Therefore, the code action resolve is pre-calculated.');
+		console.warn(
+			'[volar-service-typescript] The language client lacks support for the command/edit properties in the resolve code action. Therefore, the code action resolve is pre-calculated.',
+		);
 	};
 
 	if (!ctx.env.clientCapabilities) {
@@ -62,7 +70,13 @@ export function register(ctx: SharedContext) {
 		resolveEditSupport = true;
 	}
 
-	return async (uri: URI, document: TextDocument, range: vscode.Range, context: vscode.CodeActionContext, formattingOptions: vscode.FormattingOptions | undefined) => {
+	return async (
+		uri: URI,
+		document: TextDocument,
+		range: vscode.Range,
+		context: vscode.CodeActionContext,
+		formattingOptions: vscode.FormattingOptions | undefined,
+	) => {
 		const [formatOptions, preferences] = await Promise.all([
 			getFormatCodeSettings(ctx, document, formattingOptions),
 			getUserPreferences(ctx, document),
@@ -76,16 +90,20 @@ export function register(ctx: SharedContext) {
 		const onlyQuickFix = matchOnlyKind(`${'quickfix' satisfies typeof vscode.CodeActionKind.QuickFix}.ts`);
 		if (!context.only || onlyQuickFix) {
 			for (const error of context.diagnostics) {
-				const codeFixes = safeCall(() => ctx.languageService.getCodeFixesAtPosition(
-					fileName,
-					document.offsetAt(error.range.start),
-					document.offsetAt(error.range.end),
-					[Number(error.code)],
-					formatOptions,
-					preferences
-				)) ?? [];
+				const codeFixes = safeCall(() =>
+					ctx.languageService.getCodeFixesAtPosition(
+						fileName,
+						document.offsetAt(error.range.start),
+						document.offsetAt(error.range.end),
+						[Number(error.code)],
+						formatOptions,
+						preferences,
+					)
+				) ?? [];
 				for (const codeFix of codeFixes) {
-					result = result.concat(convertCodeFixAction(codeFix, [error], onlyQuickFix ?? '' satisfies typeof vscode.CodeActionKind.Empty));
+					result = result.concat(
+						convertCodeFixAction(codeFix, [error], onlyQuickFix ?? '' satisfies typeof vscode.CodeActionKind.Empty),
+					);
 				}
 			}
 		}
@@ -93,13 +111,15 @@ export function register(ctx: SharedContext) {
 		if (context.only) {
 			for (const only of context.only) {
 				if (only.split('.')[0] === 'refactor' satisfies typeof vscode.CodeActionKind.Refactor) {
-					const refactors = safeCall(() => ctx.languageService.getApplicableRefactors(
-						fileName,
-						{ pos: start, end: end },
-						preferences,
-						undefined,
-						only
-					)) ?? [];
+					const refactors = safeCall(() =>
+						ctx.languageService.getApplicableRefactors(
+							fileName,
+							{ pos: start, end: end },
+							preferences,
+							undefined,
+							only,
+						)
+					) ?? [];
 					for (const refactor of refactors) {
 						result = result.concat(convertApplicableRefactorInfo(refactor));
 					}
@@ -107,19 +127,23 @@ export function register(ctx: SharedContext) {
 			}
 		}
 		else {
-			const refactors = safeCall(() => ctx.languageService.getApplicableRefactors(
-				fileName,
-				{ pos: start, end: end },
-				preferences,
-				undefined,
-				undefined
-			)) ?? [];
+			const refactors = safeCall(() =>
+				ctx.languageService.getApplicableRefactors(
+					fileName,
+					{ pos: start, end: end },
+					preferences,
+					undefined,
+					undefined,
+				)
+			) ?? [];
 			for (const refactor of refactors) {
 				result = result.concat(convertApplicableRefactorInfo(refactor));
 			}
 		}
 
-		const onlySourceOrganizeImports = matchOnlyKind(`${'source.organizeImports' satisfies typeof vscode.CodeActionKind.SourceOrganizeImports}.ts`);
+		const onlySourceOrganizeImports = matchOnlyKind(
+			`${'source.organizeImports' satisfies typeof vscode.CodeActionKind.SourceOrganizeImports}.ts`,
+		);
 		if (onlySourceOrganizeImports) {
 			const action: vscode.CodeAction = {
 				title: 'Organize Imports',
@@ -196,7 +220,9 @@ export function register(ctx: SharedContext) {
 			result.push(action);
 		}
 
-		const onlyAddMissingImports = matchOnlyKind(`${'source' satisfies typeof vscode.CodeActionKind.Source}.addMissingImports.ts`);
+		const onlyAddMissingImports = matchOnlyKind(
+			`${'source' satisfies typeof vscode.CodeActionKind.Source}.addMissingImports.ts`,
+		);
 		if (onlyAddMissingImports) {
 			const action: vscode.CodeAction = {
 				title: 'Add all missing imports',
@@ -234,12 +260,10 @@ export function register(ctx: SharedContext) {
 		function matchOnlyKind(kind: string) {
 			if (context.only) {
 				for (const only of context.only) {
-
 					const a = only.split('.');
 					const b = kind.split('.');
 
 					if (a.length <= b.length) {
-
 						let matchNums = 0;
 
 						for (let i = 0; i < a.length; i++) {
@@ -255,7 +279,11 @@ export function register(ctx: SharedContext) {
 				}
 			}
 		}
-		function convertCodeFixAction(codeFix: ts.CodeFixAction, diagnostics: vscode.Diagnostic[], kind: vscode.CodeActionKind) {
+		function convertCodeFixAction(
+			codeFix: ts.CodeFixAction,
+			diagnostics: vscode.Diagnostic[],
+			kind: vscode.CodeActionKind,
+		) {
 			const edit = convertFileTextChanges(codeFix.changes, ctx.fileNameToUri, ctx.getTextDocument);
 			const codeActions: vscode.CodeAction[] = [];
 			const fix: vscode.CodeAction = {

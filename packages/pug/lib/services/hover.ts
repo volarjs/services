@@ -5,14 +5,12 @@ import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, pos: html.Position, options?: html.HoverSettings) => {
-
 		for (const htmlPos of getGeneratedPositions(pugDoc.docs, pos)) {
-
 			const htmlResult = htmlLs.doHover(
 				pugDoc.docs[1],
 				htmlPos,
 				pugDoc.htmlDocument,
-				options
+				options,
 			);
 			if (!htmlResult) {
 				return;

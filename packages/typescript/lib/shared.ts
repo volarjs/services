@@ -11,19 +11,20 @@ export function getConfigTitle(document: TextDocument) {
 }
 
 export function isTsDocument(document: TextDocument) {
-	return document.languageId === 'javascript' ||
-		document.languageId === 'typescript' ||
-		document.languageId === 'javascriptreact' ||
-		document.languageId === 'typescriptreact';
+	return document.languageId === 'javascript'
+		|| document.languageId === 'typescript'
+		|| document.languageId === 'javascriptreact'
+		|| document.languageId === 'typescriptreact';
 }
 
 export function isJsonDocument(document: TextDocument) {
-	return document.languageId === 'json' ||
-		document.languageId === 'jsonc';
+	return document.languageId === 'json'
+		|| document.languageId === 'jsonc';
 }
 
 export function safeCall<T>(cb: () => T) {
 	try {
 		return cb();
-	} catch { }
+	}
+	catch {}
 }

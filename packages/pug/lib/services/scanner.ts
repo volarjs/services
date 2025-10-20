@@ -3,7 +3,6 @@ import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, initialOffset = 0) => {
-
 		const htmlOffset = pugDoc.docs[2].mappings
 			.filter(mapping => mapping.sourceOffsets[0] >= initialOffset)
 			.sort((a, b) => a.generatedOffsets[0] - b.generatedOffsets[0])[0]

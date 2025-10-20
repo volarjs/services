@@ -14,7 +14,13 @@ export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 		if (ctx.project.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) {
 			return;
 		}
-		const response = safeCall(() => ctx.languageService.getEncodedSemanticClassifications(fileName, { start, length }, ts.SemanticClassificationFormat.TwentyTwenty));
+		const response = safeCall(() =>
+			ctx.languageService.getEncodedSemanticClassifications(
+				fileName,
+				{ start, length },
+				ts.SemanticClassificationFormat.TwentyTwenty,
+			)
+		);
 		if (!response) {
 			return;
 		}
@@ -27,7 +33,7 @@ export function convertClassificationsToSemanticTokens(
 	document: TextDocument,
 	{ start, length }: ts.TextSpan,
 	legend: vscode.SemanticTokensLegend,
-	response: ts.Classifications
+	response: ts.Classifications,
 ) {
 	let tokenModifiersTable: number[] = [];
 	tokenModifiersTable[TokenModifier.async] = 1 << legend.tokenModifiers.indexOf('async');
@@ -67,8 +73,8 @@ export function convertClassificationsToSemanticTokens(
 		const serverTokenModifiers = tsTokenModifierToServerTokenModifier(tokenModifiers);
 
 		for (let line = startPos.line; line <= endPos.line; line++) {
-			const startCharacter = (line === startPos.line ? startPos.character : 0);
-			const endCharacter = (line === endPos.line ? endPos.character : docLineLength(document, line));
+			const startCharacter = line === startPos.line ? startPos.character : 0;
+			const endCharacter = line === endPos.line ? endPos.character : docLineLength(document, line);
 			tokens.push([line, startCharacter, endCharacter - startCharacter, serverToken, serverTokenModifiers]);
 		}
 	}
@@ -115,7 +121,7 @@ declare const enum TokenType {
 	property = 9,
 	function = 10,
 	method = 11,
-	_ = 12
+	_ = 12,
 }
 declare const enum TokenModifier {
 	declaration = 0,
@@ -124,11 +130,11 @@ declare const enum TokenModifier {
 	readonly = 3,
 	defaultLibrary = 4,
 	local = 5,
-	_ = 6
+	_ = 6,
 }
 declare const enum TokenEncodingConsts {
 	typeOffset = 8,
-	modifierMask = 255
+	modifierMask = 255,
 }
 
 function getTokenTypeFromClassification(tsClassification: number): number | undefined {
@@ -174,9 +180,7 @@ tokenTypeMap[ExperimentalProtocol.ClassificationType.typeParameterName] = TokenT
 tokenTypeMap[ExperimentalProtocol.ClassificationType.typeAliasName] = TokenType.type;
 tokenTypeMap[ExperimentalProtocol.ClassificationType.parameterName] = TokenType.parameter;
 
-
 namespace ExperimentalProtocol {
-
 	export const enum ClassificationType {
 		comment = 1,
 		identifier = 2,

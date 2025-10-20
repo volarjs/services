@@ -1,4 +1,13 @@
-import type { Disposable, DocumentSelector, FormattingOptions, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, LocationLink, ProviderResult } from '@volar/language-service';
+import type {
+	Disposable,
+	DocumentSelector,
+	FormattingOptions,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	LocationLink,
+	ProviderResult,
+} from '@volar/language-service';
 import * as css from 'vscode-css-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -94,14 +103,21 @@ export function create({
 		};
 	},
 }: {
-	cssDocumentSelector?: DocumentSelector,
-	scssDocumentSelector?: DocumentSelector,
-	lessDocumentSelector?: DocumentSelector,
+	cssDocumentSelector?: DocumentSelector;
+	scssDocumentSelector?: DocumentSelector;
+	lessDocumentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
 	getDocumentContext?(context: LanguageServiceContext): css.DocumentContext;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<css.CSSFormatConfiguration>;
-	getLanguageSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<css.LanguageSettings | undefined>;
+	getFormattingOptions?(
+		document: TextDocument,
+		options: FormattingOptions,
+		context: LanguageServiceContext,
+	): ProviderResult<css.CSSFormatConfiguration>;
+	getLanguageSettings?(
+		document: TextDocument,
+		context: LanguageServiceContext,
+	): ProviderResult<css.LanguageSettings | undefined>;
 	getCustomData?(context: LanguageServiceContext): ProviderResult<css.ICSSDataProvider[]>;
 	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
@@ -132,11 +148,11 @@ export function create({
 			documentFormattingProvider: true,
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-
 			const stylesheets = new WeakMap<TextDocument, [number, css.Stylesheet]>();
 			const fileSystemProvider: css.FileSystemProvider = {
-				stat: async uri => await context.env.fs?.stat(URI.parse(uri))
-					?? { type: css.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
+				stat: async uri =>
+					await context.env.fs?.stat(URI.parse(uri))
+						?? { type: css.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
 				readDirectory: async uri => await context.env.fs?.readDirectory(URI.parse(uri)) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
@@ -149,7 +165,6 @@ export function create({
 			let initializing: Promise<void> | undefined;
 
 			return {
-
 				dispose() {
 					disposable.dispose();
 				},
@@ -188,11 +203,13 @@ export function create({
 					return worker(document, (stylesheet, cssLs) => {
 						const location = cssLs.findDefinition(document, position, stylesheet);
 						if (location) {
-							return [{
-								targetUri: location.uri,
-								targetRange: location.range,
-								targetSelectionRange: location.range,
-							} satisfies LocationLink];
+							return [
+								{
+									targetUri: location.uri,
+									targetRange: location.range,
+									targetSelectionRange: location.range,
+								} satisfies LocationLink,
+							];
 						}
 					});
 				},
@@ -261,7 +278,6 @@ export function create({
 
 				async provideDocumentFormattingEdits(document, formatRange, options, codeOptions) {
 					return worker(document, async (_stylesheet, cssLs) => {
-
 						if (!await isFormattingEnabled(document, context)) {
 							return;
 						}
@@ -283,7 +299,12 @@ export function create({
 									suffixes.unshift('\n}');
 								}
 							}
-							formatDocument = TextDocument.create(document.uri, document.languageId, document.version, prefixes.join('') + document.getText() + suffixes.join(''));
+							formatDocument = TextDocument.create(
+								document.uri,
+								document.languageId,
+								document.version,
+								prefixes.join('') + document.getText() + suffixes.join(''),
+							);
 							formatRange = {
 								start: formatDocument.positionAt(0),
 								end: formatDocument.positionAt(formatDocument.getText().length),
@@ -315,7 +336,12 @@ export function create({
 						return edits;
 
 						function ensureNewLines(newText: string) {
-							const verifyDocument = TextDocument.create(document.uri, document.languageId, document.version, '_ {' + newText + '}');
+							const verifyDocument = TextDocument.create(
+								document.uri,
+								document.languageId,
+								document.version,
+								'_ {' + newText + '}',
+							);
 							const verifyEdits = cssLs.format(verifyDocument, undefined, formatOptions);
 							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
 							verifyText = verifyText.trimStart().slice('_'.length);
@@ -395,8 +421,10 @@ export function create({
 				}
 			}
 
-			async function worker<T>(document: TextDocument, callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T) {
-
+			async function worker<T>(
+				document: TextDocument,
+				callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T,
+			) {
 				const cssLs = getCssLs(document);
 				if (!cssLs) {
 					return;
@@ -408,7 +436,6 @@ export function create({
 			}
 
 			function getStylesheet(document: TextDocument, ls: css.LanguageService) {
-
 				const cache = stylesheets.get(document);
 				if (cache) {
 					const [cacheVersion, cacheStylesheet] = cache;

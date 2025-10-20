@@ -1,4 +1,13 @@
-import type { Diagnostic, DiagnosticSeverity, Disposable, DocumentSelector, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, ProviderResult } from '@volar/language-service';
+import type {
+	Diagnostic,
+	DiagnosticSeverity,
+	Disposable,
+	DocumentSelector,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	ProviderResult,
+} from '@volar/language-service';
 import { transformDocumentSymbol } from '@volar/language-service';
 import { getSourceRange } from '@volar/language-service/lib/utils/featureWorkers';
 import { create as createHtmlService } from 'volar-service-html';
@@ -55,7 +64,6 @@ export function create({
 			},
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-
 			const htmlService = _htmlService.create(context);
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const htmlLs: html.LanguageService = htmlService.provide['html/languageService']();
@@ -76,15 +84,18 @@ export function create({
 
 				provideCompletionItems(document, position) {
 					return worker(document, pugDocument => {
-						return pugLs.doComplete(pugDocument, position, context, htmlService.provide['html/documentContext']() /** TODO: CompletionConfiguration */);
+						return pugLs.doComplete(
+							pugDocument,
+							position,
+							context,
+							htmlService.provide['html/documentContext'](), /** TODO: CompletionConfiguration */
+						);
 					});
 				},
 
 				provideDiagnostics(document) {
 					return worker(document, (pugDocument): Diagnostic[] => {
-
 						if (pugDocument.error) {
-
 							return [{
 								source: 'pug',
 								severity: 1 satisfies typeof DiagnosticSeverity.Error,
@@ -103,8 +114,7 @@ export function create({
 
 				provideHover(document, position) {
 					return worker(document, async pugDocument => {
-
-						const hoverSettings = await context.env.getConfiguration?.<html.HoverSettings>('html.hover');
+						const hoverSettings = await context.env.getConfiguration<html.HoverSettings>?.('html.hover');
 
 						return pugLs.doHover(pugDocument, position, hoverSettings);
 					});
@@ -124,12 +134,13 @@ export function create({
 
 				provideDocumentSymbols(document, token) {
 					return worker(document, async pugDoc => {
-
 						const htmlResult = await htmlService.provideDocumentSymbols?.(pugDoc.docs[1], token) ?? [];
-						const pugResult = htmlResult.map(htmlSymbol => transformDocumentSymbol(
-							htmlSymbol,
-							range => getSourceRange(pugDoc.docs, range)
-						)).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
+						const pugResult = htmlResult.map(htmlSymbol =>
+							transformDocumentSymbol(
+								htmlSymbol,
+								range => getSourceRange(pugDoc.docs, range),
+							)
+						).filter((symbol): symbol is NonNullable<typeof symbol> => symbol !== undefined);
 
 						return pugResult;
 					});
@@ -154,12 +165,15 @@ export function create({
 					}
 					return worker(document, async pugDocument => {
 						if (change.rangeLength === 0 && change.text.endsWith('=')) {
-
-							const enabled = (await context.env.getConfiguration?.<boolean>(configurationSections.autoCreateQuotes)) ?? true;
+							const enabled = (await context.env.getConfiguration<boolean>?.(configurationSections.autoCreateQuotes))
+								?? true;
 
 							if (enabled) {
-
-								const text = pugLs.doQuoteComplete(pugDocument, selection, await context.env.getConfiguration?.<html.CompletionConfiguration>('html.completion'));
+								const text = pugLs.doQuoteComplete(
+									pugDocument,
+									selection,
+									await context.env.getConfiguration<html.CompletionConfiguration>?.('html.completion'),
+								);
 
 								if (text) {
 									return text;
@@ -170,8 +184,10 @@ export function create({
 				},
 			};
 
-			async function worker<T>(document: TextDocument, callback: (pugDocument: pug.PugDocument) => T): Promise<Awaited<T> | undefined> {
-
+			async function worker<T>(
+				document: TextDocument,
+				callback: (pugDocument: pug.PugDocument) => T,
+			): Promise<Awaited<T> | undefined> {
 				const pugDocument = getPugDocument(document);
 				if (!pugDocument) {
 					return;
@@ -191,7 +207,6 @@ export function create({
 			}
 
 			function getPugDocument(document: TextDocument) {
-
 				if (!matchDocument(documentSelector, document)) {
 					return;
 				}

@@ -12,9 +12,11 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
 			return {
 				provideInlayHints(document, range) {
 					if (isTsDocument(document.languageId)) {
-
 						const languageService = context.inject<Provide, 'typescript/languageService'>('typescript/languageService');
-						const fileName = context.inject<Provide, 'typescript/documentFileName'>('typescript/documentFileName', URI.parse(document.uri));
+						const fileName = context.inject<Provide, 'typescript/documentFileName'>(
+							'typescript/documentFileName',
+							URI.parse(document.uri),
+						);
 						if (!languageService || !fileName) {
 							return;
 						}
@@ -49,8 +51,8 @@ export function create(ts: typeof import('typescript')): LanguageServicePlugin {
 }
 
 function isTsDocument(languageId: string) {
-	return languageId === 'javascript' ||
-		languageId === 'typescript' ||
-		languageId === 'javascriptreact' ||
-		languageId === 'typescriptreact';
+	return languageId === 'javascript'
+		|| languageId === 'typescript'
+		|| languageId === 'javascriptreact'
+		|| languageId === 'typescriptreact';
 }

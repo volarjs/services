@@ -5,15 +5,14 @@ import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, docContext: html.DocumentContext) => {
-
 		const htmlResult = htmlLs.findDocumentLinks(
 			pugDoc.docs[1],
-			docContext
+			docContext,
 		);
 
 		return transformLocations(
 			htmlResult,
-			htmlRange => getSourceRange(pugDoc.docs, htmlRange)
+			htmlRange => getSourceRange(pugDoc.docs, htmlRange),
 		);
 	};
 }

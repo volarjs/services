@@ -1,11 +1,10 @@
-import type * as html from 'vscode-html-languageservice';
-import type { PugDocument } from '../pugDocument';
-import type { Node } from '../baseParse';
 import type { FoldingRangeKind } from '@volar/language-service';
+import type * as html from 'vscode-html-languageservice';
+import type { Node } from '../baseParse';
+import type { PugDocument } from '../pugDocument';
 
 export function register() {
 	return (pugDoc: PugDocument) => {
-
 		const result: html.FoldingRange[] = [];
 		const docEndPos = pugDoc.pugTextDocument.positionAt(pugDoc.pugTextDocument.getText().length);
 

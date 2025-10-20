@@ -1,5 +1,5 @@
-import type { Segment } from 'muggle-string';
 import type { Mapping } from '@volar/language-service';
+import type { Segment } from 'muggle-string';
 
 export function buildMappings<T>(chunks: Segment<T>[]) {
 	let length = 0;

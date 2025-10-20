@@ -1,5 +1,13 @@
 import * as prettyhtml from '@starptech/prettyhtml';
-import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
+import type {
+	DocumentSelector,
+	FormattingOptions,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	ProviderResult,
+	TextDocument,
+} from '@volar/language-service';
 
 export type PrettyhtmlFormattingOptions = Parameters<typeof prettyhtml>[1];
 
@@ -15,7 +23,11 @@ export function create({
 }: {
 	documentSelector?: DocumentSelector;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<PrettyhtmlFormattingOptions>;
+	getFormattingOptions?(
+		document: TextDocument,
+		options: FormattingOptions,
+		context: LanguageServiceContext,
+	): ProviderResult<PrettyhtmlFormattingOptions>;
 } = {}): LanguageServicePlugin {
 	return {
 		name: 'prettyhtml',
@@ -25,7 +37,6 @@ export function create({
 		create(context): LanguageServicePluginInstance {
 			return {
 				async provideDocumentFormattingEdits(document, range, options) {
-
 					if (!matchDocument(documentSelector, document)) {
 						return;
 					}
@@ -37,7 +48,7 @@ export function create({
 					const oldRangeText = document.getText(range);
 					const newRangeText = prettyhtml(
 						oldRangeText,
-						await getFormattingOptions(document, options, context)
+						await getFormattingOptions(document, options, context),
 					).contents;
 
 					if (newRangeText === oldRangeText) {

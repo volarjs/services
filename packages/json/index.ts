@@ -1,4 +1,12 @@
-import type { LanguageServicePlugin, LanguageServicePluginInstance, DocumentSelector, LanguageServiceContext, Disposable, ProviderResult, FormattingOptions } from '@volar/language-service';
+import type {
+	Disposable,
+	DocumentSelector,
+	FormattingOptions,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	ProviderResult,
+} from '@volar/language-service';
 import * as json from 'vscode-json-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI, Utils } from 'vscode-uri';
@@ -69,10 +77,10 @@ export function create({
 	getLanguageSettings = async context => {
 		const languageSettings: json.LanguageSettings = {};
 
-		languageSettings.validate = await context.env.getConfiguration?.<boolean>('json.validate') ?? true;
+		languageSettings.validate = await context.env.getConfiguration<boolean>?.('json.validate') ?? true;
 		languageSettings.schemas ??= [];
 
-		const schemas = await context.env.getConfiguration?.<JSONSchemaSettings[]>('json.schemas') ?? [];
+		const schemas = await context.env.getConfiguration<JSONSchemaSettings[]>?.('json.schemas') ?? [];
 
 		for (let i = 0; i < schemas.length; i++) {
 			const schema = schemas[i];
@@ -81,7 +89,12 @@ export function create({
 				uri = schema.schema.id || `vscode://schemas/custom/${i}`;
 			}
 			if (uri) {
-				languageSettings.schemas.push({ uri, fileMatch: schema.fileMatch, schema: schema.schema, folderUri: schema.folderUri });
+				languageSettings.schemas.push({
+					uri,
+					fileMatch: schema.fileMatch,
+					schema: schema.schema,
+					folderUri: schema.folderUri,
+				});
 			}
 		}
 		return languageSettings;
@@ -103,9 +116,16 @@ export function create({
 	documentSelector?: DocumentSelector;
 	getWorkspaceContextService?(context: LanguageServiceContext): json.WorkspaceContextService;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-	getFormattingOptions?(document: TextDocument, options: FormattingOptions, context: LanguageServiceContext): ProviderResult<json.FormattingOptions>;
+	getFormattingOptions?(
+		document: TextDocument,
+		options: FormattingOptions,
+		context: LanguageServiceContext,
+	): ProviderResult<json.FormattingOptions>;
 	getLanguageSettings?(context: LanguageServiceContext): ProviderResult<json.LanguageSettings>;
-	getDocumentLanguageSettings?(document: TextDocument, context: LanguageServiceContext): ProviderResult<json.DocumentLanguageSettings | undefined>;
+	getDocumentLanguageSettings?(
+		document: TextDocument,
+		context: LanguageServiceContext,
+	): ProviderResult<json.DocumentLanguageSettings | undefined>;
 	onDidChangeLanguageSettings?(listener: () => void, context: LanguageServiceContext): Disposable;
 } = {}): LanguageServicePlugin {
 	return {
@@ -130,7 +150,6 @@ export function create({
 			documentFormattingProvider: true,
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-
 			const jsonDocuments = new WeakMap<TextDocument, [number, json.JSONDocument]>();
 			const jsonLs = json.getLanguageService({
 				schemaRequestService: async uri => await context.env.fs?.readFile(URI.parse(uri)) ?? '',
@@ -142,7 +161,6 @@ export function create({
 			let initializing: Promise<void> | undefined;
 
 			return {
-
 				dispose() {
 					disposable.dispose();
 				},
@@ -219,7 +237,6 @@ export function create({
 
 				provideDocumentFormattingEdits(document, range, options) {
 					return worker(document, async () => {
-
 						if (!await isFormattingEnabled(document, context)) {
 							return;
 						}
@@ -231,8 +248,10 @@ export function create({
 				},
 			};
 
-			async function worker<T>(document: TextDocument, callback: (jsonDocument: json.JSONDocument) => T): Promise<Awaited<T> | undefined> {
-
+			async function worker<T>(
+				document: TextDocument,
+				callback: (jsonDocument: json.JSONDocument) => T,
+			): Promise<Awaited<T> | undefined> {
 				const jsonDocument = getJsonDocument(document);
 				if (!jsonDocument) {
 					return;
@@ -249,7 +268,6 @@ export function create({
 			}
 
 			function getJsonDocument(textDocument: TextDocument) {
-
 				if (!matchDocument(documentSelector, textDocument)) {
 					return;
 				}

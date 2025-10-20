@@ -1,4 +1,12 @@
-import type { DocumentSelector, FormattingOptions, ProviderResult, LanguageServiceContext, LanguageServicePlugin, LanguageServicePluginInstance, TextDocument } from '@volar/language-service';
+import type {
+	DocumentSelector,
+	FormattingOptions,
+	LanguageServiceContext,
+	LanguageServicePlugin,
+	LanguageServicePluginInstance,
+	ProviderResult,
+	TextDocument,
+} from '@volar/language-service';
 import type { Options } from 'prettier';
 import { URI } from 'vscode-uri';
 
@@ -6,7 +14,9 @@ export function create(
 	/**
 	 * Prettier instance or getter to use.
 	 */
-	prettierInstanceOrGetter: typeof import('prettier') | ((context: LanguageServiceContext) => ProviderResult<typeof import('prettier') | undefined>),
+	prettierInstanceOrGetter:
+		| typeof import('prettier')
+		| ((context: LanguageServiceContext) => ProviderResult<typeof import('prettier') | undefined>),
 	{
 		html,
 		documentSelector = ['html', 'css', 'scss', 'typescript', 'javascript'],
@@ -14,7 +24,10 @@ export function create(
 			const parsed = URI.parse(document.uri);
 			const uri = context.decodeEmbeddedDocumentUri(parsed)?.[0] ?? parsed;
 			if (uri.scheme === 'file') {
-				const fileInfo = await prettier.getFileInfo(uri.fsPath, { ignorePath: '.prettierignore', resolveConfig: false });
+				const fileInfo = await prettier.getFileInfo(uri.fsPath, {
+					ignorePath: '.prettierignore',
+					resolveConfig: false,
+				});
 				if (fileInfo.ignored) {
 					return false;
 				}
@@ -54,9 +67,18 @@ export function create(
 		 * ['html', 'css', 'scss', 'typescript', 'javascript']
 		 */
 		documentSelector?: DocumentSelector;
-		isFormattingEnabled?(prettier: typeof import('prettier'), document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
-		getFormattingOptions?(prettier: typeof import('prettier'), document: TextDocument, formatOptions: FormattingOptions, context: LanguageServiceContext): ProviderResult<Options>;
-	} = {}
+		isFormattingEnabled?(
+			prettier: typeof import('prettier'),
+			document: TextDocument,
+			context: LanguageServiceContext,
+		): ProviderResult<boolean>;
+		getFormattingOptions?(
+			prettier: typeof import('prettier'),
+			document: TextDocument,
+			formatOptions: FormattingOptions,
+			context: LanguageServiceContext,
+		): ProviderResult<Options>;
+	} = {},
 ): LanguageServicePlugin {
 	return {
 		name: 'prettier',
@@ -64,7 +86,6 @@ export function create(
 			documentFormattingProvider: true,
 		},
 		create(context): LanguageServicePluginInstance {
-
 			let prettierInstanceOrPromise: ProviderResult<typeof import('prettier') | undefined>;
 
 			return {
@@ -113,7 +134,7 @@ export function create(
 	};
 }
 
-function matchDocument(selector: DocumentSelector, document: { languageId: string; }) {
+function matchDocument(selector: DocumentSelector, document: { languageId: string }) {
 	for (const sel of selector) {
 		if (sel === document.languageId || (typeof sel === 'object' && sel.language === document.languageId)) {
 			return true;
