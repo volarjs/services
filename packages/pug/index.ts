@@ -1,12 +1,9 @@
 import type {
 	Diagnostic,
 	DiagnosticSeverity,
-	Disposable,
 	DocumentSelector,
-	LanguageServiceContext,
 	LanguageServicePlugin,
 	LanguageServicePluginInstance,
-	ProviderResult,
 } from '@volar/language-service';
 import { transformDocumentSymbol } from '@volar/language-service';
 import { getSourceRange } from '@volar/language-service/lib/utils/featureWorkers';
@@ -24,24 +21,11 @@ export function create({
 	documentSelector = ['jade'],
 	configurationSections = {
 		autoCreateQuotes: 'html.autoCreateQuotes',
+		autoClosingTags: '',
 	},
-	useDefaultDataProvider = true,
-	getCustomData,
-	onDidChangeCustomData,
-}: {
-	documentSelector?: DocumentSelector;
-	configurationSections?: {
-		autoCreateQuotes: string;
-	};
-	useDefaultDataProvider?: boolean;
-	getCustomData?(context: LanguageServiceContext): ProviderResult<html.IHTMLDataProvider[]>;
-	onDidChangeCustomData?(listener: () => void, context: LanguageServiceContext): Disposable;
-} = {}): LanguageServicePlugin {
-	const _htmlService = createHtmlService({
-		useDefaultDataProvider,
-		getCustomData,
-		onDidChangeCustomData,
-	});
+	...options
+}: Parameters<typeof createHtmlService>[0] = {}): LanguageServicePlugin {
+	const _htmlService = createHtmlService(options);
 	return {
 		name: 'pug',
 		capabilities: {
@@ -68,7 +52,7 @@ export function create({
 			const pugDocuments = new WeakMap<TextDocument, [number, pug.PugDocument]>();
 			const htmlLs: html.LanguageService = htmlService.provide['html/languageService']();
 			const pugLs = pug.getLanguageService(htmlLs);
-			const disposable = onDidChangeCustomData?.(() => initializing = undefined, context);
+			const disposable = options.onDidChangeCustomData?.(() => initializing = undefined, context);
 
 			let initializing: Promise<void> | undefined;
 
@@ -199,11 +183,11 @@ export function create({
 			}
 
 			async function initialize() {
-				if (!getCustomData) {
+				if (!options.getCustomData) {
 					return;
 				}
-				const customData = await getCustomData(context);
-				htmlLs.setDataProviders(useDefaultDataProvider, customData);
+				const customData = await options.getCustomData(context);
+				htmlLs.setDataProviders(options.useDefaultDataProvider ?? true, customData);
 			}
 
 			function getPugDocument(document: TextDocument) {
