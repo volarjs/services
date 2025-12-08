@@ -19,7 +19,7 @@ export async function getUserPreferences(
 	const config = await ctx.env.getConfiguration<any>?.(getConfigTitle(document)) ?? {};
 	const preferencesConfig = config?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
-		...config.unstable ?? {},
+		...config.unstable as {} ?? {},
 		quotePreference: getQuoteStylePreference(preferencesConfig),
 		importModuleSpecifierPreference: getImportModuleSpecifierPreference(preferencesConfig),
 		importModuleSpecifierEnding: getImportModuleSpecifierEndingPreference(preferencesConfig),
@@ -75,18 +75,20 @@ function getQuoteStylePreference(config: any) {
 }
 
 function getAutoImportFileExcludePatternsPreference(config: any, workspacePath: string | undefined) {
-	return workspacePath && (config.autoImportFileExcludePatterns as string[] | undefined)?.map(p => {
-		// Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
-		const slashNormalized = p.replace(/\\/g, '/');
-		const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
-		return path.isAbsolute(p)
-			? p
-			: p.startsWith('*')
-			? '/' + slashNormalized
-			: isRelative
-			? path.join(workspacePath, p)
-			: '/**/' + slashNormalized;
-	});
+	if (workspacePath) {
+		return (config.autoImportFileExcludePatterns as string[] | undefined)?.map(p => {
+			// Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
+			const slashNormalized = p.replace(/\\/g, '/');
+			const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
+			return path.isAbsolute(p)
+				? p
+				: p.startsWith('*')
+				? '/' + slashNormalized
+				: isRelative
+				? path.join(workspacePath, p)
+				: '/**/' + slashNormalized;
+		});
+	}
 }
 
 function getImportModuleSpecifierPreference(config: any) {
