@@ -1,6 +1,6 @@
 import type { FoldingRangeKind } from '@volar/language-service';
+import type { Node } from '@vue/language-plugin-pug/lib/baseParse';
 import type * as html from 'vscode-html-languageservice';
-import type { Node } from '../baseParse';
 import type { PugDocument } from '../pugDocument';
 
 export function register() {

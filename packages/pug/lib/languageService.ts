@@ -9,7 +9,6 @@ import { register as registerQuoteComplete } from './services/quoteComplete';
 import { register as registerScanner } from './services/scanner';
 import { register as registerSelectRanges } from './services/selectionRanges';
 
-export * from './baseParse';
 export { PugDocument } from './pugDocument';
 
 export interface LanguageService extends ReturnType<typeof getLanguageService> {}
