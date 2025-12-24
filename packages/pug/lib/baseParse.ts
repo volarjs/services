@@ -25,8 +25,8 @@ export function baseParse(pugCode: string) {
 
 		emptyLineEnds = collectEmptyLineEnds(tokens);
 		attrsBlocks = collectAttrsBlocks(tokens);
-
 		ast = pugParser(tokens, { filename: fileName, src: pugCode }) as Node;
+
 		visitNode(ast, undefined, undefined);
 
 		codes.push([
@@ -93,6 +93,7 @@ export function baseParse(pugCode: string) {
 			]);
 		}
 	}
+
 	function addStartTag(node: TagNode, selfClosing: boolean) {
 		codes.push([
 			'',
@@ -112,18 +113,21 @@ export function baseParse(pugCode: string) {
 			codes.push(node.name);
 		}
 
-		const noTitleAttrs = node.attrs.filter(attr => !attr.mustEscape && attr.name !== 'class');
-		const noTitleClassAttrs = node.attrs.filter(attr => !attr.mustEscape && attr.name === 'class');
-		const attrsBlock = attrsBlocks.get(getDocOffset(node.line, node.column)); // support attr auto-complete in spaces
-		const hasClassAttr = attrsBlock && attrsBlock.text.match(/\bclass\b\s*=/i);
-
-		if (!hasClassAttr) {
-			addClassesOrStyles(noTitleClassAttrs, 'class');
-		}
-
-		for (const attr of noTitleAttrs) {
+		for (const attr of node.attrs.filter(attr => !attr.mustEscape)) {
 			codes.push(' ');
-			codes.push(attr.name);
+			if (attr.name === 'class' || attr.name === 'id') {
+				const offset = getDocOffset(attr.line, attr.column);
+				for (const char of attr.name) {
+					codes.push([
+						char,
+						undefined,
+						offset,
+					]);
+				}
+			}
+			else {
+				codes.push(attr.name);
+			}
 			if (typeof attr.val !== 'boolean') {
 				codes.push('=');
 				codes.push([
@@ -134,6 +138,7 @@ export function baseParse(pugCode: string) {
 			}
 		}
 
+		const attrsBlock = attrsBlocks.get(getDocOffset(node.line, node.column)); // support attr auto-complete in spaces
 		if (attrsBlock) {
 			codes.push(' ');
 			codes.push([
@@ -150,6 +155,7 @@ export function baseParse(pugCode: string) {
 			codes.push('>');
 		}
 	}
+
 	function addEndTag(node: TagNode, next: Node | undefined, parent: Node | undefined) {
 		let nextStart: number | undefined;
 		if (next) {
@@ -172,26 +178,7 @@ export function baseParse(pugCode: string) {
 		}
 		codes.push(`</${node.name}>`);
 	}
-	function addClassesOrStyles(attrs: TagNode['attrs'], attrName: string) {
-		if (!attrs.length) {
-			return;
-		}
-		codes.push(' ');
-		codes.push(attrName);
-		codes.push('=');
-		codes.push('"');
-		for (const attr of attrs) {
-			if (typeof attr.val !== 'boolean') {
-				codes.push(' ');
-				codes.push([
-					attr.val.slice(1, -1), // remove "
-					undefined,
-					getDocOffset(attr.line, attr.column + 1),
-				]);
-			}
-		}
-		codes.push('"');
-	}
+
 	function collectEmptyLineEnds(tokens: pugLex.Token[]) {
 		const ends: number[] = [];
 
@@ -212,6 +199,7 @@ export function baseParse(pugCode: string) {
 
 		return ends.sort((a, b) => a - b);
 	}
+
 	function collectAttrsBlocks(tokens: pugLex.Token[]) {
 		const blocks = new Map<number, { offset: number; text: string }>();
 
@@ -290,9 +278,11 @@ export function baseParse(pugCode: string) {
 
 		return blocks;
 	}
+
 	function getDocOffset(pugLine: number, pugColumn: number) {
 		return pugTextDocument.offsetAt({ line: pugLine - 1, character: pugColumn - 1 });
 	}
+
 	function getDocRange(pugLine: number, pugColumn: number, length: number) {
 		const start = getDocOffset(pugLine, pugColumn);
 		const end = start + length;
