@@ -1,8 +1,8 @@
 import { defaultMapperFactory } from '@volar/language-service';
 import type { DocumentsAndMap } from '@volar/language-service/lib/utils/featureWorkers';
+import { baseParse } from '@vue/language-plugin-pug/lib';
 import type * as html from 'vscode-html-languageservice';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { baseParse } from './baseParse';
 
 export interface PugDocument extends ReturnType<ReturnType<typeof register>> {}
 
