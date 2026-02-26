@@ -75,7 +75,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           lerna version "$TARGET_VERSION" \
-            --yes --no-push --no-git-tag-version --force-publish
+            --yes --no-push --no-git-tag-version --force-publish --exact
 
           git add -A
           git commit -m "v$TARGET_VERSION" --allow-empty

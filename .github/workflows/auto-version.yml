@@ -116,7 +116,7 @@ jobs:
           git checkout -B auto-version-bump
 
           lerna version "${{ steps.version.outputs.next }}" \
-            --yes --no-push --no-git-tag-version --force-publish
+            --yes --no-push --no-git-tag-version --force-publish --exact
 
           pnpm install --no-frozen-lockfile
 
