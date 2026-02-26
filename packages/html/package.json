@@ -1,6 +1,6 @@
 {
 	"name": "volar-service-html",
-	"version": "0.0.68",
+	"version": "0.0.69",
 	"description": "Integrate vscode-languageservice-html into Volar",
 	"homepage": "https://github.com/volarjs/services/tree/master/packages/html",
 	"bugs": "https://github.com/volarjs/services/issues",
