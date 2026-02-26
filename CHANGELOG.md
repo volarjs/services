@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.71 (2026-02-26)
+
+- Refactor release workflow for push and dispatch triggers
+
 ## 0.0.70 (2026-02-26)
 
 - refactor(pug): import parser from @vue/language-plugin-pug (#113)
