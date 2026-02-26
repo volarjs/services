@@ -352,7 +352,9 @@ export function getHtmlFlatNode(
 	includeNodeBoundary: boolean,
 ): HtmlFlatNode | undefined {
 	let currentNode: HtmlFlatNode | undefined = <HtmlFlatNode | undefined> getFlatNode(root, offset, includeNodeBoundary);
-	if (!currentNode) return;
+	if (!currentNode) {
+		return;
+	}
 
 	// If the currentNode is a script one, first set up its subtree and then find HTML node.
 	if (currentNode.name === 'script' && currentNode.children.length === 0) {
