@@ -1,0 +1,176 @@
+name: Auto Version Bump
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types:
+      - edited
+
+jobs:
+  version-bump:
+    if: |
+      (github.event_name == 'push' &&
+       !startsWith(github.event.head_commit.message, 'v') &&
+       !contains(github.event.head_commit.message, '[skip ci]')) ||
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'edited' &&
+       github.event.pull_request.head.ref == 'auto-version-bump' &&
+       github.event.changes.title)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Lerna Lite
+        run: pnpm add -g @lerna-lite/cli @lerna-lite/version
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for new commits since last tag
+        id: check
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No tags found, treating all commits as new"
+            COMMIT_COUNT=$(git rev-list --count HEAD)
+          else
+            COMMIT_COUNT=$(git log "$LATEST_TAG"..HEAD --oneline \
+              --grep="^ci(" --invert-grep \
+              --grep="^chore: bump" --invert-grep \
+              | wc -l)
+          fi
+
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "New commits since $LATEST_TAG: $COMMIT_COUNT"
+
+      - name: Determine version
+        id: version
+        run: |
+          CURRENT=$(node -e "console.log(require('./lerna.json').version)")
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # PR title edited — use version from title
+            PR_TITLE="${{ github.event.pull_request.title }}"
+          else
+            # Push event — check if open PR exists and use its title
+            EXISTING=$(gh pr list --head "auto-version-bump" --state open --json title --jq '.[0].title // empty')
+            PR_TITLE="$EXISTING"
+          fi
+
+          if [ -n "$PR_TITLE" ] && [[ "$PR_TITLE" =~ ^v?([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            NEXT="${BASH_REMATCH[1]}"
+            echo "Using version from PR title: $NEXT"
+          else
+            NEXT=$(node -e "
+              const v = '$CURRENT'.split('.');
+              v[2] = parseInt(v[2]) + 1;
+              console.log(v.join('.'));
+            ")
+            echo "Calculated next patch version: $NEXT"
+          fi
+
+          echo "next=$NEXT" >> $GITHUB_OUTPUT
+          echo "Current: $CURRENT -> Next: $NEXT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if update needed
+        if: github.event_name == 'pull_request'
+        id: needs_update
+        run: |
+          TARGET="${{ steps.version.outputs.next }}"
+          CURRENT="${{ steps.version.outputs.current }}"
+          if [ "$CURRENT" = "$TARGET" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Version already matches, skipping"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update version bump branch
+        if: |
+          (github.event_name == 'push' && steps.check.outputs.commit_count > 0) ||
+          (github.event_name == 'pull_request' && steps.needs_update.outputs.skip != 'true')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B auto-version-bump
+
+          lerna version "${{ steps.version.outputs.next }}" \
+            --yes --no-push --no-git-tag-version --force-publish
+
+          pnpm install --no-frozen-lockfile
+
+          LATEST_TAG="${{ steps.check.outputs.latest_tag }}"
+          VERSION="${{ steps.version.outputs.next }}"
+          DATE=$(date +%Y-%m-%d)
+
+          if [ -n "$LATEST_TAG" ]; then
+            COMMITS=$(git log "$LATEST_TAG"..HEAD --oneline \
+              --grep="^ci(" --invert-grep \
+              --grep="^chore: bump" --invert-grep \
+              --no-merges)
+          else
+            COMMITS=$(git log --oneline --no-merges)
+          fi
+
+          CHANGELOG_ENTRY="## $VERSION ($DATE)"$'\n\n'
+          while IFS= read -r line; do
+            if [ -n "$line" ]; then
+              MSG=$(echo "$line" | sed 's/^[a-f0-9]* //')
+              CHANGELOG_ENTRY+="- $MSG"$'\n'
+            fi
+          done <<< "$COMMITS"
+
+          if [ -f "CHANGELOG.md" ]; then
+            awk -v entry="$CHANGELOG_ENTRY" '
+              /^## / && !inserted { print entry; inserted=1 }
+              { print }
+            ' CHANGELOG.md > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+          else
+            echo "# Changelog"$'\n\n'"$CHANGELOG_ENTRY" > CHANGELOG.md
+          fi
+
+          git add -A
+          git commit -m "v$VERSION"
+          git push origin auto-version-bump --force
+
+      - name: Check for existing open PR
+        if: github.event_name == 'push' && steps.check.outputs.commit_count > 0
+        id: existing_pr
+        run: |
+          EXISTING=$(gh pr list --head "auto-version-bump" --state open --json number --jq '.[0].number // empty')
+          echo "number=$EXISTING" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create PR
+        if: github.event_name == 'push' && steps.check.outputs.commit_count > 0 && steps.existing_pr.outputs.number == ''
+        run: |
+          VERSION="${{ steps.version.outputs.next }}"
+          gh pr create \
+            --title "v$VERSION" \
+            --body "Merge this PR to publish a new version. The version is determined by the PR title." \
+            --head auto-version-bump \
+            --base master
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
