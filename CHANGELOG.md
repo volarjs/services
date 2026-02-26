@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.70 (2026-02-26)
+
+- refactor(pug): import parser from @vue/language-plugin-pug (#113)
+- ci: add auto-version and release workflows (#115)
+
 ## [0.0.34](https://github.com/volarjs/services/compare/v0.0.33...v0.0.34) (2024-03-14)
 
 ### Bug Fixes
