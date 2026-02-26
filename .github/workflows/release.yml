@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  release:
+    # Only run when the PR is merged (not just closed) and comes from auto-version-bump branch
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'auto-version-bump'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Extract version from PR title
+        id: version
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR title: $PR_TITLE"
+
+          if [[ "$PR_TITLE" =~ ^v?([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Extracted version: $VERSION"
+          else
+            echo "PR title does not contain a valid version number"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install Lerna Lite
+        run: pnpm add -g @lerna-lite/cli @lerna-lite/publish @lerna-lite/version @lerna-lite/exec
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check if version override is needed
+        id: check_override
+        run: |
+          TARGET_VERSION="${{ steps.version.outputs.version }}"
+          CURRENT_VERSION=$(node -e "console.log(require('./lerna.json').version)")
+          echo "Target: $TARGET_VERSION, Current in repo: $CURRENT_VERSION"
+
+          if [ "$TARGET_VERSION" != "$CURRENT_VERSION" ]; then
+            echo "override=true" >> $GITHUB_OUTPUT
+            echo "Version override needed: $CURRENT_VERSION -> $TARGET_VERSION"
+          else
+            echo "override=false" >> $GITHUB_OUTPUT
+            echo "Version matches, no override needed"
+          fi
+
+      - name: Override version if PR title was changed
+        if: steps.check_override.outputs.override == 'true'
+        run: |
+          TARGET_VERSION="${{ steps.version.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          lerna version "$TARGET_VERSION" \
+            --yes --no-push --no-git-tag-version --force-publish --exact
+
+          git add -A
+          git commit -m "v$TARGET_VERSION" --allow-empty
+          git push origin master
+
+      - name: Create git tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG_NAME="v$VERSION"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo "Tag $TAG_NAME created"
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish to NPM
+        run: lerna publish from-package --yes
+
+      - name: Add dist-tag volar-2.4
+        run: |
+          lerna exec --no-bail --no-private --no-sort --stream -- \
+            '[ -n "$(npm v . dist-tags.latest)" ] && npm dist-tag add ${LERNA_PACKAGE_NAME}@$(npm v . dist-tags.latest) volar-2.4'
