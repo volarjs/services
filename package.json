@@ -10,11 +10,11 @@
 		"lint:fix": "npm run lint -- --fix"
 	},
 	"devDependencies": {
-		"@tsslint/cli": "^2.0.4",
-		"@tsslint/config": "^2.0.4",
-		"@tsslint/eslint": "^2.0.4",
-		"@typescript-eslint/eslint-plugin": "^8.19.0",
-		"dprint": "^0.50.0",
+		"@tsslint/cli": "latest",
+		"@tsslint/config": "latest",
+		"@tsslint/compat-eslint": "latest",
+		"@typescript-eslint/eslint-plugin": "latest",
+		"dprint": "latest",
 		"@volar/language-service": "~2.4.0",
 		"typescript": "latest",
 		"vitest": "latest"

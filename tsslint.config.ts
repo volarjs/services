@@ -1,8 +1,7 @@
-import { defineConfig } from '@tsslint/config';
-import { defineRules } from '@tsslint/eslint';
+import { defineConfig, importESLintRules } from '@tsslint/config';
 
 export default defineConfig({
-	rules: await defineRules({
+	rules: await importESLintRules({
 		// oxlint's default rules, but without unicorn. See https://oxc.rs/docs/guide/usage/linter/rules.html
 		'for-direction': true,
 		'no-async-promise-executor': true,
@@ -86,7 +85,7 @@ export default defineConfig({
 		'curly': true,
 		'eqeqeq': true,
 		'no-unused-expressions': true,
-		'@typescript-eslint/consistent-type-imports': [{
+		'@typescript-eslint/consistent-type-imports': [true, {
 			disallowTypeAnnotations: false,
 			fixStyle: 'inline-type-imports',
 		}],

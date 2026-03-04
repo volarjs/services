@@ -9,23 +9,23 @@ importers:
   .:
     devDependencies:
       '@tsslint/cli':
-        specifier: ^2.0.4
-        version: 2.0.7(typescript@5.9.3)
+        specifier: latest
+        version: 3.0.2(@tsslint/compat-eslint@3.0.2(typescript@5.9.3))(typescript@5.9.3)
+      '@tsslint/compat-eslint':
+        specifier: latest
+        version: 3.0.2(typescript@5.9.3)
       '@tsslint/config':
-        specifier: ^2.0.4
-        version: 2.0.7(typescript@5.9.3)
-      '@tsslint/eslint':
-        specifier: ^2.0.4
-        version: 2.0.7(typescript@5.9.3)
+        specifier: latest
+        version: 3.0.2(@tsslint/compat-eslint@3.0.2(typescript@5.9.3))(typescript@5.9.3)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.19.0
+        specifier: latest
         version: 8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.27.0)(typescript@5.9.3))(eslint@9.27.0)(typescript@5.9.3)
       '@volar/language-service':
         specifier: ~2.4.0
         version: 2.4.28
       dprint:
-        specifier: ^0.50.0
-        version: 0.50.2
+        specifier: latest
+        version: 0.52.0
       typescript:
         specifier: latest
         version: 5.9.3
@@ -274,48 +274,58 @@ packages:
   '@clack/prompts@0.8.2':
     resolution: {integrity: sha512-6b9Ab2UiZwJYA9iMyboYyW9yJvAO9V753ZhS+DHKEjZRKAxPPOb7MXXu84lsPFG+vZt6FRFniZ8rXi+zCIw4yQ==}
 
-  '@dprint/darwin-arm64@0.50.2':
-    resolution: {integrity: sha512-4d08INZlTxbPW9LK9W8+93viN543/qA2Kxn4azVnPW/xCb2Im03UqJBz8mMm3nJZdtNnK3uTVG3ib1VW+XJisw==}
+  '@dprint/darwin-arm64@0.52.0':
+    resolution: {integrity: sha512-HHpmHCeFw1V9qUU0pJrz7LihrMgQJ5DOejfI3GRCJOd2ue3Api3/ZrzNSIqUbnx/j0RT5c7zxZR5aTE0RHwRFQ==}
     cpu: [arm64]
     os: [darwin]
 
-  '@dprint/darwin-x64@0.50.2':
-    resolution: {integrity: sha512-ZXWPBwdLojhdBATq+bKwJvB7D8bIzrD6eR/Xuq9UYE7evQazUiR069d9NPF0iVuzTo6wNf9ub9SXI7qDl11EGA==}
+  '@dprint/darwin-x64@0.52.0':
+    resolution: {integrity: sha512-ZuoYH/hyzFhwwFUmykkm1QvLk9u7zxpKL6M8r1fY+lINucujIoGZxW1PjRbbIXaST6nDLbQB21P7LyNncAByOg==}
     cpu: [x64]
     os: [darwin]
 
-  '@dprint/linux-arm64-glibc@0.50.2':
-    resolution: {integrity: sha512-marxQzRw8atXAnaawwZHeeUaaAVewrGTlFKKcDASGyjPBhc23J5fHPUPremm8xCbgYZyTlokzrV8/1rDRWhJcw==}
+  '@dprint/linux-arm64-glibc@0.52.0':
+    resolution: {integrity: sha512-waghQcB32CLMuCxnVRQktc7U1S2qsL4spUmvCMyu4ufhZqXf4rQn07L1NcSmQOap40q9Db8ZBmLHfHm1Kab6uA==}
     cpu: [arm64]
     os: [linux]
 
-  '@dprint/linux-arm64-musl@0.50.2':
-    resolution: {integrity: sha512-oGDq44ydzo0ZkJk6RHcUzUN5sOMT5HC6WA8kHXI6tkAsLUkaLO2DzZFfW4aAYZUn+hYNpQfQD8iGew0sjkyLyg==}
+  '@dprint/linux-arm64-musl@0.52.0':
+    resolution: {integrity: sha512-8ml2DmF8i7eEou1G5nqgMMhRir89Fsd9cMLZRPZN/FSw6Nc3vAhk2MqZIrYk2DGfoWts7jis6XvEu3/TwMP8fw==}
     cpu: [arm64]
     os: [linux]
 
-  '@dprint/linux-riscv64-glibc@0.50.2':
-    resolution: {integrity: sha512-QMmZoZYWsXezDcC03fBOwPfxhTpPEyHqutcgJ0oauN9QcSXGji9NSZITMmtLz2Ki3T1MIvdaLd1goGzNSvNqTQ==}
+  '@dprint/linux-loong64-glibc@0.52.0':
+    resolution: {integrity: sha512-tKj7Bwtcf/zNa1onoshYfQ8CaYz0N6BRYKsovop1H1d2dsRBYAKkR/FvTaPRJp1+Sx7Lc0RjRllFezkhLMRxPw==}
+    cpu: [loong64]
+    os: [linux]
+
+  '@dprint/linux-loong64-musl@0.52.0':
+    resolution: {integrity: sha512-8X+ICN/Pc4B+Zog2UXNDJph5uKLf0VVUItYEQbdbwqsWGzPa27Kqri5ainlFzaDs5TFkJHQKQlphg+TLyxBQ7A==}
+    cpu: [loong64]
+    os: [linux]
+
+  '@dprint/linux-riscv64-glibc@0.52.0':
+    resolution: {integrity: sha512-uQb2VqSnznfZHhrAKLxpjXMc7/c3AYepllVUhcGCdrTVp1fb7inHEilT2wSXUjOipBbfPG33cZWRzAgc5/Effg==}
     cpu: [riscv64]
     os: [linux]
 
-  '@dprint/linux-x64-glibc@0.50.2':
-    resolution: {integrity: sha512-KMeHEzb4teQJChTgq8HuQzc+reRNDnarOTGTQovAZ9WNjOtKLViftsKWW5HsnRHtP5nUIPE9rF1QLjJ/gUsqvw==}
+  '@dprint/linux-x64-glibc@0.52.0':
+    resolution: {integrity: sha512-Yh3fZYUcHmII+swTUh0qgf0lEPrz4+7v3tq+vqXR8/xa3Sx8QH5MQJsJDw8Ll1mmKX5HrkBNxA5rC1lIDuFn9g==}
     cpu: [x64]
     os: [linux]
 
-  '@dprint/linux-x64-musl@0.50.2':
-    resolution: {integrity: sha512-qM37T7H69g5coBTfE7SsA+KZZaRBky6gaUhPgAYxW+fOsoVtZSVkXtfTtQauHTpqqOEtbxfCtum70Hz1fr1teg==}
+  '@dprint/linux-x64-musl@0.52.0':
+    resolution: {integrity: sha512-zdcgL6+PRjyZ4HVll9DuIn2ZnnxKuU0cwXtpfUZNdy+xRh1+OedUY5aZQRDN4163vkLxV9znXQT/TS0+giph1g==}
     cpu: [x64]
     os: [linux]
 
-  '@dprint/win32-arm64@0.50.2':
-    resolution: {integrity: sha512-kuGVHGoxLwssVDsodefUIYQRoO2fQncurH/xKgXiZwMPOSzFcgUzYJQiyqmJEp+PENhO9VT1hXUHZtlyCAWBUQ==}
+  '@dprint/win32-arm64@0.52.0':
+    resolution: {integrity: sha512-rQGhSbl2pcnU4Tl3xXJSPRi1smfIIf7XhVwzNOG7vcSExfcK8yYrrCS3z4VImYKqhI1kvv6gSfnIligtoyaX/g==}
     cpu: [arm64]
     os: [win32]
 
-  '@dprint/win32-x64@0.50.2':
-    resolution: {integrity: sha512-N3l9k31c3IMfVXqL0L6ygIhJFvCIrfQ+Z5Jph6RnCcBO6oDYWeYhAv/qBk1vLsF2y/e79TKsR1tvaEwnrQ03XA==}
+  '@dprint/win32-x64@0.52.0':
+    resolution: {integrity: sha512-Bi4kW6z9eVtRdNSztSvjjYET4SQzX/OYqsexVyppxv24m5RNOG1h+c9F5MFJpYy9LqQBAKHOQfkzQwPrdgNOXQ==}
     cpu: [x64]
     os: [win32]
 
@@ -727,24 +737,35 @@ packages:
     resolution: {integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==}
     engines: {node: '>=6'}
 
-  '@tsslint/cli@2.0.7':
-    resolution: {integrity: sha512-FZM+X/SqGPqzV51V9244F7VZzE8qiuR/cV1afCduMbA36oS6QXYvuDmP7Z4SrmlZV3zVZgfgYNxTGry4ukcxJw==}
-    engines: {node: '>=22'}
+  '@tsslint/cli@3.0.2':
+    resolution: {integrity: sha512-8lyZcDEs86zitz0wZ5QRdswY6xGz8j+WL11baN4rlpwahtPgYatujpYV5gpoKeyMAyerlNTdQh6u2LUJLoLNyQ==}
+    engines: {node: '>=22.6.0'}
     hasBin: true
     peerDependencies:
       typescript: '*'
 
-  '@tsslint/config@2.0.7':
-    resolution: {integrity: sha512-kJQ8dcgdvXdo0eDdWSXExcpYwcFxyPKixYWQAbdINesYShAvH+T+rI/G2IBzmKMkpGMhTyIZDS83JppiveauJA==}
+  '@tsslint/compat-eslint@3.0.2':
+    resolution: {integrity: sha512-2TzSJPybCEfU/kHNi9UybwI//A7Fe14CwqmNuJ4fR4WYGpfIclXqfDJwsn5U1NzrWbHjWzRSntJITQPNw1SCNA==}
 
-  '@tsslint/core@2.0.7':
-    resolution: {integrity: sha512-mCmTv9bj3QS+z6C6JVQa2LcuyGZfJtkw3ksm26BkqSWQOETUQ3NwObWBDoBhXs/hzvrv3GRUcb/BKfN+V0ss/Q==}
+  '@tsslint/config@3.0.2':
+    resolution: {integrity: sha512-oHzteAwL6NHVrLzJnrpqMwewEFOydhDH228weO4wkHW8SwvE4oVV5qrKmjwL69ClYt5Le3y2aGDzGou+GuTbKg==}
+    engines: {node: '>=22.6.0'}
+    hasBin: true
+    peerDependencies:
+      '@tsslint/compat-eslint': 3.0.0-alpha.0
+      tsl: ^1.0.28
+    peerDependenciesMeta:
+      '@tsslint/compat-eslint':
+        optional: true
+      tsl:
+        optional: true
 
-  '@tsslint/eslint@2.0.7':
-    resolution: {integrity: sha512-UBKZvK/1xNCIsIgiYJlYeTefHGao01fs5AX0mYxU1wT5d1Yevnb/nPnHpVhk+yLXPOZq3Gyqlsu7ddebTRfyEg==}
+  '@tsslint/core@3.0.2':
+    resolution: {integrity: sha512-Cu50e9vBojEMQjbqMoshkgLSoBj1BKbbmhSvzgbo07TiQ1wrOblZjvhU8ygB1fAIIHgU4laExX3pLU5OOeeR9g==}
+    engines: {node: '>=22.6.0'}
 
-  '@tsslint/types@2.0.7':
-    resolution: {integrity: sha512-Fy8aUHyKt3jYprZqEhs/hwYzcIUuXkT+8zCuBJCsh790HKJxS0x6zLMDvCOKl9TU1xRE/uLb0JGs2DWdvuXYkg==}
+  '@tsslint/types@3.0.2':
+    resolution: {integrity: sha512-RbF3TIxu/YQwRpYrH5j2EL3ff4+Lr2SSmwCJmPJfi832F0hpgJj6xB9xKEorrUj0ZaTHE1QOr5SOMe5B6Qv+2Q==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -1183,8 +1204,8 @@ packages:
     resolution: {integrity: sha512-l0p4+mIuJIua0mhxGoh4a+iNL9bmeK5DvnSVQa6T0OhrVmaEa1XScX5Etc673FePCJOArq/4Pa2cLGODUWTPOQ==}
     engines: {node: '>=4'}
 
-  dprint@0.50.2:
-    resolution: {integrity: sha512-+0Fzg+17jsMMUouK00/Fara5YtGOuE76EAJINHB8VpkXHd0n00rMXtw/03qorOgz23eo8Y0UpYvNZBJJo3aNtw==}
+  dprint@0.52.0:
+    resolution: {integrity: sha512-qXf3B6/G4E6SJKngfo7a0z1ja21o/JJ55cF8xyhyIqvJGrpJ96vhXLr37RrbWBWIj8eV+hquBkCAV6jCwenQYA==}
     hasBin: true
 
   dunder-proto@1.0.1:
@@ -2511,31 +2532,37 @@ snapshots:
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
-  '@dprint/darwin-arm64@0.50.2':
+  '@dprint/darwin-arm64@0.52.0':
     optional: true
 
-  '@dprint/darwin-x64@0.50.2':
+  '@dprint/darwin-x64@0.52.0':
     optional: true
 
-  '@dprint/linux-arm64-glibc@0.50.2':
+  '@dprint/linux-arm64-glibc@0.52.0':
     optional: true
 
-  '@dprint/linux-arm64-musl@0.50.2':
+  '@dprint/linux-arm64-musl@0.52.0':
     optional: true
 
-  '@dprint/linux-riscv64-glibc@0.50.2':
+  '@dprint/linux-loong64-glibc@0.52.0':
     optional: true
 
-  '@dprint/linux-x64-glibc@0.50.2':
+  '@dprint/linux-loong64-musl@0.52.0':
     optional: true
 
-  '@dprint/linux-x64-musl@0.50.2':
+  '@dprint/linux-riscv64-glibc@0.52.0':
     optional: true
 
-  '@dprint/win32-arm64@0.50.2':
+  '@dprint/linux-x64-glibc@0.52.0':
     optional: true
 
-  '@dprint/win32-x64@0.50.2':
+  '@dprint/linux-x64-musl@0.52.0':
+    optional: true
+
+  '@dprint/win32-arm64@0.52.0':
+    optional: true
+
+  '@dprint/win32-x64@0.52.0':
     optional: true
 
   '@emmetio/abbreviation@2.3.3':
@@ -2876,34 +2903,23 @@ snapshots:
     dependencies:
       defer-to-connect: 1.1.3
 
-  '@tsslint/cli@2.0.7(typescript@5.9.3)':
+  '@tsslint/cli@3.0.2(@tsslint/compat-eslint@3.0.2(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@clack/prompts': 0.8.2
-      '@tsslint/config': 2.0.7(typescript@5.9.3)
-      '@tsslint/core': 2.0.7
+      '@tsslint/config': 3.0.2(@tsslint/compat-eslint@3.0.2(typescript@5.9.3))(typescript@5.9.3)
+      '@tsslint/core': 3.0.2
       '@volar/language-core': 2.4.28
       '@volar/language-hub': 0.0.1
       '@volar/typescript': 2.4.28
       minimatch: 10.2.4
       typescript: 5.9.3
-
-  '@tsslint/config@2.0.7(typescript@5.9.3)':
-    dependencies:
-      '@tsslint/types': 2.0.7
-      minimatch: 10.2.4
-      ts-api-utils: 2.4.0(typescript@5.9.3)
     transitivePeerDependencies:
-      - typescript
+      - '@tsslint/compat-eslint'
+      - tsl
 
-  '@tsslint/core@2.0.7':
+  '@tsslint/compat-eslint@3.0.2(typescript@5.9.3)':
     dependencies:
-      '@tsslint/types': 2.0.7
-      esbuild: 0.27.3
-      minimatch: 10.2.4
-
-  '@tsslint/eslint@2.0.7(typescript@5.9.3)':
-    dependencies:
-      '@tsslint/config': 2.0.7(typescript@5.9.3)
+      '@tsslint/types': 3.0.2
       '@typescript-eslint/parser': 8.56.1(eslint@9.27.0)(typescript@5.9.3)
       eslint: 9.27.0
     transitivePeerDependencies:
@@ -2911,7 +2927,22 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tsslint/types@2.0.7': {}
+  '@tsslint/config@3.0.2(@tsslint/compat-eslint@3.0.2(typescript@5.9.3))(typescript@5.9.3)':
+    dependencies:
+      '@tsslint/types': 3.0.2
+      minimatch: 10.2.4
+      ts-api-utils: 2.4.0(typescript@5.9.3)
+    optionalDependencies:
+      '@tsslint/compat-eslint': 3.0.2(typescript@5.9.3)
+    transitivePeerDependencies:
+      - typescript
+
+  '@tsslint/core@3.0.2':
+    dependencies:
+      '@tsslint/types': 3.0.2
+      minimatch: 10.2.4
+
+  '@tsslint/types@3.0.2': {}
 
   '@types/chai@5.2.3':
     dependencies:
@@ -3396,17 +3427,19 @@ snapshots:
     dependencies:
       is-obj: 1.0.1
 
-  dprint@0.50.2:
+  dprint@0.52.0:
     optionalDependencies:
-      '@dprint/darwin-arm64': 0.50.2
-      '@dprint/darwin-x64': 0.50.2
-      '@dprint/linux-arm64-glibc': 0.50.2
-      '@dprint/linux-arm64-musl': 0.50.2
-      '@dprint/linux-riscv64-glibc': 0.50.2
-      '@dprint/linux-x64-glibc': 0.50.2
-      '@dprint/linux-x64-musl': 0.50.2
-      '@dprint/win32-arm64': 0.50.2
-      '@dprint/win32-x64': 0.50.2
+      '@dprint/darwin-arm64': 0.52.0
+      '@dprint/darwin-x64': 0.52.0
+      '@dprint/linux-arm64-glibc': 0.52.0
+      '@dprint/linux-arm64-musl': 0.52.0
+      '@dprint/linux-loong64-glibc': 0.52.0
+      '@dprint/linux-loong64-musl': 0.52.0
+      '@dprint/linux-riscv64-glibc': 0.52.0
+      '@dprint/linux-x64-glibc': 0.52.0
+      '@dprint/linux-x64-musl': 0.52.0
+      '@dprint/win32-arm64': 0.52.0
+      '@dprint/win32-x64': 0.52.0
 
   dunder-proto@1.0.1:
     dependencies:
