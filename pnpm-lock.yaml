@@ -64,15 +64,11 @@ importers:
         specifier: ~2.4.0
         version: 2.4.28
       '@vscode/emmet-helper':
-        specifier: ^2.9.3
+        specifier: ^2.11.0
         version: 2.11.0
       vscode-uri:
         specifier: ^3.0.8
         version: 3.1.0
-    devDependencies:
-      '@types/node':
-        specifier: latest
-        version: 25.3.2
 
   packages/html:
     dependencies:
