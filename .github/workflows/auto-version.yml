@@ -168,6 +168,7 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.next }}"
           gh pr create \
+            --draft \
             --title "v$VERSION" \
             --body "Merge this PR to publish a new version. The version is determined by the PR title." \
             --head auto-version-bump \
