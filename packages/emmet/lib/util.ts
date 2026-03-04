@@ -6,20 +6,8 @@
 import parseStylesheet from '@emmetio/css-parser';
 import parse from '@emmetio/html-matcher';
 import type * as vscode from '@volar/language-service';
-import type * as EmmetHelper from '@vscode/emmet-helper';
 import type { HtmlNode as HtmlFlatNode, Node as FlatNode, Stylesheet as FlatStylesheet } from 'EmmetFlatNode';
 import { DocumentStreamReader } from './bufferStream';
-
-let _emmetHelper: typeof EmmetHelper;
-
-export function getEmmetHelper() {
-	// Lazy load vscode-emmet-helper instead of importing it
-	// directly to reduce the start-up time of the extension
-	if (!_emmetHelper) {
-		_emmetHelper = require('@vscode/emmet-helper');
-	}
-	return _emmetHelper;
-}
 
 /**
  * Mapping between languages that support Emmet and completion trigger characters
