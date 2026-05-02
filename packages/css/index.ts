@@ -336,16 +336,18 @@ export function create({
 						return edits;
 
 						function ensureNewLines(newText: string) {
+							const prefix = '_ {';
+							const suffix = '}';
 							const verifyDocument = TextDocument.create(
 								document.uri,
 								document.languageId,
 								document.version,
-								'_ {' + newText + '}',
+								prefix + newText + '\n' + suffix,
 							);
 							const verifyEdits = cssLs.format(verifyDocument, undefined, formatOptions);
 							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
-							verifyText = verifyText.trimStart().slice('_'.length);
-							verifyText = verifyText.trim().slice('{'.length, -'}'.length);
+							verifyText = verifyText.trimStart().slice(prefix.length);
+							verifyText = verifyText.trimEnd().slice(0, -suffix.length);
 							if (startWithNewLine(verifyText) !== startWithNewLine(newText)) {
 								if (startWithNewLine(verifyText)) {
 									newText = '\n' + newText;
