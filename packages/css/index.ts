@@ -289,10 +289,12 @@ export function create({
 						let suffixes = [];
 
 						if (codeOptions?.initialIndentLevel) {
+							const documentText = document.getText();
+							const lastSuffix = endWithNewLine(documentText) ? '}' : '\n}';
 							for (let i = 0; i < codeOptions.initialIndentLevel; i++) {
 								if (i === codeOptions.initialIndentLevel - 1) {
 									prefixes.push('_', '{');
-									suffixes.unshift('}');
+									suffixes.unshift(lastSuffix);
 								}
 								else {
 									prefixes.push('_', '{\n');
@@ -303,7 +305,7 @@ export function create({
 								document.uri,
 								document.languageId,
 								document.version,
-								prefixes.join('') + document.getText() + suffixes.join(''),
+								prefixes.join('') + documentText + suffixes.join(''),
 							);
 							formatRange = {
 								start: formatDocument.positionAt(0),
@@ -336,18 +338,17 @@ export function create({
 						return edits;
 
 						function ensureNewLines(newText: string) {
-							const prefix = '_ {';
-							const suffix = '}';
+							const verifySuffix = endWithNewLine(newText) ? '}' : '\n}';
 							const verifyDocument = TextDocument.create(
 								document.uri,
 								document.languageId,
 								document.version,
-								prefix + newText + '\n' + suffix,
+								'_ {' + newText + verifySuffix,
 							);
 							const verifyEdits = cssLs.format(verifyDocument, undefined, formatOptions);
 							let verifyText = TextDocument.applyEdits(verifyDocument, verifyEdits);
-							verifyText = verifyText.trimStart().slice(prefix.length);
-							verifyText = verifyText.trimEnd().slice(0, -suffix.length);
+							verifyText = verifyText.trimStart().slice('_'.length);
+							verifyText = verifyText.trim().slice('{'.length, -'}'.length);
 							if (startWithNewLine(verifyText) !== startWithNewLine(newText)) {
 								if (startWithNewLine(verifyText)) {
 									newText = '\n' + newText;
