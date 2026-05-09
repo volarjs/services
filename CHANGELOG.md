@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.0.72 (2026-05-09)
+
+- v0.0.71
+- fix(css,html): set non-existent file size to `-1` (#121)
+- fix(css): handle trailing line comments in embedded styles (#120)
+- feat: update yaml-language-server to 1.23 (#122)
+- chore: Bump yaml-language-server
+- ci: create draft PR for version bump
+- chore: upgrade tsslint to v3
+- Refactor release workflow for push and dispatch triggers
+
 ## 0.0.71 (2026-05-09)
 
 - fix(css,html): set non-existent file size to `-1` (#121)
