@@ -259,8 +259,8 @@ importers:
         specifier: ^3.0.8
         version: 3.1.0
       yaml-language-server:
-        specifier: ~1.22.0
-        version: 1.22.0
+        specifier: ~1.23.0
+        version: 1.23.0
     devDependencies:
       vscode-languageserver-textdocument:
         specifier: ^1.0.11
@@ -953,6 +953,11 @@ packages:
     peerDependenciesMeta:
       ajv:
         optional: true
+
+  ajv-i18n@4.2.0:
+    resolution: {integrity: sha512-v/ei2UkCEeuKNXh8RToiFsUclmU+G57LO1Oo22OagNMENIw+Yb8eMwvHu7Vn9fmkjJyv6XclhJ8TbuigSglPkg==}
+    peerDependencies:
+      ajv: ^8.0.0-beta.0
 
   ajv@6.14.0:
     resolution: {integrity: sha512-IWrosm/yrn43eiKqkfkHis7QioDleaXQHdDVPKg0FSwwd/DuvyX79TZnFOnYpB7dcsFAMmtFztZuXPDvSePkFw==}
@@ -2503,8 +2508,8 @@ packages:
   yallist@2.1.2:
     resolution: {integrity: sha512-ncTzHV7NvsQZkYe1DW7cbDLm0YpzHmZF5r/iyP3ZnQtMiJ+pjzisCiMNI+Sj+xQF5pXhSHxSB3uDbsBTzY/c2A==}
 
-  yaml-language-server@1.22.0:
-    resolution: {integrity: sha512-1vGi3FL1B8WiKHwNADotG+CGl4S55q8ZEqKRWIACu/slJC32MBBORWZpzBFB6r9vrmI3cXsLmD5DRAxAvgqBSw==}
+  yaml-language-server@1.23.0:
+    resolution: {integrity: sha512-3qVyCOexLCWw06PQa5kRPwvMWMZ/eZeCRWUvgD6a0OkqL/4iCnxy2WumbWifa937Uo5xhyWJ0uxlU39ljhNh7A==}
     hasBin: true
 
   yaml@2.8.3:
@@ -3175,6 +3180,10 @@ snapshots:
 
   ajv-draft-04@1.0.0(ajv@8.18.0):
     optionalDependencies:
+      ajv: 8.18.0
+
+  ajv-i18n@4.2.0(ajv@8.18.0):
+    dependencies:
       ajv: 8.18.0
 
   ajv@6.14.0:
@@ -4771,11 +4780,13 @@ snapshots:
 
   yallist@2.1.2: {}
 
-  yaml-language-server@1.22.0:
+  yaml-language-server@1.23.0:
     dependencies:
       '@vscode/l10n': 0.0.18
       ajv: 8.18.0
       ajv-draft-04: 1.0.0(ajv@8.18.0)
+      ajv-i18n: 4.2.0(ajv@8.18.0)
+      prettier: 3.8.1
       request-light: 0.5.8
       vscode-json-languageservice: 4.1.8
       vscode-languageserver: 9.0.1
