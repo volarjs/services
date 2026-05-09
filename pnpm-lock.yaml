@@ -31,7 +31,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: latest
-        version: 4.0.18(@types/node@25.3.2)(yaml@2.7.1)
+        version: 4.0.18(@types/node@25.3.2)(yaml@2.8.3)
 
   packages/css:
     dependencies:
@@ -259,8 +259,8 @@ importers:
         specifier: ^3.0.8
         version: 3.1.0
       yaml-language-server:
-        specifier: ~1.20.0
-        version: 1.20.0
+        specifier: ~1.22.0
+        version: 1.22.0
     devDependencies:
       vscode-languageserver-textdocument:
         specifier: ^1.0.11
@@ -2503,13 +2503,13 @@ packages:
   yallist@2.1.2:
     resolution: {integrity: sha512-ncTzHV7NvsQZkYe1DW7cbDLm0YpzHmZF5r/iyP3ZnQtMiJ+pjzisCiMNI+Sj+xQF5pXhSHxSB3uDbsBTzY/c2A==}
 
-  yaml-language-server@1.20.0:
-    resolution: {integrity: sha512-qhjK/bzSRZ6HtTvgeFvjNPJGWdZ0+x5NREV/9XZWFjIGezew2b4r5JPy66IfOhd5OA7KeFwk1JfmEbnTvev0cA==}
+  yaml-language-server@1.22.0:
+    resolution: {integrity: sha512-1vGi3FL1B8WiKHwNADotG+CGl4S55q8ZEqKRWIACu/slJC32MBBORWZpzBFB6r9vrmI3cXsLmD5DRAxAvgqBSw==}
     hasBin: true
 
-  yaml@2.7.1:
-    resolution: {integrity: sha512-10ULxpnOCQXxJvBgxsn9ptjq6uviG/htZKk9veJGhlqn3w/DxQ631zFF+nlQXLwmImeS5amR2dl2U8sg6U9jsQ==}
-    engines: {node: '>= 14'}
+  yaml@2.8.3:
+    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
+    engines: {node: '>= 14.6'}
     hasBin: true
 
   yargs-parser@10.1.0:
@@ -3094,13 +3094,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@25.3.2)(yaml@2.7.1))':
+  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@25.3.2)(yaml@2.8.3))':
     dependencies:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.1(@types/node@25.3.2)(yaml@2.7.1)
+      vite: 7.3.1(@types/node@25.3.2)(yaml@2.8.3)
 
   '@vitest/pretty-format@4.0.18':
     dependencies:
@@ -4624,7 +4624,7 @@ snapshots:
       unist-util-stringify-position: 2.0.3
       vfile-message: 2.0.4
 
-  vite@7.3.1(@types/node@25.3.2)(yaml@2.7.1):
+  vite@7.3.1(@types/node@25.3.2)(yaml@2.8.3):
     dependencies:
       esbuild: 0.27.3
       fdir: 6.5.0(picomatch@4.0.3)
@@ -4635,12 +4635,12 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.3.2
       fsevents: 2.3.3
-      yaml: 2.7.1
+      yaml: 2.8.3
 
-  vitest@4.0.18(@types/node@25.3.2)(yaml@2.7.1):
+  vitest@4.0.18(@types/node@25.3.2)(yaml@2.8.3):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@25.3.2)(yaml@2.7.1))
+      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@25.3.2)(yaml@2.8.3))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -4657,7 +4657,7 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.1(@types/node@25.3.2)(yaml@2.7.1)
+      vite: 7.3.1(@types/node@25.3.2)(yaml@2.8.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.3.2
@@ -4771,21 +4771,20 @@ snapshots:
 
   yallist@2.1.2: {}
 
-  yaml-language-server@1.20.0:
+  yaml-language-server@1.22.0:
     dependencies:
       '@vscode/l10n': 0.0.18
       ajv: 8.18.0
       ajv-draft-04: 1.0.0(ajv@8.18.0)
-      prettier: 3.8.1
       request-light: 0.5.8
       vscode-json-languageservice: 4.1.8
       vscode-languageserver: 9.0.1
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.1.0
-      yaml: 2.7.1
+      yaml: 2.8.3
 
-  yaml@2.7.1: {}
+  yaml@2.8.3: {}
 
   yargs-parser@10.1.0:
     dependencies:
