@@ -1,5 +1,5 @@
 import type * as vscode from '@volar/language-service';
-import type * as helper from '@vscode/emmet-helper';
+import * as helper from '@vscode/emmet-helper';
 import type { Node, Stylesheet } from 'EmmetFlatNode';
 import { URI } from 'vscode-uri';
 import { getSyntaxFromArgs, isValidLocationForEmmetAbbreviation } from './lib/abbreviationActions';
@@ -8,7 +8,6 @@ import {
 	allowedMimeTypesInScriptTag,
 	getEmbeddedCssNodeIfAny,
 	getEmmetConfiguration,
-	getEmmetHelper,
 	getEmmetMode,
 	getFlatNode,
 	getHtmlFlatNode,
@@ -108,7 +107,6 @@ export function create({
 					return;
 				}
 
-				const helper = getEmmetHelper();
 				if (syntax === 'html') {
 					if (
 						completionContext.triggerKind
