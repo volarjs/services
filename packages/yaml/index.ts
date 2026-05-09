@@ -177,8 +177,8 @@ export function create({
 
 				provideRenameEdits(document, position, newName) {
 					return worker(document, () => {
-						return ls.doRename(document, { newName, position, textDocument: document })
-					})
+						return ls.doRename(document, { newName, position, textDocument: document });
+					});
 				},
 
 				provideSelectionRanges(document, positions) {
