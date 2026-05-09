@@ -38,9 +38,18 @@ export function create({
 		return {
 			completion: true,
 			customTags: [],
+			disableAdditionalProperties: false,
+			disableDefaultProperties: false,
+			flowMapping: 'allow',
+			flowSequence: 'allow',
 			format: true,
 			hover: true,
+			hoverAnchor: true,
+			hoverSchemaSource: true,
 			isKubernetes: false,
+			indentation: '  ',
+			keyOrdering: false,
+			parentSkeletonSelectedFirst: false,
 			validate: true,
 			yamlVersion: '1.2',
 		};
@@ -164,6 +173,12 @@ export function create({
 					return worker(document, () => {
 						return ls.doDocumentOnTypeFormatting(document, { ch: key, options, position, textDocument: document });
 					});
+				},
+
+				provideRenameEdits(document, position, newName) {
+					return worker(document, () => {
+						return ls.doRename(document, { newName, position, textDocument: document })
+					})
 				},
 
 				provideSelectionRanges(document, positions) {
