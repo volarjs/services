@@ -152,7 +152,7 @@ export function create({
 			const fileSystemProvider: css.FileSystemProvider = {
 				stat: async uri =>
 					await context.env.fs?.stat(URI.parse(uri))
-						?? { type: css.FileType.Unknown, ctime: 0, mtime: 0, size: 0 },
+						?? { type: css.FileType.Unknown, ctime: 0, mtime: 0, size: -1 },
 				readDirectory: async uri => await context.env.fs?.readDirectory(URI.parse(uri)) ?? [],
 			};
 			const documentContext = getDocumentContext(context);
