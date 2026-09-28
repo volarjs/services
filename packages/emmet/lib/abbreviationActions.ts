@@ -231,7 +231,9 @@ export async function getSyntaxFromArgs(
 	const mappedModes = await getMappingForIncludedLanguages(context);
 	const language: string = args['language'];
 	const parentMode: string = args['parentMode'];
-	const excludedLanguages = await context.env.getConfiguration<string[]>?.('emmet.excludeLanguages') ?? [];
+	// Some editors return non-array junk for unset configuration sections, so don't rely on `?? []`
+	const configured: unknown = await context.env.getConfiguration?.('emmet.excludeLanguages');
+	const excludedLanguages: string[] = Array.isArray(configured) ? configured : [];
 	if (excludedLanguages.includes(language)) {
 		return;
 	}

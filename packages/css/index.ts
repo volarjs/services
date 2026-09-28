@@ -74,7 +74,9 @@ export function create({
 		return await context.env.getConfiguration?.(document.languageId);
 	},
 	getCustomData = async context => {
-		const customData: string[] = await context.env.getConfiguration?.('css.customData') ?? [];
+		// Some editors return non-array junk for unset configuration sections, so don't rely on `?? []`
+		const configured: unknown = await context.env.getConfiguration?.('css.customData');
+		const customData: string[] = Array.isArray(configured) ? configured : [];
 		const newData: css.ICSSDataProvider[] = [];
 		for (const customDataPath of customData) {
 			for (const workspaceFolder of context.env.workspaceFolders) {
