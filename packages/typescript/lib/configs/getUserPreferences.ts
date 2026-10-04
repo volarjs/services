@@ -5,6 +5,7 @@ import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { getConfigTitle } from '../shared';
+import { createUnifiedConfig, type UnifiedConfig } from './getUnifiedConfig';
 
 export async function getUserPreferences(
 	ctx: LanguageServiceContext,
@@ -16,55 +17,62 @@ export async function getUserPreferences(
 	}
 	const uri = URI.parse(document.uri);
 	const documentUri = ctx.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;
-	const config = await ctx.env.getConfiguration<any>?.(getConfigTitle(document)) ?? {};
-	const preferencesConfig = config?.preferences ?? {};
+	const config = await createUnifiedConfig(ctx, document);
+	// `renameShorthandProperties` and `unstable` are only available in the
+	// language-specific section, there is no unified counterpart.
+	const languageConfig = await ctx.env.getConfiguration<any>?.(getConfigTitle(document)) ?? {};
+	const preferencesConfig = languageConfig?.preferences ?? {};
 	const preferences: ts.UserPreferences = {
-		...config.unstable as {} ?? {},
-		quotePreference: getQuoteStylePreference(preferencesConfig),
-		importModuleSpecifierPreference: getImportModuleSpecifierPreference(preferencesConfig),
-		importModuleSpecifierEnding: getImportModuleSpecifierEndingPreference(preferencesConfig),
-		jsxAttributeCompletionStyle: getJsxAttributeCompletionStyle(preferencesConfig),
+		...languageConfig.unstable as {} ?? {},
+		quotePreference: getQuoteStylePreference(config),
+		importModuleSpecifierPreference: getImportModuleSpecifierPreference(config),
+		importModuleSpecifierEnding: getImportModuleSpecifierEndingPreference(config),
+		jsxAttributeCompletionStyle: getJsxAttributeCompletionStyle(config),
 		allowTextChangesInNewFiles: documentUri.scheme === 'file',
 		providePrefixAndSuffixTextForRename: (preferencesConfig.renameShorthandProperties ?? true) === false
 			? false
-			: (preferencesConfig.useAliasesForRenames ?? true),
+			: config.get('preferences.useAliasesForRenames', true),
 		allowRenameOfImportPath: true,
-		includeAutomaticOptionalChainCompletions: config.suggest?.includeAutomaticOptionalChainCompletions ?? true,
+		includeAutomaticOptionalChainCompletions: config.get('suggest.includeAutomaticOptionalChainCompletions', true),
 		provideRefactorNotApplicableReason: true,
-		generateReturnInDocTemplate: config.suggest?.jsdoc?.generateReturns ?? true,
-		includeCompletionsForImportStatements: config.suggest?.includeCompletionsForImportStatements ?? true,
-		includeCompletionsWithSnippetText: config.suggest?.includeCompletionsWithSnippetText ?? true,
-		includeCompletionsWithClassMemberSnippets: config.suggest?.classMemberSnippets?.enabled ?? true,
-		includeCompletionsWithObjectLiteralMethodSnippets: config.suggest?.objectLiteralMethodSnippets?.enabled ?? true,
-		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(preferencesConfig, currentDirectory),
-		autoImportSpecifierExcludeRegexes: preferencesConfig.autoImportSpecifierExcludeRegexes,
+		generateReturnInDocTemplate: config.get('suggest.jsdoc.generateReturns', true),
+		includeCompletionsForImportStatements: config.get('suggest.includeCompletionsForImportStatements', true),
+		includeCompletionsWithSnippetText: true,
+		includeCompletionsWithClassMemberSnippets: config.get('suggest.classMemberSnippets.enabled', true),
+		includeCompletionsWithObjectLiteralMethodSnippets: config.get('suggest.objectLiteralMethodSnippets.enabled', true),
+		autoImportFileExcludePatterns: getAutoImportFileExcludePatternsPreference(config, currentDirectory),
+		autoImportSpecifierExcludeRegexes: config.get('preferences.autoImportSpecifierExcludeRegexes', undefined),
 		useLabelDetailsInCompletionEntries: true,
 		allowIncompleteCompletions: true,
 		displayPartsForJSDoc: true,
 
 		// inlay hints
 		includeInlayParameterNameHints: getInlayParameterNameHintsPreference(config),
-		includeInlayParameterNameHintsWhenArgumentMatchesName:
-			!(config.inlayHints?.parameterNames?.suppressWhenArgumentMatchesName ?? true),
-		includeInlayFunctionParameterTypeHints: config.inlayHints?.parameterTypes?.enabled ?? false,
-		includeInlayVariableTypeHints: config.inlayHints?.variableTypes?.enabled ?? false,
-		includeInlayVariableTypeHintsWhenTypeMatchesName:
-			!(config.inlayHints?.variableTypes?.suppressWhenTypeMatchesName ?? true),
-		includeInlayPropertyDeclarationTypeHints: config.inlayHints?.propertyDeclarationTypes?.enabled ?? false,
-		includeInlayFunctionLikeReturnTypeHints: config.inlayHints?.functionLikeReturnTypes?.enabled ?? false,
-		includeInlayEnumMemberValueHints: config.inlayHints?.enumMemberValues?.enabled ?? false,
+		includeInlayParameterNameHintsWhenArgumentMatchesName: !config.get(
+			'inlayHints.parameterNames.suppressWhenArgumentMatchesName',
+			true,
+		),
+		includeInlayFunctionParameterTypeHints: config.get('inlayHints.parameterTypes.enabled', false),
+		includeInlayVariableTypeHints: config.get('inlayHints.variableTypes.enabled', false),
+		includeInlayVariableTypeHintsWhenTypeMatchesName: !config.get(
+			'inlayHints.variableTypes.suppressWhenTypeMatchesName',
+			true,
+		),
+		includeInlayPropertyDeclarationTypeHints: config.get('inlayHints.propertyDeclarationTypes.enabled', false),
+		includeInlayFunctionLikeReturnTypeHints: config.get('inlayHints.functionLikeReturnTypes.enabled', false),
+		includeInlayEnumMemberValueHints: config.get('inlayHints.enumMemberValues.enabled', false),
 
 		// https://github.com/microsoft/vscode/blob/main/extensions/typescript-language-features/src/languageFeatures/completions.ts#L728-L730
-		includeCompletionsForModuleExports: config.suggest?.autoImports ?? true,
+		includeCompletionsForModuleExports: config.get('suggest.autoImports', true),
 		includeCompletionsWithInsertText: true,
-		includePackageJsonAutoImports: preferencesConfig.includePackageJsonAutoImports ?? 'auto',
+		includePackageJsonAutoImports: config.get('preferences.includePackageJsonAutoImports', 'auto'),
 	};
 
 	return preferences;
 }
 
-function getQuoteStylePreference(config: any) {
-	switch (config.quoteStyle as string) {
+function getQuoteStylePreference(config: UnifiedConfig) {
+	switch (config.get('preferences.quoteStyle', 'auto')) {
 		case 'single':
 			return 'single';
 		case 'double':
@@ -74,9 +82,9 @@ function getQuoteStylePreference(config: any) {
 	}
 }
 
-function getAutoImportFileExcludePatternsPreference(config: any, workspacePath: string | undefined) {
+function getAutoImportFileExcludePatternsPreference(config: UnifiedConfig, workspacePath: string | undefined) {
 	if (workspacePath) {
-		return (config.autoImportFileExcludePatterns as string[] | undefined)?.map(p => {
+		return config.get('preferences.autoImportFileExcludePatterns', undefined)?.map(p => {
 			// Normalization rules: https://github.com/microsoft/TypeScript/pull/49578
 			const slashNormalized = p.replace(/\\/g, '/');
 			const isRelative = /^\.\.?($|\/)/.test(slashNormalized);
@@ -91,8 +99,8 @@ function getAutoImportFileExcludePatternsPreference(config: any, workspacePath: 
 	}
 }
 
-function getImportModuleSpecifierPreference(config: any) {
-	switch (config.importModuleSpecifier as string | undefined) {
+function getImportModuleSpecifierPreference(config: UnifiedConfig) {
+	switch (config.get('preferences.importModuleSpecifier', 'shortest')) {
 		case 'project-relative':
 			return 'project-relative';
 		case 'relative':
@@ -104,8 +112,8 @@ function getImportModuleSpecifierPreference(config: any) {
 	}
 }
 
-function getImportModuleSpecifierEndingPreference(config: any) {
-	switch (config.importModuleSpecifierEnding as string | undefined) {
+function getImportModuleSpecifierEndingPreference(config: UnifiedConfig) {
+	switch (config.get('preferences.importModuleSpecifierEnding', 'auto')) {
 		case 'minimal':
 			return 'minimal';
 		case 'index':
@@ -119,8 +127,8 @@ function getImportModuleSpecifierEndingPreference(config: any) {
 	}
 }
 
-function getJsxAttributeCompletionStyle(config: any) {
-	switch (config.jsxAttributeCompletionStyle as string | undefined) {
+function getJsxAttributeCompletionStyle(config: UnifiedConfig) {
+	switch (config.get('preferences.jsxAttributeCompletionStyle', 'auto')) {
 		case 'braces':
 			return 'braces';
 		case 'none':
@@ -130,10 +138,8 @@ function getJsxAttributeCompletionStyle(config: any) {
 	}
 }
 
-function getInlayParameterNameHintsPreference(config: any) {
-	switch (config.inlayHints?.parameterNames?.enabled) {
-		case 'none':
-			return 'none';
+function getInlayParameterNameHintsPreference(config: UnifiedConfig) {
+	switch (config.get('inlayHints.parameterNames.enabled', 'none')) {
 		case 'literals':
 			return 'literals';
 		case 'all':

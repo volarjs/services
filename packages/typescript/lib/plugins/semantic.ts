@@ -24,12 +24,13 @@ import * as tsWithImportCache from 'typescript-auto-import-cache';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
+import { createUnifiedConfig } from '../configs/getUnifiedConfig';
 import { getUserPreferences } from '../configs/getUserPreferences';
 import * as codeActions from '../semanticFeatures/codeAction';
 import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
 import * as semanticTokens from '../semanticFeatures/semanticTokens';
 import type { SharedContext } from '../semanticFeatures/types';
-import { getConfigTitle, isJsonDocument, isTsDocument, safeCall } from '../shared';
+import { isJsonDocument, isTsDocument, safeCall } from '../shared';
 import {
 	applyCompletionEntryDetails,
 	convertCallHierarchyIncomingCall,
@@ -92,10 +93,12 @@ export function create(
 	{
 		disableAutoImportCache = false,
 		isValidationEnabled = async (document, context) => {
-			return await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.validate.enable') ?? true;
+			const config = await createUnifiedConfig(context, document);
+			return config.get('validate.enabled', true);
 		},
 		isSuggestionsEnabled = async (document, context) => {
-			return await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.suggest.enabled') ?? true;
+			const config = await createUnifiedConfig(context, document);
+			return config.get('suggest.enabled', true);
 		},
 	}: {
 		disableAutoImportCache?: boolean;
@@ -422,9 +425,8 @@ export function create(
 						ctx.fileNameToUri,
 						ctx.getTextDocument,
 					);
-					const useCodeSnippetsOnMethodSuggest =
-						await ctx.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.suggest.completeFunctionCalls')
-							?? false;
+					const useCodeSnippetsOnMethodSuggest = (await createUnifiedConfig(ctx, document))
+						.get('suggest.completeFunctionCalls', false);
 					const useCodeSnippet = useCodeSnippetsOnMethodSuggest
 						&& (
 							item.kind === 3 satisfies typeof CompletionItemKind.Function
