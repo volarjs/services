@@ -7,7 +7,8 @@ import type {
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
-import { getConfigTitle, isTsDocument, safeCall } from '../shared';
+import { createUnifiedConfig } from '../configs/getUnifiedConfig';
+import { isTsDocument, safeCall } from '../shared';
 import { createSyntaxOnlyService } from '../syntaxOnlyService';
 import { convertNavTree, convertOutliningSpan, convertSelectionRange, convertTextChange } from '../utils/lspConverters';
 
@@ -46,7 +47,8 @@ export function create(
 	ts: typeof import('typescript'),
 	{
 		isFormattingEnabled = async (document, context) => {
-			return await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.format.enable') ?? true;
+			const config = await createUnifiedConfig(context, document);
+			return config.get('format.enabled', true);
 		},
 	}: {
 		isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
@@ -58,7 +60,11 @@ export function create(
 		capabilities: {
 			autoInsertionProvider: {
 				triggerCharacters: ['>', '>'],
-				configurationSections: ['javascript.autoClosingTags', 'typescript.autoClosingTags'],
+				configurationSections: [
+					'javascript.autoClosingTags',
+					'typescript.autoClosingTags',
+					'js/ts.autoClosingTags.enabled',
+				],
 			},
 			foldingRangeProvider: true,
 			selectionRangeProvider: true,
@@ -79,7 +85,7 @@ export function create(
 					if (
 						(document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact')
 						&& change.text.endsWith('>')
-						&& (await context.env.getConfiguration<boolean>?.(getConfigTitle(document) + '.autoClosingTags') ?? true)
+						&& (await createUnifiedConfig(context, document)).get('autoClosingTags.enabled', true)
 					) {
 						const { languageService, fileName } = getLanguageServiceByDocument(ts, document);
 						const close = languageService.getJsxClosingTagAtPosition(fileName, document.offsetAt(selection));
