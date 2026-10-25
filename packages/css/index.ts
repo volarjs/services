@@ -61,6 +61,9 @@ export function create({
 			},
 		};
 	},
+	isLanguageEnabled = async (languageId, context) => {
+		return await context.env.getConfiguration?.(languageId + '.languageService.enable') ?? true;
+	},
 	isFormattingEnabled = async (document, context) => {
 		return await context.env.getConfiguration?.(document.languageId + '.format.enable') ?? true;
 	},
@@ -108,6 +111,11 @@ export function create({
 	lessDocumentSelector?: DocumentSelector;
 	useDefaultDataProvider?: boolean;
 	getDocumentContext?(context: LanguageServiceContext): css.DocumentContext;
+	/**
+	 * Return `false` to let another language service handle documents of this language,
+	 * e.g. a dedicated Sass language server for `scss`.
+	 */
+	isLanguageEnabled?(languageId: string, context: LanguageServiceContext): ProviderResult<boolean>;
 	isFormattingEnabled?(document: TextDocument, context: LanguageServiceContext): ProviderResult<boolean>;
 	getFormattingOptions?(
 		document: TextDocument,
@@ -157,11 +165,13 @@ export function create({
 			};
 			const documentContext = getDocumentContext(context);
 			const disposable = onDidChangeCustomData(() => initializing = undefined, context);
+			const languageIds = getLanguageIds([...cssDocumentSelector, ...scssDocumentSelector, ...lessDocumentSelector]);
 
 			let cssLs: css.LanguageService | undefined;
 			let scssLs: css.LanguageService | undefined;
 			let lessLs: css.LanguageService | undefined;
 			let customData: css.ICSSDataProvider[] = [];
+			let disabledLanguages = new Set<string>();
 			let initializing: Promise<void> | undefined;
 
 			return {
@@ -386,6 +396,9 @@ export function create({
 			};
 
 			function getCssLs(document: TextDocument): css.LanguageService | undefined {
+				if (disabledLanguages.has(document.languageId)) {
+					return;
+				}
 				if (matchDocument(cssDocumentSelector, document)) {
 					if (!cssLs) {
 						cssLs = css.getCSSLanguageService({
@@ -428,12 +441,16 @@ export function create({
 				document: TextDocument,
 				callback: (stylesheet: css.Stylesheet, cssLs: css.LanguageService) => T,
 			) {
-				const cssLs = getCssLs(document);
-				if (!cssLs) {
+				if (!languageIds.has(document.languageId)) {
 					return;
 				}
 
 				await (initializing ??= initialize());
+
+				const cssLs = getCssLs(document);
+				if (!cssLs) {
+					return;
+				}
 
 				return callback(getStylesheet(document, cssLs), cssLs);
 			}
@@ -458,9 +475,30 @@ export function create({
 				cssLs?.setDataProviders(useDefaultDataProvider, customData);
 				scssLs?.setDataProviders(useDefaultDataProvider, customData);
 				lessLs?.setDataProviders(useDefaultDataProvider, customData);
+
+				const newDisabledLanguages = new Set<string>();
+				for (const languageId of languageIds) {
+					if (!await isLanguageEnabled(languageId, context)) {
+						newDisabledLanguages.add(languageId);
+					}
+				}
+				disabledLanguages = newDisabledLanguages;
 			}
 		},
 	};
+}
+
+function getLanguageIds(selector: DocumentSelector) {
+	const languageIds = new Set<string>();
+	for (const sel of selector) {
+		if (typeof sel === 'string') {
+			languageIds.add(sel);
+		}
+		else if (sel.language) {
+			languageIds.add(sel.language);
+		}
+	}
+	return languageIds;
 }
 
 function matchDocument(selector: DocumentSelector, document: TextDocument) {
