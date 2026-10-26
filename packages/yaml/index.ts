@@ -24,6 +24,9 @@ export function create({
 	getWorkspaceContextService = context => {
 		return {
 			resolveRelativePath(relativePath, resource) {
+				if (/^[a-z][a-z0-9+.-]*:/i.test(relativePath)) {
+					return relativePath;
+				}
 				const base = resource.substring(0, resource.lastIndexOf('/') + 1);
 				let baseUri = URI.parse(base);
 				const decoded = context.decodeEmbeddedDocumentUri(baseUri);
