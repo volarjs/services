@@ -25,6 +25,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 import { getFormatCodeSettings } from '../configs/getFormatCodeSettings';
 import { getUserPreferences } from '../configs/getUserPreferences';
+import { getTypeScriptLanguagePlugin, getTypeScriptProject } from '../project';
 import * as codeActions from '../semanticFeatures/codeAction';
 import * as codeActionResolve from '../semanticFeatures/codeActionResolve';
 import * as semanticTokens from '../semanticFeatures/semanticTokens';
@@ -175,11 +176,12 @@ export function create(
 			},
 		},
 		create(context): LanguageServicePluginInstance<Provide> {
-			if (!context.project.typescript) {
+			const project = getTypeScriptProject(context);
+			if (!project) {
 				console.warn(`[volar] typescript-semantic requires typescript project.`);
 				return {};
 			}
-			const { sys, languageServiceHost, uriConverter, getExtraServiceScript } = context.project.typescript;
+			const { sys, languageServiceHost, uriConverter, getExtraServiceScript } = project;
 			let languageService: ts.LanguageService;
 			let created: ReturnType<typeof tsWithImportCache.createLanguageService> | undefined;
 			if (disableAutoImportCache) {
@@ -221,9 +223,10 @@ export function create(
 
 					const uri = uriConverter.asUri(fileName);
 					const sourceScript = context.language.scripts.get(uri);
-					const serviceScript = sourceScript?.generated?.languagePlugin.typescript?.getServiceScript(
-						sourceScript.generated.root,
-					);
+					const serviceScript = sourceScript?.generated
+						&& getTypeScriptLanguagePlugin(sourceScript.generated.languagePlugin)?.getServiceScript(
+							sourceScript.generated.root,
+						);
 					if (sourceScript && serviceScript) {
 						return context.encodeEmbeddedDocumentUri(sourceScript.id, serviceScript.code.id);
 					}
@@ -299,7 +302,7 @@ export function create(
 						const uri = decoded ? decoded[0] : maybeEmbeddedUri;
 						const sourceScript = context.language.scripts.get(uri);
 						if (sourceScript?.generated) {
-							const tsCode = sourceScript.generated.languagePlugin.typescript?.getServiceScript(
+							const tsCode = getTypeScriptLanguagePlugin(sourceScript.generated.languagePlugin)?.getServiceScript(
 								sourceScript.generated.root,
 							);
 							if (tsCode) {
@@ -1000,7 +1003,7 @@ export function create(
 				}
 				const tsToken: ts.CancellationToken = {
 					isCancellationRequested() {
-						return ctx.project.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()
+						return getTypeScriptProject(ctx)?.languageServiceHost.getCancellationToken?.().isCancellationRequested()
 							?? false;
 					},
 					throwIfCancellationRequested() {},
@@ -1080,8 +1083,10 @@ export function create(
 				const decoded = context.decodeEmbeddedDocumentUri(uri);
 				const sourceScript = decoded && context.language.scripts.get(decoded[0]);
 				const virtualCode = decoded && sourceScript?.generated?.embeddedCodes.get(decoded[1]);
-				if (virtualCode && sourceScript?.generated?.languagePlugin.typescript) {
-					const { getServiceScript, getExtraServiceScripts } = sourceScript.generated.languagePlugin.typescript;
+				const languagePlugin = sourceScript?.generated
+					&& getTypeScriptLanguagePlugin(sourceScript.generated.languagePlugin);
+				if (virtualCode && sourceScript?.generated && languagePlugin) {
+					const { getServiceScript, getExtraServiceScripts } = languagePlugin;
 					const sourceFileName = uriConverter.asFileName(sourceScript.id);
 					if (getServiceScript(sourceScript.generated.root)?.code === virtualCode) {
 						return {

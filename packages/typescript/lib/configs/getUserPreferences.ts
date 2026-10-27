@@ -1,9 +1,9 @@
 import type { LanguageServiceContext } from '@volar/language-service';
-import type * as _ from '@volar/typescript';
 import * as path from 'path-browserify';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
+import { getTypeScriptProject } from '../project';
 import { getConfigTitle } from '../shared';
 
 export async function getUserPreferences(
@@ -11,8 +11,9 @@ export async function getUserPreferences(
 	document: TextDocument,
 ): Promise<ts.UserPreferences> {
 	let currentDirectory = '';
-	if (ctx.project.typescript) {
-		currentDirectory = ctx.project.typescript.languageServiceHost.getCurrentDirectory();
+	const project = getTypeScriptProject(ctx);
+	if (project) {
+		currentDirectory = project.languageServiceHost.getCurrentDirectory();
 	}
 	const uri = URI.parse(document.uri);
 	const documentUri = ctx.decodeEmbeddedDocumentUri(uri)?.[0] ?? uri;

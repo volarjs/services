@@ -25,8 +25,7 @@
 	},
 	"devDependencies": {
 		"@types/path-browserify": "latest",
-		"@types/semver": "latest",
-		"@volar/typescript": "~2.4.0"
+		"@types/semver": "latest"
 	},
 	"dependencies": {
 		"path-browserify": "^1.0.1",
