@@ -1,4 +1,4 @@
-import * as prettyhtml from '@starptech/prettyhtml';
+import prettyhtml = require('@starptech/prettyhtml');
 import type {
 	DocumentSelector,
 	FormattingOptions,
