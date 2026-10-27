@@ -2,6 +2,7 @@ import type * as vscode from '@volar/language-service';
 import type * as ts from 'typescript';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { URI } from 'vscode-uri';
+import { getTypeScriptProject } from '../project';
 import { safeCall } from '../shared';
 import type { SharedContext } from './types';
 
@@ -11,7 +12,7 @@ export function register(ts: typeof import('typescript'), ctx: SharedContext) {
 		const start = range ? document.offsetAt(range.start) : 0;
 		const length = range ? (document.offsetAt(range.end) - start) : document.getText().length;
 
-		if (ctx.project.typescript?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) {
+		if (getTypeScriptProject(ctx)?.languageServiceHost.getCancellationToken?.().isCancellationRequested()) {
 			return;
 		}
 		const response = safeCall(() =>
