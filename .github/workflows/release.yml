@@ -59,4 +59,4 @@ jobs:
         run: npm run build
 
       - name: Publish to NPM
-        run: lerna publish from-package --yes
+        run: lerna publish from-package --pre-dist-tag next --yes
