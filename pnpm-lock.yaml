@@ -167,9 +167,6 @@ importers:
       '@volar/language-service':
         specifier: ~3.0.0-alpha.0
         version: 3.0.0-alpha.0
-      '@vue/language-plugin-pug':
-        specifier: ^4.0.0-alpha.1
-        version: 4.0.0-alpha.1
       volar-service-html:
         specifier: 0.1.0-alpha.0
         version: link:../html
@@ -183,6 +180,9 @@ importers:
       '@types/node':
         specifier: latest
         version: 25.3.2
+      '@vue/language-plugin-pug':
+        specifier: 4.0.0-alpha.1
+        version: 4.0.0-alpha.1
 
   packages/pug-beautify:
     dependencies:
