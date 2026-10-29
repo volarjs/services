@@ -15,8 +15,13 @@
 		"@tsslint/compat-eslint": "latest",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"dprint": "latest",
-		"@volar/language-service": "~2.4.0",
+		"@volar/language-service": "~3.0.0-alpha.0",
 		"typescript": "latest",
 		"vitest": "latest"
+	},
+	"pnpm": {
+		"overrides": {
+			"@vue/language-plugin-pug>@volar/source-map": "~3.0.0-alpha.0"
+		}
 	}
 }

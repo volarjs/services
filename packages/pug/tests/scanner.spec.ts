@@ -35,7 +35,10 @@ function withSpanMap(pugDoc: PugDocument): PugDocument {
 		segments?: Segment[];
 		mappings?: { sourceOffsets: number[]; generatedOffsets: number[]; lengths: number[] }[];
 	};
-	const segments = source.segments ?? source.mappings!.flatMap(mapping =>
+	if (source.segments) {
+		return pugDoc;
+	}
+	const segments = source.mappings!.flatMap(mapping =>
 		mapping.sourceOffsets.map((sourceOffset, i): Segment => ({
 			virtualStart: mapping.generatedOffsets[i],
 			virtualEnd: mapping.generatedOffsets[i] + mapping.lengths[i],

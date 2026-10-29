@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@vue/language-plugin-pug>@volar/source-map': ~3.0.0-alpha.0
+
 importers:
 
   .:
@@ -21,8 +24,8 @@ importers:
         specifier: latest
         version: 8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.27.0)(typescript@5.9.3))(eslint@9.27.0)(typescript@5.9.3)
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       dprint:
         specifier: latest
         version: 0.52.0
@@ -36,8 +39,8 @@ importers:
   packages/css:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       vscode-css-languageservice:
         specifier: ^6.3.0
         version: 6.3.10
@@ -61,8 +64,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       '@vscode/emmet-helper':
         specifier: ^2.9.3
         version: 2.11.0
@@ -77,8 +80,8 @@ importers:
   packages/html:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       vscode-html-languageservice:
         specifier: ^5.3.0
         version: 5.6.2
@@ -96,8 +99,8 @@ importers:
   packages/json:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       vscode-json-languageservice:
         specifier: ^5.4.0
         version: 5.7.2
@@ -112,8 +115,8 @@ importers:
   packages/markdown:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.1
@@ -137,8 +140,8 @@ importers:
   packages/prettier:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       vscode-uri:
         specifier: ^3.0.8
         version: 3.1.0
@@ -156,17 +159,17 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
 
   packages/pug:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       '@vue/language-plugin-pug':
-        specifier: ~3.2.2
-        version: 3.2.5
+        specifier: ^4.0.0-alpha.1
+        version: 4.0.0-alpha.1
       volar-service-html:
         specifier: 0.0.71
         version: link:../html
@@ -187,8 +190,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
     devDependencies:
       '@types/node':
         specifier: latest
@@ -197,8 +200,8 @@ importers:
   packages/sass-formatter:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       sass-formatter:
         specifier: ^0.7.9
         version: 0.7.9
@@ -206,8 +209,8 @@ importers:
   packages/typescript:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -237,8 +240,8 @@ importers:
   packages/typescript-twoslash-queries:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       vscode-uri:
         specifier: ^3.0.8
         version: 3.1.0
@@ -250,8 +253,8 @@ importers:
   packages/yaml:
     dependencies:
       '@volar/language-service':
-        specifier: ~2.4.0
-        version: 2.4.28
+        specifier: ~3.0.0-alpha.0
+        version: 3.0.0-alpha.0
       vscode-uri:
         specifier: ^3.0.8
         version: 3.1.0
@@ -904,14 +907,20 @@ packages:
   '@volar/language-core@2.4.28':
     resolution: {integrity: sha512-w4qhIJ8ZSitgLAkVay6AbcnC7gP3glYM3fYwKV3srj8m494E3xtrCv6E+bWviiK/8hs6e6t1ij1s2Endql7vzQ==}
 
+  '@volar/language-core@3.0.0-alpha.0':
+    resolution: {integrity: sha512-uswxllbuTskkrfh0cJvhqFBsU+7pP8NXsauxydOQdh85UFq0T9jq3pnUVa7vYYB5IQo4zmPjGH8316uWw9ULZA==}
+
   '@volar/language-hub@0.0.1':
     resolution: {integrity: sha512-2eOUnlMKTyjtlXIVd+6pfAtcuVugxCOgpNgcLWmlPuncQTG5C1E5mTDL/PUMw7aEnLySUOtMTIp8lT3vk/7w6Q==}
 
-  '@volar/language-service@2.4.28':
-    resolution: {integrity: sha512-Rh/wYCZJrI5vCwMk9xyw/Z+MsWxlJY1rmMZPsxUoJKfzIRjS/NF1NmnuEcrMbEVGja00aVpCsInJfixQTMdvLw==}
+  '@volar/language-service@3.0.0-alpha.0':
+    resolution: {integrity: sha512-xpDRC42y66AOou2iTiSXxpr51Kc+FHGzKZH6XUM0ayt/wWAr2fuzWtk3j6W5hBdeu1S15xtwcizEPOotvEPiSg==}
 
   '@volar/source-map@2.4.28':
     resolution: {integrity: sha512-yX2BDBqJkRXfKw8my8VarTyjv48QwxdJtvRgUpNE5erCsgEUdI2DsLbpa+rOQVAJYshY99szEcRDmyHbF10ggQ==}
+
+  '@volar/source-map@3.0.0-alpha.0':
+    resolution: {integrity: sha512-b3AuLTrYP/4AozjaHXPkhjo3zeMVzd38SoYcZoomyEHwDSyk4xtqNHAkSvELQaWkiIsl9of4tPFxyzuuGG5UGw==}
 
   '@volar/typescript@2.4.28':
     resolution: {integrity: sha512-Ja6yvWrbis2QtN4ClAKreeUZPVYMARDYZl9LMEv1iQ1QdepB6wn0jTRxA9MftYmYa4DQ4k/DaSZpFPUfxl8giw==}
@@ -925,8 +934,8 @@ packages:
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
 
-  '@vue/language-plugin-pug@3.2.5':
-    resolution: {integrity: sha512-E98NSmXmlYd5HIrv2f3IbPE1dgKjKABlDCdySqMxrlQ/kh4fAf91mUoxQKsEKhikE62QIylFDts8S84/du5dfQ==}
+  '@vue/language-plugin-pug@4.0.0-alpha.1':
+    resolution: {integrity: sha512-l/NBda/XQ897XaSf5ff483z+JrDPa+ph0MMfK6pkThAvwSVOgEb3rGh755QxzlijgOAvDJg1DPEWvhupk2/gFQ==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1763,9 +1772,6 @@ packages:
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
-
-  muggle-string@0.4.1:
-    resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -3130,16 +3136,22 @@ snapshots:
     dependencies:
       '@volar/source-map': 2.4.28
 
+  '@volar/language-core@3.0.0-alpha.0':
+    dependencies:
+      '@volar/source-map': 3.0.0-alpha.0
+
   '@volar/language-hub@0.0.1': {}
 
-  '@volar/language-service@2.4.28':
+  '@volar/language-service@3.0.0-alpha.0':
     dependencies:
-      '@volar/language-core': 2.4.28
+      '@volar/language-core': 3.0.0-alpha.0
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
   '@volar/source-map@2.4.28': {}
+
+  '@volar/source-map@3.0.0-alpha.0': {}
 
   '@volar/typescript@2.4.28':
     dependencies:
@@ -3159,10 +3171,9 @@ snapshots:
 
   '@vscode/l10n@0.0.18': {}
 
-  '@vue/language-plugin-pug@3.2.5':
+  '@vue/language-plugin-pug@4.0.0-alpha.1':
     dependencies:
-      '@volar/source-map': 2.4.28
-      muggle-string: 0.4.1
+      '@volar/source-map': 3.0.0-alpha.0
       pug-lexer: 5.0.1
       pug-parser: 6.0.0
       vscode-languageserver-textdocument: 1.0.12
@@ -4005,8 +4016,6 @@ snapshots:
   minimist@1.2.8: {}
 
   ms@2.1.3: {}
-
-  muggle-string@0.4.1: {}
 
   nanoid@3.3.11: {}
 
