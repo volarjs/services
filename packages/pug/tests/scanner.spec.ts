@@ -20,30 +20,37 @@ function scanTokens(pugDoc: PugDocument, initialOffset?: number) {
 	return tokens;
 }
 
-// volar.js 3 maps with `[generatedStart, generatedLength, sourceStart, sourceLength, kind, features]` tuples
-// instead of `{ sourceOffsets, generatedOffsets, lengths }` objects.
-function withTupleMappings(pugDoc: PugDocument): PugDocument {
+interface Segment {
+	virtualStart: number;
+	virtualEnd: number;
+	originalStart: number;
+	originalEnd: number;
+}
+
+// volar.js 4 maps with `SpanMap` segments and `virtualToOriginalPositions`
+// instead of `{ sourceOffsets, generatedOffsets, lengths }` objects and `toSourceLocation`.
+function withSpanMap(pugDoc: PugDocument): PugDocument {
 	const [pugTextDocument, htmlTextDocument, mapper] = pugDoc.docs;
-	const mappings = mapper.mappings.flatMap(mapping =>
-		mapping.sourceOffsets.map((sourceOffset, i) => [
-			mapping.generatedOffsets[i],
-			mapping.generatedLengths?.[i] ?? mapping.lengths[i],
-			sourceOffset,
-			mapping.lengths[i],
-			0,
-			0,
-		])
+	const source = mapper as unknown as {
+		segments?: Segment[];
+		mappings?: { sourceOffsets: number[]; generatedOffsets: number[]; lengths: number[] }[];
+	};
+	const segments = source.segments ?? source.mappings!.flatMap(mapping =>
+		mapping.sourceOffsets.map((sourceOffset, i): Segment => ({
+			virtualStart: mapping.generatedOffsets[i],
+			virtualEnd: mapping.generatedOffsets[i] + mapping.lengths[i],
+			originalStart: sourceOffset,
+			originalEnd: sourceOffset + mapping.lengths[i],
+		}))
 	);
-	const tupleMapper = new Proxy(mapper, {
-		get(target, key) {
-			if (key === 'mappings') {
-				return mappings;
-			}
-			const value = Reflect.get(target, key);
-			return typeof value === 'function' ? value.bind(target) : value;
-		},
-	});
-	return { ...pugDoc, docs: [pugTextDocument, htmlTextDocument, tupleMapper] };
+	const spanMap = {
+		segments,
+		virtualToOriginalPositions: (offset: number) =>
+			segments
+				.filter(segment => segment.virtualStart <= offset && offset <= segment.virtualEnd)
+				.map(segment => ({ position: segment.originalStart + offset - segment.virtualStart })),
+	};
+	return { ...pugDoc, docs: [pugTextDocument, htmlTextDocument, spanMap as never] };
 }
 
 describe('pug scanner', () => {
@@ -60,9 +67,9 @@ describe('pug scanner', () => {
 		}
 	});
 
-	test('scans the same with volar.js 3 tuple mappings', () => {
-		expect(scanTokens(withTupleMappings(pugDoc))).toEqual(scanTokens(pugDoc));
+	test('scans the same with a volar.js 4 span map', () => {
+		expect(scanTokens(withSpanMap(pugDoc))).toEqual(scanTokens(pugDoc));
 		const initialOffset = pugCode.indexOf('a(');
-		expect(scanTokens(withTupleMappings(pugDoc), initialOffset)).toEqual(scanTokens(pugDoc, initialOffset));
+		expect(scanTokens(withSpanMap(pugDoc), initialOffset)).toEqual(scanTokens(pugDoc, initialOffset));
 	});
 });

@@ -3,8 +3,8 @@ import type { PugDocument } from '../pugDocument';
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugDoc: PugDocument, initialOffset = 0) => {
-		const htmlOffset = pugDoc.docs[2].mappings
-			.map(getStartOffsets)
+		const mapper = pugDoc.docs[2] as unknown as AnyMapper;
+		const htmlOffset = getStartOffsets(mapper)
 			.filter(([sourceOffset]) => sourceOffset >= initialOffset)
 			.sort((a, b) => a[1] - b[1])[0]
 			?.[1];
@@ -21,16 +21,10 @@ export function register(htmlLs: html.LanguageService) {
 				return htmlScanner.scan();
 			},
 			getTokenOffset: () => {
-				for (const [offset] of pugDoc.docs[2].toSourceLocation(htmlScanner.getTokenOffset())) {
-					return offset;
-				}
-				return -1;
+				return toSourceOffset(mapper, htmlScanner.getTokenOffset());
 			},
 			getTokenEnd: () => {
-				for (const [offset] of pugDoc.docs[2].toSourceLocation(htmlScanner.getTokenEnd())) {
-					return offset;
-				}
-				return -1;
+				return toSourceOffset(mapper, htmlScanner.getTokenEnd());
 			},
 			getTokenText: htmlScanner.getTokenText,
 			getTokenLength: htmlScanner.getTokenLength,
@@ -42,12 +36,31 @@ export function register(htmlLs: html.LanguageService) {
 	};
 }
 
-// @volar/language-service 2 maps with `{ sourceOffsets, generatedOffsets }` objects,
-// volar.js 3 with `[generatedStart, generatedLength, sourceStart, sourceLength, kind, features]` tuples.
-function getStartOffsets(mapping: unknown): [sourceOffset: number, generatedOffset: number] {
-	if (Array.isArray(mapping)) {
-		return [mapping[2], mapping[0]];
+// @volar/language-service 2 maps with `{ sourceOffsets, generatedOffsets }` objects and `toSourceLocation`,
+// volar.js 4 with `SpanMap` segments and `virtualToOriginalPositions`.
+type AnyMapper =
+	| {
+		mappings: { sourceOffsets: number[]; generatedOffsets: number[] }[];
+		toSourceLocation(offset: number): Iterable<[number, unknown]>;
 	}
-	const { sourceOffsets, generatedOffsets } = mapping as { sourceOffsets: number[]; generatedOffsets: number[] };
-	return [sourceOffsets[0], generatedOffsets[0]];
+	| {
+		segments: readonly { virtualStart: number; originalStart: number }[];
+		virtualToOriginalPositions(offset: number): readonly { position: number }[];
+	};
+
+function getStartOffsets(mapper: AnyMapper): [sourceOffset: number, generatedOffset: number][] {
+	if ('segments' in mapper) {
+		return mapper.segments.map(segment => [segment.originalStart, segment.virtualStart]);
+	}
+	return mapper.mappings.map(mapping => [mapping.sourceOffsets[0], mapping.generatedOffsets[0]]);
+}
+
+function toSourceOffset(mapper: AnyMapper, offset: number) {
+	if ('segments' in mapper) {
+		return mapper.virtualToOriginalPositions(offset)[0]?.position ?? -1;
+	}
+	for (const [sourceOffset] of mapper.toSourceLocation(offset)) {
+		return sourceOffset;
+	}
+	return -1;
 }
