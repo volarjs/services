@@ -18,10 +18,5 @@
 		"@volar/language-service": "~3.0.0-alpha.0",
 		"typescript": "latest",
 		"vitest": "latest"
-	},
-	"pnpm": {
-		"overrides": {
-			"@vue/language-plugin-pug>@volar/source-map": "~3.0.0-alpha.0"
-		}
 	}
 }
