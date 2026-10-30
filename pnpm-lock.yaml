@@ -168,7 +168,7 @@ importers:
         specifier: ~3.0.0-alpha.0
         version: 3.0.0-alpha.0
       volar-service-html:
-        specifier: 0.1.0-alpha.1
+        specifier: 0.1.0-alpha.2
         version: link:../html
       vscode-html-languageservice:
         specifier: ^5.3.0
@@ -247,7 +247,7 @@ importers:
         version: 3.1.0
     devDependencies:
       volar-service-typescript:
-        specifier: 0.1.0-alpha.1
+        specifier: 0.1.0-alpha.2
         version: link:../typescript
 
   packages/yaml:
