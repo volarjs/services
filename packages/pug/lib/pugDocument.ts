@@ -9,14 +9,14 @@ export interface PugDocument extends ReturnType<ReturnType<typeof register>> {}
 
 export function register(htmlLs: html.LanguageService) {
 	return (pugCode: string) => {
-		const { segments, ...parsed } = parse(pugCode);
+		const { pieces, ...parsed } = parse(pugCode);
 		const pugTextDocument = TextDocument.create('file:///file.pug', 'pug', 0, pugCode);
 		const htmlTextDocument = TextDocument.create('foo.html', 'html', 0, parsed.htmlCode);
 		const htmlDocument = htmlLs.parseHTMLDocument(htmlTextDocument);
 		const docs: DocumentsAndMap = [
 			pugTextDocument,
 			htmlTextDocument,
-			defaultMapperFactory(buildMappings(segments)),
+			defaultMapperFactory(buildMappings(pieces)),
 		];
 
 		return {
