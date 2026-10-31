@@ -1,26 +1,26 @@
 import { SpanMapKind, type SpanMapSegment } from '@volar/language-service';
 import type { PugParseResult } from 'muggle-pug';
 
-/** The mappings from the HTML of `pieces` to the pug code. */
-export function buildMappings(pieces: PugParseResult['pieces']) {
-	let length = 0;
+/** The HTML of `pieces`, and the mappings from it to `pugCode`. */
+export function buildHTML(pugCode: string, pieces: PugParseResult['pieces']) {
+	let html = '';
 	const mappings: SpanMapSegment[] = [];
 	for (const piece of pieces) {
 		if (typeof piece === 'string') {
-			length += piece.length;
+			html += piece;
 			continue;
 		}
 		const { start, end } = piece;
-		const htmlLength = piece.text?.length ?? end - start;
+		const text = piece.text ?? pugCode.slice(start, end);
 		mappings.push({
-			virtualStart: length,
-			virtualEnd: length + htmlLength,
+			virtualStart: html.length,
+			virtualEnd: html.length + text.length,
 			originalStart: start,
 			originalEnd: end,
 			kind: SpanMapKind.Verbatim,
 			features: 0,
 		});
-		length += htmlLength;
+		html += text;
 	}
-	return mappings;
+	return { html, mappings };
 }
