@@ -16,9 +16,13 @@ export function register(htmlLs: html.LanguageService) {
 		documentContext?: html.DocumentContext,
 		options?: html.CompletionConfiguration,
 	) => {
-		const offset = pugDoc.pugTextDocument.offsetAt(pos);
+		const line = pugDoc.pugTextDocument.getText({
+			start: { line: pos.line, character: 0 },
+			end: { line: pos.line + 1, character: 0 },
+		}).replace(/\r?\n$/, '');
 
-		if (pugDoc.emptyLineEnds.includes(offset)) {
+		// the end of an empty line, where a tag starts
+		if (line.trim() === '' && pos.character === line.length) {
 			const htmlComplete = htmlLs.doComplete(
 				docForEmptyLineCompletion,
 				posForEmptyLine,
