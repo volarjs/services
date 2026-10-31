@@ -1,8 +1,8 @@
 import { SpanMapKind, type SpanMapSegment } from '@volar/language-service';
-import type { PugParseResult } from 'muggle-pug';
+import type { ParseResult } from 'muggle-pug';
 
 /** The HTML of `pieces`, and the mappings from it to `pugCode`. */
-export function buildHTML(pugCode: string, pieces: PugParseResult['pieces']) {
+export function buildHTML(pugCode: string, pieces: ParseResult['pieces']) {
 	let html = '';
 	const mappings: SpanMapSegment[] = [];
 	for (const piece of pieces) {

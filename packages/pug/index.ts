@@ -84,7 +84,7 @@ export function create({
 								source: 'pug',
 								severity: 1 satisfies typeof DiagnosticSeverity.Error,
 								code: pugDocument.error.code,
-								message: pugDocument.error.msg,
+								message: pugDocument.error.message,
 								range: {
 									start: { line: pugDocument.error.line, character: pugDocument.error.column },
 									end: { line: pugDocument.error.line, character: pugDocument.error.column },
