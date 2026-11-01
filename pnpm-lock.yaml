@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@vue/language-plugin-pug>@volar/source-map': ~3.0.0-alpha.0
-
 importers:
 
   .:
@@ -167,6 +164,9 @@ importers:
       '@volar/language-service':
         specifier: ~3.0.0-alpha.0
         version: 3.0.0-alpha.0
+      muggle-pug:
+        specifier: ^0.1.0
+        version: 0.1.0
       volar-service-html:
         specifier: 0.1.0-alpha.2
         version: link:../html
@@ -180,9 +180,6 @@ importers:
       '@types/node':
         specifier: latest
         version: 25.3.2
-      '@vue/language-plugin-pug':
-        specifier: 4.0.0-alpha.1
-        version: 4.0.0-alpha.1
 
   packages/pug-beautify:
     dependencies:
@@ -933,9 +930,6 @@ packages:
 
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
-
-  '@vue/language-plugin-pug@4.0.0-alpha.1':
-    resolution: {integrity: sha512-l/NBda/XQ897XaSf5ff483z+JrDPa+ph0MMfK6pkThAvwSVOgEb3rGh755QxzlijgOAvDJg1DPEWvhupk2/gFQ==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1772,6 +1766,14 @@ packages:
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  muggle-pug@0.1.0:
+    resolution: {integrity: sha512-YA7LTVUWYr0M9W9J/SFC1iLo/XDPKR2uX2MWMxq39cWdtuTaTrkG7QpWNE6vP4dPQ/UKy5pXE7L1uBfJGysVaw==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+
+  muggle-string@1.0.0:
+    resolution: {integrity: sha512-TIHQgdyxVPc6+vjbhx7dC6J7vKD6jvmSKEqkfRqoDmFB0wiq8N154HiZf1nz0ul19caDgJ3ndg8uKjSVNDq+Qg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -3171,13 +3173,6 @@ snapshots:
 
   '@vscode/l10n@0.0.18': {}
 
-  '@vue/language-plugin-pug@4.0.0-alpha.1':
-    dependencies:
-      '@volar/source-map': 3.0.0-alpha.0
-      pug-lexer: 5.0.1
-      pug-parser: 6.0.0
-      vscode-languageserver-textdocument: 1.0.12
-
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
       acorn: 8.16.0
@@ -4016,6 +4011,14 @@ snapshots:
   minimist@1.2.8: {}
 
   ms@2.1.3: {}
+
+  muggle-pug@0.1.0:
+    dependencies:
+      muggle-string: 1.0.0
+      pug-lexer: 5.0.1
+      pug-parser: 6.0.0
+
+  muggle-string@1.0.0: {}
 
   nanoid@3.3.11: {}
 
