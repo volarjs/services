@@ -1,5 +1,5 @@
 import { SpanMapKind, type SpanMapSegment } from '@volar/language-service';
-import type { CompileResult } from 'muggle-pug';
+import type { CompileResult } from 'muggle-pug' with { 'resolution-mode': 'import' };
 
 /** The HTML of `pieces`, and the mappings from it to `pugCode`. */
 export function buildHTML(pugCode: string, pieces: CompileResult['pieces']) {
