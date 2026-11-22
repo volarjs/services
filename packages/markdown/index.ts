@@ -351,7 +351,8 @@ export function create({
 						if (decoded) {
 							return {
 								uri: decoded[0],
-								children: [],
+								// Include the embedded document itself so its headers are found
+								children: [{ uri: resource }],
 							};
 						}
 					},
